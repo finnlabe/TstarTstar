@@ -28,7 +28,8 @@ void TriggerEffPlots(TString filename="uhh2.AnalysisModuleRunner.MC.MC_TstarTsta
   //Files after selection
   //We expect histograms filled with and without trigger selection stored in the same file
   //  TString path = "/nfs/dust/cms/user/karavdia/TstarTstar/102X_v1/Preselection/RunII_2016_MuonHihjPtId_cutBasedPhotonIDlooseFall17/semileptonic/";
-  TString path = "/nfs/dust/cms/user/karavdia/TstarTstar/102X_v1/Preselection/RunII_2016_MuonHihjPtId_cutBasedPhotonIDlooseFall17_nonIsoHLT/semileptonic/";
+  //  TString path = "/nfs/dust/cms/user/karavdia/TstarTstar/102X_v1/Preselection/RunII_2016_MuonHihjPtId_cutBasedPhotonIDlooseFall17_nonIsoHLT/semileptonic/";
+  TString path = "/nfs/dust/cms/user/karavdia/TstarTstar/102X_v1/Preselection/RunII_2016_MuonHihjPtId_cutBasedPhotonIDlooseFall17_nonIsoandIsoHLT_addTTBarRECO/semileptonic/";
   TFile *input = TFile::Open(path+filename);
   TH1D *hist_trigger = (TH1D*)input->Get(subpath+"/"+histname);//histogram after trigger selection
   TH1D *hist_denom = (TH1D*)input->Get(subdenomname+"/"+histname);//histogram before trigger selection

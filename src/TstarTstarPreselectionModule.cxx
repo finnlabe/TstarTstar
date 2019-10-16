@@ -23,10 +23,10 @@ using namespace uhh2;
 
 namespace uhh2 {
 
-/** \brief Module for the T*T*->ttbar gg MC based study  
+/** \brief Module for the T*T*->ttbar gg/gamma preselection
  *  
- * This is the central class which calls other AnalysisModules, Hists or Selection classes.
- * This AnalysisModule, in turn, is called (via AnalysisModuleRunner) by SFrame.
+ * Corrects all objects via CommonModules and applies some loose cuts
+ *
  */
 class TstarTstarPreselectionModule: public AnalysisModule {
 public:
@@ -38,6 +38,7 @@ private:
     
     // Apply common modules: JetPFid, JEC, JER, MET corrections, etc
     std::unique_ptr<CommonModules> common;
+    std::unique_ptr<MuonCleaner>                     muon_cleaner;//DEBUG
 
     // Declare the Selections to use. Use unique_ptr to ensure automatic call of delete in the destructor,
     // to avoid memory leaks.
@@ -99,7 +100,11 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
     MuonId muID;
     double muon_pt(20.);
     muID = MuonID(Muon::Highpt);
-    common->set_muon_id(AndId<Muon>(PtEtaCut(muon_pt, 1.9), muID));
+    const MuonId muonID(AndId<Muon>(PtEtaCut(muon_pt, 1.9), muID));
+    //    const MuonId muonID(PtEtaCut(muon_pt, 1.9));
+    //    muon_cleaner.reset(new MuonCleaner(muonID));
+    common->set_muon_id(muonID);
+    //    common->set_muon_id(AndId<Muon>(PtEtaCut(muon_pt, 1.9), muID));
     common->init(ctx);
     
     // 2. set up selections
@@ -149,13 +154,20 @@ bool TstarTstarPreselectionModule::process(Event & event) {
    
   if(debug)   
     cout << "TstarTstarPreselectionModule: Starting to process event (runid, eventid) = (" << event.run << ", " << event.event << "); weight = " << event.weight << endl;
-    
+  if(debug)
+    cout<<"N muons = "<<event.muons->size()<<", N electrons = "<<event.electrons->size()<<", N photons = "<<event.photons->size()<<endl;
+  for(auto& muo : *event.muons){
+    if(debug) cout<<"BEFORE Muon (pt,eta): "<<muo.pt()<<", "<<muo.eta()<<endl;
+  }
   h_nocuts->fill(event);
   if(debug) cout<<"Filled hists without any cuts"<<endl;
 
-  common->process(event);
+  bool result_com_sel = common->process(event);
+  if(!result_com_sel) return false;
   h_common->fill(event);
   if(debug) cout<<"Filled hists after common modules"<<endl;
+
+  //  muon_cleaner->process(event);//debug
 
   //---- Loose selection
   // Require at least one Muon or one Electron
@@ -163,14 +175,19 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   if(!pass_lep1) return false;
   h_lepsel->fill(event);
   if(debug) cout<<"Filled hists after lepton"<<endl;
+  if(debug)
+    cout<<"N muons = "<<event.muons->size()<<", N electrons = "<<event.electrons->size()<<", N photons = "<<event.photons->size()<<endl;
+
   // Lepton-2Dcut variables
   for(auto& muo : *event.muons){
+    if(debug) cout<<"AFTER Muon (pt,eta): "<<muo.pt()<<", "<<muo.eta()<<endl;
     float    dRmin, pTrel;
     std::tie(dRmin, pTrel) = drmin_pTrel(muo, *event.jets);
     muo.set_tag(Muon::twodcut_dRmin, dRmin);
     muo.set_tag(Muon::twodcut_pTrel, pTrel);
   }
   for(auto& ele : *event.electrons){
+    if(debug) cout<<"Electron (pt,eta): "<<ele.pt()<<", "<<ele.eta()<<endl;
     float    dRmin, pTrel;
     std::tie(dRmin, pTrel) = drmin_pTrel(ele, *event.jets);
     ele.set_tag(Electron::twodcut_dRmin, dRmin);

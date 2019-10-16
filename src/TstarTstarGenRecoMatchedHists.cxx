@@ -82,6 +82,7 @@ TstarTstarGenRecoMatchedHists::TstarTstarGenRecoMatchedHists(Context & ctx, cons
 
 
 void TstarTstarGenRecoMatchedHists::fill(const Event & event){
+  //  cout<<"TstarTstarGenRecoMatchedHists::fill start"<<endl;
   if(!is_mc) return;
   assert(event.genparticles);
   // Don't forget to always use the weight when filling.
@@ -134,6 +135,7 @@ void TstarTstarGenRecoMatchedHists::fill(const Event & event){
 
 
   }
+  //  cout<<"TstarTstarGenRecoMatchedHists::fill step 2"<<endl;
   if(!found_tstar || !found_antitstar) return;
   if(!found_top || !found_antitop) return;
   if(!found_gluon1 && !found_gluon2 && !found_photon1 && !found_photon2) return;
@@ -160,7 +162,7 @@ void TstarTstarGenRecoMatchedHists::fill(const Event & event){
   auto W1d2 = W1->daughter(event.genparticles,2);
   auto W2d1 = W2->daughter(event.genparticles,1);
   auto W2d2 = W2->daughter(event.genparticles,2);
-  // cout<<"Look ar Ws daughters "<<endl;
+  // cout<<"Look at Ws daughters "<<endl;
   // cout<<"W1 id1 = "<<fabs(W1d1->pdgId())<<" W2 id1 = "<<fabs(W2d1->pdgId())<<endl;
   // cout<<"W1 id2 = "<<fabs(W1d2->pdgId())<<" W2 id2 = "<<fabs(W2d2->pdgId())<<endl;
 
@@ -347,6 +349,7 @@ void TstarTstarGenRecoMatchedHists::fill(const Event & event){
   hist("N_top_AK8matched")->Fill(topAK8match, weight);
 
 
+  //  cout<<"TstarTstarGenRecoMatchedHists: All hists are filled "<<endl;
 
  //  book<TH1F>("Lep_dR_gamma", "dR_{#gamma}(GEN,RECO)", 20, 0, 1.2);  
  //  book<TH1F>("Lep_Pt_ratio_gamma", "p_{T}^{#gamma}/p_{T}^{#gamma}", 20, 0, 2);  

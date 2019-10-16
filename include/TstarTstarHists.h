@@ -1,6 +1,7 @@
 #pragma once
 
 #include "UHH2/core/include/Hists.h"
+#include "UHH2/core/include/Event.h"
 
 namespace uhh2{
 
