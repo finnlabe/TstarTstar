@@ -63,7 +63,7 @@ private:
   std::unique_ptr<Hists> h_semilepttbarmatch_triggerSingleJet_genreco, h_semilepttbarmatch_triggerSingleLeptonMu_genreco, h_semilepttbarmatch_triggerSingleLeptonEle_genreco, h_semilepttbarmatch_triggerHT_genreco, h_semilepttbarmatch_triggerPFHT_genreco;
   std::unique_ptr<Hists> h_semilepttbarmatch_triggerSingleJet_genreco_mu, h_semilepttbarmatch_triggerHT_genreco_mu, h_semilepttbarmatch_triggerPFHT_genreco_mu;
   std::unique_ptr<Hists> h_semilepttbarmatch_triggerSingleJet_genreco_ele, h_semilepttbarmatch_triggerHT_genreco_ele, h_semilepttbarmatch_triggerPFHT_genreco_ele;
-  
+
   bool isTrigger = false;
   //  bool debug = true;
   bool debug = false;
@@ -101,12 +101,20 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
     eleID = ElectronID_Summer16_tight_noIso;
     common->set_electron_id(AndId<Electron>(PtEtaSCCut(electron_pt, 2.5), eleID));
 
+    
     PhotonId phoID; 
     double photon_pt(20.);
-    //    phoID = PhotonTagID(Photon::cutBasedPhotonID_Spring16_V2p2_tight);
-    //    phoID = PhotonTagID(Photon::cutBasedPhotonID_Spring16_V2p2_loose);
-    phoID = PhotonTagID(Photon::cutBasedPhotonID_Fall17_94X_V2_loose);
-    common->set_photon_id(AndId<Photon>(PtEtaCut(photon_pt, 5.2), phoID));
+    // read in desired photonID from config file
+    if (ctx.get("PhotonID") == "cutBasedPhotonIDlooseFall17"){phoID = PhotonTagID(Photon::cutBasedPhotonID_Fall17_94X_V2_loose);}
+    else if (ctx.get("PhotonID") == "cutBasedPhotonIDmediumFall17"){phoID = PhotonTagID(Photon::cutBasedPhotonID_Fall17_94X_V2_medium);}
+    else if (ctx.get("PhotonID") == "cutBasedPhotonIDtightFall17"){phoID = PhotonTagID(Photon::cutBasedPhotonID_Fall17_94X_V2_tight);}
+    else if (ctx.get("PhotonID") == "mvaPhoIDwp90Fall17"){phoID = PhotonTagID(Photon::mvaPhoID_Fall17_iso_V2_wp90);}
+    else if (ctx.get("PhotonID") == "mvaPhoIDwp80Fall17"){phoID = PhotonTagID(Photon::mvaPhoID_Fall17_iso_V2_wp80);}
+    else {cout << "error: unrecognized photonID "  << ctx.get("PhotonID") << endl;}
+
+    if (ctx.get("PhotonID") != "noPhotonID") {common->set_photon_id(AndId<Photon>(PtEtaCut(photon_pt, 5.2), phoID));}
+    else {common->set_photon_id(PtEtaCut(photon_pt, 5.2));}
+    
 
     MuonId muID;
     double muon_pt(20.);
