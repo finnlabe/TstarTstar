@@ -74,6 +74,11 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   book<TH1F>("pt_MET", "missing E_{T} [GeV]", 100, 10, 2000);
   book<TH1F>("pt_ST_jets", "S_{T}^{jets}=#sum_{i}|AK4 p^{i}_{T}| [GeV/c]", 100, 10, 4000);
 
+  //M_Tstar
+  h_M_Tstar_gluon_ = ctx.get_handle< float >("M_Tstar_gluon");
+  h_M_Tstar_gamma_ = ctx.get_handle< float >("M_Tstar_gamma");
+  book<TH1F>("M_Tstar", "M_{Tstar} [GeV]", 20, 0, 2000);
+
 }
 
 
@@ -173,6 +178,9 @@ void TstarTstarHists::fill(const Event & event){
   double st_jets = 0.;
   for(const auto & jet : *jets) st_jets += jet.pt();
   hist("pt_ST_jets")->Fill(st_jets, weight);
+
+  hist("M_Tstar")->Fill(event.get(h_M_Tstar_gluon_));
+  hist("M_Tstar")->Fill(event.get(h_M_Tstar_gamma_));
 
 }
 

@@ -15,10 +15,13 @@
 #include "UHH2/TstarTstar/include/TstarTstarHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarGenHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarGenRecoMatchedHists.h"
+#include "UHH2/TstarTstar/include/TstarTstarReconstructionModules.h"
 
+/**
 #include "UHH2/common/include/TTbarReconstruction.h"
 #include "UHH2/common/include/ReconstructionHypothesis.h"
 #include "UHH2/common/include/ReconstructionHypothesisDiscriminators.h"
+**/
 
 using namespace std;
 using namespace uhh2;
@@ -33,29 +36,29 @@ namespace uhh2 {
 class TstarTstarMCStudyModule: public AnalysisModule {
 public:
     
-    explicit TstarTstarMCStudyModule(Context & ctx);
-    virtual bool process(Event & event) override;
-
+  explicit TstarTstarMCStudyModule(Context & ctx);
+  virtual bool process(Event & event) override;
+  
 private:
     
-    // Apply common modules: JetPFid, JEC, JER, MET corrections, etc
-    std::unique_ptr<CommonModules> common;
-
-    // Declare the Selections to use. Use unique_ptr to ensure automatic call of delete in the destructor,
-    // to avoid memory leaks.
-    unique_ptr<Selection> twodcut_sel;   
-    unique_ptr<Selection> TTbarSemiLepMatchable_selection;
-    unique_ptr<Selection> triggerSingleJet450_sel;
-    unique_ptr<Selection> triggerSingleLeptonEle1_sel;
-    unique_ptr<Selection> triggerSingleLeptonEle2_sel;
-    unique_ptr<Selection> triggerSingleLeptonEle3_sel;
-    unique_ptr<Selection> triggerSingleLeptonMu1_sel;
-    unique_ptr<Selection> triggerSingleLeptonMu2_sel;
-    unique_ptr<Selection> triggerSingleLeptonMu3_sel;
-    unique_ptr<Selection> triggerSingleLeptonMu4_sel;
-    unique_ptr<Selection> triggerHT1_sel, triggerHT2_sel, triggerHT3_sel, triggerHT4_sel, triggerHT5_sel,  triggerHT6_sel;
-    unique_ptr<Selection> triggerPFHT_sel;
-    // Store the Hists collection as member variables. Again, use unique_ptr to avoid memory leaks.
+  // Apply common modules: JetPFid, JEC, JER, MET corrections, etc
+  std::unique_ptr<CommonModules> common;
+  
+  // Declare the Selections to use. Use unique_ptr to ensure automatic call of delete in the destructor,
+  // to avoid memory leaks.
+  unique_ptr<Selection> twodcut_sel;   
+  unique_ptr<Selection> TTbarSemiLepMatchable_selection;
+  unique_ptr<Selection> triggerSingleJet450_sel;
+  unique_ptr<Selection> triggerSingleLeptonEle1_sel;
+  unique_ptr<Selection> triggerSingleLeptonEle2_sel;
+  unique_ptr<Selection> triggerSingleLeptonEle3_sel;
+  unique_ptr<Selection> triggerSingleLeptonMu1_sel;
+  unique_ptr<Selection> triggerSingleLeptonMu2_sel;
+  unique_ptr<Selection> triggerSingleLeptonMu3_sel;
+  unique_ptr<Selection> triggerSingleLeptonMu4_sel;
+  unique_ptr<Selection> triggerHT1_sel, triggerHT2_sel, triggerHT3_sel, triggerHT4_sel, triggerHT5_sel,  triggerHT6_sel;
+  unique_ptr<Selection> triggerPFHT_sel;
+  // Store the Hists collection as member variables. Again, use unique_ptr to avoid memory leaks.
   std::unique_ptr<Hists> h_nocuts, h_common, h_lepsel, h_njetsel, h_2dcut, h_semilepttbarmatch, h_nosemilepttbarmatch;
   std::unique_ptr<Hists> h_semilepttbarmatch_triggerSingleJet, h_semilepttbarmatch_triggerSingleLeptonMu, h_semilepttbarmatch_triggerSingleLeptonEle, h_semilepttbarmatch_triggerHT, h_semilepttbarmatch_triggerPFHT;
   std::unique_ptr<Hists> h_semilepttbarmatch_gen;
@@ -63,14 +66,21 @@ private:
   std::unique_ptr<Hists> h_semilepttbarmatch_triggerSingleJet_genreco, h_semilepttbarmatch_triggerSingleLeptonMu_genreco, h_semilepttbarmatch_triggerSingleLeptonEle_genreco, h_semilepttbarmatch_triggerHT_genreco, h_semilepttbarmatch_triggerPFHT_genreco;
   std::unique_ptr<Hists> h_semilepttbarmatch_triggerSingleJet_genreco_mu, h_semilepttbarmatch_triggerHT_genreco_mu, h_semilepttbarmatch_triggerPFHT_genreco_mu;
   std::unique_ptr<Hists> h_semilepttbarmatch_triggerSingleJet_genreco_ele, h_semilepttbarmatch_triggerHT_genreco_ele, h_semilepttbarmatch_triggerPFHT_genreco_ele;
-
+  std::unique_ptr<Hists> h_matching;
+  
   bool isTrigger = false;
-  //  bool debug = true;
+  //bool debug = true;
   bool debug = false;
   std::unique_ptr<uhh2::AnalysisModule> reco_primlep;
   std::unique_ptr<uhh2::AnalysisModule> ttbar_reco;
+  std::unique_ptr<ttbarChi2Discriminator> ttbar_discriminator;
+  std::unique_ptr<TstarTstar_Reconstruction> TstarTstar_reco;
+
   uhh2::Event::Handle<std::vector<ReconstructionHypothesis>> h_ttbar_hyps;
+  uhh2::Event::Handle<bool> h_is_ttbar_reconstructed;
   uhh2::Event::Handle<ReconstructionHypothesis> h_recohyp;
+  uhh2::Event::Handle<float> h_M_Tstar_gluon;
+  uhh2::Event::Handle<float> h_M_Tstar_gamma;
 };
 
 
@@ -144,9 +154,6 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
     triggerSingleLeptonMu3_sel.reset(new TriggerSelection("HLT_IsoMu24_v*"));
     triggerSingleLeptonMu4_sel.reset(new TriggerSelection("HLT_IsoTkMu24_v*"));
 
-
-
-
     triggerHT1_sel.reset(new TriggerSelection("HLT_HT430to450_v*"));
     triggerHT2_sel.reset(new TriggerSelection("HLT_HT450to470_v*"));
     triggerHT3_sel.reset(new TriggerSelection("HLT_HT470to500_v*"));
@@ -191,6 +198,8 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
     h_semilepttbarmatch_triggerSingleLeptonMu_genreco.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerSingleLeptonMu"));
     h_semilepttbarmatch_triggerSingleLeptonEle_genreco.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerSingleLeptonEle"));
 
+    h_matching.reset(new TstarTstarHists(ctx, "AfterMatching"));
+
     //4. Set up ttbar reconstruction
     const std::string ttbar_hyps_label("TTbarReconstruction");
     const std::string ttbar_chi2_label("Chi2");
@@ -198,7 +207,16 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
     ttbar_reco.reset(new HighMassTTbarReconstruction(ctx, NeutrinoReconstruction,ttbar_hyps_label));
     h_ttbar_hyps = ctx.get_handle<std::vector<ReconstructionHypothesis>>(ttbar_hyps_label);
 
+    h_is_ttbar_reconstructed = ctx.get_handle< bool >("is_ttbar_reconstructed_chi2");
+
     h_recohyp = ctx.declare_event_output<ReconstructionHypothesis>(ttbar_hyps_label+"_best");
+
+    ttbar_discriminator.reset(new ttbarChi2Discriminator(ctx));
+
+    h_M_Tstar_gluon = ctx.get_handle< float >("M_Tstar_gluon");
+    h_M_Tstar_gamma = ctx.get_handle< float >("M_Tstar_gamma");
+
+    TstarTstar_reco.reset(new TstarTstar_Reconstruction(ctx));
 
 }
 
@@ -213,6 +231,10 @@ bool TstarTstarMCStudyModule::process(Event & event) {
       cout<<" thisgamma.pt() = "<<thisgamma.pt()<<" thisgamma.eta() = "<<thisgamma.eta()<<endl;
     }
   }
+
+  event.set(h_M_Tstar_gluon, 0.);
+  event.set(h_M_Tstar_gamma, 0.);
+  event.set(h_is_ttbar_reconstructed, false);
 
   h_nocuts->fill(event);
   common->process(event);
@@ -315,18 +337,34 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   }
 
   reco_primlep->process(event);//set "primary lepton"
-  ttbar_reco->process(event);
+  if(debug) {cout << "Starting ttbar reconstruction... ";}\
+  ttbar_reco->process(event);//reconstruct ttbar
 
-  // save only the chi2-best ttbar hypothesis in output sub-ntuple
-  std::vector<ReconstructionHypothesis>& hyps = event.get(h_ttbar_hyps);
+  /**
+  // goal: save only the chi2-best ttbar hypothesis in output sub-ntuple
+  std::vector<ReconstructionHypothesis>& hyps = event.get(h_ttbar_hyps); //hyps contains all hypothesises
   if(debug) cout<<"Number of ttbar hyps = "<<hyps.size()<<endl;
-  //  const ReconstructionHypothesis* hyp = get_best_hypothesis(hyps, "Chi2");
+  //  const ReconstructionHypothesis* hyp = get_best_hypothesis(hyps, "Chi2"); TODO
   ReconstructionHypothesis hyp;
   if(hyps.size()>0) hyp = hyps.at(0);//FixMe: change placeholder to "best hypothesis" candidate
   if(debug) cout<<" Best hypothesis ...  "<<hyp.neutrino_v4()<<endl;
   hyps.clear();
   if(debug) cout<<" Best hypothesis copied ...  "<<endl;
-  event.set(h_recohyp, hyp);
+  event.set(h_recohyp, hyp); //save "best" hypothesis in event
+  **/
+
+  if(debug) {cout << "Finished. Finding best Hypothesis..."<< endl;}	\
+  ttbar_discriminator->process(event);
+  
+  if(event.get(h_is_ttbar_reconstructed)){
+    TstarTstar_reco->process(event);
+    h_matching->fill(event);
+  }
+  else{
+    if(debug){cout << "Event has no best hypothesis!" << endl;}
+  }
+  
+  if(debug){cout << "Done ##################################" << endl << endl;}
   return true;
 }
 

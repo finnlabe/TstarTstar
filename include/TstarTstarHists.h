@@ -19,6 +19,11 @@ public:
 
     virtual void fill(const uhh2::Event & ev) override;
     virtual ~TstarTstarHists();
+
+  private:
+    uhh2::Event::Handle< float > h_M_Tstar_gluon_;
+    uhh2::Event::Handle< float > h_M_Tstar_gamma_;
+
 };
 
 }
