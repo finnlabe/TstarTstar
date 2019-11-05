@@ -77,8 +77,20 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   //M_Tstar
   h_M_Tstar_gluon_ = ctx.get_handle< float >("M_Tstar_gluon");
   h_M_Tstar_gamma_ = ctx.get_handle< float >("M_Tstar_gamma");
-  book<TH1F>("M_Tstar", "M_{Tstar} [GeV]", 20, 0, 2000);
+  book<TH1F>("M_Tstar_gluon", "M_{T^{*}_{gluon}} [GeV]", 30, 0, 3000);
+  book<TH1F>("M_Tstar_gamma", "M_{T^{*}_{gamma}} [GeV]", 30, 0, 3000);
 
+  //Delta_R
+  h_DeltaR_toplep_ak8jet1_ = ctx.get_handle< float >("DeltaR_toplep_ak8jet1");
+  h_DeltaR_tophad_ak8jet1_ = ctx.get_handle< float >("DeltaR_tophad_ak8jet1");
+  h_DeltaR_toplep_ak8jet2_ = ctx.get_handle< float >("DeltaR_toplep_ak8jet2");
+  h_DeltaR_tophad_ak8jet2_ = ctx.get_handle< float >("DeltaR_tophad_ak8jet2");
+  const Int_t NBINS = 12;
+  Double_t edges[NBINS + 1] = {0, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.75, 1, 1.5, 2, 3.2};
+  book<TH1F>("DeltaR_toplep_ak8jet1", "DeltaR_toplep_ak8jet1", NBINS, edges);
+  book<TH1F>("DeltaR_tophad_ak8jet1", "DeltaR_tophad_ak8jet1", NBINS, edges);
+  book<TH1F>("DeltaR_toplep_ak8jet2", "DeltaR_toplep_ak8jet2", NBINS, edges);
+  book<TH1F>("DeltaR_tophad_ak8jet2", "DeltaR_tophad_ak8jet2", NBINS, edges);
 }
 
 
@@ -179,8 +191,24 @@ void TstarTstarHists::fill(const Event & event){
   for(const auto & jet : *jets) st_jets += jet.pt();
   hist("pt_ST_jets")->Fill(st_jets, weight);
 
-  hist("M_Tstar")->Fill(event.get(h_M_Tstar_gluon_));
-  hist("M_Tstar")->Fill(event.get(h_M_Tstar_gamma_));
+  hist("M_Tstar_gluon")->Fill(event.get(h_M_Tstar_gluon_), weight);
+  hist("M_Tstar_gamma")->Fill(event.get(h_M_Tstar_gamma_), weight);
+
+  float val_ = event.get(h_DeltaR_toplep_ak8jet1_);
+  float binwidth_ = hist("DeltaR_toplep_ak8jet1")->GetXaxis()->GetBinWidth( hist("DeltaR_toplep_ak8jet1")->GetXaxis()->FindBin(val_) );
+  hist("DeltaR_toplep_ak8jet1")->Fill(val_, weight / binwidth_);
+
+  val_ = event.get(h_DeltaR_tophad_ak8jet1_);
+  binwidth_ = hist("DeltaR_tophad_ak8jet1")->GetXaxis()->GetBinWidth( hist("DeltaR_tophad_ak8jet1")->GetXaxis()->FindBin(val_) );
+  hist("DeltaR_tophad_ak8jet1")->Fill(val_, weight / binwidth_);
+
+  val_ = event.get(h_DeltaR_toplep_ak8jet2_);
+  binwidth_ = hist("DeltaR_toplep_ak8jet2")->GetXaxis()->GetBinWidth( hist("DeltaR_toplep_ak8jet2")->GetXaxis()->FindBin(val_) );
+  hist("DeltaR_toplep_ak8jet2")->Fill(val_, weight / binwidth_);
+
+  val_ = event.get(h_DeltaR_tophad_ak8jet2_);
+  binwidth_ = hist("DeltaR_tophad_ak8jet2")->GetXaxis()->GetBinWidth( hist("DeltaR_tophad_ak8jet2")->GetXaxis()->FindBin(val_) );
+  hist("DeltaR_tophad_ak8jet2")->Fill(val_, weight / binwidth_);
 
 }
 

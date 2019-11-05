@@ -46,10 +46,11 @@ void photonSelecPlots(TString filename="uhh2.AnalysisModuleRunner.MC.MC_TstarTst
     hist->SetMarkerStyle(20);
     hist->SetMarkerColor(i+1);
     if (i == 0) {
+      hist->GetXaxis()->SetTitle("N_{\gamma}");
       hist->Draw();
     }
     else {
-      hist->GetXaxis()->SetTitle(hist->GetTitle());
+      hist->GetXaxis()->SetTitle("N_{\gamma}");
       hist->Draw("same");
     }
   }

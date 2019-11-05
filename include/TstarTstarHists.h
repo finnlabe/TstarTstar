@@ -23,6 +23,10 @@ public:
   private:
     uhh2::Event::Handle< float > h_M_Tstar_gluon_;
     uhh2::Event::Handle< float > h_M_Tstar_gamma_;
+    uhh2::Event::Handle< float > h_DeltaR_toplep_ak8jet1_;
+    uhh2::Event::Handle< float > h_DeltaR_tophad_ak8jet1_;
+    uhh2::Event::Handle< float > h_DeltaR_toplep_ak8jet2_;
+    uhh2::Event::Handle< float > h_DeltaR_tophad_ak8jet2_;
 
 };
 

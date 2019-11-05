@@ -81,6 +81,11 @@ private:
   uhh2::Event::Handle<ReconstructionHypothesis> h_recohyp;
   uhh2::Event::Handle<float> h_M_Tstar_gluon;
   uhh2::Event::Handle<float> h_M_Tstar_gamma;
+
+  uhh2::Event::Handle<float> h_DeltaR_toplep_ak8jet1;
+  uhh2::Event::Handle<float> h_DeltaR_tophad_ak8jet1;
+  uhh2::Event::Handle<float> h_DeltaR_toplep_ak8jet2;
+  uhh2::Event::Handle<float> h_DeltaR_tophad_ak8jet2;
 };
 
 
@@ -218,6 +223,11 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
 
     TstarTstar_reco.reset(new TstarTstar_Reconstruction(ctx));
 
+    h_DeltaR_toplep_ak8jet1 = ctx.get_handle< float >("DeltaR_toplep_ak8jet1");
+    h_DeltaR_tophad_ak8jet1 = ctx.get_handle< float >("DeltaR_tophad_ak8jet1");
+    h_DeltaR_toplep_ak8jet2 = ctx.get_handle< float >("DeltaR_toplep_ak8jet2");
+    h_DeltaR_tophad_ak8jet2 = ctx.get_handle< float >("DeltaR_tophad_ak8jet2");
+
 }
 
 
@@ -235,6 +245,13 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   event.set(h_M_Tstar_gluon, 0.);
   event.set(h_M_Tstar_gamma, 0.);
   event.set(h_is_ttbar_reconstructed, false);
+
+  event.set(h_DeltaR_toplep_ak8jet1, 999);
+  event.set(h_DeltaR_tophad_ak8jet1, 999);
+  event.set(h_DeltaR_toplep_ak8jet2, 999);
+  event.set(h_DeltaR_tophad_ak8jet2, 999);
+
+  if(debug){cout << "Finished initialization of Handle Variables" << endl;}
 
   h_nocuts->fill(event);
   common->process(event);
@@ -339,6 +356,7 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   reco_primlep->process(event);//set "primary lepton"
   if(debug) {cout << "Starting ttbar reconstruction... ";}\
   ttbar_reco->process(event);//reconstruct ttbar
+  
 
   /**
   // goal: save only the chi2-best ttbar hypothesis in output sub-ntuple
@@ -357,13 +375,14 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   ttbar_discriminator->process(event);
   
   if(event.get(h_is_ttbar_reconstructed)){
-    TstarTstar_reco->process(event);
-    h_matching->fill(event);
+    if(TstarTstar_reco->process(event)){
+      h_matching->fill(event);
+    }
   }
   else{
     if(debug){cout << "Event has no best hypothesis!" << endl;}
   }
-  
+
   if(debug){cout << "Done ##################################" << endl << endl;}
   return true;
 }

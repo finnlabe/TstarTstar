@@ -25,7 +25,7 @@ private:
   float sigmatoplep_, sigmatoplep_ttag_;
   float mtophad_, mtophad_ttag_;
   float sigmatophad_, sigmatophad_ttag_;
-
+  
 };
 
 class TstarTstar_Reconstruction : uhh2::AnalysisModule{
@@ -39,9 +39,16 @@ private:
   uhh2::Event::Handle<float> h_M_Tstar_gluon_;
   uhh2::Event::Handle<float> h_M_Tstar_gamma_;
 
+  uhh2::Event::Handle<float> h_DeltaR_toplep_ak8jet1_;
+  uhh2::Event::Handle<float> h_DeltaR_tophad_ak8jet1_;
+  uhh2::Event::Handle<float> h_DeltaR_toplep_ak8jet2_;
+  uhh2::Event::Handle<float> h_DeltaR_tophad_ak8jet2_;
+
+
   std::vector<Jet> used_jets_;
   std::vector<Jet> unused_jets_;
   std::vector<Jet> all_jets_;
+  std::vector<TopJet> all_topjets_;
 
   LorentzVector toplep_v4_;
   LorentzVector tophad_v4_;
