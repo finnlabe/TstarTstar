@@ -15,13 +15,6 @@ namespace {
 
 }
 
-//Method to calculate DeltaR. Will change to passing two Particles instead of four floats.
-float calculateDeltaR(float eta1_, float eta2_, float phi1_, float phi2_){
-  float Deta_ = eta1_ - eta2_;
-  float Dphi_ = phi1_ - phi2_;
-  return sqrt( pow(Deta_, 2) + pow(Dphi_, 2) );
-}
-
 ttbarChi2Discriminator::ttbarChi2Discriminator(uhh2::Context& ctx){
 
   //Getting needed Handles
@@ -176,13 +169,13 @@ bool TstarTstar_Reconstruction::process(uhh2::Event& event){
 
   for(uint j = 0; j < all_topjets_.size(); j++){
     for (uint i = 0; i < hyp.tophad_jets().size(); i++){
-      float DeltaR_new = calculateDeltaR(hyp.tophad_jets().at(i).eta(), all_topjets_.at(j).eta(), hyp.tophad_jets().at(i).phi(), all_topjets_.at(j).phi()); 
+      float DeltaR_new = deltaR(hyp.tophad_jets().at(i), all_topjets_.at(j)); 
       if(DeltaR_new < DeltaR_min){
 	DeltaR_min = DeltaR_new;
       }
     }
     for (uint i = 0; i < hyp.toplep_jets().size(); i++){
-      float DeltaR_new = calculateDeltaR(hyp.toplep_jets().at(i).eta(), all_topjets_.at(j).eta(), hyp.toplep_jets().at(i).phi(), all_topjets_.at(j).phi()); 
+      float DeltaR_new = deltaR(hyp.toplep_jets().at(i), all_topjets_.at(j)); 
       if(DeltaR_new < DeltaR_min){
 	DeltaR_min = DeltaR_new;
       }

@@ -87,10 +87,17 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   h_DeltaR_tophad_ak8jet1_ = ctx.get_handle< float >("DeltaR_tophad_ak8jet1");
   h_DeltaR_toplep_ak8jet2_ = ctx.get_handle< float >("DeltaR_toplep_ak8jet2");
   h_DeltaR_tophad_ak8jet2_ = ctx.get_handle< float >("DeltaR_tophad_ak8jet2");
+  h_recohyp_ = ctx.get_handle<ReconstructionHypothesis>("TTbarReconstruction_best");
+  
   book<TH1F>("DeltaR_toplep_ak8jet1", "DeltaR_toplep_ak8jet1", 40, 0, 4);
   book<TH1F>("DeltaR_tophad_ak8jet1", "DeltaR_tophad_ak8jet1", 40, 0, 4);
   book<TH1F>("DeltaR_toplep_ak8jet2", "DeltaR_toplep_ak8jet2", 40, 0, 4);
   book<TH1F>("DeltaR_tophad_ak8jet2", "DeltaR_tophad_ak8jet2", 40, 0, 4);
+
+  book<TH1F>("DeltaR_toplep_gamma", "DeltaR_toplep_gamma", 40, 0, 4);
+  book<TH1F>("DeltaR_tophad_gamma", "DeltaR_tophad_gamma", 40, 0, 4);
+  book<TH1F>("DeltaR_gamma_ak8jet1", "DeltaR_gamma_ak8jet1", 40, 0, 4);
+  book<TH1F>("DeltaR_gamma_ak8jet2", "DeltaR_gamma_ak8jet2", 40, 0, 4);
 }
 
 
@@ -198,6 +205,7 @@ void TstarTstarHists::fill(const Event & event){
   hist("M_Tstar_gluon")->Fill(event.get(h_M_Tstar_gluon_), weight);
   hist("M_Tstar_gamma")->Fill(event.get(h_M_Tstar_gamma_), weight);
 
+  //TODO Remove Handles, calculate this here!
   float val_ = event.get(h_DeltaR_toplep_ak8jet1_);
   float binwidth_ = hist("DeltaR_toplep_ak8jet1")->GetXaxis()->GetBinWidth( hist("DeltaR_toplep_ak8jet1")->GetXaxis()->FindBin(val_) );
   hist("DeltaR_toplep_ak8jet1")->Fill(val_, weight / binwidth_);
@@ -213,6 +221,14 @@ void TstarTstarHists::fill(const Event & event){
   val_ = event.get(h_DeltaR_tophad_ak8jet2_);
   binwidth_ = hist("DeltaR_tophad_ak8jet2")->GetXaxis()->GetBinWidth( hist("DeltaR_tophad_ak8jet2")->GetXaxis()->FindBin(val_) );
   hist("DeltaR_tophad_ak8jet2")->Fill(val_, weight / binwidth_);
+
+  //TODO All other DeltaRs
+  ReconstructionHypothesis hyp = event.get(h_recohyp_);
+  hist("DeltaR_toplep_gamma")->Fill(0., weight);
+  hist("DeltaR_tophad_gamma")->Fill(0., weight);
+  if(event.topjets->size()>0 && event.photons->size()>0){hist("DeltaR_gamma_ak8jet1")->Fill( deltaR(event.photons->at(0), event.topjets->at(0)) , weight);}
+  if(event.topjets->size()>1 && event.photons->size()>0){hist("DeltaR_gamma_ak8jet2")->Fill( deltaR(event.photons->at(0), event.topjets->at(1)) , weight);}
+
 
 }
 
