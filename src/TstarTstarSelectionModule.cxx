@@ -56,6 +56,8 @@ private:
     unique_ptr<Selection> triggerSingleLeptonMu3_sel;
     unique_ptr<Selection> triggerSingleLeptonMu4_sel;
     unique_ptr<Selection> triggerHT1_sel, triggerHT2_sel, triggerHT3_sel, triggerHT4_sel, triggerHT5_sel,  triggerHT6_sel;
+  unique_ptr<Selection>  met_sel, st_sel;
+
     unique_ptr<AnalysisModule> LumiWeight_module;
     // Store the Hists collection as member variables. Again, use unique_ptr to avoid memory leaks.
   //  std::unique_ptr<Hists> h_nocuts, h_common, h_lepsel, h_2dcut, h_semilepttbarmatch, h_nosemilepttbarmatch;// h_trigger;
@@ -140,13 +142,18 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
     triggerSingleLeptonMu3_sel.reset(new TriggerSelection("HLT_IsoMu24_v*"));
     triggerSingleLeptonMu4_sel.reset(new TriggerSelection("HLT_IsoTkMu24_v*"));
 
+    //MET selection
+    met_sel.reset(new METCut  (50.,1e6));
+
+    //ST selection
+    st_sel.reset(new STCut  (500.,1e6));
 
     //Match to semileptonic ttbar
     TTbarSemiLepMatchable_selection.reset(new TTbarSemiLepMatchableSelection());// for x-checks
 
 
     // 3. Set up Hists
-    vector<string> histogram_tags = {"PreSelection","PreSelection_mu","PreSelection_ele","triggerSingleLeptonMu",
+    vector<string> histogram_tags = {"PreSelection","PreSelection_mu","PreSelection_ele","MET","MET_mu","MET_ele","ST","ST_mu","ST_ele","triggerSingleLeptonMu",
 				     "triggerSingleLeptonEle","triggerSingleJet_mu","triggerSingleJet_ele",
 				     "triggerHT_mu","triggerHT_ele","triggerPFHT_mu","triggerPFHT_ele"};
     book_histograms(ctx, histogram_tags);
@@ -165,7 +172,22 @@ bool TstarTstarSelectionModule::process(Event & event) {
  if(debug)   
    cout << "pass_ttbarsemilep" <<endl;
  if(event.jets->size()<1) return false;//FixMe: why this is happening?
-  bool pass_trigger_SingleJet = (triggerSingleJet450_sel->passes(event) && event.jets->at(0).pt()>450);
+
+ bool pass_MET =  met_sel->passes(event);
+ if(!pass_MET) return false;
+
+ fill_histograms(event, "MET", pass_ttbarsemilep);
+ if(event.muons->size() == 1) fill_histograms(event, "MET_mu", pass_ttbarsemilep);
+ if(event.electrons->size() == 1) fill_histograms(event, "MET_ele", pass_ttbarsemilep);
+
+ bool pass_ST =  st_sel->passes(event);
+ if(!pass_ST) return false;
+ fill_histograms(event, "ST", pass_ttbarsemilep);
+ if(event.muons->size() == 1) fill_histograms(event, "ST_mu", pass_ttbarsemilep);
+ if(event.electrons->size() == 1) fill_histograms(event, "ST_ele", pass_ttbarsemilep);
+
+
+  bool pass_trigger_SingleJet = (triggerSingleJet450_sel->passes(event) && event.jets->at(0).pt()>500);
   if(pass_trigger_SingleJet){
     if(event.muons->size() == 1) fill_histograms(event, "triggerSingleJet_mu", pass_ttbarsemilep);
     if(event.electrons->size() == 1) fill_histograms(event, "triggerSingleJet_ele", pass_ttbarsemilep);
@@ -176,28 +198,38 @@ bool TstarTstarSelectionModule::process(Event & event) {
   bool pass_trigger_SingleMu = (triggerSingleLeptonMu1_sel->passes(event) || triggerSingleLeptonMu2_sel->passes(event) 
 				|| triggerSingleLeptonMu3_sel->passes(event) || triggerSingleLeptonMu4_sel->passes(event));
 
-  if(pass_trigger_SingleMu) fill_histograms(event, "triggerSingleLeptonMu", pass_ttbarsemilep);
+  if(pass_trigger_SingleMu){
+    if((event.muons->size() == 1) && (event.muons->at(0).pt()>60))
+      fill_histograms(event, "triggerSingleLeptonMu", pass_ttbarsemilep); //FixMe: each Muon trigger should have its own threshold
+  }
  if(debug)   
    cout << "pass_trigger_SingleMu" <<endl;
 
  bool pass_trigger_SingleEle = (triggerSingleLeptonEle1_sel->passes(event) || triggerSingleLeptonEle2_sel->passes(event) || triggerSingleLeptonEle3_sel->passes(event));
-  if(pass_trigger_SingleEle) fill_histograms(event, "triggerSingleLeptonEle", pass_ttbarsemilep);
+ if(pass_trigger_SingleEle){
+   if((event.electrons->size() == 1) && (event.electrons->at(0).pt()>120)) 
+     fill_histograms(event, "triggerSingleLeptonEle", pass_ttbarsemilep); //FixMe: each Electron trigger should have its own threshold
+ }
  if(debug)   
    cout << "pass_trigger_SingleEle" <<endl;
 
-  bool pass_trigegr_HT = triggerHT1_sel->passes(event) || triggerHT2_sel->passes(event) || triggerHT3_sel->passes(event) 
-      || triggerHT4_sel->passes(event) || triggerHT5_sel->passes(event) || triggerHT6_sel->passes(event);
+ double st_jets = 0.;
+ std::vector<Jet>* jets = event.jets;
+ for(const auto & jet : *jets) st_jets += jet.pt();
+
+ bool pass_trigegr_HT = (triggerHT1_sel->passes(event) || triggerHT2_sel->passes(event) || triggerHT3_sel->passes(event) 
+    || triggerHT4_sel->passes(event) || triggerHT5_sel->passes(event) || triggerHT6_sel->passes(event));
   if(pass_trigegr_HT){
-    if(event.muons->size() == 1) fill_histograms(event, "triggerHT_mu", pass_ttbarsemilep);
-    if(event.electrons->size() == 1) fill_histograms(event, "triggerHT_ele", pass_ttbarsemilep);
+    if((event.muons->size() == 1) && st_jets>650) fill_histograms(event, "triggerHT_mu", pass_ttbarsemilep); //FixME: each HT trigger should have different st_jets threshold
+    if((event.electrons->size() == 1) && st_jets>650) fill_histograms(event, "triggerHT_ele", pass_ttbarsemilep);
   }
  if(debug)   
    cout << "pass_trigegr_HT" <<endl;
 
   bool pass_trigegr_PFHT = triggerPFHT_sel->passes(event);
   if(pass_trigegr_PFHT){
-    if(event.muons->size() == 1) fill_histograms(event, "triggerPFHT_mu", pass_ttbarsemilep);
-    if(event.electrons->size() == 1) fill_histograms(event, "triggerPFHT_ele", pass_ttbarsemilep);
+    if((event.muons->size() == 1) && st_jets>900) fill_histograms(event, "triggerPFHT_mu", pass_ttbarsemilep); //FixME: PFHT trigger might have different st_jets threshold
+    if((event.electrons->size() == 1) && st_jets>900) fill_histograms(event, "triggerPFHT_ele", pass_ttbarsemilep);
   }
  if(debug)   
    cout << "pass_trigegr_PFHT"<<endl;

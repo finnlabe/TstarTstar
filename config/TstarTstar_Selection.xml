@@ -6,7 +6,7 @@
 <!ENTITY CHANNEL "semileptonic"> 
 
 <!-- <!ENTITY OUTPUTdir           "/nfs/dust/cms/user/karavdia/TstarTstar/102X_v1/Preselection_DATA/RunII_2016_NoTriggers_Fall17loosePho_CutTightSum16Ele_HighPtMu/&CHANNEL;/"> -->
-<!ENTITY OUTPUTdir  "/nfs/dust/cms/user/karavdia/TstarTstar/102X_v1/Selection_DATA/RunII_2016_NoTriggers_Fall17loosePho_CutTightSum16Ele_HighPtMu_IsoNonIsoLepHLT/&CHANNEL;/">
+<!ENTITY OUTPUTdir  "/nfs/dust/cms/user/karavdia/TstarTstar/102X_v1/Selection_DATA/RunII_2016_NoTriggers_Fall17loosePho_CutTightSum16Ele_HighPtMu_IsoNonIsoLepHLT_HLTroughThresh_METcut50_STcut/&CHANNEL;/">
 <!ENTITY PRESELdir   "/nfs/dust/cms/user/karavdia/TstarTstar/102X_v1/Preselection_DATA/RunII_2016_NoTriggers_Fall17loosePho_CutTightSum16Ele_HighPtMu/&CHANNEL;/">
 
 
@@ -17,14 +17,30 @@
 <!ENTITY MC_TstarTstarToTgluonTgluon_M-1100_Run2016v3     "&PRESELdir;uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1100_Run2016v3.root">
 <!ENTITY MC_TstarTstarToTgluonTgluon_M-1200_Run2016v3     "&PRESELdir;uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1200_Run2016v3.root">
 <!ENTITY MC_TstarTstarToTgluonTgluon_M-1300_Run2016v3     "&PRESELdir;uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1300_Run2016v3.root">
+<!ENTITY MC_TstarTstarToTgluonTgluon_M-1400_Run2016v3     "&PRESELdir;uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1400_Run2016v3.root">
 <!ENTITY MC_TstarTstarToTgluonTgluon_M-1500_Run2016v3     "&PRESELdir;uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1500_Run2016v3.root">
 <!ENTITY MC_TstarTstarToTgluonTgluon_M-1600_Run2016v3     "&PRESELdir;uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1600_Run2016v3.root">
 
 <!ENTITY MC_TstarTstarToTgammaTgamma_M-700_Run2016v3     "&PRESELdir;uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgammaTgamma_M-700_Run2016v3.root">
 <!ENTITY MC_TstarTstarToTgammaTgamma_M-800_Run2016v3     "&PRESELdir;uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgammaTgamma_M-800_Run2016v3.root">
 <!ENTITY MC_TstarTstarToTgammaTgamma_M-900_Run2016v3     "&PRESELdir;uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgammaTgamma_M-900_Run2016v3.root">
+<!ENTITY MC_TstarTstarToTgammaTgamma_M-1000_Run2016v3     "&PRESELdir;uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgammaTgamma_M-1000_Run2016v3.root">
 <!ENTITY MC_TstarTstarToTgammaTgamma_M-1100_Run2016v3     "&PRESELdir;uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgammaTgamma_M-1100_Run2016v3.root">
+<!ENTITY MC_TstarTstarToTgammaTgamma_M-1200_Run2016v3     "&PRESELdir;uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgammaTgamma_M-1200_Run2016v3.root">
+<!ENTITY MC_TstarTstarToTgammaTgamma_M-1300_Run2016v3     "&PRESELdir;uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgammaTgamma_M-1300_Run2016v3.root">
+<!ENTITY MC_TstarTstarToTgammaTgamma_M-1400_Run2016v3     "&PRESELdir;uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgammaTgamma_M-1400_Run2016v3.root">
+<!ENTITY MC_TstarTstarToTgammaTgamma_M-1500_Run2016v3     "&PRESELdir;uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgammaTgamma_M-1500_Run2016v3.root">
+<!ENTITY MC_TstarTstarToTgammaTgamma_M-1600_Run2016v3     "&PRESELdir;uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgammaTgamma_M-1600_Run2016v3.root">
 
+
+<!ENTITY MC_TstarTstarToTgammaTgluon_M-700_Run2016v3     "&PRESELdir;uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgammaTgluon_M-700_Run2016v3.root">
+<!ENTITY MC_TstarTstarToTgammaTgluon_M-800_Run2016v3     "&PRESELdir;uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgammaTgluon_M-800_Run2016v3.root">
+<!ENTITY MC_TstarTstarToTgammaTgluon_M-900_Run2016v3     "&PRESELdir;uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgammaTgluon_M-900_Run2016v3.root">
+<!ENTITY MC_TstarTstarToTgammaTgluon_M-1000_Run2016v3     "&PRESELdir;uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgammaTgluon_M-1000_Run2016v3.root">
+<!ENTITY MC_TstarTstarToTgammaTgluon_M-1100_Run2016v3     "&PRESELdir;uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgammaTgluon_M-1100_Run2016v3.root">
+<!ENTITY MC_TstarTstarToTgammaTgluon_M-1200_Run2016v3     "&PRESELdir;uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgammaTgluon_M-1200_Run2016v3.root">
+<!ENTITY MC_TstarTstarToTgammaTgluon_M-1300_Run2016v3     "&PRESELdir;uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgammaTgluon_M-1300_Run2016v3.root">
+<!ENTITY MC_TstarTstarToTgammaTgluon_M-1400_Run2016v3     "&PRESELdir;uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgammaTgluon_M-1400_Run2016v3.root">
 <!ENTITY MC_TstarTstarToTgammaTgluon_M-1500_Run2016v3     "&PRESELdir;uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgammaTgluon_M-1500_Run2016v3.root">
 <!ENTITY MC_TstarTstarToTgammaTgluon_M-1600_Run2016v3     "&PRESELdir;uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgammaTgluon_M-1600_Run2016v3.root">
 
@@ -117,7 +133,7 @@
 ]>
 
 <!--
-<ConfigParse NEventsBreak="0" LastBreak="0" FileSplit="2" AutoResubmit="100"/>
+<ConfigParse NEventsBreak="0" LastBreak="0" FileSplit="5" AutoResubmit="100"/>
 <ConfigSGE RAM="2" DISK="2" Mail="anastasia.karavdina@desy.de" Notification="as" Workdir="workdir_TstarTstar_DATA_2016v3_SELECTION"/>
 -->
 
@@ -500,7 +516,6 @@
           <InputTree Name="AnalysisTree"/>
           <OutputTree Name="AnalysisTree"/>
 	</InputData>
-
 
         <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgamma_M-700_Run2016v3" Cacheable="False">
 	  <In FileName="&MC_TstarTstarToTgammaTgamma_M-700_Run2016v3;" Lumi="0.0" />

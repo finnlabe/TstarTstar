@@ -4,17 +4,33 @@
 <!ENTITY MC_TstarTstarToTgluonTgluon_M-700_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-700.xml">
 <!ENTITY MC_TstarTstarToTgluonTgluon_M-800_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-800.xml">
 <!ENTITY MC_TstarTstarToTgluonTgluon_M-900_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-900.xml">
+<!ENTITY MC_TstarTstarToTgluonTgluon_M-1000_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-1000.xml">
 <!ENTITY MC_TstarTstarToTgluonTgluon_M-1100_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-1100.xml">
 <!ENTITY MC_TstarTstarToTgluonTgluon_M-1200_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-1200.xml">
 <!ENTITY MC_TstarTstarToTgluonTgluon_M-1300_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-1300.xml">
+<!ENTITY MC_TstarTstarToTgluonTgluon_M-1400_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-1400.xml">
 <!ENTITY MC_TstarTstarToTgluonTgluon_M-1500_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-1500.xml">
 <!ENTITY MC_TstarTstarToTgluonTgluon_M-1600_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-1600.xml">
 
 <!ENTITY MC_TstarTstarToTgammaTgamma_M-700_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgammaTgamma_M-700.xml">
 <!ENTITY MC_TstarTstarToTgammaTgamma_M-800_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgammaTgamma_M-800.xml">
 <!ENTITY MC_TstarTstarToTgammaTgamma_M-900_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgammaTgamma_M-900.xml">
+<!ENTITY MC_TstarTstarToTgammaTgamma_M-1000_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgammaTgamma_M-1000.xml">
 <!ENTITY MC_TstarTstarToTgammaTgamma_M-1100_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgammaTgamma_M-1100.xml">
+<!ENTITY MC_TstarTstarToTgammaTgamma_M-1200_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgammaTgamma_M-1200.xml">
+<!ENTITY MC_TstarTstarToTgammaTgamma_M-1300_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgammaTgamma_M-1300.xml">
+<!ENTITY MC_TstarTstarToTgammaTgamma_M-1400_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgammaTgamma_M-1400.xml">
+<!ENTITY MC_TstarTstarToTgammaTgamma_M-1500_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgammaTgamma_M-1500.xml">
+<!ENTITY MC_TstarTstarToTgammaTgamma_M-1600_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgammaTgamma_M-1600.xml">
 
+<!ENTITY MC_TstarTstarToTgammaTgluon_M-700_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgammaTgluon_M-700.xml">
+<!ENTITY MC_TstarTstarToTgammaTgluon_M-800_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgammaTgluon_M-800.xml">
+<!ENTITY MC_TstarTstarToTgammaTgluon_M-900_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgammaTgluon_M-900.xml">
+<!ENTITY MC_TstarTstarToTgammaTgluon_M-1000_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgammaTgluon_M-1000.xml">
+<!ENTITY MC_TstarTstarToTgammaTgluon_M-1100_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgammaTgluon_M-1100.xml">
+<!ENTITY MC_TstarTstarToTgammaTgluon_M-1200_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgammaTgluon_M-1200.xml">
+<!ENTITY MC_TstarTstarToTgammaTgluon_M-1300_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgammaTgluon_M-1300.xml">
+<!ENTITY MC_TstarTstarToTgammaTgluon_M-1400_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgammaTgluon_M-1400.xml">
 <!ENTITY MC_TstarTstarToTgammaTgluon_M-1500_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgammaTgluon_M-1500.xml">
 <!ENTITY MC_TstarTstarToTgammaTgluon_M-1600_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgammaTgluon_M-1600.xml">
 
@@ -51,11 +67,18 @@
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
+
         <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-900_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgluonTgluon_M-900_Run2016v3;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
+        <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1000_Run2016v3" Cacheable="False">
+	  &MC_TstarTstarToTgluonTgluon_M-1000_Run2016v3;
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
         <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1100_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgluonTgluon_M-1100_Run2016v3;
           <InputTree Name="AnalysisTree" />
@@ -73,8 +96,20 @@
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
+        <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1400_Run2016v3" Cacheable="False">
+	  &MC_TstarTstarToTgluonTgluon_M-1400_Run2016v3;
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
         <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1500_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgluonTgluon_M-1500_Run2016v3;
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+        <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1600_Run2016v3" Cacheable="False">
+	  &MC_TstarTstarToTgluonTgluon_M-1600_Run2016v3;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
@@ -95,8 +130,93 @@
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
+
+        <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgamma_M-1000_Run2016v3" Cacheable="False">
+	  &MC_TstarTstarToTgammaTgamma_M-1000_Run2016v3;
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
         <InputData Lumi="34200" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgamma_M-1100_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgammaTgamma_M-1100_Run2016v3;
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+        <InputData Lumi="34200" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgamma_M-1200_Run2016v3" Cacheable="False">
+	  &MC_TstarTstarToTgammaTgamma_M-1200_Run2016v3;
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+        <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgamma_M-1300_Run2016v3" Cacheable="False">
+	  &MC_TstarTstarToTgammaTgamma_M-1300_Run2016v3;
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+        <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgamma_M-1400_Run2016v3" Cacheable="False">
+	  &MC_TstarTstarToTgammaTgamma_M-1400_Run2016v3;
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+        <InputData Lumi="33400" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgamma_M-1500_Run2016v3" Cacheable="False">
+	  &MC_TstarTstarToTgammaTgamma_M-1500_Run2016v3;
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+        <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgamma_M-1600_Run2016v3" Cacheable="False">
+	  &MC_TstarTstarToTgammaTgamma_M-1600_Run2016v3;
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+
+	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-700_Run2016v3" Cacheable="False">
+	  &MC_TstarTstarToTgammaTgluon_M-700_Run2016v3;
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-800_Run2016v3" Cacheable="False">
+	  &MC_TstarTstarToTgammaTgluon_M-800_Run2016v3;
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-900_Run2016v3" Cacheable="False">
+	  &MC_TstarTstarToTgammaTgluon_M-900_Run2016v3;
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1000_Run2016v3" Cacheable="False">
+	  &MC_TstarTstarToTgammaTgluon_M-1000_Run2016v3;
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1100_Run2016v3" Cacheable="False">
+	  &MC_TstarTstarToTgammaTgluon_M-1100_Run2016v3;
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1200_Run2016v3" Cacheable="False">
+	  &MC_TstarTstarToTgammaTgluon_M-1200_Run2016v3;
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1300_Run2016v3" Cacheable="False">
+	  &MC_TstarTstarToTgammaTgluon_M-1300_Run2016v3;
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1400_Run2016v3" Cacheable="False">
+	  &MC_TstarTstarToTgammaTgluon_M-1400_Run2016v3;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>

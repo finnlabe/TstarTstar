@@ -32,4 +32,28 @@ namespace uhh2 {
   /*   virtual bool passes(const uhh2::Event & event); */
   /* }; */
 
+
+  class METCut : public Selection {
+
+  public:
+    explicit METCut(float, float max_met=1e7);
+    virtual bool passes(const Event&) override;
+
+  private:
+    float min_met_, max_met_;
+  };
+  ////
+
+  class STCut : public Selection {
+
+  public:
+    explicit STCut(float, float max_st=1e7);
+    virtual bool passes(const Event&) override;
+
+  private:
+    float min_st_, max_st_;
+  };
+  ////
+
 }
+
