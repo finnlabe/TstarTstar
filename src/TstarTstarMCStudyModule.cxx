@@ -59,14 +59,14 @@ private:
   unique_ptr<Selection> triggerHT1_sel, triggerHT2_sel, triggerHT3_sel, triggerHT4_sel, triggerHT5_sel,  triggerHT6_sel;
   unique_ptr<Selection> triggerPFHT_sel;
   // Store the Hists collection as member variables. Again, use unique_ptr to avoid memory leaks.
-  std::unique_ptr<Hists> h_nocuts, h_common, h_lepsel, h_njetsel, h_2dcut, h_semilepttbarmatch, h_nosemilepttbarmatch;
+  std::unique_ptr<Hists> h_nocuts, h_common, h_lepsel, h_njetsel, h_nphosel, h_2dcut, h_semilepttbarmatch, h_nosemilepttbarmatch;
   std::unique_ptr<Hists> h_semilepttbarmatch_triggerSingleJet, h_semilepttbarmatch_triggerSingleLeptonMu, h_semilepttbarmatch_triggerSingleLeptonEle, h_semilepttbarmatch_triggerHT, h_semilepttbarmatch_triggerPFHT;
   std::unique_ptr<Hists> h_semilepttbarmatch_gen;
   std::unique_ptr<Hists> h_semilepttbarmatch_genreco,h_semilepttbarmatch_genreco_mu,h_semilepttbarmatch_genreco_ele;
   std::unique_ptr<Hists> h_semilepttbarmatch_triggerSingleJet_genreco, h_semilepttbarmatch_triggerSingleLeptonMu_genreco, h_semilepttbarmatch_triggerSingleLeptonEle_genreco, h_semilepttbarmatch_triggerHT_genreco, h_semilepttbarmatch_triggerPFHT_genreco;
   std::unique_ptr<Hists> h_semilepttbarmatch_triggerSingleJet_genreco_mu, h_semilepttbarmatch_triggerHT_genreco_mu, h_semilepttbarmatch_triggerPFHT_genreco_mu;
   std::unique_ptr<Hists> h_semilepttbarmatch_triggerSingleJet_genreco_ele, h_semilepttbarmatch_triggerHT_genreco_ele, h_semilepttbarmatch_triggerPFHT_genreco_ele;
-  std::unique_ptr<Hists> h_matching;
+  std::unique_ptr<Hists> h_After_ttbar_Reco, h_After_TstarTstar_Reco;
   
   bool isTrigger = false;
   //bool debug = true;
@@ -87,6 +87,13 @@ private:
   uhh2::Event::Handle<float> h_DeltaR_toplep_ak8jet2;
   uhh2::Event::Handle<float> h_DeltaR_tophad_ak8jet2;
 };
+
+//Method to calculate DeltaR. Will change to passing two Particles instead of four floats.
+float calculateDeltaR(float eta1_, float eta2_, float phi1_, float phi2_){
+  float Deta_ = eta1_ - eta2_;
+  float Dphi_ = phi1_ - phi2_;
+  return sqrt( pow(Deta_, 2) + pow(Dphi_, 2) );
+}
 
 
 TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
@@ -175,6 +182,7 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
     h_common.reset(new TstarTstarHists(ctx, "AfterCommon"));
     h_njetsel.reset(new TstarTstarHists(ctx, "AfterNjets"));
     h_lepsel.reset(new TstarTstarHists(ctx, "AfterLepSel"));
+    h_nphosel.reset(new TstarTstarHists(ctx, "AfterNpho"));
     h_2dcut.reset(new TstarTstarHists(ctx, "After2D"));
     h_semilepttbarmatch.reset(new TstarTstarHists(ctx, "SemiLepTTBarMatch"));
 
@@ -203,7 +211,8 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
     h_semilepttbarmatch_triggerSingleLeptonMu_genreco.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerSingleLeptonMu"));
     h_semilepttbarmatch_triggerSingleLeptonEle_genreco.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerSingleLeptonEle"));
 
-    h_matching.reset(new TstarTstarHists(ctx, "AfterMatching"));
+    h_After_ttbar_Reco.reset(new TstarTstarHists(ctx, "After_ttbar_Reco"));
+    h_After_TstarTstar_Reco.reset(new TstarTstarHists(ctx, "After_TstarTstar_Reco"));
 
     //4. Set up ttbar reconstruction
     const std::string ttbar_hyps_label("TTbarReconstruction");
@@ -277,6 +286,14 @@ bool TstarTstarMCStudyModule::process(Event & event) {
 
   if(!pass_lep1) return false;
   h_lepsel->fill(event);
+
+  // Require more than one photon
+  const bool pass_npho = (event.photons->size()>0);
+
+  if(!pass_npho) return false;
+  h_nphosel->fill(event);
+
+
   // Lepton-2Dcut variables
   for(auto& muo : *event.muons){
     float    dRmin, pTrel;
@@ -357,8 +374,7 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   if(debug) {cout << "Starting ttbar reconstruction... ";}\
   ttbar_reco->process(event);//reconstruct ttbar
   
-
-  /**
+  /** old stuff
   // goal: save only the chi2-best ttbar hypothesis in output sub-ntuple
   std::vector<ReconstructionHypothesis>& hyps = event.get(h_ttbar_hyps); //hyps contains all hypothesises
   if(debug) cout<<"Number of ttbar hyps = "<<hyps.size()<<endl;
@@ -373,11 +389,48 @@ bool TstarTstarMCStudyModule::process(Event & event) {
 
   if(debug) {cout << "Finished. Finding best Hypothesis..."<< endl;}	\
   ttbar_discriminator->process(event);
+
+  ReconstructionHypothesis hyp = event.get(h_recohyp);  
+
+  //### BEGIN Calculate DeltaRs
+  float DeltaR_min = 9999;
+  for (uint i = 0; i < hyp.tophad_jets().size(); i++){
+    float DeltaR_new = calculateDeltaR(hyp.tophad_jets().at(i).eta(), event.topjets->at(0).eta(), hyp.tophad_jets().at(i).phi(), event.topjets->at(0).phi()); 
+    if(DeltaR_new < DeltaR_min){
+      DeltaR_min = DeltaR_new;
+    }
+  }
+  event.set(h_DeltaR_tophad_ak8jet1, DeltaR_min);
+    
+  for (uint i = 0; i < hyp.toplep_jets().size(); i++){
+    float DeltaR_new = calculateDeltaR(hyp.toplep_jets().at(i).eta(), event.topjets->at(0).eta(), hyp.toplep_jets().at(i).phi(), event.topjets->at(0).phi()); 
+    if(DeltaR_new < DeltaR_min){
+      DeltaR_min = DeltaR_new;
+    }
+  }
+  event.set(h_DeltaR_toplep_ak8jet1, DeltaR_min);
+
+  for (uint i = 0; i < hyp.tophad_jets().size(); i++){
+    float DeltaR_new = calculateDeltaR(hyp.tophad_jets().at(i).eta(), event.topjets->at(1).eta(), hyp.tophad_jets().at(i).phi(), event.topjets->at(1).phi()); 
+    if(DeltaR_new < DeltaR_min){
+      DeltaR_min = DeltaR_new;
+    }
+  }
+  event.set(h_DeltaR_tophad_ak8jet2, DeltaR_min);
+
+  for (uint i = 0; i < hyp.toplep_jets().size(); i++){
+    float DeltaR_new = calculateDeltaR(hyp.toplep_jets().at(i).eta(), event.topjets->at(1).eta(), hyp.toplep_jets().at(i).phi(), event.topjets->at(1).phi()); 
+    if(DeltaR_new < DeltaR_min){
+      DeltaR_min = DeltaR_new;
+    }
+  }
+  event.set(h_DeltaR_toplep_ak8jet2, DeltaR_min);
+  //### END Calculate DeltaR
+
+  h_After_ttbar_Reco->fill(event);
   
   if(event.get(h_is_ttbar_reconstructed)){
-    if(TstarTstar_reco->process(event)){
-      h_matching->fill(event);
-    }
+    if(TstarTstar_reco->process(event)){h_After_TstarTstar_Reco->fill(event);}
   }
   else{
     if(debug){cout << "Event has no best hypothesis!" << endl;}
