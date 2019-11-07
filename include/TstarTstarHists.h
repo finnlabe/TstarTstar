@@ -2,7 +2,6 @@
 
 #include "UHH2/core/include/Hists.h"
 #include "UHH2/core/include/Event.h"
-#include "UHH2/common/include/ReconstructionHypothesis.h"
 
 namespace uhh2{
 
@@ -22,14 +21,7 @@ public:
     virtual ~TstarTstarHists();
 
   private:
-    uhh2::Event::Handle<ReconstructionHypothesis> h_recohyp_;
-    
-    uhh2::Event::Handle< float > h_M_Tstar_gluon_;
-    uhh2::Event::Handle< float > h_M_Tstar_gamma_;
-    uhh2::Event::Handle< float > h_DeltaR_toplep_ak8jet1_;
-    uhh2::Event::Handle< float > h_DeltaR_tophad_ak8jet1_;
-    uhh2::Event::Handle< float > h_DeltaR_toplep_ak8jet2_;
-    uhh2::Event::Handle< float > h_DeltaR_tophad_ak8jet2_;
+
 };
 
 }

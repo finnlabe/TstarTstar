@@ -13,6 +13,7 @@
 #include <UHH2/common/include/TriggerSelection.h>
 #include "UHH2/TstarTstar/include/TstarTstarSelections.h"
 #include "UHH2/TstarTstar/include/TstarTstarHists.h"
+#include "UHH2/TstarTstar/include/TstarTstarRecoHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarGenHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarGenRecoMatchedHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarReconstructionModules.h"
@@ -66,11 +67,12 @@ private:
   std::unique_ptr<Hists> h_semilepttbarmatch_triggerSingleJet_genreco, h_semilepttbarmatch_triggerSingleLeptonMu_genreco, h_semilepttbarmatch_triggerSingleLeptonEle_genreco, h_semilepttbarmatch_triggerHT_genreco, h_semilepttbarmatch_triggerPFHT_genreco;
   std::unique_ptr<Hists> h_semilepttbarmatch_triggerSingleJet_genreco_mu, h_semilepttbarmatch_triggerHT_genreco_mu, h_semilepttbarmatch_triggerPFHT_genreco_mu;
   std::unique_ptr<Hists> h_semilepttbarmatch_triggerSingleJet_genreco_ele, h_semilepttbarmatch_triggerHT_genreco_ele, h_semilepttbarmatch_triggerPFHT_genreco_ele;
-  std::unique_ptr<Hists> h_After_ttbar_Reco, h_After_TstarTstar_Reco, h_After_TstarTstar_Reco_match;
+  std::unique_ptr<Hists> h_After_TstarTstar_Reco, h_After_TstarTstar_Reco_match;
+  std::unique_ptr<Hists> h_RecoPlots_After_ttbar, h_RecoPlots_After_TstarTstar, h_RecoPlots_After_TstarTstar_match;
   
   bool isTrigger = false;
-  //bool debug = true;
-  bool debug = false;
+  bool debug = true;
+  //bool debug = false;
   std::unique_ptr<uhh2::AnalysisModule> reco_primlep;
   std::unique_ptr<uhh2::AnalysisModule> ttbar_reco;
   std::unique_ptr<ttbarChi2Discriminator> ttbar_discriminator;
@@ -81,11 +83,6 @@ private:
   uhh2::Event::Handle<ReconstructionHypothesis> h_recohyp;
   uhh2::Event::Handle<float> h_M_Tstar_gluon;
   uhh2::Event::Handle<float> h_M_Tstar_gamma;
-
-  uhh2::Event::Handle<float> h_DeltaR_toplep_ak8jet1;
-  uhh2::Event::Handle<float> h_DeltaR_tophad_ak8jet1;
-  uhh2::Event::Handle<float> h_DeltaR_toplep_ak8jet2;
-  uhh2::Event::Handle<float> h_DeltaR_tophad_ak8jet2;
 };
 
 TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
@@ -205,9 +202,13 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
     h_semilepttbarmatch_triggerSingleLeptonMu_genreco.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerSingleLeptonMu"));
     h_semilepttbarmatch_triggerSingleLeptonEle_genreco.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerSingleLeptonEle"));
 
-    h_After_ttbar_Reco.reset(new TstarTstarHists(ctx, "After_ttbar_Reco"));
     h_After_TstarTstar_Reco.reset(new TstarTstarHists(ctx, "After_TstarTstar_Reco"));
     h_After_TstarTstar_Reco_match.reset(new TstarTstarHists(ctx, "After_TstarTstar_Reco_match"));
+
+    h_RecoPlots_After_ttbar.reset(new TstarTstarRecoHists(ctx, "RecoPlots_After_ttbar"));
+    h_RecoPlots_After_TstarTstar.reset(new TstarTstarRecoHists(ctx, "RecoPlots_After_TstarTstar"));
+    h_RecoPlots_After_TstarTstar_match.reset(new TstarTstarRecoHists(ctx, "RecoPlots_After_TstarTstar_match"));
+
 
     //4. Set up ttbar reconstruction
     const std::string ttbar_hyps_label("TTbarReconstruction");
@@ -227,11 +228,6 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
 
     TstarTstar_reco.reset(new TstarTstar_Reconstruction(ctx));
 
-    h_DeltaR_toplep_ak8jet1 = ctx.get_handle< float >("DeltaR_toplep_ak8jet1");
-    h_DeltaR_tophad_ak8jet1 = ctx.get_handle< float >("DeltaR_tophad_ak8jet1");
-    h_DeltaR_toplep_ak8jet2 = ctx.get_handle< float >("DeltaR_toplep_ak8jet2");
-    h_DeltaR_tophad_ak8jet2 = ctx.get_handle< float >("DeltaR_tophad_ak8jet2");
-
 }
 
 
@@ -249,11 +245,7 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   event.set(h_M_Tstar_gluon, 0.);
   event.set(h_M_Tstar_gamma, 0.);
   event.set(h_is_ttbar_reconstructed, false);
-
-  event.set(h_DeltaR_toplep_ak8jet1, 999);
-  event.set(h_DeltaR_tophad_ak8jet1, 999);
-  event.set(h_DeltaR_toplep_ak8jet2, 999);
-  event.set(h_DeltaR_tophad_ak8jet2, 999);
+  event.set(h_recohyp, ReconstructionHypothesis());
 
   if(debug){cout << "Finished initialization of Handle Variables" << endl;}
 
@@ -390,49 +382,18 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   if(debug) {cout << "Finished. Finding best Hypothesis..."<< endl;}	\
   ttbar_discriminator->process(event);
 
+  h_RecoPlots_After_ttbar->fill(event);
+
   ReconstructionHypothesis hyp = event.get(h_recohyp);  
 
-  //### BEGIN Calculate DeltaRs
-  float DeltaR_min = 9999;
-  for (uint i = 0; i < hyp.tophad_jets().size(); i++){
-    float DeltaR_new = deltaR(hyp.tophad_jets().at(i), event.topjets->at(0)); 
-    if(DeltaR_new < DeltaR_min){
-      DeltaR_min = DeltaR_new;
-    }
-  }
-  event.set(h_DeltaR_tophad_ak8jet1, DeltaR_min);
-    
-  for (uint i = 0; i < hyp.toplep_jets().size(); i++){
-    float DeltaR_new = deltaR(hyp.toplep_jets().at(i), event.topjets->at(0)); 
-    if(DeltaR_new < DeltaR_min){
-      DeltaR_min = DeltaR_new;
-    }
-  }
-  event.set(h_DeltaR_toplep_ak8jet1, DeltaR_min);
-
-  for (uint i = 0; i < hyp.tophad_jets().size(); i++){
-    float DeltaR_new = deltaR(hyp.tophad_jets().at(i), event.topjets->at(1)); 
-    if(DeltaR_new < DeltaR_min){
-      DeltaR_min = DeltaR_new;
-    }
-  }
-  event.set(h_DeltaR_tophad_ak8jet2, DeltaR_min);
-
-  for (uint i = 0; i < hyp.toplep_jets().size(); i++){
-    float DeltaR_new = deltaR(hyp.toplep_jets().at(i), event.topjets->at(1)); 
-    if(DeltaR_new < DeltaR_min){
-      DeltaR_min = DeltaR_new;
-    }
-  }
-  event.set(h_DeltaR_toplep_ak8jet2, DeltaR_min);
-  //### END Calculate DeltaR
-
-  h_After_ttbar_Reco->fill(event);
-  
   if(event.get(h_is_ttbar_reconstructed)){
     if(TstarTstar_reco->process(event)){
       h_After_TstarTstar_Reco->fill(event);
-      if(pass_ttbarsemilep){h_After_TstarTstar_Reco_match->fill(event);} //Check same plots for matching
+      h_RecoPlots_After_TstarTstar->fill(event);
+      if(pass_ttbarsemilep){   //Check same plots for matching
+	h_After_TstarTstar_Reco_match->fill(event);
+	h_RecoPlots_After_TstarTstar_match->fill(event);
+      }
     }
   }
   else{
