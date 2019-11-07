@@ -15,10 +15,13 @@
 #include "UHH2/TstarTstar/include/TstarTstarHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarGenHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarGenRecoMatchedHists.h"
+#include "UHH2/TstarTstar/include/TstarTstarReconstructionModules.h"
 
+/**
 #include "UHH2/common/include/TTbarReconstruction.h"
 #include "UHH2/common/include/ReconstructionHypothesis.h"
 #include "UHH2/common/include/ReconstructionHypothesisDiscriminators.h"
+**/
 
 using namespace std;
 using namespace uhh2;
@@ -33,45 +36,64 @@ namespace uhh2 {
 class TstarTstarMCStudyModule: public AnalysisModule {
 public:
     
-    explicit TstarTstarMCStudyModule(Context & ctx);
-    virtual bool process(Event & event) override;
-
+  explicit TstarTstarMCStudyModule(Context & ctx);
+  virtual bool process(Event & event) override;
+  
 private:
     
-    // Apply common modules: JetPFid, JEC, JER, MET corrections, etc
-    std::unique_ptr<CommonModules> common;
-
-    // Declare the Selections to use. Use unique_ptr to ensure automatic call of delete in the destructor,
-    // to avoid memory leaks.
-    unique_ptr<Selection> twodcut_sel;   
-    unique_ptr<Selection> TTbarSemiLepMatchable_selection;
-    unique_ptr<Selection> triggerSingleJet450_sel;
-    unique_ptr<Selection> triggerSingleLeptonEle1_sel;
-    unique_ptr<Selection> triggerSingleLeptonEle2_sel;
-    unique_ptr<Selection> triggerSingleLeptonEle3_sel;
-    unique_ptr<Selection> triggerSingleLeptonMu1_sel;
-    unique_ptr<Selection> triggerSingleLeptonMu2_sel;
-    unique_ptr<Selection> triggerSingleLeptonMu3_sel;
-    unique_ptr<Selection> triggerSingleLeptonMu4_sel;
-    unique_ptr<Selection> triggerHT1_sel, triggerHT2_sel, triggerHT3_sel, triggerHT4_sel, triggerHT5_sel,  triggerHT6_sel;
-    unique_ptr<Selection> triggerPFHT_sel;
-    // Store the Hists collection as member variables. Again, use unique_ptr to avoid memory leaks.
-  std::unique_ptr<Hists> h_nocuts, h_common, h_lepsel, h_njetsel, h_2dcut, h_semilepttbarmatch, h_nosemilepttbarmatch;
+  // Apply common modules: JetPFid, JEC, JER, MET corrections, etc
+  std::unique_ptr<CommonModules> common;
+  
+  // Declare the Selections to use. Use unique_ptr to ensure automatic call of delete in the destructor,
+  // to avoid memory leaks.
+  unique_ptr<Selection> twodcut_sel;   
+  unique_ptr<Selection> TTbarSemiLepMatchable_selection;
+  unique_ptr<Selection> triggerSingleJet450_sel;
+  unique_ptr<Selection> triggerSingleLeptonEle1_sel;
+  unique_ptr<Selection> triggerSingleLeptonEle2_sel;
+  unique_ptr<Selection> triggerSingleLeptonEle3_sel;
+  unique_ptr<Selection> triggerSingleLeptonMu1_sel;
+  unique_ptr<Selection> triggerSingleLeptonMu2_sel;
+  unique_ptr<Selection> triggerSingleLeptonMu3_sel;
+  unique_ptr<Selection> triggerSingleLeptonMu4_sel;
+  unique_ptr<Selection> triggerHT1_sel, triggerHT2_sel, triggerHT3_sel, triggerHT4_sel, triggerHT5_sel,  triggerHT6_sel;
+  unique_ptr<Selection> triggerPFHT_sel;
+  // Store the Hists collection as member variables. Again, use unique_ptr to avoid memory leaks.
+  std::unique_ptr<Hists> h_nocuts, h_common, h_lepsel, h_njetsel, h_nphosel, h_2dcut, h_semilepttbarmatch, h_nosemilepttbarmatch;
   std::unique_ptr<Hists> h_semilepttbarmatch_triggerSingleJet, h_semilepttbarmatch_triggerSingleLeptonMu, h_semilepttbarmatch_triggerSingleLeptonEle, h_semilepttbarmatch_triggerHT, h_semilepttbarmatch_triggerPFHT;
   std::unique_ptr<Hists> h_semilepttbarmatch_gen;
   std::unique_ptr<Hists> h_semilepttbarmatch_genreco,h_semilepttbarmatch_genreco_mu,h_semilepttbarmatch_genreco_ele;
   std::unique_ptr<Hists> h_semilepttbarmatch_triggerSingleJet_genreco, h_semilepttbarmatch_triggerSingleLeptonMu_genreco, h_semilepttbarmatch_triggerSingleLeptonEle_genreco, h_semilepttbarmatch_triggerHT_genreco, h_semilepttbarmatch_triggerPFHT_genreco;
   std::unique_ptr<Hists> h_semilepttbarmatch_triggerSingleJet_genreco_mu, h_semilepttbarmatch_triggerHT_genreco_mu, h_semilepttbarmatch_triggerPFHT_genreco_mu;
   std::unique_ptr<Hists> h_semilepttbarmatch_triggerSingleJet_genreco_ele, h_semilepttbarmatch_triggerHT_genreco_ele, h_semilepttbarmatch_triggerPFHT_genreco_ele;
+  std::unique_ptr<Hists> h_After_ttbar_Reco, h_After_TstarTstar_Reco;
   
   bool isTrigger = false;
-  //  bool debug = true;
+  //bool debug = true;
   bool debug = false;
   std::unique_ptr<uhh2::AnalysisModule> reco_primlep;
   std::unique_ptr<uhh2::AnalysisModule> ttbar_reco;
+  std::unique_ptr<ttbarChi2Discriminator> ttbar_discriminator;
+  std::unique_ptr<TstarTstar_Reconstruction> TstarTstar_reco;
+
   uhh2::Event::Handle<std::vector<ReconstructionHypothesis>> h_ttbar_hyps;
+  uhh2::Event::Handle<bool> h_is_ttbar_reconstructed;
   uhh2::Event::Handle<ReconstructionHypothesis> h_recohyp;
+  uhh2::Event::Handle<float> h_M_Tstar_gluon;
+  uhh2::Event::Handle<float> h_M_Tstar_gamma;
+
+  uhh2::Event::Handle<float> h_DeltaR_toplep_ak8jet1;
+  uhh2::Event::Handle<float> h_DeltaR_tophad_ak8jet1;
+  uhh2::Event::Handle<float> h_DeltaR_toplep_ak8jet2;
+  uhh2::Event::Handle<float> h_DeltaR_tophad_ak8jet2;
 };
+
+//Method to calculate DeltaR. Will change to passing two Particles instead of four floats.
+float calculateDeltaR(float eta1_, float eta2_, float phi1_, float phi2_){
+  float Deta_ = eta1_ - eta2_;
+  float Dphi_ = phi1_ - phi2_;
+  return sqrt( pow(Deta_, 2) + pow(Dphi_, 2) );
+}
 
 
 TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
@@ -102,12 +124,20 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
     eleID = ElectronID_Summer16_tight_noIso;
     common->set_electron_id(AndId<Electron>(PtEtaSCCut(electron_pt, 2.5), eleID));
 
+    
     PhotonId phoID; 
     double photon_pt(20.);
-    //    phoID = PhotonTagID(Photon::cutBasedPhotonID_Spring16_V2p2_tight);
-    //    phoID = PhotonTagID(Photon::cutBasedPhotonID_Spring16_V2p2_loose);
-    phoID = PhotonTagID(Photon::cutBasedPhotonID_Fall17_94X_V2_loose);
-    common->set_photon_id(AndId<Photon>(PtEtaCut(photon_pt, 5.2), phoID));
+    // read in desired photonID from config file
+    if (ctx.get("PhotonID") == "cutBasedPhotonIDlooseFall17"){phoID = PhotonTagID(Photon::cutBasedPhotonID_Fall17_94X_V2_loose);}
+    else if (ctx.get("PhotonID") == "cutBasedPhotonIDmediumFall17"){phoID = PhotonTagID(Photon::cutBasedPhotonID_Fall17_94X_V2_medium);}
+    else if (ctx.get("PhotonID") == "cutBasedPhotonIDtightFall17"){phoID = PhotonTagID(Photon::cutBasedPhotonID_Fall17_94X_V2_tight);}
+    else if (ctx.get("PhotonID") == "mvaPhoIDwp90Fall17"){phoID = PhotonTagID(Photon::mvaPhoID_Fall17_iso_V2_wp90);}
+    else if (ctx.get("PhotonID") == "mvaPhoIDwp80Fall17"){phoID = PhotonTagID(Photon::mvaPhoID_Fall17_iso_V2_wp80);}
+    else {cout << "error: unrecognized photonID "  << ctx.get("PhotonID") << endl;}
+
+    if (ctx.get("PhotonID") != "noPhotonID") {common->set_photon_id(AndId<Photon>(PtEtaCut(photon_pt, 5.2), phoID));}
+    else {common->set_photon_id(PtEtaCut(photon_pt, 5.2));}
+    
 
     MuonId muID;
     double muon_pt(20.);
@@ -138,9 +168,6 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
     triggerSingleLeptonMu3_sel.reset(new TriggerSelection("HLT_IsoMu24_v*"));
     triggerSingleLeptonMu4_sel.reset(new TriggerSelection("HLT_IsoTkMu24_v*"));
 
-
-
-
     triggerHT1_sel.reset(new TriggerSelection("HLT_HT430to450_v*"));
     triggerHT2_sel.reset(new TriggerSelection("HLT_HT450to470_v*"));
     triggerHT3_sel.reset(new TriggerSelection("HLT_HT470to500_v*"));
@@ -157,6 +184,7 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
     h_common.reset(new TstarTstarHists(ctx, "AfterCommon"));
     h_njetsel.reset(new TstarTstarHists(ctx, "AfterNjets"));
     h_lepsel.reset(new TstarTstarHists(ctx, "AfterLepSel"));
+    h_nphosel.reset(new TstarTstarHists(ctx, "AfterNpho"));
     h_2dcut.reset(new TstarTstarHists(ctx, "After2D"));
     h_semilepttbarmatch.reset(new TstarTstarHists(ctx, "SemiLepTTBarMatch"));
 
@@ -185,6 +213,9 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
     h_semilepttbarmatch_triggerSingleLeptonMu_genreco.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerSingleLeptonMu"));
     h_semilepttbarmatch_triggerSingleLeptonEle_genreco.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerSingleLeptonEle"));
 
+    h_After_ttbar_Reco.reset(new TstarTstarHists(ctx, "After_ttbar_Reco"));
+    h_After_TstarTstar_Reco.reset(new TstarTstarHists(ctx, "After_TstarTstar_Reco"));
+
     //4. Set up ttbar reconstruction
     const std::string ttbar_hyps_label("TTbarReconstruction");
     const std::string ttbar_chi2_label("Chi2");
@@ -192,7 +223,21 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
     ttbar_reco.reset(new HighMassTTbarReconstruction(ctx, NeutrinoReconstruction,ttbar_hyps_label));
     h_ttbar_hyps = ctx.get_handle<std::vector<ReconstructionHypothesis>>(ttbar_hyps_label);
 
+    h_is_ttbar_reconstructed = ctx.get_handle< bool >("is_ttbar_reconstructed_chi2");
+
     h_recohyp = ctx.declare_event_output<ReconstructionHypothesis>(ttbar_hyps_label+"_best");
+
+    ttbar_discriminator.reset(new ttbarChi2Discriminator(ctx));
+
+    h_M_Tstar_gluon = ctx.get_handle< float >("M_Tstar_gluon");
+    h_M_Tstar_gamma = ctx.get_handle< float >("M_Tstar_gamma");
+
+    TstarTstar_reco.reset(new TstarTstar_Reconstruction(ctx));
+
+    h_DeltaR_toplep_ak8jet1 = ctx.get_handle< float >("DeltaR_toplep_ak8jet1");
+    h_DeltaR_tophad_ak8jet1 = ctx.get_handle< float >("DeltaR_tophad_ak8jet1");
+    h_DeltaR_toplep_ak8jet2 = ctx.get_handle< float >("DeltaR_toplep_ak8jet2");
+    h_DeltaR_tophad_ak8jet2 = ctx.get_handle< float >("DeltaR_tophad_ak8jet2");
 
 }
 
@@ -207,6 +252,17 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   //     cout<<" thisgamma.pt() = "<<thisgamma.pt()<<" thisgamma.eta() = "<<thisgamma.eta()<<endl;
   //   }
   // }
+
+  event.set(h_M_Tstar_gluon, 0.);
+  event.set(h_M_Tstar_gamma, 0.);
+  event.set(h_is_ttbar_reconstructed, false);
+
+  event.set(h_DeltaR_toplep_ak8jet1, 999);
+  event.set(h_DeltaR_tophad_ak8jet1, 999);
+  event.set(h_DeltaR_toplep_ak8jet2, 999);
+  event.set(h_DeltaR_tophad_ak8jet2, 999);
+
+  if(debug){cout << "Finished initialization of Handle Variables" << endl;}
 
   h_nocuts->fill(event);
   common->process(event);
@@ -232,6 +288,14 @@ bool TstarTstarMCStudyModule::process(Event & event) {
 
   if(!pass_lep1) return false;
   h_lepsel->fill(event);
+
+  // Require more than one photon
+  const bool pass_npho = (event.photons->size()>0);
+
+  if(!pass_npho) return false;
+  h_nphosel->fill(event);
+
+
   // Lepton-2Dcut variables
   for(auto& muo : *event.muons){
     float    dRmin, pTrel;
@@ -312,12 +376,14 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   }
 
   reco_primlep->process(event);//set "primary lepton"
-  ttbar_reco->process(event);
-
-  // save only the chi2-best ttbar hypothesis in output sub-ntuple
-  std::vector<ReconstructionHypothesis>& hyps = event.get(h_ttbar_hyps);
+  if(debug) {cout << "Starting ttbar reconstruction... ";}\
+  ttbar_reco->process(event);//reconstruct ttbar
+  
+  /** old stuff
+  // goal: save only the chi2-best ttbar hypothesis in output sub-ntuple
+  std::vector<ReconstructionHypothesis>& hyps = event.get(h_ttbar_hyps); //hyps contains all hypothesises
   if(debug) cout<<"Number of ttbar hyps = "<<hyps.size()<<endl;
-  //  const ReconstructionHypothesis* hyp = get_best_hypothesis(hyps, "Chi2");
+  //  const ReconstructionHypothesis* hyp = get_best_hypothesis(hyps, "Chi2"); TODO
   ReconstructionHypothesis hyp;
   if(hyps.size()>0) hyp = hyps.at(0);//FixMe: change placeholder to "best hypothesis" candidate
   double W_mass = hyp.wlep_v4().M();
@@ -325,7 +391,59 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   if(debug) cout<<" Best hypothesis ...  "<<hyp.neutrino_v4()<<" W mass = "<<W_mass<<endl;
   hyps.clear();
   if(debug) cout<<" Best hypothesis copied ...  "<<endl;
-  event.set(h_recohyp, hyp);
+  event.set(h_recohyp, hyp); //save "best" hypothesis in event
+  **/
+
+  if(debug) {cout << "Finished. Finding best Hypothesis..."<< endl;}	\
+  ttbar_discriminator->process(event);
+
+  ReconstructionHypothesis hyp = event.get(h_recohyp);  
+
+  //### BEGIN Calculate DeltaRs
+  float DeltaR_min = 9999;
+  for (uint i = 0; i < hyp.tophad_jets().size(); i++){
+    float DeltaR_new = calculateDeltaR(hyp.tophad_jets().at(i).eta(), event.topjets->at(0).eta(), hyp.tophad_jets().at(i).phi(), event.topjets->at(0).phi()); 
+    if(DeltaR_new < DeltaR_min){
+      DeltaR_min = DeltaR_new;
+    }
+  }
+  event.set(h_DeltaR_tophad_ak8jet1, DeltaR_min);
+    
+  for (uint i = 0; i < hyp.toplep_jets().size(); i++){
+    float DeltaR_new = calculateDeltaR(hyp.toplep_jets().at(i).eta(), event.topjets->at(0).eta(), hyp.toplep_jets().at(i).phi(), event.topjets->at(0).phi()); 
+    if(DeltaR_new < DeltaR_min){
+      DeltaR_min = DeltaR_new;
+    }
+  }
+  event.set(h_DeltaR_toplep_ak8jet1, DeltaR_min);
+
+  for (uint i = 0; i < hyp.tophad_jets().size(); i++){
+    float DeltaR_new = calculateDeltaR(hyp.tophad_jets().at(i).eta(), event.topjets->at(1).eta(), hyp.tophad_jets().at(i).phi(), event.topjets->at(1).phi()); 
+    if(DeltaR_new < DeltaR_min){
+      DeltaR_min = DeltaR_new;
+    }
+  }
+  event.set(h_DeltaR_tophad_ak8jet2, DeltaR_min);
+
+  for (uint i = 0; i < hyp.toplep_jets().size(); i++){
+    float DeltaR_new = calculateDeltaR(hyp.toplep_jets().at(i).eta(), event.topjets->at(1).eta(), hyp.toplep_jets().at(i).phi(), event.topjets->at(1).phi()); 
+    if(DeltaR_new < DeltaR_min){
+      DeltaR_min = DeltaR_new;
+    }
+  }
+  event.set(h_DeltaR_toplep_ak8jet2, DeltaR_min);
+  //### END Calculate DeltaR
+
+  h_After_ttbar_Reco->fill(event);
+  
+  if(event.get(h_is_ttbar_reconstructed)){
+    if(TstarTstar_reco->process(event)){h_After_TstarTstar_Reco->fill(event);}
+  }
+  else{
+    if(debug){cout << "Event has no best hypothesis!" << endl;}
+  }
+
+  if(debug){cout << "Done ##################################" << endl << endl;}
   return true;
 }
 

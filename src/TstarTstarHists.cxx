@@ -65,6 +65,8 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   book<TH1F>("pt_photon", "p_{T}^{#gamma} [GeV/c]", 50, 10, 2000);
   book<TH1F>("eta_photon", "#eta^{#gamma}", 50, -5.2, 5.2);
 
+  book<TH1F>("pt_photon_1", "p_{T}^{leading #gamma} [GeV/c]", 50, 10, 2000);
+  book<TH1F>("pt_photon_2", "p_{T}^{second #gamma} [GeV/c]", 50, 10, 2000);
 
 
   // primary vertices
@@ -74,6 +76,21 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   book<TH1F>("pt_MET", "missing E_{T} [GeV]", 100, 0, 2000);
   book<TH1F>("pt_ST_jets", "S_{T}^{jets}=#sum_{i}|AK4 p^{i}_{T}| [GeV/c]", 100, 10, 4000);
 
+  //M_Tstar
+  h_M_Tstar_gluon_ = ctx.get_handle< float >("M_Tstar_gluon");
+  h_M_Tstar_gamma_ = ctx.get_handle< float >("M_Tstar_gamma");
+  book<TH1F>("M_Tstar_gluon", "M_{T^{*}_{g}} [GeV]", 30, 0, 3000);
+  book<TH1F>("M_Tstar_gamma", "M_{T^{*}_{#gamma}} [GeV]", 30, 0, 3000);
+
+  //Delta_R
+  h_DeltaR_toplep_ak8jet1_ = ctx.get_handle< float >("DeltaR_toplep_ak8jet1");
+  h_DeltaR_tophad_ak8jet1_ = ctx.get_handle< float >("DeltaR_tophad_ak8jet1");
+  h_DeltaR_toplep_ak8jet2_ = ctx.get_handle< float >("DeltaR_toplep_ak8jet2");
+  h_DeltaR_tophad_ak8jet2_ = ctx.get_handle< float >("DeltaR_tophad_ak8jet2");
+  book<TH1F>("DeltaR_toplep_ak8jet1", "DeltaR_toplep_ak8jet1", 40, 0, 4);
+  book<TH1F>("DeltaR_tophad_ak8jet1", "DeltaR_tophad_ak8jet1", 40, 0, 4);
+  book<TH1F>("DeltaR_toplep_ak8jet2", "DeltaR_toplep_ak8jet2", 40, 0, 4);
+  book<TH1F>("DeltaR_tophad_ak8jet2", "DeltaR_tophad_ak8jet2", 40, 0, 4);
 }
 
 
@@ -142,11 +159,15 @@ void TstarTstarHists::fill(const Event & event){
 
   int Ngamma = event.photons->size();
   hist("N_photon")->Fill(Ngamma, weight);
+  int countgamma = 1;
   for (const Photon & thisgamma : *event.photons){
     hist("pt_photon")->Fill(thisgamma.pt(), weight);
+    if(countgamma == 1){hist("pt_photon_1")->Fill(thisgamma.pt(), weight);}
+    if(countgamma == 2){hist("pt_photon_2")->Fill(thisgamma.pt(), weight);}
     hist("eta_photon")->Fill(thisgamma.eta(), weight);
+    countgamma++;
   }
-  
+
   int Npvs = event.pvs->size();
   hist("N_pv")->Fill(Npvs, weight);
 
@@ -173,6 +194,25 @@ void TstarTstarHists::fill(const Event & event){
   double st_jets = 0.;
   for(const auto & jet : *jets) st_jets += jet.pt();
   hist("pt_ST_jets")->Fill(st_jets, weight);
+
+  hist("M_Tstar_gluon")->Fill(event.get(h_M_Tstar_gluon_), weight);
+  hist("M_Tstar_gamma")->Fill(event.get(h_M_Tstar_gamma_), weight);
+
+  float val_ = event.get(h_DeltaR_toplep_ak8jet1_);
+  float binwidth_ = hist("DeltaR_toplep_ak8jet1")->GetXaxis()->GetBinWidth( hist("DeltaR_toplep_ak8jet1")->GetXaxis()->FindBin(val_) );
+  hist("DeltaR_toplep_ak8jet1")->Fill(val_, weight / binwidth_);
+
+  val_ = event.get(h_DeltaR_tophad_ak8jet1_);
+  binwidth_ = hist("DeltaR_tophad_ak8jet1")->GetXaxis()->GetBinWidth( hist("DeltaR_tophad_ak8jet1")->GetXaxis()->FindBin(val_) );
+  hist("DeltaR_tophad_ak8jet1")->Fill(val_, weight / binwidth_);
+
+  val_ = event.get(h_DeltaR_toplep_ak8jet2_);
+  binwidth_ = hist("DeltaR_toplep_ak8jet2")->GetXaxis()->GetBinWidth( hist("DeltaR_toplep_ak8jet2")->GetXaxis()->FindBin(val_) );
+  hist("DeltaR_toplep_ak8jet2")->Fill(val_, weight / binwidth_);
+
+  val_ = event.get(h_DeltaR_tophad_ak8jet2_);
+  binwidth_ = hist("DeltaR_tophad_ak8jet2")->GetXaxis()->GetBinWidth( hist("DeltaR_tophad_ak8jet2")->GetXaxis()->FindBin(val_) );
+  hist("DeltaR_tophad_ak8jet2")->Fill(val_, weight / binwidth_);
 
 }
 
