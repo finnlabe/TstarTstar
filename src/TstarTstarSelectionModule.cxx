@@ -56,7 +56,8 @@ private:
     unique_ptr<Selection> triggerSingleLeptonMu3_sel;
     unique_ptr<Selection> triggerSingleLeptonMu4_sel;
     unique_ptr<Selection> triggerHT1_sel, triggerHT2_sel, triggerHT3_sel, triggerHT4_sel, triggerHT5_sel,  triggerHT6_sel;
-  unique_ptr<Selection>  met_sel, st_sel;
+    unique_ptr<Selection>  met_sel, st_sel; //selections defined in UHH2/TstarTstar/include/TstarTstarSelections.h
+    unique_ptr<Selection> topjet_selection;
 
     unique_ptr<AnalysisModule> LumiWeight_module;
     // Store the Hists collection as member variables. Again, use unique_ptr to avoid memory leaks.
@@ -148,12 +149,16 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
     //ST selection
     st_sel.reset(new STCut  (500.,1e6));
 
+    //Ak8jet selection
+    topjet_selection.reset(new NTopJetSelection(1, -1, TopJetId(PtEtaCut(100, 2.1))));
+
     //Match to semileptonic ttbar
     TTbarSemiLepMatchable_selection.reset(new TTbarSemiLepMatchableSelection());// for x-checks
 
 
     // 3. Set up Hists
-    vector<string> histogram_tags = {"PreSelection","PreSelection_mu","PreSelection_ele","MET","MET_mu","MET_ele","ST","ST_mu","ST_ele","triggerSingleLeptonMu",
+    vector<string> histogram_tags = {"PreSelection","PreSelection_mu","PreSelection_ele","AK8sel","AK8sel_mu","AK8sel_ele",
+				     "MET","MET_mu","MET_ele","ST","ST_mu","ST_ele","triggerSingleLeptonMu",
 				     "triggerSingleLeptonEle","triggerSingleJet_mu","triggerSingleJet_ele",
 				     "triggerHT_mu","triggerHT_ele","triggerPFHT_mu","triggerPFHT_ele"};
     book_histograms(ctx, histogram_tags);
@@ -173,6 +178,15 @@ bool TstarTstarSelectionModule::process(Event & event) {
    cout << "pass_ttbarsemilep" <<endl;
  if(event.jets->size()<1) return false;//FixMe: why this is happening?
 
+
+ bool pass_ak8 = topjet_selection->passes(event);
+ if(!pass_ak8) return false;
+
+ fill_histograms(event, "AK8sel", pass_ttbarsemilep);
+ if(event.muons->size() == 1) fill_histograms(event, "AK8sel_mu", pass_ttbarsemilep);
+ if(event.electrons->size() == 1) fill_histograms(event, "AK8sel_ele", pass_ttbarsemilep);
+
+
  bool pass_MET =  met_sel->passes(event);
  if(!pass_MET) return false;
 
@@ -185,6 +199,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
  fill_histograms(event, "ST", pass_ttbarsemilep);
  if(event.muons->size() == 1) fill_histograms(event, "ST_mu", pass_ttbarsemilep);
  if(event.electrons->size() == 1) fill_histograms(event, "ST_ele", pass_ttbarsemilep);
+
 
 
   bool pass_trigger_SingleJet = (triggerSingleJet450_sel->passes(event) && event.jets->at(0).pt()>500);
