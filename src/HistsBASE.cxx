@@ -1,4 +1,4 @@
-#include <UHH2/ZprimeSemiLeptonic/include/HistsBASE.h>
+#include <UHH2/TstarTstar/include/HistsBASE.h>
 
 void HistsBASE::book_TH1F(const std::string& name_, const int xnbins_, const double xmin_, const double xmax_){
 
