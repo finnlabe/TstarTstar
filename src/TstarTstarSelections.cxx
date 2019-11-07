@@ -225,3 +225,26 @@ bool TTbarSemiLepMatchableSelection::passes(const Event & event){
 ////////////////////////////////////////////////////////
 
 
+uhh2::METCut::METCut(float min_met, float max_met):
+  min_met_(min_met), max_met_(max_met) {}
+
+bool uhh2::METCut::passes(const uhh2::Event& event){
+
+  assert(event.met);
+
+  float MET = event.met->pt();
+  return (MET > min_met_) && (MET < max_met_);
+}
+
+uhh2::STCut::STCut(float min_st, float max_st):
+  min_st_(min_st), max_st_(max_st) {}
+
+bool uhh2::STCut::passes(const uhh2::Event& event){
+
+  assert(event.jets);
+
+  float st_jets = 0;
+  std::vector<Jet>* jets = event.jets;
+  for(const auto & jet : *jets) st_jets += jet.pt();
+  return (st_jets > min_st_) && (st_jets < max_st_);
+}

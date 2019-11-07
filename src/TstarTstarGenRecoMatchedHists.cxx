@@ -93,6 +93,7 @@ void TstarTstarGenRecoMatchedHists::fill(const Event & event){
   bool found_tstar = false, found_antitstar = false, found_top = false, found_antitop = false;
   bool found_gluon1 = false, found_gluon2 = false, found_photon1 = false, found_photon2 = false;
   int n_gluons = 0, n_photons = 0;
+  //  vector<int> tstar_lep_jets, tstar_had_jets;
   for(const GenParticle & gp : *event.genparticles){
     if(gp.pdgId() == 6){
       top = gp;

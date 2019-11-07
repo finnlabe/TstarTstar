@@ -114,6 +114,7 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
 
     // 1. setup other modules. CommonModules
     common.reset(new CommonModules());
+    common->disable_mcpileupreweight();//FixME: PU re-weighting crushes
     common->switch_metcorrection();
     common->switch_jetlepcleaner();
     common->switch_jetPtSorter();
@@ -151,6 +152,7 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
     TTbarSemiLepMatchable_selection.reset(new TTbarSemiLepMatchableSelection());
 
     isTrigger = (ctx.get("UseTrigger") == "true");
+    //isTrigger =  false; //TEST
     triggerSingleJet450_sel.reset(new TriggerSelection("HLT_PFJet450_v*"));
     //    triggerSingleLeptonEle_sel.reset(new TriggerSelection("HLT_Ele32_eta2p1_WPTight_Gsf_v*"));
     // triggerSingleLeptonMu1_sel.reset(new TriggerSelection("HLT_IsoMu24_v*"));
@@ -244,12 +246,12 @@ bool TstarTstarMCStudyModule::process(Event & event) {
    
   if(debug)   
     cout << "TstarTstarMCStudyModule: Starting to process event (runid, eventid) = (" << event.run << ", " << event.event << "); weight = " << event.weight << endl;
-  if(debug){
-    cout<<"BEFORE N photons = "<<event.photons->size()<<endl;
-    for (const Photon & thisgamma : *event.photons){
-      cout<<" thisgamma.pt() = "<<thisgamma.pt()<<" thisgamma.eta() = "<<thisgamma.eta()<<endl;
-    }
-  }
+  // if(debug){
+  //   cout<<"BEFORE N photons = "<<event.photons->size()<<endl;
+  //   for (const Photon & thisgamma : *event.photons){
+  //     cout<<" thisgamma.pt() = "<<thisgamma.pt()<<" thisgamma.eta() = "<<thisgamma.eta()<<endl;
+  //   }
+  // }
 
   event.set(h_M_Tstar_gluon, 0.);
   event.set(h_M_Tstar_gamma, 0.);
@@ -266,12 +268,12 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   common->process(event);
   h_common->fill(event);
 
-  if(debug){
-    cout<<"AFTER N photons = "<<event.photons->size()<<endl;
-    for (const Photon & thisgamma : *event.photons){
-      cout<<" thisgamma.pt() = "<<thisgamma.pt()<<" thisgamma.eta() = "<<thisgamma.eta()<<endl;
-    }
-  }
+  // if(debug){
+  //   cout<<"AFTER N photons = "<<event.photons->size()<<endl;
+  //   for (const Photon & thisgamma : *event.photons){
+  //     cout<<" thisgamma.pt() = "<<thisgamma.pt()<<" thisgamma.eta() = "<<thisgamma.eta()<<endl;
+  //   }
+  // }
 
   //---- Loose selection
   // Require at least 1 jet
@@ -300,6 +302,7 @@ bool TstarTstarMCStudyModule::process(Event & event) {
     std::tie(dRmin, pTrel) = drmin_pTrel(muo, *event.jets);
     muo.set_tag(Muon::twodcut_dRmin, dRmin);
     muo.set_tag(Muon::twodcut_pTrel, pTrel);
+    if(debug) cout<<"Muon.Pt = "<<muo.pt()<<endl;
   }
   for(auto& ele : *event.electrons){
     float    dRmin, pTrel;
@@ -307,6 +310,7 @@ bool TstarTstarMCStudyModule::process(Event & event) {
 
     ele.set_tag(Electron::twodcut_dRmin, dRmin);
     ele.set_tag(Electron::twodcut_pTrel, pTrel);
+    if(debug) cout<<"Electron.Pt = "<<ele.pt()<<endl;
   }
   const bool pass_twodcut = twodcut_sel->passes(event);
   if(!pass_twodcut) return false;
@@ -325,7 +329,8 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   else h_nosemilepttbarmatch->fill(event);
 
   if(isTrigger){
-    if(debug) cout<<"N jets = "<<event.jets->size()<<endl;
+    //    cout<<"AAAAAAAAAa why am I here???"<<endl;
+    if(debug) cout<<"N AK4 jets = "<<event.jets->size()<<" N AK8 jets = "<<event.topjets->size()<<endl;
     bool pass_trigger_SingleJet = (triggerSingleJet450_sel->passes(event) && event.jets->at(0).pt()>450);
     if(pass_trigger_SingleJet && pass_ttbarsemilep){
       h_semilepttbarmatch_triggerSingleJet->fill(event);
@@ -381,7 +386,9 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   //  const ReconstructionHypothesis* hyp = get_best_hypothesis(hyps, "Chi2"); TODO
   ReconstructionHypothesis hyp;
   if(hyps.size()>0) hyp = hyps.at(0);//FixMe: change placeholder to "best hypothesis" candidate
-  if(debug) cout<<" Best hypothesis ...  "<<hyp.neutrino_v4()<<endl;
+  double W_mass = hyp.wlep_v4().M();
+  if(abs(W_mass-80.399)>10) return false; //store only hypotheses with 2 solutions, which leads to correct W mass
+  if(debug) cout<<" Best hypothesis ...  "<<hyp.neutrino_v4()<<" W mass = "<<W_mass<<endl;
   hyps.clear();
   if(debug) cout<<" Best hypothesis copied ...  "<<endl;
   event.set(h_recohyp, hyp); //save "best" hypothesis in event
