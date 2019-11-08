@@ -71,8 +71,8 @@ private:
   std::unique_ptr<Hists> h_RecoPlots_After_ttbar, h_RecoPlots_After_TstarTstar, h_RecoPlots_After_TstarTstar_match;
   
   bool isTrigger = false;
-  bool debug = true;
-  //bool debug = false;
+  //bool debug = true;
+  bool debug = false;
   std::unique_ptr<uhh2::AnalysisModule> reco_primlep;
   std::unique_ptr<uhh2::AnalysisModule> ttbar_reco;
   std::unique_ptr<ttbarChi2Discriminator> ttbar_discriminator;
@@ -382,11 +382,10 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   if(debug) {cout << "Finished. Finding best Hypothesis..."<< endl;}	\
   ttbar_discriminator->process(event);
 
-  h_RecoPlots_After_ttbar->fill(event);
-
   ReconstructionHypothesis hyp = event.get(h_recohyp);  
 
   if(event.get(h_is_ttbar_reconstructed)){
+    h_RecoPlots_After_ttbar->fill(event);
     if(TstarTstar_reco->process(event)){
       h_After_TstarTstar_Reco->fill(event);
       h_RecoPlots_After_TstarTstar->fill(event);
