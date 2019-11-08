@@ -61,22 +61,74 @@
 
         <!-- Verion attribute must have year in it, same as used in ntuple config, e.g. 2018, 2016v3, etc -->
 
+	<!-- ##### gamma gluon ##### -->
 
-	<InputData Lumi="35000" NEventsMax="5000" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1500_Run2016v3" Cacheable="False">
+	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-700_Run2016v3" Cacheable="False">
+	  &MC_TstarTstarToTgammaTgluon_M-700_Run2016v3;
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-800_Run2016v3" Cacheable="False">
+	  &MC_TstarTstarToTgammaTgluon_M-800_Run2016v3;
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-900_Run2016v3" Cacheable="False">
+	  &MC_TstarTstarToTgammaTgluon_M-900_Run2016v3;
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1000_Run2016v3" Cacheable="False">
+	  &MC_TstarTstarToTgammaTgluon_M-1000_Run2016v3;
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1100_Run2016v3" Cacheable="False">
+	  &MC_TstarTstarToTgammaTgluon_M-1100_Run2016v3;
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1200_Run2016v3" Cacheable="False">
+	  &MC_TstarTstarToTgammaTgluon_M-1200_Run2016v3;
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1300_Run2016v3" Cacheable="False">
+	  &MC_TstarTstarToTgammaTgluon_M-1300_Run2016v3;
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1400_Run2016v3" Cacheable="False">
+	  &MC_TstarTstarToTgammaTgluon_M-1400_Run2016v3;
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+	<InputData Lumi="35000" NEventsMax="7500" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1500_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgammaTgluon_M-1500_Run2016v3;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-<!--
 	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1600_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgammaTgluon_M-1600_Run2016v3;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
--->
+
+
+	<!-- ##### gluon gluon ##### -->
 
 	<!--
+
+
 	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-700_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgluonTgluon_M-700_Run2016v3;
           <InputTree Name="AnalysisTree" />
@@ -134,6 +186,12 @@
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
+
+	-->
+
+	<!-- ##### gamma gamma ##### -->
+
+	<!--
 
         <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgamma_M-700_Run2016v3" Cacheable="False"> 
 	  &MC_TstarTstarToTgammaTgamma_M-700_Run2016v3;
