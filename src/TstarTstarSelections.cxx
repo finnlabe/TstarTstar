@@ -35,7 +35,13 @@ bool uhh2::TwoDCut::passes(const uhh2::Event& event){
 }
 
 //From Z'->ttbar
-TTbarSemiLepMatchableSelection::TTbarSemiLepMatchableSelection(){}
+TTbarSemiLepMatchableSelection::TTbarSemiLepMatchableSelection(){
+  Wlep = GenParticle(); Whad = GenParticle();
+  blep =  GenParticle(); bhad = GenParticle();
+  thad =  GenParticle(); tlep =  GenParticle();
+  lepton =  GenParticle(); neutrino =  GenParticle(); 
+  Whadd1 =  GenParticle(); Whadd2 =  GenParticle();
+}
 bool TTbarSemiLepMatchableSelection::passes(const Event & event){
   // For pdgID mapping see https://twiki.cern.ch/twiki/bin/view/Main/PdgId
   if(event.isRealData) return false;
@@ -57,7 +63,7 @@ bool TTbarSemiLepMatchableSelection::passes(const Event & event){
         b = gp.daughter(event.genparticles,2);
         W = gp.daughter(event.genparticles,1);
       }
-      //      cout<<" W->pdgId() = "<<W->pdgId()<<" b->pdgId() = "<<b->pdgId()<<endl;
+
       if(abs(W->pdgId()) != 24) {
         for(unsigned int j = 0; j < event.genparticles->size(); ++j) {
           const GenParticle & genp = event.genparticles->at(j);
@@ -82,6 +88,7 @@ bool TTbarSemiLepMatchableSelection::passes(const Event & event){
           }
         }
       }
+      //      cout<<" W->pdgId() = "<<W->pdgId()<<" b->pdgId() = "<<b->pdgId()<<endl;
       //      if(!((fabs(b->pdgId()) == 5 || fabs(b->pdgId()) == 3 || fabs(b->pdgId()) == 1) && fabs(W->pdgId()) == 24)) cout<<"!!! Top decay products (W,b) are not found"<<endl;
       if(!((fabs(b->pdgId()) == 5 || fabs(b->pdgId()) == 3 || fabs(b->pdgId()) == 1) && fabs(W->pdgId()) == 24)) return false;
 
@@ -111,7 +118,7 @@ bool TTbarSemiLepMatchableSelection::passes(const Event & event){
         }
         idx++;
       }
-      //      if(!matched_b_ak4 && !matched_b_ak8) cout<<"!!! b jet is not matched to neither AK4 neither to AK8, eta of b gen = "<<b->eta()<<endl;
+      //      if(!matched_b_ak4 && !matched_b_ak8) cout<<"!!! b jet is not matched to neither AK4 neither to AK8, eta of b gen = "<<b->eta()<<", pt of b gen = "<<b->pt()<<endl;
       if(!matched_b_ak4 && !matched_b_ak8) return false;
 
       //Check decaymodes of W
@@ -120,7 +127,11 @@ bool TTbarSemiLepMatchableSelection::passes(const Event & event){
       if(fabs(Wd1->pdgId()) < 7 && fabs(Wd2->pdgId()) < 7){
         if(found_had) return false;
         found_had = true;
-
+	Whad = *W;
+	bhad = *b;
+	thad = gp;
+	Whadd1 = *Wd1;
+	Whadd2 = *Wd2;
         //check if both daughters can be matched by jets
         bool matched_d1_ak4 = false, matched_d2_ak4 = false;
         bool matched_d1_ak8 = false, matched_d2_ak8 = false;
@@ -141,8 +152,12 @@ bool TTbarSemiLepMatchableSelection::passes(const Event & event){
         }
 
         // if(!(matched_d1 && matched_d2)) return false;
-	//        if(!(matched_b_ak4 && matched_d1_ak4 && matched_d2_ak4) && !(matched_b_ak8 && matched_d1_ak8 && matched_d2_ak8))
-	  //  cout<<"!!! Hadronic side is not matched, ak4:"<<matched_b_ak4<<" "<<matched_d1_ak4<<" "<<matched_d2_ak4<<" ak8:"<<matched_b_ak8<<" "<<matched_d1_ak8<<" "<<matched_d2_ak8<<endl;
+	// cout<<" Wd1->eta(), Wd1->pt(): "<<Wd1->eta()<<", "<<Wd1->pt()<<" Wd2->eta(), Wd2->pt(): "<<Wd2->eta()<<", "<<Wd2->pt()<<" dR(Wd1,Wd2) = "<<deltaR(*Wd1,*Wd2)<<endl;
+	// cout<<"Easy case: AK4 jets only, match to b, Wd1, Wd2: "<<matched_b_ak4<<", "<<matched_d1_ak4<<", "<<matched_d2_ak4<<endl;
+	// cout<<"Easy case: AK8 jets only, match to b, Wd1, Wd2: "<<matched_b_ak8<<", "<<matched_d1_ak8<<", "<<matched_d2_ak8<<endl;
+
+	// if(!(matched_b_ak4 && matched_d1_ak4 && matched_d2_ak4) && !(matched_b_ak8 && matched_d1_ak8 && matched_d2_ak8))
+	//   cout<<"!!! Hadronic side is not matched, ak4:"<<matched_b_ak4<<" "<<matched_d1_ak4<<" "<<matched_d2_ak4<<" ak8:"<<matched_b_ak8<<" "<<matched_d1_ak8<<" "<<matched_d2_ak8<<endl;
         if(!(matched_b_ak4 && matched_d1_ak4 && matched_d2_ak4) && !(matched_b_ak8 && matched_d1_ak8 && matched_d2_ak8)) return false;
       }
 
@@ -195,6 +210,11 @@ bool TTbarSemiLepMatchableSelection::passes(const Event & event){
           nu = Wd1;
         }
         if(!(abs(lep->pdgId()) == 11 && abs(nu->pdgId()) == 12) && !(abs(lep->pdgId()) == 13 && abs(nu->pdgId()) == 14)) throw runtime_error("In TTbarSemiLepMatchable: The leptonic W does not decay into a lepton and its neutrino.");
+	Wlep = *W;
+	blep = *b;
+	tlep = gp;
+	lepton = *lep;
+	neutrino = *nu;
 
         //check, if lepton can be matched
         bool matched_lep = false;
@@ -220,6 +240,87 @@ bool TTbarSemiLepMatchableSelection::passes(const Event & event){
   if(!(found_had && found_lep)) return false;
   //  cout<<"### found_had = "<<found_had<<" found_lep = "<<found_lep<<endl;
   return true;
+}
+
+std::pair<bool,double> TTbarSemiLepMatchableSelection::check_reco(const ReconstructionHypothesis hyp){
+
+  //Following check with matching to GEN particles as described in AN2015-107 (Z' with 2015 data)
+  //Hadronic top
+  bool tophad_match = false;
+  double dR_Wd1_min = 1e6;
+  double dR_Wd2_min = 1e6;
+  double dR_bhad_min = 1e6;
+  if(!hyp.tophad_topjet_ptr()){//hadronic top reconstructed as set of AK4 jets
+    //    cout<<"Check AK4 jets for hadronic top"<<endl;
+    for (uint i = 0; i < hyp.tophad_jets().size(); i++){
+      double dR_Wd1 = deltaR(hyp.tophad_jets().at(i).v4(), Whadd1.v4());
+      double dR_Wd2 = deltaR(hyp.tophad_jets().at(i).v4(), Whadd2.v4());
+      double dR_bhad = deltaR(hyp.tophad_jets().at(i).v4(), bhad.v4());
+      if(dR_Wd1_min>dR_Wd1) dR_Wd1_min = dR_Wd1;
+      if(dR_Wd2_min>dR_Wd2) dR_Wd2_min = dR_Wd2;
+      if(dR_bhad_min>dR_bhad) dR_bhad_min = dR_bhad;
+    }
+    if(dR_Wd1_min<0.4 && dR_Wd2_min<0.4 && dR_bhad_min<0.4) tophad_match = true;
+  }
+  else{//hadronic top reconstructed as AK8 jet
+    dR_Wd1_min = deltaR(hyp.tophad_topjet_ptr()->v4(), Whadd1.v4());
+    dR_Wd2_min = deltaR(hyp.tophad_topjet_ptr()->v4(), Whadd2.v4());
+    dR_bhad_min = deltaR(hyp.tophad_topjet_ptr()->v4(), bhad.v4());
+    if(dR_Wd1_min<0.8 && dR_Wd2_min<0.8 && dR_bhad_min<0.8) tophad_match = true;
+  }
+
+  //Leptonic top
+  bool toplep_match = false;
+  double dR_lep = deltaR(lepton.v4(),hyp.lepton().v4());
+  double dR_neutrino = deltaR(neutrino.v4(),hyp.neutrino_v4());
+  double dPhi_neutrino = deltaPhi(neutrino.v4(),hyp.neutrino_v4());
+  double dR_blep_min = 1e6;
+  for (uint i = 0; i < hyp.toplep_jets().size(); i++){
+    double dR_blep = deltaR(hyp.toplep_jets().at(i).v4(), blep.v4());
+    if(dR_blep_min>dR_blep) dR_blep_min=dR_blep;
+  }
+
+  if(dR_blep_min<0.4 && dR_lep<0.1 && dPhi_neutrino<0.3) toplep_match = true;
+
+  double deltaM_lep = fabs(hyp.toplep_v4().M()-tlep.v4().M())/tlep.v4().M();
+  double deltaM_had = fabs(hyp.tophad_v4().M()-thad.v4().M())/thad.v4().M();
+  // cout<<"GEN: tlep.v4().M() = "<<tlep.v4().M()<<" thad.v4().M() = "<<thad.v4().M()<<endl;
+  // cout<<"RECO: hyp.toplep_v4().M() = "<<hyp.toplep_v4().M()<<" hyp.tophad_v4().M() = "<<hyp.tophad_v4().M()<<endl;
+  // cout<<"DELTA: "<<deltaM_lep<<" "<<deltaM_had<<endl;
+  // cout<<" toplep_match, tophad_match :"<<toplep_match<<", "<<tophad_match<<endl;
+  // cout<<" dR_neutrino = "<<dR_neutrino<<" dPhi_neutrino = "<<dPhi_neutrino<<" dRlep = "<<dR_lep<<" dR_blep_min = "<<dR_blep_min<<endl;
+  // cout<<" dR_Wd1 = "<<dR_Wd1_min<<" dR_Wd2 = "<<dR_Wd2_min<<" dR_bhad = "<<dR_bhad_min<<endl;
+  // vector<double> dR;//dRWd1had,dRWd2had,dRbhad,dRlep,dPhineutrino,dRblep
+  // dR.push_back(dR_Wd1_min);
+  // dR.push_back(dR_Wd2_min);
+  // dR.push_back(dR_bhad_min);
+  // dR.push_back(dR_lep);
+  // dR.push_back(dPhi_neutrino);
+  // dR.push_back(dRblep);
+
+  double dR_sum = dR_Wd1_min; dR_sum+=dR_Wd2_min;  dR_sum+=dR_bhad_min; dR_sum+=dR_lep; dR_sum+=dPhi_neutrino; dR_sum+=dR_blep_min;
+  pair<bool,double> result;
+  result.second = dR_sum;
+  if(!toplep_match || !tophad_match){
+    result.first = false;
+  }
+  else{
+    result.first = true;
+  }
+  //  cout<<"### WE FOUND MATCH! ###"<<endl;
+  //  return true;
+  return result;
+  // double dR_top_lep_reco_gen = deltaR( tlep.v4(), hyp.toplep_v4());
+  // double dR_top_had_reco_gen = deltaR( thad.v4(), hyp.tophad_v4());
+  // //  double dR_lep_reco_gen = deltaR(lepton.v4(),hyp.lepton().v4());
+  // //  cout<<"Hi from TTbarSemiLepMatchableSelection::check_reco!"<<endl;
+  // //  cout<<"dR_top_lep_reco_gen ="<<dR_top_lep_reco_gen<<" dR_top_had_reco_gen = "<<dR_top_had_reco_gen<<endl;
+  // //  cout<<" dR_lep_reco_gen = "<<dR_lep_reco_gen<<endl;
+  // if(dR_top_lep_reco_gen>0.4 || dR_top_had_reco_gen>0.4) return false;
+ 
+  
+  // if(deltaM_lep>1 || deltaM_had>1) return false;
+  // return true;
 }
 
 ////////////////////////////////////////////////////////
