@@ -22,15 +22,25 @@ TstarTstarRecoHists::TstarTstarRecoHists(Context & ctx, const string & dirname):
   h_recohyp_ = ctx.get_handle<ReconstructionHypothesis>("TTbarReconstruction_best");
   h_is_ttbar_reconstructed_ = ctx.get_handle< bool >("is_ttbar_reconstructed_chi2");
   
-  book<TH1F>("DeltaR_closest_toplepjet_ak8jet1", "DeltaR_toplepjet_ak8jet1", 40, 0, 4);
-  book<TH1F>("DeltaR_closest_tophadjet_ak8jet1", "DeltaR_tophadjet_ak8jet1", 40, 0, 4);
-  book<TH1F>("DeltaR_closest_toplepjet_ak8jet2", "DeltaR_toplepjet_ak8jet2", 40, 0, 4);
-  book<TH1F>("DeltaR_closest_tophadjet_ak8jet2", "DeltaR_tophadjet_ak8jet2", 40, 0, 4);
+  book<TH1F>("DeltaR_closest_toplepjet_ak8jet1", "DeltaR_toplepjet_ak8jet1", 50, 0, 5);
+  book<TH1F>("DeltaR_closest_tophadjet_ak8jet1", "DeltaR_tophadjet_ak8jet1", 50, 0, 5);
+  book<TH1F>("DeltaR_closest_toplepjet_ak8jet2", "DeltaR_toplepjet_ak8jet2", 50, 0, 5);
+  book<TH1F>("DeltaR_closest_tophadjet_ak8jet2", "DeltaR_tophadjet_ak8jet2", 50, 0, 5);
 
-  book<TH1F>("DeltaR_toplep_gamma", "DeltaR_toplep_gamma", 40, 0, 4);
-  book<TH1F>("DeltaR_tophad_gamma", "DeltaR_tophad_gamma", 40, 0, 4);
-  book<TH1F>("DeltaR_gamma_ak8jet1", "DeltaR_gamma_ak8jet1", 40, 0, 4);
-  book<TH1F>("DeltaR_gamma_ak8jet2", "DeltaR_gamma_ak8jet2", 40, 0, 4);
+  book<TH1F>("DeltaR_toplep_gamma", "DeltaR_toplep_gamma", 30, 0, 6);
+  book<TH1F>("DeltaR_tophad_gamma", "DeltaR_tophad_gamma", 30, 0, 6);
+  book<TH1F>("DeltaR_toplep_ak8jet1", "DeltaR_toplep_ak8jet1", 30, 0, 6);
+  book<TH1F>("DeltaR_tophad_ak8jet1", "DeltaR_tophad_ak8jet1", 30, 0, 6);
+  book<TH1F>("DeltaR_toplep_ak8jet2", "DeltaR_toplep_ak8jet2", 30, 0, 6);
+  book<TH1F>("DeltaR_tophad_ak8jet2", "DeltaR_tophad_ak8jet2", 30, 0, 6);
+
+  book<TH1F>("DeltaR_gamma_ak8jet1", "DeltaR_gamma_ak8jet1", 30, 0, 6);
+  book<TH1F>("DeltaR_gamma_ak8jet2", "DeltaR_gamma_ak8jet2", 30, 0, 6);
+
+  book<TH1F>("DeltaR_min_top_gamma", "DeltaR_min_top_gamma", 30, 0, 6);
+  book<TH1F>("DeltaR_min_top_ak8jet1", "DeltaR_min_top_ak8jet1", 30, 0, 6);  
+  book<TH1F>("DeltaR_min_top_ak8jet2", "DeltaR_min_top_ak8jet2", 30, 0, 6);  
+
 }
 
 
@@ -87,9 +97,34 @@ void TstarTstarRecoHists::fill(const Event & event){
     hist("DeltaR_closest_tophadjet_ak8jet2")->Fill(DeltaR_min, weight);
   }
 
-  //TODO All other DeltaRs
-  if(event.photons->size()>0){hist("DeltaR_toplep_gamma")->Fill( deltaR(hyp.toplep_v4(), event.photons->at(0)), weight);}
-  if(event.photons->size()>0){hist("DeltaR_tophad_gamma")->Fill( deltaR(hyp.tophad_v4(), event.photons->at(0)) , weight);}
+  if(event.photons->size()>0){
+    float dR_toplep_photon = deltaR(hyp.toplep_v4(), event.photons->at(0));
+    float dR_tophad_photon = deltaR(hyp.tophad_v4(), event.photons->at(0));
+
+    hist("DeltaR_toplep_gamma")->Fill( dR_toplep_photon, weight);
+    hist("DeltaR_tophad_gamma")->Fill( dR_tophad_photon, weight);
+    hist("DeltaR_min_top_gamma")->Fill( min(dR_toplep_photon, dR_tophad_photon) , weight);
+  }
+
+  if(event.topjets->size()>0){
+    float dR_toplep_gluon = deltaR(hyp.toplep_v4(), event.topjets->at(0));
+    float dR_tophad_gluon = deltaR(hyp.tophad_v4(), event.topjets->at(0));
+
+    hist("DeltaR_toplep_ak8jet1")->Fill( dR_toplep_gluon, weight);
+    hist("DeltaR_tophad_ak8jet1")->Fill( dR_tophad_gluon, weight);
+    hist("DeltaR_min_top_ak8jet1")->Fill( min(dR_toplep_gluon, dR_tophad_gluon) , weight);
+  }
+
+  if(event.topjets->size()>1){
+    float dR_toplep_gluon = deltaR(hyp.toplep_v4(), event.topjets->at(1));
+    float dR_tophad_gluon = deltaR(hyp.tophad_v4(), event.topjets->at(1));
+
+    hist("DeltaR_toplep_ak8jet2")->Fill( dR_toplep_gluon, weight);
+    hist("DeltaR_tophad_ak8jet2")->Fill( dR_tophad_gluon, weight);
+    hist("DeltaR_min_top_ak8jet2")->Fill( min(dR_toplep_gluon, dR_tophad_gluon) , weight);
+  }
+
+
   if(event.topjets->size()>0 && event.photons->size()>0){hist("DeltaR_gamma_ak8jet1")->Fill( deltaR(event.photons->at(0), event.topjets->at(0)) , weight);}
   if(event.topjets->size()>1 && event.photons->size()>0){hist("DeltaR_gamma_ak8jet2")->Fill( deltaR(event.photons->at(0), event.topjets->at(1)) , weight);}
 

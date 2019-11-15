@@ -50,6 +50,7 @@ TstarTstarGenHists::TstarTstarGenHists(Context & ctx, const string & dirname): H
   book<TH1F>("N_gluon_gen", "N_{gluons} from TstarTstar", 10, 0, 10);  
   book<TH1F>("dR_min_gluon_top_gen", "dR^{min}(gluon,top)", 30, 0, 6);  
   book<TH1F>("dR_min_photon_top_gen", "dR^{min}(#gamma,top)", 30, 0, 6);  
+  book<TH1F>("dR_photon_gluon_gen", "dR(#gamma,gluon) (only for Tgamma+Tgluon)", 30, 0, 6);  
 
   is_mc = ctx.get("dataset_type") == "MC";
 }
@@ -201,6 +202,10 @@ void TstarTstarGenHists::fill(const Event & event){
     double dR_min2 = dR21;
     if(dR22<dR21) dR_min2 = dR22;
     hist("dR_min_photon_top_gen")->Fill(dR_min2,weight);
+
+    //Plot this only for the interesting Tgluon+Tgamma case
+    double dRgluongamma = deltaR(gluon, photon);
+    hist("dR_photon_gluon_gen")->Fill(dRgluongamma, weight);
   }
 }
 

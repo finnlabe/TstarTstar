@@ -4,7 +4,7 @@
 // Run it with following command:
 // root -l -b -q photonSelecPlots.C
 
-void photonSelecPlots(TString filename="uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgammaTgluon_M-1500_Run2016v3.root", TString label="TstarTstarToTgammaTgluon_M-1500_Run2016v3", TString subpath="AfterCommon",TString histname="N_photon"){
+void photonSelecPlots(TString filename="uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgammaTgluon_M-1500_Run2016v3.root", TString label="TstarTstarToTgammaTgluon_M-1500_Run2016v3", TString subpath="After_TstarTstar_Reco",TString histname="N_photon"){
   gStyle->SetOptFit(0);
   gStyle->SetOptStat(0);
   gStyle->SetTitleSize(0.06,"x");  
@@ -28,15 +28,15 @@ void photonSelecPlots(TString filename="uhh2.AnalysisModuleRunner.MC.MC_TstarTst
   //TODO: should use some kind of for loop if this is actually used in any way!
   //Files after selection
   
-  TString crit[5] = {"cutBasedPhotonIDloose", "cutBasedPhotonIDmedium", "cutBasedPhotonIDtight", "mvaPhoIDwp90", "mvaPhoIDwp80"};
+  TString crit[5] = {"mvaPhoIDwp90"};
 
   TString path_pre = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/RunII_2016_MuonHihjPtId_";
   TString path_post = "Fall17_nonIsoandIsoHLT_addTTBarRECO/semileptonic/";
   
   TCanvas *c1_hist = new TCanvas("chist", "c", w, h);
-  TLegend *leg = new TLegend(0.5,0.7,0.83,0.95);
+  TLegend *leg = new TLegend(0.5,0.7,0.83,0.90);
 
-  for (int i = 0; i<5; i++){
+  for (int i = 0; i<1; i++){
     TFile *input = TFile::Open(path_pre+crit[i]+path_post+filename);
     TH1D *hist = (TH1D*)input->Get(subpath+"/"+histname);//histogram
     if(!hist) cout<<"Hist is empty"<<endl;;
@@ -55,8 +55,8 @@ void photonSelecPlots(TString filename="uhh2.AnalysisModuleRunner.MC.MC_TstarTst
     }
   }
   
-  leg->Draw();
+  //leg->Draw();
 
 
-  c1_hist->SaveAs("SelEff_"+label+"_"+subpath+"_"+histname+".pdf");
+  c1_hist->SaveAs("N_Gamma_"+label+"_"+subpath+"_"+histname+".pdf");
 }

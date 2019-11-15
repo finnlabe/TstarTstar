@@ -86,12 +86,14 @@
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
-
+	
+	<!--  Does not exist!
 	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1100_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgammaTgluon_M-1100_Run2016v3;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
+	-->
 
 	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1200_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgammaTgluon_M-1200_Run2016v3;
@@ -111,7 +113,7 @@
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="35000" NEventsMax="7500" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1500_Run2016v3" Cacheable="False">
+	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1500_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgammaTgluon_M-1500_Run2016v3;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
