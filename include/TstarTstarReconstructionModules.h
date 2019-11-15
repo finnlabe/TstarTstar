@@ -30,14 +30,16 @@ private:
 
 
 
-class TstarTstar_Reconstruction : uhh2::AnalysisModule{
+class TstarTstar_tgluon_tgamma_Reconstruction : uhh2::AnalysisModule{
 
 public:
-  explicit TstarTstar_Reconstruction(uhh2::Context&);
+  explicit TstarTstar_tgluon_tgamma_Reconstruction(uhh2::Context&);
   virtual bool process(uhh2::Event&) override;
 
 private:
-  uhh2::Event::Handle<ReconstructionHypothesis> h_recohyp_;
+  uhh2::Event::Handle<ReconstructionHypothesis> h_recohyp_ttbar_;
+  uhh2::Event::Handle<ReconstructionTstarHypothesis> h_recohyp_tstartstar_best_; //best of TstarTstar hypothesis reconstructed in this class
+
   /* uhh2::Event::Handle<float> h_M_Tstar_gluon_; */
   /* uhh2::Event::Handle<float> h_M_Tstar_gamma_; */
 

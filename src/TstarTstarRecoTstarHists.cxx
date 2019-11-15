@@ -19,11 +19,11 @@ namespace {
 TstarTstarRecoTstarHists::TstarTstarRecoTstarHists(Context & ctx, const string & dirname): Hists(ctx, dirname){
   // book all histograms here
 
-  // //M_Tstar
-  // h_M_Tstar_gluon_ = ctx.get_handle< float >("M_Tstar_gluon");
-  // h_M_Tstar_gamma_ = ctx.get_handle< float >("M_Tstar_gamma");
-  // book<TH1F>("M_Tstar_gluon", "M_{T^{*}_{g}} [GeV]", 30, 0, 3000);
-  // book<TH1F>("M_Tstar_gamma", "M_{T^{*}_{#gamma}} [GeV]", 30, 0, 3000);
+  h_recohyp_tstartstar_tgtgamma_best_ = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_tgtgamma_best");
+
+  //M_Tstar
+  book<TH1F>("M_Tstar_gluon", "M_{T^{*}_{g}} [GeV]", 30, 0, 3000);
+  book<TH1F>("M_Tstar_gamma", "M_{T^{*}_{#gamma}} [GeV]", 30, 0, 3000);
 
   //Delta_R
   h_recohyp_ = ctx.get_handle<ReconstructionHypothesis>("TTbarReconstruction_best");
@@ -78,11 +78,9 @@ void TstarTstarRecoTstarHists::fill(const Event & event){
   // Don't forget to always use the weight when filling.
   double weight = event.weight;
   
+  // TODO #################
   // hist("M_Tstar_gluon")->Fill(event.get(h_M_Tstar_gluon_), weight);
   // hist("M_Tstar_gamma")->Fill(event.get(h_M_Tstar_gamma_), weight);
-
-  // hist("M_Tstar_lep")->Fill(event.get(h_M_Tstar_lep_), weight);
-  // hist("M_Tstar_had")->Fill(event.get(h_M_Tstar_had_), weight);
 
   ReconstructionHypothesis hyp = event.get(h_recohyp_);
 

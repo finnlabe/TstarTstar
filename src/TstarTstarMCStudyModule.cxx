@@ -78,7 +78,7 @@ private:
   std::unique_ptr<uhh2::AnalysisModule> reco_primlep;
   std::unique_ptr<uhh2::AnalysisModule> ttbar_reco;
   std::unique_ptr<ttbarChi2Discriminator> ttbar_discriminator;
-  std::unique_ptr<TstarTstar_Reconstruction> TstarTstar_reco;
+  std::unique_ptr<TstarTstar_tgluon_tgamma_Reconstruction> TstarTstar_tgluon_tgamma_reco;
   std::unique_ptr<TstarTstar_tgluon_tgluon_Reconstruction> TstarTstar_tgluon_tgluon_reco;
   uhh2::Event::Handle<std::vector<ReconstructionHypothesis>> h_ttbar_hyps;
   uhh2::Event::Handle<bool> h_is_ttbar_reconstructed;
@@ -259,7 +259,7 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
     // h_M_Tstar_lep = ctx.get_handle< float >("M_Tstar_lep");
     // h_M_Tstar_had = ctx.get_handle< float >("M_Tstar_had");
 
-    TstarTstar_reco.reset(new TstarTstar_Reconstruction(ctx));
+    TstarTstar_tgluon_tgamma_reco.reset(new TstarTstar_tgluon_tgamma_Reconstruction(ctx));
     TstarTstar_tgluon_tgluon_reco.reset(new TstarTstar_tgluon_tgluon_Reconstruction(ctx));
 }
 
@@ -401,30 +401,16 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   if(debug) {cout << "Starting ttbar reconstruction... ";}\
   ttbar_reco->process(event);//reconstruct ttbar
   
-  /** old stuff
-  // goal: save only the chi2-best ttbar hypothesis in output sub-ntuple
-  std::vector<ReconstructionHypothesis>& hyps = event.get(h_ttbar_hyps); //hyps contains all hypothesises
-  if(debug) cout<<"Number of ttbar hyps = "<<hyps.size()<<endl;
-  //  const ReconstructionHypothesis* hyp = get_best_hypothesis(hyps, "Chi2"); TODO
-  ReconstructionHypothesis hyp;
-  if(hyps.size()>0) hyp = hyps.at(0);//FixMe: change placeholder to "best hypothesis" candidate
-  double W_mass = hyp.wlep_v4().M();
-  if(abs(W_mass-80.399)>10) return false; //store only hypotheses with 2 solutions, which leads to correct W mass
-  if(debug) cout<<" Best hypothesis ...  "<<hyp.neutrino_v4()<<" W mass = "<<W_mass<<endl;
-  hyps.clear();
-  if(debug) cout<<" Best hypothesis copied ...  "<<endl;
-  event.set(h_recohyp, hyp); //save "best" hypothesis in event
-  **/
-
   if(debug) {cout << "Finished. Finding best Hypothesis..."<< endl;}   
   ttbar_discriminator->process(event);
 
   ReconstructionHypothesis hyp = event.get(h_recohyp);  
   if(debug) {cout << "Start TstarTstar reconstruction ..."<< endl;}
   if(event.get(h_is_ttbar_reconstructed)){
-    if(is_tgtgamma){ // Tstar+Tstar -> t+g + t+gamma //FixME: the code is broken and most probably won't work. Sorry!
+
+    if(is_tgtgamma){ // Tstar+Tstar -> t+g + t+gamma                     //FixME: the code is broken and most probably won't work. Sorry!
       h_RecoPlots_After_ttbar->fill(event);
-      if(TstarTstar_reco->process(event)){
+      if(TstarTstar_tgluon_tgamma_reco->process(event)){
 	h_After_TstarTstar_Reco->fill(event);
 	h_RecoPlots_After_TstarTstar->fill(event);
 	if(pass_ttbarsemilep){   //Check same plots for matching
@@ -433,19 +419,20 @@ bool TstarTstarMCStudyModule::process(Event & event) {
 	}
       }
     }
+
     if(is_tgtg){ // Tstar+Tstar -> t+g + t+g
       bool pass_check_reco_ttbar = false;
       if(pass_ttbarsemilep && check_ttbar_reco){
 	std::vector<ReconstructionHypothesis> ttbar_all_hyps = event.get(h_ttbar_hyps);
 	double mindRsum = 1e6; int best_match_hyp = -1;
 	bool pass_check_reco_ttbar = false;
-	  for(unsigned int i=0; i<ttbar_all_hyps.size(); i++){
-	    std::pair<bool,double> pass_check_reco_ttbar_pair = TTbarSemiLepMatchable_selection->check_reco(ttbar_all_hyps.at(i));
-	    if(pass_check_reco_ttbar_pair.first && pass_check_reco_ttbar_pair.second<mindRsum){
-	      mindRsum = pass_check_reco_ttbar_pair.second; 
-	      best_match_hyp = i;
-	      pass_check_reco_ttbar = true;
-	    }
+	for(unsigned int i=0; i<ttbar_all_hyps.size(); i++){
+	  std::pair<bool,double> pass_check_reco_ttbar_pair = TTbarSemiLepMatchable_selection->check_reco(ttbar_all_hyps.at(i));
+	  if(pass_check_reco_ttbar_pair.first && pass_check_reco_ttbar_pair.second<mindRsum){
+	    mindRsum = pass_check_reco_ttbar_pair.second; 
+	    best_match_hyp = i;
+	    pass_check_reco_ttbar = true;
+	  }
 	  
 	  if(pass_check_reco_ttbar){
 	    h_RecoPlots_After_ttbar_correct_ttbar->fill(event);//fill once per event if at least one good ttbar hypothesis found
@@ -461,10 +448,12 @@ bool TstarTstarMCStudyModule::process(Event & event) {
       if(pass_check_reco_ttbar && pass_tgluon_tgluon_reco)
 	h_RecoPlots_After_TstarTstar_tgtg_correct_ttbar->fill(event);
     }
+
   }
   else{
     if(debug){cout << "Event has no best hypothesis!" << endl;}
   }
+
   if(debug){cout << "Done ##################################" << endl << endl;}
   return true;
 }

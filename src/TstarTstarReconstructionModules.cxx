@@ -135,13 +135,11 @@ bool ttbarChi2Discriminator::process(uhh2::Event& event){
 }
 
 
-// ##### Now for the ugly code:
 
-
-TstarTstar_Reconstruction::TstarTstar_Reconstruction(uhh2::Context& ctx){
+TstarTstar_tgluon_tgamma_Reconstruction::TstarTstar_tgluon_tgamma_Reconstruction(uhh2::Context& ctx){
   // A lot of handles. Reconstructed Masses as well as several DeltaR are saved for plotting reasons mainly.
   // TODO later: better save reconstructed Tstar as some kind of object (particle?), to not use so many handles. Then DeltaR can be calculated when needed for plotting.
-  h_recohyp_ = ctx.declare_event_output<ReconstructionHypothesis>("TTbarReconstruction_best");
+  h_recohyp_ttbar_ = ctx.get_handle<ReconstructionHypothesis>("TTbarReconstruction_best");
   // h_M_Tstar_gluon_ = ctx.get_handle< float >("M_Tstar_gluon");
   // h_M_Tstar_gamma_ = ctx.get_handle< float >("M_Tstar_gamma");
   
@@ -151,7 +149,7 @@ TstarTstar_Reconstruction::TstarTstar_Reconstruction(uhh2::Context& ctx){
   // h_DeltaR_tophad_ak8jet2_ = ctx.get_handle< float >("DeltaR_tophad_ak8jet2");
 }
 
-bool TstarTstar_Reconstruction::process(uhh2::Event& event){
+bool TstarTstar_tgluon_tgamma_Reconstruction::process(uhh2::Event& event){
 
   //bool debug = true;
   bool debug = false;
@@ -160,95 +158,86 @@ bool TstarTstar_Reconstruction::process(uhh2::Event& event){
 
   // Get Information about jets that have been used in Reconstruction
   if(debug){cout << "Reading in Jets from best Hypothesis & Event" << endl;}
-  ReconstructionHypothesis hyp = event.get(h_recohyp_);
-  std::vector<Jet> used_jets_ = hyp.tophad_jets();
-  used_jets_.insert( used_jets_.end(), hyp.toplep_jets().begin(), hyp.toplep_jets().end() );
-  
+  ReconstructionHypothesis hyp_ttbar = event.get(h_recohyp_ttbar_);
+  ReconstructionTstarHypothesis recoHyp_best;
+  recoHyp_best.set_ttbar(hyp_ttbar);
+  event.set(h_recohyp_tstartstar_best_,recoHyp_best);
+
+  std::vector<Jet> used_jets_ = hyp_ttbar.tophad_jets();
+  used_jets_.insert( used_jets_.end(), hyp_ttbar.toplep_jets().begin(), hyp_ttbar.toplep_jets().end() );
   std::vector<TopJet> all_topjets_ = *event.topjets;
-
+  std::vector<bool> topjets_usage_(all_topjets_.size(), false);
+  int notusedtopjets_count_ = all_topjets_.size();
   if(debug){cout << "Searching for separated AK8Jet... " << endl;}
-  
-  //Calculate DeltaR between ak8 and closest ttbarjet for finding not used leading AK8 Jet Candidate
-  float DeltaR_min = 9999;
-  Jet leadingAK8;
-  bool leadingExists = false;
-
   for(uint j = 0; j < all_topjets_.size(); j++){
-    for (uint i = 0; i < hyp.tophad_jets().size(); i++){
-      float DeltaR_new = deltaR(hyp.tophad_jets().at(i), all_topjets_.at(j)); 
-      if(DeltaR_new < DeltaR_min){
-	DeltaR_min = DeltaR_new;
+    for (uint i = 0; i < used_jets_.size(); i++){
+      double dR_ =  deltaR(all_topjets_.at(j),used_jets_.at(i));
+      if(dR_<0.4){
+	topjets_usage_.at(i) = true;
+	notusedtopjets_count_--;
       }
-    }
-    for (uint i = 0; i < hyp.toplep_jets().size(); i++){
-      float DeltaR_new = deltaR(hyp.toplep_jets().at(i), all_topjets_.at(j)); 
-      if(DeltaR_new < DeltaR_min){
-	DeltaR_min = DeltaR_new;
-      }
-    }
-    //TODO: Maybe make cut applicable from outside
-    if(/*DeltaR_min > 0.4*/ true){
-      leadingAK8 = all_topjets_.at(j);
-      leadingExists = true;
-      break;
     }
   }
+  
 
-  if(!leadingExists){
-    if(debug){cout << "Error! No separated AK8Jet found!" << endl;}
-    return false;
-  }
-  
-  std::vector<std::vector<float>> M_Tstar_combinations_;
-  std::vector< float > M_Tstargluon_had_;
-  std::vector< float > M_Tstargluon_lep_;
-  std::vector< float > tempvec_;
-  
+  if(debug) cout<<"Number of not used in ttbar AK8 jets is "<<notusedtopjets_count_<<endl;
+  if(notusedtopjets_count_<1) return false; // Require one AK8 Jet
+
+  float M_tophad_gluon, M_toplep_gluon, M_tophad_photon, M_toplep_photon;
+  float diffM_min = 1e9;
+
   if(debug){cout << "Calculating all possible M_Tstar pairs..." << endl;}
-  //Calculate all possible M_Tstargluon und M_Tstargamma
-  //TODO (I dont like how this is done at the moment. Its fast enough at the moment, but maybe it can still be improved)
-  M_Tstargluon_had_.push_back(inv_mass(hyp.tophad_v4() + leadingAK8.v4()));
-  M_Tstargluon_lep_.push_back(inv_mass(hyp.toplep_v4() + leadingAK8.v4()));
 
-  for (uint j = 0; j < M_Tstargluon_lep_.size(); j++){
-    tempvec_.push_back(inv_mass(hyp.tophad_v4() + event.photons->at(0).v4()));
-    tempvec_.push_back(M_Tstargluon_lep_.at(j));
-    M_Tstar_combinations_.push_back(tempvec_);
-  }
-  for (uint j = 0; j < M_Tstargluon_had_.size(); j++){
-    tempvec_.push_back(inv_mass(hyp.toplep_v4() + event.photons->at(0).v4()));
-    tempvec_.push_back(M_Tstargluon_had_.at(j));
-    M_Tstar_combinations_.push_back(tempvec_);
-  }
+  for (uint i = 0; i < all_topjets_.size(); i++){
+    if(topjets_usage_.at(i)){break;}
 
-  //Find best TstarTstar pair
-  if(debug){cout << "Finding the best M_Tstar pair..." << endl;}
-  float chi2;
-  float chi2_best = 9999999;
-
-  float M_Tstargluon_best_ = 0;
-  float M_Tstargamma_best_ = 0;
-
-  for (uint i = 0; i < M_Tstar_combinations_.size(); i++){
-    tempvec_ = M_Tstar_combinations_.at(i);
-    chi2 = pow(tempvec_.at(0) - tempvec_.at(1),2);
+    M_tophad_gluon = inv_mass(hyp_ttbar.tophad_v4() + all_topjets_.at(i).v4());
+    M_toplep_gluon = inv_mass(hyp_ttbar.toplep_v4() + all_topjets_.at(i).v4());
     
-    if(chi2 < chi2_best){
-      chi2_best = chi2;
-      M_Tstargluon_best_ = tempvec_.at(0);
-      M_Tstargamma_best_ = tempvec_.at(1);
+    for (uint j = 0; j < event.photons->size(); j++){
+      M_tophad_photon = inv_mass(hyp_ttbar.tophad_v4() + event.photons->at(j).v4());
+      M_toplep_photon = inv_mass(hyp_ttbar.toplep_v4() + event.photons->at(j).v4());
+
+      if(abs(M_tophad_gluon - M_toplep_photon) < diffM_min){ // hadronic - gluonic    ||    leptonic - photonic
+	diffM_min = abs(M_tophad_gluon - M_toplep_photon);
+
+	ReconstructionTstarHypothesis current_tstartstar;
+	current_tstartstar.set_ttbar(hyp_ttbar);
+
+	current_tstartstar.set_tstarhad_v4(hyp_ttbar.tophad_v4() + all_topjets_.at(i).v4());
+	current_tstartstar.set_tstarlep_v4(hyp_ttbar.toplep_v4() + event.photons->at(j).v4());
+
+	current_tstartstar.set_tstar1gluon_v4(hyp_ttbar.tophad_v4() + all_topjets_.at(i).v4());
+	current_tstartstar.set_tstar1gamma_v4(hyp_ttbar.toplep_v4() + event.photons->at(j).v4());
+
+	current_tstartstar.add_tstarhad_jet(all_topjets_.at(i));
+	current_tstartstar.add_tstarlep_photon(event.photons->at(j));
+	//	recoHyps.push_back(current_tstartstar);
+	recoHyp_best = current_tstartstar;
+      }
+      if(abs(M_toplep_gluon - M_tophad_photon) < diffM_min){ // hadronic - photonic    ||    leptonic - gluonic
+	diffM_min = abs(M_toplep_gluon - M_tophad_photon);
+
+	ReconstructionTstarHypothesis current_tstartstar;
+	current_tstartstar.set_ttbar(hyp_ttbar);
+
+	current_tstartstar.set_tstarlep_v4(hyp_ttbar.toplep_v4() + all_topjets_.at(i).v4());
+	current_tstartstar.set_tstarhad_v4(hyp_ttbar.tophad_v4() + event.photons->at(j).v4());
+
+	current_tstartstar.set_tstar1gluon_v4(hyp_ttbar.toplep_v4() + all_topjets_.at(i).v4());
+	current_tstartstar.set_tstar1gamma_v4(hyp_ttbar.tophad_v4() + event.photons->at(j).v4());
+
+	current_tstartstar.add_tstarlep_jet(all_topjets_.at(i));
+	current_tstartstar.add_tstarhad_photon(event.photons->at(j));
+	//	recoHyps.push_back(current_tstartstar);
+	recoHyp_best = current_tstartstar;
+      }
     }
   }
-  
-  if(debug){cout << "Best mass pair is:    ( " << M_Tstargluon_best_ << " | " << M_Tstargamma_best_ << " )" << endl;}
 
-  // event.set(h_M_Tstar_gluon_, M_Tstargluon_best_);
-  // event.set(h_M_Tstar_gamma_, M_Tstargamma_best_);
+  event.set(h_recohyp_tstartstar_best_,recoHyp_best);
 
-  if(debug){cout << "Masses written, return to main" << endl;}
-  
-  //Still need to save what the "primary" photon and what the gluon jet is!
-
+  if(debug){cout << "Hypothesis written, return to main" << endl;}
   return true;
 }
 

@@ -41,8 +41,7 @@
 <!-- <!ENTITY PHOTONSELECTION "cutBasedPhotonIDmediumFall17"> -->
 <!-- <!ENTITY PHOTONSELECTION "cutBasedPhotonIDtightFall17"> -->
 
-
-<!ENTITY CHANNEL "semileptonic"> 
+<!ENTITY CHANNEL "tgtg">
 <!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/RunII_2016_MuonHihjPtId_&PHOTONSELECTION;_nonIsoandIsoHLT_addTTBarRECO/&CHANNEL;/">
 ]>
 
@@ -263,10 +262,12 @@
 
             <!-- Some test configuration; see TstarTstarModule.cxx for how to access it: -->
             <Item Name="TestKey" Value="TestKeyValue" />
-            <Item Name="UseTrigger" Value="true" />
-<!--            <Item Name="UseTrigger" Value="false" /> -->
+<!--            <Item Name="UseTrigger" Value="true" /> -->
+            <Item Name="UseTrigger" Value="false" />
 
             <Item Name="PhotonID" Value="&PHOTONSELECTION;" />
+
+	    <Item Name="channel" Value="&CHANNEL;" /> <!-- final state: expected 'tgtg' or 'tgtgamma' -->
 
 
 
