@@ -13,7 +13,7 @@
 #include <UHH2/common/include/TriggerSelection.h>
 #include "UHH2/TstarTstar/include/TstarTstarSelections.h"
 #include "UHH2/TstarTstar/include/TstarTstarHists.h"
-#include "UHH2/TstarTstar/include/TstarTstarRecoHists.h"
+#include "UHH2/TstarTstar/include/TstarTstarRecoTstarHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarGenHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarGenRecoMatchedHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarReconstructionModules.h"
@@ -48,7 +48,9 @@ private:
   // Declare the Selections to use. Use unique_ptr to ensure automatic call of delete in the destructor,
   // to avoid memory leaks.
   unique_ptr<Selection> twodcut_sel;   
-  unique_ptr<Selection> TTbarSemiLepMatchable_selection;
+  //  unique_ptr<Selection> TTbarSemiLepMatchable_selection;
+  unique_ptr<TTbarSemiLepMatchableSelection> TTbarSemiLepMatchable_selection;
+
   unique_ptr<Selection> triggerSingleJet450_sel;
   unique_ptr<Selection> triggerSingleLeptonEle1_sel;
   unique_ptr<Selection> triggerSingleLeptonEle2_sel;
@@ -68,21 +70,32 @@ private:
   std::unique_ptr<Hists> h_semilepttbarmatch_triggerSingleJet_genreco_mu, h_semilepttbarmatch_triggerHT_genreco_mu, h_semilepttbarmatch_triggerPFHT_genreco_mu;
   std::unique_ptr<Hists> h_semilepttbarmatch_triggerSingleJet_genreco_ele, h_semilepttbarmatch_triggerHT_genreco_ele, h_semilepttbarmatch_triggerPFHT_genreco_ele;
   std::unique_ptr<Hists> h_After_TstarTstar_Reco, h_After_TstarTstar_Reco_match;
-  std::unique_ptr<Hists> h_RecoPlots_After_ttbar, h_RecoPlots_After_TstarTstar, h_RecoPlots_After_TstarTstar_match;
-  
+  std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_After_ttbar,h_RecoPlots_After_ttbar_correct_ttbar, h_RecoPlots_After_TstarTstar, h_RecoPlots_After_TstarTstar_match;
+  std::unique_ptr<TstarTstarRecoTstarHists>  h_RecoPlots_After_TstarTstar_tgtg,h_RecoPlots_After_TstarTstar_tgtg_correct_ttbar;
   bool isTrigger = false;
-  //bool debug = true;
+  //  bool debug = true;
   bool debug = false;
   std::unique_ptr<uhh2::AnalysisModule> reco_primlep;
   std::unique_ptr<uhh2::AnalysisModule> ttbar_reco;
   std::unique_ptr<ttbarChi2Discriminator> ttbar_discriminator;
   std::unique_ptr<TstarTstar_Reconstruction> TstarTstar_reco;
-
+  std::unique_ptr<TstarTstar_tgluon_tgluon_Reconstruction> TstarTstar_tgluon_tgluon_reco;
   uhh2::Event::Handle<std::vector<ReconstructionHypothesis>> h_ttbar_hyps;
   uhh2::Event::Handle<bool> h_is_ttbar_reconstructed;
   uhh2::Event::Handle<ReconstructionHypothesis> h_recohyp;
-  uhh2::Event::Handle<float> h_M_Tstar_gluon;
-  uhh2::Event::Handle<float> h_M_Tstar_gamma;
+
+  uhh2::Event::Handle<std::vector<ReconstructionTstarHypothesis>> h_tstartstar_hyps;
+  //  uhh2::Event::Handle<bool> h_is_tstartstar_reconstructed;
+  uhh2::Event::Handle<ReconstructionTstarHypothesis> h_recohyp_tstartstar;
+
+
+  // uhh2::Event::Handle<float> h_M_Tstar_gluon;
+  // uhh2::Event::Handle<float> h_M_Tstar_gamma;
+  // uhh2::Event::Handle<float> h_M_Tstar_lep;
+  // uhh2::Event::Handle<float> h_M_Tstar_had;
+  bool is_tgtg, is_tgtgamma;
+  bool check_ttbar_reco;
+
 };
 
 TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
@@ -100,11 +113,16 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
     }
     
    }
+  check_ttbar_reco = false;
+  is_tgtg = false; is_tgtgamma = false;
+  if(ctx.get("channel") == "tgtg") is_tgtg = true;
+  if(ctx.get("channel") == "tgtgamma") is_tgtgamma = true;
 
     // 1. setup other modules. CommonModules
     common.reset(new CommonModules());
     common->disable_mcpileupreweight();//FixME: PU re-weighting crushes
     common->switch_metcorrection();
+    //    common->disable_metfilters();//FixME: met filters missing in some Z' samples, remove after tests with them are done
     common->switch_jetlepcleaner();
     common->switch_jetPtSorter();
     common->set_jet_id(AndId<Jet>(JetPFID(JetPFID::WP_TIGHT_PUPPI), PtEtaCut(30.0,5.2)));
@@ -205,9 +223,13 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
     h_After_TstarTstar_Reco.reset(new TstarTstarHists(ctx, "After_TstarTstar_Reco"));
     h_After_TstarTstar_Reco_match.reset(new TstarTstarHists(ctx, "After_TstarTstar_Reco_match"));
 
-    h_RecoPlots_After_ttbar.reset(new TstarTstarRecoHists(ctx, "RecoPlots_After_ttbar"));
-    h_RecoPlots_After_TstarTstar.reset(new TstarTstarRecoHists(ctx, "RecoPlots_After_TstarTstar"));
-    h_RecoPlots_After_TstarTstar_match.reset(new TstarTstarRecoHists(ctx, "RecoPlots_After_TstarTstar_match"));
+    h_RecoPlots_After_ttbar.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_After_ttbar"));
+    h_RecoPlots_After_ttbar_correct_ttbar.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_After_ttbar_correct_ttbar"));
+    h_RecoPlots_After_TstarTstar.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_After_TstarTstar"));
+    h_RecoPlots_After_TstarTstar_match.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_After_TstarTstar_match"));
+
+    h_RecoPlots_After_TstarTstar_tgtg.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_After_TstarTstar_tgtg"));
+    h_RecoPlots_After_TstarTstar_tgtg_correct_ttbar.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_After_TstarTstar_tgtg_correct_ttbar"));
 
 
     //4. Set up ttbar reconstruction
@@ -216,18 +238,29 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
     reco_primlep.reset(new PrimaryLepton(ctx));
     ttbar_reco.reset(new HighMassTTbarReconstruction(ctx, NeutrinoReconstruction,ttbar_hyps_label));
     h_ttbar_hyps = ctx.get_handle<std::vector<ReconstructionHypothesis>>(ttbar_hyps_label);
-
     h_is_ttbar_reconstructed = ctx.get_handle< bool >("is_ttbar_reconstructed_chi2");
-
     h_recohyp = ctx.declare_event_output<ReconstructionHypothesis>(ttbar_hyps_label+"_best");
+
+    if(is_tgtg){
+      const std::string tstartstar_hyps_label("TstarTstar_tgtg");
+      h_tstartstar_hyps = ctx.get_handle<std::vector<ReconstructionTstarHypothesis>>(tstartstar_hyps_label);
+      h_recohyp_tstartstar = ctx.declare_event_output<ReconstructionTstarHypothesis>(tstartstar_hyps_label+"_best");
+    }
+    if(is_tgtgamma){
+      const std::string tstartstar_hyps_label("TstarTstar_tgtgamma");
+      h_tstartstar_hyps = ctx.get_handle<std::vector<ReconstructionTstarHypothesis>>(tstartstar_hyps_label);
+      h_recohyp_tstartstar = ctx.declare_event_output<ReconstructionTstarHypothesis>(tstartstar_hyps_label+"_best");
+    }
 
     ttbar_discriminator.reset(new ttbarChi2Discriminator(ctx));
 
-    h_M_Tstar_gluon = ctx.get_handle< float >("M_Tstar_gluon");
-    h_M_Tstar_gamma = ctx.get_handle< float >("M_Tstar_gamma");
+    // h_M_Tstar_gluon = ctx.get_handle< float >("M_Tstar_gluon");
+    // h_M_Tstar_gamma = ctx.get_handle< float >("M_Tstar_gamma");
+    // h_M_Tstar_lep = ctx.get_handle< float >("M_Tstar_lep");
+    // h_M_Tstar_had = ctx.get_handle< float >("M_Tstar_had");
 
     TstarTstar_reco.reset(new TstarTstar_Reconstruction(ctx));
-
+    TstarTstar_tgluon_tgluon_reco.reset(new TstarTstar_tgluon_tgluon_Reconstruction(ctx));
 }
 
 
@@ -242,10 +275,14 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   //   }
   // }
 
-  event.set(h_M_Tstar_gluon, 0.);
-  event.set(h_M_Tstar_gamma, 0.);
+  // event.set(h_M_Tstar_gluon, 0.);
+  // event.set(h_M_Tstar_gamma, 0.);
+  // event.set(h_M_Tstar_lep, 0.);
+  // event.set(h_M_Tstar_had, 0.);
+
   event.set(h_is_ttbar_reconstructed, false);
   event.set(h_recohyp, ReconstructionHypothesis());
+  event.set(h_recohyp_tstartstar,ReconstructionTstarHypothesis());
 
   if(debug){cout << "Finished initialization of Handle Variables" << endl;}
 
@@ -379,26 +416,55 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   event.set(h_recohyp, hyp); //save "best" hypothesis in event
   **/
 
-  if(debug) {cout << "Finished. Finding best Hypothesis..."<< endl;}	\
+  if(debug) {cout << "Finished. Finding best Hypothesis..."<< endl;}   
   ttbar_discriminator->process(event);
 
   ReconstructionHypothesis hyp = event.get(h_recohyp);  
-
+  if(debug) {cout << "Start TstarTstar reconstruction ..."<< endl;}
   if(event.get(h_is_ttbar_reconstructed)){
-    h_RecoPlots_After_ttbar->fill(event);
-    if(TstarTstar_reco->process(event)){
-      h_After_TstarTstar_Reco->fill(event);
-      h_RecoPlots_After_TstarTstar->fill(event);
-      if(pass_ttbarsemilep){   //Check same plots for matching
-	h_After_TstarTstar_Reco_match->fill(event);
-	h_RecoPlots_After_TstarTstar_match->fill(event);
+    if(is_tgtgamma){ // Tstar+Tstar -> t+g + t+gamma //FixME: the code is broken and most probably won't work. Sorry!
+      h_RecoPlots_After_ttbar->fill(event);
+      if(TstarTstar_reco->process(event)){
+	h_After_TstarTstar_Reco->fill(event);
+	h_RecoPlots_After_TstarTstar->fill(event);
+	if(pass_ttbarsemilep){   //Check same plots for matching
+	  h_After_TstarTstar_Reco_match->fill(event);
+	  h_RecoPlots_After_TstarTstar_match->fill(event);
+	}
       }
+    }
+    if(is_tgtg){ // Tstar+Tstar -> t+g + t+g
+      bool pass_check_reco_ttbar = false;
+      if(pass_ttbarsemilep && check_ttbar_reco){
+	std::vector<ReconstructionHypothesis> ttbar_all_hyps = event.get(h_ttbar_hyps);
+	double mindRsum = 1e6; int best_match_hyp = -1;
+	bool pass_check_reco_ttbar = false;
+	  for(unsigned int i=0; i<ttbar_all_hyps.size(); i++){
+	    std::pair<bool,double> pass_check_reco_ttbar_pair = TTbarSemiLepMatchable_selection->check_reco(ttbar_all_hyps.at(i));
+	    if(pass_check_reco_ttbar_pair.first && pass_check_reco_ttbar_pair.second<mindRsum){
+	      mindRsum = pass_check_reco_ttbar_pair.second; 
+	      best_match_hyp = i;
+	      pass_check_reco_ttbar = true;
+	    }
+	  
+	  if(pass_check_reco_ttbar){
+	    h_RecoPlots_After_ttbar_correct_ttbar->fill(event);//fill once per event if at least one good ttbar hypothesis found
+	    if(debug) cout<<"Best hyp #"<<best_match_hyp<<" dR_sum = "<<mindRsum<<endl;
+	    h_RecoPlots_After_ttbar_correct_ttbar->fill_ttbarhyps(event, ttbar_all_hyps.at(best_match_hyp));
+	  }
+	}
+      }
+      //      if(debug) cout<<"pass_ttbarsemilep "<<pass_ttbarsemilep<<" pass_check_reco_ttbar "<<pass_check_reco_ttbar<<endl;
+      bool pass_tgluon_tgluon_reco = TstarTstar_tgluon_tgluon_reco->process(event);//modify here to reconstruct with best macth ttbar?
+      if(pass_tgluon_tgluon_reco) 
+	h_RecoPlots_After_TstarTstar_tgtg->fill(event);
+      if(pass_check_reco_ttbar && pass_tgluon_tgluon_reco)
+	h_RecoPlots_After_TstarTstar_tgtg_correct_ttbar->fill(event);
     }
   }
   else{
     if(debug){cout << "Event has no best hypothesis!" << endl;}
   }
-
   if(debug){cout << "Done ##################################" << endl << endl;}
   return true;
 }

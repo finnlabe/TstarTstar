@@ -1,4 +1,6 @@
 LIBRARY := SUHH2TstarTstar
+DICT := include/ReconstructionTstarHypothesis.h include/SUHH2TstarTstar_LinkDef.h
+
 LHAPDFINC=$(shell scram tool tag lhapdf INCLUDE)
 LHAPDFLIB=$(shell scram tool tag LHAPDF LIBDIR)
 USERCXXFLAGS := -I${LHAPDFINC}
