@@ -48,12 +48,12 @@
 <!-- <!ENTITY OUTPUTdir           "/nfs/dust/cms/user/karavdia/TstarTstar/102X_v1/Preselection/RunII_2016_MuonHihjPtId/&CHANNEL;/"> -->
 <!-- <!ENTITY OUTPUTdir           "/nfs/dust/cms/user/karavdia/TstarTstar/102X_v1/Preselection/RunII_2016_MuonHihjPtId_cutBasedPhotonIDlooseFall17_nonIsoandIsoHLT_addTTBarRECO_addTstarReco_tgtgReco/&CHANNEL;/"> -->
 
-<!ENTITY OUTPUTdir           "/nfs/dust/cms/user/karavdia/TstarTstar/102X_v1/Preselection/RunII_2016_MuonHihjPtId_cutBasedPhotonIDlooseFall17_nonIsoandIsoHLT_tgtgRecoWithModifiedttbar_skip0jets/&CHANNEL;/">
+<!ENTITY OUTPUTdir           "/nfs/dust/cms/user/karavdia/TstarTstar/102X_v1/Preselection/RunII_2016_MuonHihjPtId_cutBasedPhotonIDlooseFall17_nonIsoandIsoHLT_tgtgRecoWithModifiedttbar_addMETandSTcuts_dr12_skip0jets/&CHANNEL;/">
 ]>
 
 <!--
 <ConfigParse NEventsBreak="0" LastBreak="0" FileSplit="1" AutoResubmit="100"/>
-<ConfigSGE RAM="2" DISK="2" Mail="anastasia.karavdina@desy.de" Notification="as" Workdir="workdir_TstarTstar_MC_only_Study_2016v3"/>
+<ConfigSGE RAM="2" DISK="2" Mail="anastasia.karavdina@desy.de" Notification="as" Workdir="workdir_TstarTstar_MC_only_Study_2016v3_skip0_dr12"/>
 -->
 
 <!-- OutputLevel controls which messages are printed; set to VERBOSE or DEBUG for more verbosity, to WARNING or ERROR for less -->

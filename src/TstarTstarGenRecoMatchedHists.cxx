@@ -48,6 +48,7 @@ TstarTstarGenRecoMatchedHists::TstarTstarGenRecoMatchedHists(Context & ctx, cons
   book<TH1F>("AK4_Eta_b", "#eta^{AK4 RECO}_{b, RECO matched}", 50, -5.2, 5.2);  
 
   book<TH1F>("AK4_dR_gluon", "dR_{gluon}(GEN,AK4 RECO)", 20, 0, 1.2);  
+  book<TH1F>("AK4_id_dRmin_gluon", "ID of the close to gluon AK4 jets", 30, 0, 29);  
   book<TH1F>("AK4_Pt_ratio_gluon", "p_{T}^{AK4 RECO gluon}/p_{T}^{gluon, GEN}", 20, 0, 2); 
   book<TH1F>("AK4_Pt_gluon", "p_{T}^{AK4 gluon, RECO matched}", 100, 0, 2500);  
   book<TH1F>("AK4_Eta_gluon", "#eta^{AK4 gluon, RECO matched}", 50, -5.2, 5.2);  
@@ -64,8 +65,10 @@ TstarTstarGenRecoMatchedHists::TstarTstarGenRecoMatchedHists(Context & ctx, cons
   book<TH1F>("AK8_Pt_b", "p_{T}^{AK8 RECO}_{b, RECO matched}", 100, 0, 2500);  
   book<TH1F>("AK8_Eta_b", "#eta^{AK8 RECO}_{b, RECO matched}", 50, -5.2, 5.2);  
 
-  book<TH1F>("AK8_dR_gluon", "dR_{b}(GEN,AK8 RECO)", 20, 0, 1.2);  
+  book<TH1F>("AK8_dR_gluon", "dR_{gluon}(GEN,AK8 RECO)", 20, 0, 1.2);  
+  book<TH1F>("AK8_id_dRmin_gluon", "ID of the close to gluon AK8 jets", 30, 0, 29);  
   book<TH1F>("AK8_Pt_ratio_gluon", "p_{T}^{AK8 RECO gluon}/p_{T}^{gluon, GEN}", 20, 0, 2);  
+
   book<TH1F>("AK8_Pt_gluon", "p_{T}^{AK8 RECO}_{gluon, RECO matched}", 100, 0, 2500);  
   book<TH1F>("AK8_Eta_gluon", "#eta^{AK8 RECO}_{gluon, RECO matched}", 50, -5.2, 5.2);  
   book<TH1F>("AK8_dR_top", "dR_{top}(GEN,AK8 RECO)", 20, 0, 1.2);  
@@ -250,6 +253,7 @@ void TstarTstarGenRecoMatchedHists::fill(const Event & event){
   // Consider AK4 jets first
   double dR_max = 0.2;
   int bAK4match = 0, gluonAK4match = 0, topAK4match=0;
+int jetid = 0;
   for(const auto & jet : *event.jets){
     if(deltaR(*b1,jet) <= dR_max){
       hist("AK4_dR_b")->Fill(deltaR(*b1,jet), weight);
@@ -270,6 +274,7 @@ void TstarTstarGenRecoMatchedHists::fill(const Event & event){
       hist("AK4_Pt_ratio_gluon")->Fill(jet.pt()/gluon1.pt(), weight);
       hist("AK4_Pt_gluon")->Fill(jet.pt(), weight);
       hist("AK4_Eta_gluon")->Fill(jet.eta(), weight);
+      hist("AK4_id_dRmin_gluon")->Fill(jetid, weight);
       gluonAK4match++;
     }
     if(found_gluon2 && deltaR(gluon2,jet) <= dR_max){
@@ -277,6 +282,7 @@ void TstarTstarGenRecoMatchedHists::fill(const Event & event){
       hist("AK4_Pt_ratio_gluon")->Fill(jet.pt()/gluon2.pt(), weight);
       hist("AK4_Pt_gluon")->Fill(jet.pt(), weight);
       hist("AK4_Eta_gluon")->Fill(jet.eta(), weight);
+      hist("AK4_id_dRmin_gluon")->Fill(jetid, weight);
       gluonAK4match++;
     }
     if(!W1_islep && deltaR(top,jet) <= dR_max){//t->Wb,W->hadronic
@@ -293,6 +299,7 @@ void TstarTstarGenRecoMatchedHists::fill(const Event & event){
       hist("AK4_Eta_top")->Fill(jet.eta(), weight);
       topAK4match++;     
     }
+    jetid++;
   }
   hist("N_b_AK4matched")->Fill(bAK4match, weight);
   hist("N_gluon_AK4matched")->Fill(gluonAK4match, weight);
@@ -301,6 +308,7 @@ void TstarTstarGenRecoMatchedHists::fill(const Event & event){
   // Now consider AK8 jets
   dR_max = 0.4;
   int bAK8match = 0, gluonAK8match = 0, topAK8match = 0;
+  int topjetid = 0;
   for(const auto & jet : *event.topjets){
     if(deltaR(*b1,jet) <= dR_max){
       hist("AK8_dR_b")->Fill(deltaR(*b1,jet), weight);
@@ -321,6 +329,7 @@ void TstarTstarGenRecoMatchedHists::fill(const Event & event){
       hist("AK8_Pt_ratio_gluon")->Fill(jet.pt()/gluon1.pt(), weight);
       hist("AK8_Pt_gluon")->Fill(jet.pt(), weight);
       hist("AK8_Eta_gluon")->Fill(jet.eta(), weight);
+      hist("AK8_id_dRmin_gluon")->Fill(topjetid, weight);
       gluonAK8match++;
     }
     if(found_gluon2 && deltaR(gluon2,jet) <= dR_max){
@@ -328,6 +337,7 @@ void TstarTstarGenRecoMatchedHists::fill(const Event & event){
       hist("AK8_Pt_ratio_gluon")->Fill(jet.pt()/gluon2.pt(), weight);
       hist("AK8_Pt_gluon")->Fill(jet.pt(), weight);
       hist("AK8_Eta_gluon")->Fill(jet.eta(), weight);
+      hist("AK8_id_dRmin_gluon")->Fill(topjetid, weight);
       gluonAK8match++;
     }
     if(!W1_islep && deltaR(top,jet) <= dR_max){
@@ -344,6 +354,7 @@ void TstarTstarGenRecoMatchedHists::fill(const Event & event){
       hist("AK8_Eta_top")->Fill(jet.eta(), weight);
       topAK8match++;     
     }
+    topjetid++;
   }
   hist("N_b_AK8matched")->Fill(bAK8match, weight);
   hist("N_gluon_AK8matched")->Fill(gluonAK8match, weight);

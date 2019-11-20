@@ -31,6 +31,9 @@ public:
   LorentzVector tstar2gamma_v4() const{return m_tstar2gamma_v4;} //2nd Tstar -> t + gamma 
   LorentzVector tstar2gluon_v4() const{return m_tstar2gluon_v4;} //2nd Tstar -> t + gluon
 
+  LorentzVector gluon1_v4() const{return m_gluon1_v4;} //1st gluon from Tstar -> t + gluon
+  LorentzVector gluon2_v4() const{return m_gluon2_v4;} //2nd gluon from Tstar -> t + gluon
+
   const std::vector<Jet>& tstarlep_jets() const{return m_tstarlep_jets;}
   const std::vector<Jet>& tstarhad_jets() const{return m_tstarhad_jets;}
   const std::vector<Photon>& tstarlep_photons() const{return m_tstarlep_photons;}
@@ -61,6 +64,11 @@ public:
   void set_tstar1gluon_v4(LorentzVector v4){m_tstar1gluon_v4 = v4;}
   void set_tstar2gluon_v4(LorentzVector v4){m_tstar2gluon_v4 = v4;}
 
+  void set_gluon1_v4(LorentzVector v4){m_gluon1_v4 = v4;}//FixME: assumes gluon = 1 jet
+  void set_gluon2_v4(LorentzVector v4){m_gluon2_v4 = v4;}//FixME: assumes gluon = 1 jet
+
+  void set_used_ttbarjet_flags(const std::vector<bool> flags){m_used_ttbarjet_flags = flags;}
+  std::vector<bool> used_ttbarjet_flags(){return m_used_ttbarjet_flags;}
   void add_tstarlep_jet(const Jet& j){m_tstarlep_jets.push_back(j);}
   void add_tstarhad_jet(const Jet& j){m_tstarhad_jets.push_back(j);}
 
@@ -79,12 +87,15 @@ private:
   LorentzVector m_tstarhad_v4;
   LorentzVector m_tstar1gamma_v4, m_tstar2gamma_v4;
   LorentzVector m_tstar1gluon_v4, m_tstar2gluon_v4;
+  LorentzVector m_gluon1_v4, m_gluon2_v4;
+
   std::vector<Jet> m_tstarlep_jets;
   std::vector<Jet> m_tstarhad_jets;
 
   std::vector<Photon> m_tstarlep_photons;
   std::vector<Photon> m_tstarhad_photons;
 
+  std::vector<bool> m_used_ttbarjet_flags;
 
   //  std::map<std::string, float> m_discriminators;
 };

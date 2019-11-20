@@ -285,7 +285,7 @@ bool TstarTstar_tgluon_tgluon_Reconstruction::process(uhh2::Event& event){
   for(uint j = 0; j < all_topjets_.size(); j++){
     for (uint i = 0; i < used_jets_.size(); i++){
       double dR_ =  deltaR(all_topjets_.at(j),used_jets_.at(i));
-      if(dR_<0.4) overlap_flag[j] = true;
+      if(dR_<1.2) overlap_flag[j] = true;
     }
   }
 
@@ -330,8 +330,12 @@ bool TstarTstar_tgluon_tgluon_Reconstruction::process(uhh2::Event& event){
 	current_tstartstar.set_tstar1gluon_v4(hyp_ttbar.toplep_v4() + gluon_cand2.v4());
 	current_tstartstar.set_tstar2gluon_v4(hyp_ttbar.tophad_v4() + gluon_cand1.v4());
 
+	current_tstartstar.set_gluon1_v4(gluon_cand1.v4());
+	current_tstartstar.set_gluon2_v4(gluon_cand2.v4());
+
 	current_tstartstar.add_tstarhad_jet(gluon_cand1);
 	current_tstartstar.add_tstarlep_jet(gluon_cand2);
+	current_tstartstar.set_used_ttbarjet_flags(overlap_flag);
 	//	recoHyps.push_back(current_tstartstar);
 	recoHyp_best = current_tstartstar;
       }

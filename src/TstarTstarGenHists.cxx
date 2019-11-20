@@ -169,6 +169,8 @@ void TstarTstarGenHists::fill(const Event & event){
     if(dR12<dR11) dR_min1 = dR12;
     double dR_min2 = dR21;
     if(dR22<dR21) dR_min2 = dR22;
+    //    cout<<"dR11, dR12, dR21, dR22 = "<<dR11<<", "<<dR12<<", "<<dR21<<", "<<dR22<<endl;
+    //    cout<<"dR_min1, dR_min2 = "<<dR_min1<<", "<<dR_min2<<endl;
     hist("dR_min_gluon_top_gen")->Fill(dR_min1,weight);
     hist("dR_min_gluon_top_gen")->Fill(dR_min2,weight);
   }

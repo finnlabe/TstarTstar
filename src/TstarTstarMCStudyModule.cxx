@@ -94,7 +94,8 @@ private:
   //  uhh2::Event::Handle<bool> h_is_tstartstar_reconstructed;
   uhh2::Event::Handle<ReconstructionTstarHypothesis> h_recohyp_tstartstar;
 
-
+  unique_ptr<Selection>  met_sel, st_sel; 
+  unique_ptr<Selection> topjet_selection;
   // uhh2::Event::Handle<float> h_M_Tstar_gluon;
   // uhh2::Event::Handle<float> h_M_Tstar_gamma;
   // uhh2::Event::Handle<float> h_M_Tstar_lep;
@@ -194,6 +195,14 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
 
     triggerPFHT_sel.reset(new TriggerSelection("HLT_PFHT900_v*"));
 
+    //MET selection
+    met_sel.reset(new METCut  (50.,1e6));
+
+    //ST selection
+    st_sel.reset(new STCut  (500.,1e6));
+
+    //Ak8jet selection
+    topjet_selection.reset(new NTopJetSelection(1, -1, TopJetId(PtEtaCut(100, 2.1))));
 
 
     // 3. Set up Hists classes:
@@ -347,6 +356,15 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   if(!pass_twodcut) return false;
   h_2dcut->fill(event);
   if(debug) cout<<"passed 2D cut"<<endl;
+
+  bool pass_MET =  met_sel->passes(event);
+  if(!pass_MET) return false;
+
+  bool pass_ST =  st_sel->passes(event);
+  if(!pass_ST) return false;
+
+  bool pass_ak8 = topjet_selection->passes(event);
+  if(!pass_ak8) return false;
 
   //---- Matching to GEN
   const bool pass_ttbarsemilep = TTbarSemiLepMatchable_selection->passes(event);
