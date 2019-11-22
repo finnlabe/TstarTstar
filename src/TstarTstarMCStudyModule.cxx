@@ -91,7 +91,6 @@ private:
   uhh2::Event::Handle<ReconstructionHypothesis> h_recohyp;
 
   uhh2::Event::Handle<std::vector<ReconstructionTstarHypothesis>> h_tstartstar_hyps;
-  //  uhh2::Event::Handle<bool> h_is_tstartstar_reconstructed;
   uhh2::Event::Handle<ReconstructionTstarHypothesis> h_recohyp_tstartstar;
 
   unique_ptr<Selection>  met_sel, st_sel; 

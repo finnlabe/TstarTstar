@@ -322,8 +322,6 @@ bool TstarTstar_tgluon_tgluon_Reconstruction::process(uhh2::Event& event){
 	gluon_cand_min.first = i1;
 	gluon_cand_min.second = i2;
 	ReconstructionTstarHypothesis current_tstartstar;
-	current_tstartstar.set_ttbar(hyp_ttbar);
-
 	current_tstartstar.set_tstarhad_v4(hyp_ttbar.tophad_v4() + gluon_cand1.v4());
 	current_tstartstar.set_tstarlep_v4(hyp_ttbar.toplep_v4() + gluon_cand2.v4());
 
@@ -337,6 +335,7 @@ bool TstarTstar_tgluon_tgluon_Reconstruction::process(uhh2::Event& event){
 	current_tstartstar.add_tstarlep_jet(gluon_cand2);
 	current_tstartstar.set_used_ttbarjet_flags(overlap_flag);
 	//	recoHyps.push_back(current_tstartstar);
+	current_tstartstar.set_ttbar(hyp_ttbar);
 	recoHyp_best = current_tstartstar;
       }
       if(debug) cout<<"i1,i2:"<<i1<<" "<<i2<<" M_Tstargluon_had, M_Tstargluon_lep "<<M_Tstargluon_had<<", "<<M_Tstargluon_lep<<"; diff = "<<diffM<<endl;
