@@ -41,7 +41,7 @@
 <!-- <!ENTITY PHOTONSELECTION "cutBasedPhotonIDmediumFall17"> -->
 <!-- <!ENTITY PHOTONSELECTION "cutBasedPhotonIDtightFall17"> -->
 
-<!ENTITY CHANNEL "tgtg">
+<!ENTITY CHANNEL "tgtgamma">
 <!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/RunII_2016_MuonHihjPtId_&PHOTONSELECTION;_nonIsoandIsoHLT_addTTBarRECO/&CHANNEL;/">
 ]>
 
@@ -62,12 +62,13 @@
 
 	<!-- ##### gamma gluon ##### -->
 
-	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-700_Run2016v3" Cacheable="False">
+	<InputData Lumi="35000" NEventsMax="100" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-700_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgammaTgluon_M-700_Run2016v3;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
+	<!--
 	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-800_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgammaTgluon_M-800_Run2016v3;
           <InputTree Name="AnalysisTree" />
@@ -79,8 +80,9 @@
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
+	-->
 
-	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1000_Run2016v3" Cacheable="False">
+	<InputData Lumi="35000" NEventsMax="100" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1000_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgammaTgluon_M-1000_Run2016v3;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
@@ -93,7 +95,8 @@
           <OutputTree Name="AnalysisTree" />
         </InputData>
 	-->
-
+	
+	<!--
 	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1200_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgammaTgluon_M-1200_Run2016v3;
           <InputTree Name="AnalysisTree" />
@@ -111,18 +114,21 @@
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
+	-->
 
-	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1500_Run2016v3" Cacheable="False">
+	<InputData Lumi="35000" NEventsMax="100" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1500_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgammaTgluon_M-1500_Run2016v3;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
+	<!-- makes problems
 	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1600_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgammaTgluon_M-1600_Run2016v3;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
+	-->
 
 
 	<!-- ##### gluon gluon ##### -->

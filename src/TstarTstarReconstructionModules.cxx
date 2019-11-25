@@ -137,9 +137,8 @@ bool ttbarChi2Discriminator::process(uhh2::Event& event){
 
 
 TstarTstar_tgluon_tgamma_Reconstruction::TstarTstar_tgluon_tgamma_Reconstruction(uhh2::Context& ctx){
-  // A lot of handles. Reconstructed Masses as well as several DeltaR are saved for plotting reasons mainly.
-  // TODO later: better save reconstructed Tstar as some kind of object (particle?), to not use so many handles. Then DeltaR can be calculated when needed for plotting.
   h_recohyp_ttbar_ = ctx.get_handle<ReconstructionHypothesis>("TTbarReconstruction_best");
+  h_recohyp_tstartstar_best_ = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_tgtgamma_best");
   // h_M_Tstar_gluon_ = ctx.get_handle< float >("M_Tstar_gluon");
   // h_M_Tstar_gamma_ = ctx.get_handle< float >("M_Tstar_gamma");
   
@@ -154,14 +153,14 @@ bool TstarTstar_tgluon_tgamma_Reconstruction::process(uhh2::Event& event){
   //bool debug = true;
   bool debug = false;
 
-  if(debug){cout << "Hello World from Tstartstar_Reconstruction!" << endl;}
+  if(debug){cout << "Hello World from Tstartstar_tgluon_tgamma_Reconstruction!" << endl;}
 
   // Get Information about jets that have been used in Reconstruction
   if(debug){cout << "Reading in Jets from best Hypothesis & Event" << endl;}
   ReconstructionHypothesis hyp_ttbar = event.get(h_recohyp_ttbar_);
   ReconstructionTstarHypothesis recoHyp_best;
   recoHyp_best.set_ttbar(hyp_ttbar);
-  event.set(h_recohyp_tstartstar_best_,recoHyp_best);
+  event.set(h_recohyp_tstartstar_best_, recoHyp_best);
 
   std::vector<Jet> used_jets_ = hyp_ttbar.tophad_jets();
   used_jets_.insert( used_jets_.end(), hyp_ttbar.toplep_jets().begin(), hyp_ttbar.toplep_jets().end() );
@@ -171,9 +170,9 @@ bool TstarTstar_tgluon_tgamma_Reconstruction::process(uhh2::Event& event){
   if(debug){cout << "Searching for separated AK8Jet... " << endl;}
   for(uint j = 0; j < all_topjets_.size(); j++){
     for (uint i = 0; i < used_jets_.size(); i++){
-      double dR_ =  deltaR(all_topjets_.at(j),used_jets_.at(i));
+      double dR_ =  deltaR(all_topjets_.at(j), used_jets_.at(i));
       if(dR_<0.4){
-	topjets_usage_.at(i) = true;
+	topjets_usage_.at(j) = true;
 	notusedtopjets_count_--;
       }
     }
@@ -229,13 +228,13 @@ bool TstarTstar_tgluon_tgamma_Reconstruction::process(uhh2::Event& event){
 
 	current_tstartstar.add_tstarlep_jet(all_topjets_.at(i));
 	current_tstartstar.add_tstarhad_photon(event.photons->at(j));
-	//	recoHyps.push_back(current_tstartstar);
+	//recoHyps.push_back(current_tstartstar);
 	recoHyp_best = current_tstartstar;
       }
     }
   }
 
-  event.set(h_recohyp_tstartstar_best_,recoHyp_best);
+  event.set(h_recohyp_tstartstar_best_, recoHyp_best);
 
   if(debug){cout << "Hypothesis written, return to main" << endl;}
   return true;

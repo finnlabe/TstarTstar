@@ -34,19 +34,19 @@ TstarTstarRecoTstarHists::TstarTstarRecoTstarHists(Context & ctx, const string &
   // book<TH1F>("DeltaR_closest_toplepjet_ak8jet2", "DeltaR_toplepjet_ak8jet2", 50, 0, 5);
   // book<TH1F>("DeltaR_closest_tophadjet_ak8jet2", "DeltaR_tophadjet_ak8jet2", 50, 0, 5);
 
-  // book<TH1F>("DeltaR_toplep_gamma", "DeltaR_toplep_gamma", 30, 0, 6);
-  // book<TH1F>("DeltaR_tophad_gamma", "DeltaR_tophad_gamma", 30, 0, 6);
-  // book<TH1F>("DeltaR_toplep_ak8jet1", "DeltaR_toplep_ak8jet1", 30, 0, 6);
-  // book<TH1F>("DeltaR_tophad_ak8jet1", "DeltaR_tophad_ak8jet1", 30, 0, 6);
-  // book<TH1F>("DeltaR_toplep_ak8jet2", "DeltaR_toplep_ak8jet2", 30, 0, 6);
-  // book<TH1F>("DeltaR_tophad_ak8jet2", "DeltaR_tophad_ak8jet2", 30, 0, 6);
+  book<TH1F>("DeltaR_toplep_gamma", "DeltaR_toplep_gamma", 30, 0, 6);
+  book<TH1F>("DeltaR_tophad_gamma", "DeltaR_tophad_gamma", 30, 0, 6);
+  book<TH1F>("DeltaR_toplep_ak8jet1", "DeltaR_toplep_ak8jet1", 30, 0, 6);
+  book<TH1F>("DeltaR_tophad_ak8jet1", "DeltaR_tophad_ak8jet1", 30, 0, 6);
+  book<TH1F>("DeltaR_toplep_ak8jet2", "DeltaR_toplep_ak8jet2", 30, 0, 6);
+  book<TH1F>("DeltaR_tophad_ak8jet2", "DeltaR_tophad_ak8jet2", 30, 0, 6);
 
-  // book<TH1F>("DeltaR_gamma_ak8jet1", "DeltaR_gamma_ak8jet1", 30, 0, 6);
-  // book<TH1F>("DeltaR_gamma_ak8jet2", "DeltaR_gamma_ak8jet2", 30, 0, 6);
+  book<TH1F>("DeltaR_gamma_ak8jet1", "DeltaR_gamma_ak8jet1", 30, 0, 6);
+  book<TH1F>("DeltaR_gamma_ak8jet2", "DeltaR_gamma_ak8jet2", 30, 0, 6);
 
-  // book<TH1F>("DeltaR_min_top_gamma", "DeltaR_min_top_gamma", 30, 0, 6);
-  // book<TH1F>("DeltaR_min_top_ak8jet1", "DeltaR_min_top_ak8jet1", 30, 0, 6);  
-  // book<TH1F>("DeltaR_min_top_ak8jet2", "DeltaR_min_top_ak8jet2", 30, 0, 6);  
+  book<TH1F>("DeltaR_min_top_gamma", "DeltaR_min_top_gamma", 30, 0, 6);
+  book<TH1F>("DeltaR_min_top_ak8jet1", "DeltaR_min_top_ak8jet1", 30, 0, 6);  
+  book<TH1F>("DeltaR_min_top_ak8jet2", "DeltaR_min_top_ak8jet2", 30, 0, 6);  
 
 
   //For tests of ttbar reconstruction
@@ -65,7 +65,6 @@ TstarTstarRecoTstarHists::TstarTstarRecoTstarHists(Context & ctx, const string &
   book<TH1F>("M_Tstar_lep", "M_{T^{*}_{tgtg,lep}} [GeV]", 30, 0, 3000);
   book<TH1F>("M_Tstar_had", "M_{T^{*}_{tgtg,had}} [GeV]", 30, 0, 3000);
 
-
 }
 
 
@@ -78,9 +77,15 @@ void TstarTstarRecoTstarHists::fill(const Event & event){
   // Don't forget to always use the weight when filling.
   double weight = event.weight;
   
-  // TODO #################
-  // hist("M_Tstar_gluon")->Fill(event.get(h_M_Tstar_gluon_), weight);
-  // hist("M_Tstar_gamma")->Fill(event.get(h_M_Tstar_gamma_), weight);
+  // Problem when trying to access the wrong one (empty handle = crash)
+  // Possible fix: save channel somewhere and then get correct recohyp!
+  ReconstructionTstarHypothesis tstar_hyp_best = event.get(h_recohyp_tstartstar_tgtgamma_best_);
+
+  float M_Tstar_gluon_ = inv_mass(tstar_hyp_best.tstar1gluon_v4());
+  if(M_Tstar_gluon_ == 0){cout << "Now the mass is somehow zero... This is wrong" << endl;}
+
+  hist("M_Tstar_gluon")->Fill(M_Tstar_gluon_, weight);
+  hist("M_Tstar_gamma")->Fill(inv_mass(tstar_hyp_best.tstar1gamma_v4()), weight);
 
   ReconstructionHypothesis hyp = event.get(h_recohyp_);
 
@@ -123,36 +128,36 @@ void TstarTstarRecoTstarHists::fill(const Event & event){
 //     hist("DeltaR_closest_tophadjet_ak8jet2")->Fill(DeltaR_min, weight);
 //   }
 
-//   if(event.photons->size()>0){
-//     float dR_toplep_photon = deltaR(hyp.toplep_v4(), event.photons->at(0));
-//     float dR_tophad_photon = deltaR(hyp.tophad_v4(), event.photons->at(0));
+   if(event.photons->size()>0){
+     float dR_toplep_photon = deltaR(hyp.toplep_v4(), event.photons->at(0));
+     float dR_tophad_photon = deltaR(hyp.tophad_v4(), event.photons->at(0));
 
-//     hist("DeltaR_toplep_gamma")->Fill( dR_toplep_photon, weight);
-//     hist("DeltaR_tophad_gamma")->Fill( dR_tophad_photon, weight);
-//     hist("DeltaR_min_top_gamma")->Fill( min(dR_toplep_photon, dR_tophad_photon) , weight);
-//   }
+     hist("DeltaR_toplep_gamma")->Fill( dR_toplep_photon, weight);
+     hist("DeltaR_tophad_gamma")->Fill( dR_tophad_photon, weight);
+     hist("DeltaR_min_top_gamma")->Fill( min(dR_toplep_photon, dR_tophad_photon) , weight);
+   }
 
-//   if(event.topjets->size()>0){
-//     float dR_toplep_gluon = deltaR(hyp.toplep_v4(), event.topjets->at(0));
-//     float dR_tophad_gluon = deltaR(hyp.tophad_v4(), event.topjets->at(0));
+   if(event.topjets->size()>0){
+     float dR_toplep_gluon = deltaR(hyp.toplep_v4(), event.topjets->at(0));
+     float dR_tophad_gluon = deltaR(hyp.tophad_v4(), event.topjets->at(0));
 
-//     hist("DeltaR_toplep_ak8jet1")->Fill( dR_toplep_gluon, weight);
-//     hist("DeltaR_tophad_ak8jet1")->Fill( dR_tophad_gluon, weight);
-//     hist("DeltaR_min_top_ak8jet1")->Fill( min(dR_toplep_gluon, dR_tophad_gluon) , weight);
-//   }
+     hist("DeltaR_toplep_ak8jet1")->Fill( dR_toplep_gluon, weight);
+     hist("DeltaR_tophad_ak8jet1")->Fill( dR_tophad_gluon, weight);
+     hist("DeltaR_min_top_ak8jet1")->Fill( min(dR_toplep_gluon, dR_tophad_gluon) , weight);
+   }
 
-//   if(event.topjets->size()>1){
-//     float dR_toplep_gluon = deltaR(hyp.toplep_v4(), event.topjets->at(1));
-//     float dR_tophad_gluon = deltaR(hyp.tophad_v4(), event.topjets->at(1));
+   if(event.topjets->size()>1){
+     float dR_toplep_gluon = deltaR(hyp.toplep_v4(), event.topjets->at(1));
+     float dR_tophad_gluon = deltaR(hyp.tophad_v4(), event.topjets->at(1));
 
-//     hist("DeltaR_toplep_ak8jet2")->Fill( dR_toplep_gluon, weight);
-//     hist("DeltaR_tophad_ak8jet2")->Fill( dR_tophad_gluon, weight);
-//     hist("DeltaR_min_top_ak8jet2")->Fill( min(dR_toplep_gluon, dR_tophad_gluon) , weight);
-//   }
+     hist("DeltaR_toplep_ak8jet2")->Fill( dR_toplep_gluon, weight);
+     hist("DeltaR_tophad_ak8jet2")->Fill( dR_tophad_gluon, weight);
+     hist("DeltaR_min_top_ak8jet2")->Fill( min(dR_toplep_gluon, dR_tophad_gluon) , weight);
+   }
 
 
-//   if(event.topjets->size()>0 && event.photons->size()>0){hist("DeltaR_gamma_ak8jet1")->Fill( deltaR(event.photons->at(0), event.topjets->at(0)) , weight);}
-//   if(event.topjets->size()>1 && event.photons->size()>0){hist("DeltaR_gamma_ak8jet2")->Fill( deltaR(event.photons->at(0), event.topjets->at(1)) , weight);}
+   if(event.topjets->size()>0 && event.photons->size()>0){hist("DeltaR_gamma_ak8jet1")->Fill( deltaR(event.photons->at(0), event.topjets->at(0)) , weight);}
+   if(event.topjets->size()>1 && event.photons->size()>0){hist("DeltaR_gamma_ak8jet2")->Fill( deltaR(event.photons->at(0), event.topjets->at(1)) , weight);}
 
 
   // //Loop over ttbar hypothesis to extract mean and sigma for leptonic and hadronic top mass
@@ -169,10 +174,10 @@ void TstarTstarRecoTstarHists::fill(const Event & event){
 
   //  cout<<"Number of ttbar candidates: "<<candidates.size()<<endl;
   //Fill hists for tgtg reconstruction check
-  ReconstructionTstarHypothesis tstar_hyp_best = event.get(h_recohyp_tstartstar_tgtg_best_);
+  //ReconstructionTstarHypothesis tstar_hyp_best = event.get(h_recohyp_tstartstar_tgtg_best_);
   //  std::vector<ReconstructionTstarHypothesis> tstar_hyps = event.get(h_recohyp_tstartstar_tgtg_);
-  hist("M_Tstar_lep")->Fill(inv_mass(tstar_hyp_best.tstarlep_v4()), weight);
-  hist("M_Tstar_had")->Fill(inv_mass(tstar_hyp_best.tstarhad_v4()), weight);
+  //hist("M_Tstar_lep")->Fill(inv_mass(tstar_hyp_best.tstarlep_v4()), weight);
+  //hist("M_Tstar_had")->Fill(inv_mass(tstar_hyp_best.tstarhad_v4()), weight);
   //  cout<<"Following values filled into mass histograms: "<<inv_mass(tstar_hyp_best.tstarlep_v4())<<", "<<inv_mass(tstar_hyp_best.tstarhad_v4())<<endl;
 }
 

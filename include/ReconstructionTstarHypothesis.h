@@ -25,9 +25,6 @@ public:
   LorentzVector tstarlep_v4() const{return m_tstarlep_v4;} // Tstar with top decay leptonically
   LorentzVector tstarhad_v4() const{return m_tstarhad_v4;}  // Tstar with top decay hadronically
 
-  LorentzVector tstargluon_v4() const{return m_tstargluon_v4;} // Tstar decaying into top + gluon
-  LorentzVector tstargamma_v4() const{return m_tstargamma_v4;}  // Tstar decaying into top + photon
-
   LorentzVector tstar1gamma_v4() const{return m_tstar1gamma_v4;} //1st Tstar -> t + gamma 
   LorentzVector tstar1gluon_v4() const{return m_tstar1gluon_v4;} //1st Tstar -> t + gluon
 
@@ -57,9 +54,6 @@ public:
   void set_tstarlep_v4(LorentzVector v4){m_tstarlep_v4=v4;}
   void set_tstarhad_v4(LorentzVector v4){m_tstarhad_v4=v4;} 
   void set_ttbar(ReconstructionHypothesis ttbar_hyp){m_ttbar_hyp = ttbar_hyp;}
-
-  void set_tstargluon_v4(LorentzVector v4){m_tstargluon_v4=v4;}
-  void set_tstargamma_v4(LorentzVector v4){m_tstargamma_v4=v4;} 
 
   void set_tstar1gamma_v4(LorentzVector v4){m_tstar1gamma_v4 = v4;}
   void set_tstar2gamma_v4(LorentzVector v4){m_tstar2gamma_v4 = v4;}

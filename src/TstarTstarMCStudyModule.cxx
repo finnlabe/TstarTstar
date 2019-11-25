@@ -73,7 +73,7 @@ private:
   std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_After_ttbar,h_RecoPlots_After_ttbar_correct_ttbar, h_RecoPlots_After_TstarTstar, h_RecoPlots_After_TstarTstar_match;
   std::unique_ptr<TstarTstarRecoTstarHists>  h_RecoPlots_After_TstarTstar_tgtg,h_RecoPlots_After_TstarTstar_tgtg_correct_ttbar;
   bool isTrigger = false;
-  //  bool debug = true;
+  //bool debug = true;
   bool debug = false;
   std::unique_ptr<uhh2::AnalysisModule> reco_primlep;
   std::unique_ptr<uhh2::AnalysisModule> ttbar_reco;
@@ -87,7 +87,6 @@ private:
   uhh2::Event::Handle<std::vector<ReconstructionTstarHypothesis>> h_tstartstar_hyps;
   //  uhh2::Event::Handle<bool> h_is_tstartstar_reconstructed;
   uhh2::Event::Handle<ReconstructionTstarHypothesis> h_recohyp_tstartstar;
-
 
   // uhh2::Event::Handle<float> h_M_Tstar_gluon;
   // uhh2::Event::Handle<float> h_M_Tstar_gamma;
@@ -408,7 +407,7 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   if(debug) {cout << "Start TstarTstar reconstruction ..."<< endl;}
   if(event.get(h_is_ttbar_reconstructed)){
 
-    if(is_tgtgamma){ // Tstar+Tstar -> t+g + t+gamma                     //FixME: the code is broken and most probably won't work. Sorry!
+    if(is_tgtgamma){ // Tstar+Tstar -> t+g + t+gamma      
       h_RecoPlots_After_ttbar->fill(event);
       if(TstarTstar_tgluon_tgamma_reco->process(event)){
 	h_After_TstarTstar_Reco->fill(event);
