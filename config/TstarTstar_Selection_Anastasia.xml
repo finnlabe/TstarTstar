@@ -3,13 +3,12 @@
 <!ENTITY TargetLumi      "35920">
 <!ENTITY b_Cacheable     "False">
 <!ENTITY NEVT            "-1">
-<!ENTITY CHANNEL "semileptonic"> 
 
 <!-- <!ENTITY OUTPUTdir           "/nfs/dust/cms/user/karavdia/TstarTstar/102X_v1/Preselection_DATA/RunII_2016_NoTriggers_Fall17loosePho_CutTightSum16Ele_HighPtMu/&CHANNEL;/"> -->
-<!ENTITY OUTPUTdir  "/nfs/dust/cms/user/karavdia/TstarTstar/102X_v1/Selection_DATA/RunII_2016_NoTriggers_Fall17loosePho_CutTightSum16Ele_HighPtMu_IsoNonIsoLepHLT_HLTroughThresh_AK8sel_METcut50_STcut/&CHANNEL;/">
-<!ENTITY PRESELdir   "/nfs/dust/cms/user/karavdia/TstarTstar/102X_v1/Preselection_DATA/RunII_2016_NoTriggers_Fall17loosePho_CutTightSum16Ele_HighPtMu/&CHANNEL;/">
+<!ENTITY OUTPUTdir  "/nfs/dust/cms/user/karavdia/TstarTstar/102X_v1/Selection_DATA/RunII_2016_NoTriggers_Fall17loosePho_CutTightSum16Ele_HighPtMu_IsoNonIsoLepHLT_HLTroughThresh_AK8sel_METcut50_STcut_MLinput/&CHANNEL;/">
+<!ENTITY PRESELdir   "/nfs/dust/cms/user/karavdia/TstarTstar/102X_v1/Preselection_DATA/RunII_2016_NoTriggers_Fall17loosePho_CutTightSum16Ele_HighPtMu/semileptonic/">
 
-
+<!ENTITY CHANNEL "tgtg"> 
 
 <!ENTITY MC_TstarTstarToTgluonTgluon_M-700_Run2016v3     "&PRESELdir;uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-700_Run2016v3.root">
 <!ENTITY MC_TstarTstarToTgluonTgluon_M-800_Run2016v3     "&PRESELdir;uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-800_Run2016v3.root">
@@ -133,7 +132,7 @@
 ]>
 
 <!--
-<ConfigParse NEventsBreak="0" LastBreak="0" FileSplit="3" AutoResubmit="100"/>
+<ConfigParse NEventsBreak="0" LastBreak="0" FileSplit="1" AutoResubmit="100"/>
 <ConfigSGE RAM="2" DISK="2" Mail="anastasia.karavdina@desy.de" Notification="as" Workdir="workdir_TstarTstar_DATA_2016v3_SELECTION"/>
 -->
 
@@ -146,7 +145,7 @@
    <!-- <Cycle Name="uhh2::AnalysisModuleRunner"  RunMode="PROOF" ProofServer="lite://"  ProofWorkDir="/nfs/dust/cms/user/ottjoc/proof-wd/" ProofNodes="2" OutputDirectory="./" PostFix="" TargetLumi="1" >  -->
 
         <!-- Verion attribute must have year in it, same as used in ntuple config, e.g. 2018, 2016v3, etc -->
-
+<!--
 	  <InputData Lumi="1" NEventsMax="&NEVT;" Type="DATA" Version="DATA_SingleElectron_Run2016v3B" Cacheable="&b_Cacheable;">
 	    &DATA_SingleElectron_Run2016v3B;
 	    <InputTree Name="AnalysisTree" />
@@ -255,7 +254,8 @@
 	    <InputTree Name="AnalysisTree" />
 	    <OutputTree Name="AnalysisTree" />
 	  </InputData>
-
+-->
+<!--
 	<InputData Lumi="189386.1646" NEventsMax="&NEVT;" Type="MC" Version="ST_tW_antitop_5f_inclusiveDecays_2016v3" Cacheable="&b_Cacheable;">
 	    &ST_tW_antitop_5f_inclusiveDecays_2016v3;
 	    <InputTree Name="AnalysisTree" />
@@ -291,7 +291,7 @@
 	    <InputTree Name="AnalysisTree" />
 	    <OutputTree Name="AnalysisTree" />
 	  </InputData> 
-
+-->
 	<InputData Lumi="7597.068234" NEventsMax="&NEVT;" Type="MC" Version="WJetsToLNu_HT-70To100_2016v3" Cacheable="&b_Cacheable;">
 	    &WJetsToLNu_HT-70To100_2016v3;
 	    <InputTree Name="AnalysisTree" />
@@ -333,7 +333,7 @@
 	    <OutputTree Name="AnalysisTree" />
 	  </InputData>
 
-
+<!--
 	<InputData Lumi="258541518.6" NEventsMax="&NEVT;" Type="MC" Version="WJetsToLNu_Pt-100To250_2016v3" Cacheable="&b_Cacheable;">
           &WJetsToLNu_Pt-100To250_2016v3;
           <InputTree Name="AnalysisTree"/>
@@ -354,7 +354,7 @@
           <InputTree Name="AnalysisTree"/>
           <OutputTree Name="AnalysisTree"/>
 	</InputData>
-
+-->
 	<InputData Lumi="56942.77321" NEventsMax="&NEVT;" Type="MC" Version="DYJetsToLL_M-50_HT-70to100_2016v3" Cacheable="&b_Cacheable;">
           &DYJetsToLL_M-50_HT-70to100_2016v3;
           <InputTree Name="AnalysisTree"/>
@@ -395,7 +395,7 @@
           <InputTree Name="AnalysisTree"/>
           <OutputTree Name="AnalysisTree"/>
 	</InputData>
-
+<!--
 	<InputData Lumi="0.2132249809" NEventsMax="&NEVT;" Type="MC" Version="QCD_Pt-30to50_MuEnrichedPt5_2016v3" Cacheable="&b_Cacheable;">
           &QCD_Pt-30to50_MuEnrichedPt5_2016v3;
           <InputTree Name="AnalysisTree"/>
@@ -516,7 +516,8 @@
           <InputTree Name="AnalysisTree"/>
           <OutputTree Name="AnalysisTree"/>
 	</InputData>
-
+-->
+<!--
         <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgamma_M-700_Run2016v3" Cacheable="False">
 	  <In FileName="&MC_TstarTstarToTgammaTgamma_M-700_Run2016v3;" Lumi="0.0" />
           <InputTree Name="AnalysisTree" />
@@ -537,7 +538,8 @@
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
-
+-->
+<!--
 	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1500_Run2016v3" Cacheable="False">
 	  <In FileName="&MC_TstarTstarToTgammaTgluon_M-1500_Run2016v3;" Lumi="0.0" />
           <InputTree Name="AnalysisTree" />
@@ -589,7 +591,7 @@
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
-
+-->
         <UserConfig>
             <!-- define which collections to read from the input. Only specify what you need to save I/O time -->
 	    <Item Name="PrimaryVertexCollection" Value="offlineSlimmedPrimaryVertices"/>
@@ -639,6 +641,8 @@
 	    <Item Name="trigger400"                 Value="HLT_PFJet400_v*"/>
 	    <Item Name="trigger450"                 Value="HLT_PFJet450_v*"/>
 	    <Item Name="trigger500"                 Value="HLT_PFJet500_v*"/>
+
+	    <Item Name="channel" Value="&CHANNEL;" /> <!-- final state: expected 'tgtg' or 'tgtgamma' -->
         </UserConfig>
     </Cycle>
 </JobConfiguration>

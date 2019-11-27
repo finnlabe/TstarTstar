@@ -29,7 +29,6 @@ private:
 };
 
 
-
 class TstarTstar_tgluon_tgamma_Reconstruction : uhh2::AnalysisModule{
 
 public:
@@ -43,10 +42,7 @@ private:
   /* uhh2::Event::Handle<float> h_M_Tstar_gluon_; */
   /* uhh2::Event::Handle<float> h_M_Tstar_gamma_; */
 
-  /* uhh2::Event::Handle<float> h_DeltaR_toplep_ak8jet1_; */
-  /* uhh2::Event::Handle<float> h_DeltaR_tophad_ak8jet1_; */
-  /* uhh2::Event::Handle<float> h_DeltaR_toplep_ak8jet2_; */
-  /* uhh2::Event::Handle<float> h_DeltaR_tophad_ak8jet2_; */
+
 };
 
 
@@ -58,11 +54,8 @@ public:
 
 private:
   uhh2::Event::Handle<ReconstructionHypothesis> h_recohyp_ttbar_; //best ttbar hypothesis reconstructed with  UHH2/common/src/TTbarReconstruction.cxx 
-
-  //  uhh2::Event::Handle<std::vector<ReconstructionTstarHypothesis>> h_recohyps_tstartstar_; //list of TstarTstar hypothesis reconstructed in this class
   uhh2::Event::Handle<ReconstructionTstarHypothesis> h_recohyp_tstartstar_best_; //best of TstarTstar hypothesis reconstructed in this class
-  /* uhh2::Event::Handle<float> h_M_Tstar_lep_; */
-  /* uhh2::Event::Handle<float> h_M_Tstar_had_; */
+
 
 
 };

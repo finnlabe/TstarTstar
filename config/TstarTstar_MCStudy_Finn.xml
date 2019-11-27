@@ -67,8 +67,7 @@
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
-
-	<!--
+	
 	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-800_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgammaTgluon_M-800_Run2016v3;
           <InputTree Name="AnalysisTree" />
@@ -80,7 +79,7 @@
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
-	-->
+	
 
 	<InputData Lumi="35000" NEventsMax="100" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1000_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgammaTgluon_M-1000_Run2016v3;
@@ -96,7 +95,7 @@
         </InputData>
 	-->
 	
-	<!--
+	
 	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1200_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgammaTgluon_M-1200_Run2016v3;
           <InputTree Name="AnalysisTree" />
@@ -114,7 +113,7 @@
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
-	-->
+	
 
 	<InputData Lumi="35000" NEventsMax="100" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1500_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgammaTgluon_M-1500_Run2016v3;
@@ -132,9 +131,6 @@
 
 
 	<!-- ##### gluon gluon ##### -->
-
-	<!--
-
 
 	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-700_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgluonTgluon_M-700_Run2016v3;
@@ -193,8 +189,6 @@
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
-
-	-->
 
 	<!-- ##### gamma gamma ##### -->
 

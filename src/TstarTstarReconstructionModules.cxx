@@ -57,11 +57,11 @@ ttbarChi2Discriminator::ttbarChi2Discriminator(uhh2::Context& ctx){
 bool ttbarChi2Discriminator::process(uhh2::Event& event){
   
   //  bool debug = true;
-  bool debug = false;
+    bool debug = false;
   if(debug){cout << "Hello World from ttbarChi2Discriminator!" << endl;}  
  
   if(debug){cout << "Reading in the hypothesis vector... ";}
-  const std::vector<ReconstructionHypothesis>& candidates = event.get(h_ttbar_hyps_);
+  std::vector<ReconstructionHypothesis>& candidates = event.get(h_ttbar_hyps_);
   ReconstructionHypothesis bestCand;
 
   if(debug && (candidates.size() < 1)){cout << "No candidates found!" << endl;}
@@ -112,17 +112,15 @@ bool ttbarChi2Discriminator::process(uhh2::Event& event){
     float chi2 = chi2_had + chi2_lep;
     //    if(debug) cout<<"Mhad and Mlep candidates: "<<mhad<<" "<<mlep<<" chi2 = "<<chi2<<endl;
     
-    /** TODO: make it possible to save chi2 in candidate as discriminator (for plotting, later use etc.)
-    candidates.at(i).set_discriminators("chi2_hadronic", chi2_had);
-    candidates.at(i).set_discriminators("chi2_leptonic", chi2_lep);
-    candidates.at(i).set_discriminators("chi2_total", chi2);
-    **/
+    candidates.at(i).set_discriminator("chi2_hadronic", chi2_had);
+    candidates.at(i).set_discriminator("chi2_leptonic", chi2_lep);
+    candidates.at(i).set_discriminator("chi2_total", chi2);
 
     if(chi2 < chi2_best){
       if(debug){cout << "Best chi2 was " << chi2_best << ". Set new best chi2." << endl;}
       chi2_best = chi2;
       bestCand = candidates.at(i);
-      bestCand.set_tophad_topjet_ptr(candidates.at(i).tophad_topjet_ptr());//TEST
+      //      bestCand.set_tophad_topjet_ptr(candidates.at(i).tophad_topjet_ptr());//TEST
     }
   }
 
@@ -133,8 +131,6 @@ bool ttbarChi2Discriminator::process(uhh2::Event& event){
   if(debug){cout << "Finished writing best candidate!" << endl;}
   return true;
 }
-
-
 
 TstarTstar_tgluon_tgamma_Reconstruction::TstarTstar_tgluon_tgamma_Reconstruction(uhh2::Context& ctx){
   h_recohyp_ttbar_ = ctx.get_handle<ReconstructionHypothesis>("TTbarReconstruction_best");
@@ -257,8 +253,6 @@ bool TstarTstar_tgluon_tgluon_Reconstruction::process(uhh2::Event& event){
   // Get Information about jets that have been used in Reconstruction
   if(debug){cout << "Reading in Jets from best Hypothesis & Event" << endl;}
   ReconstructionHypothesis hyp_ttbar = event.get(h_recohyp_ttbar_);//best ttbar hypothesis
-  //  cout<<"hyp_ttbar.tophad_topjet_ptr() = "<<hyp_ttbar.tophad_topjet_ptr()<<endl;
-  //  std::vector<ReconstructionTstarHypothesis> recoHyps;
   ReconstructionTstarHypothesis recoHyp_best;
   recoHyp_best.set_ttbar(hyp_ttbar);
   //  event.set(h_recohyps_tstartstar_,recoHyps);//fill empty values
@@ -266,20 +260,34 @@ bool TstarTstar_tgluon_tgluon_Reconstruction::process(uhh2::Event& event){
 
   std::vector<Jet> used_jets_ = hyp_ttbar.tophad_jets();
   used_jets_.insert( used_jets_.end(), hyp_ttbar.toplep_jets().begin(), hyp_ttbar.toplep_jets().end() );
+
   std::vector<TopJet> all_topjets_ = *event.topjets;
-  std::vector<TopJet> notused_topjets_; 
+  std::vector<bool> overlap_flag;
+
+  for(uint j = 0; j < all_topjets_.size(); j++){
+    overlap_flag.push_back(false);
+  }
+  //  std::vector<TopJet> notused_topjets_; 
   if(debug){cout << "Searching for separated AK8Jet... " << endl;}
   for(uint j = 0; j < all_topjets_.size(); j++){
     for (uint i = 0; i < used_jets_.size(); i++){
       double dR_ =  deltaR(all_topjets_.at(j),used_jets_.at(i));
-      if(dR_<0.4) notused_topjets_.push_back(all_topjets_.at(j));
+      if(dR_<1.2) overlap_flag[j] = true;
     }
   }
 
-  if(debug) cout<<"Number of not used in ttbar AK8 jets is "<<notused_topjets_.size()<<endl;
-  if(notused_topjets_.size()<2) return false;
-  //  std::vector< float > M_Tstargluon_had_;
-  //  std::vector< float > M_Tstargluon_lep_;
+  int notused_topjets = 0;
+  std::vector<TopJet> notused_topjets_;
+  for(uint j = 0; j < all_topjets_.size(); j++){
+    if(!overlap_flag[j]){
+      notused_topjets_.push_back(all_topjets_.at(j));
+      notused_topjets++;
+    }
+  }
+
+  if(debug) cout<<"Number of not used in ttbar AK8 jets is "<<notused_topjets<<endl;
+  if(notused_topjets<2) return false;
+
   double M_Tstargluon_had,M_Tstargluon_lep, diffM;
   std::pair<int,int> gluon_cand_min;//gluon from hadronic (first) and leptonic (second) side
   double diffM_min = 1e7;
@@ -301,17 +309,20 @@ bool TstarTstar_tgluon_tgluon_Reconstruction::process(uhh2::Event& event){
 	gluon_cand_min.first = i1;
 	gluon_cand_min.second = i2;
 	ReconstructionTstarHypothesis current_tstartstar;
-	current_tstartstar.set_ttbar(hyp_ttbar);
-
 	current_tstartstar.set_tstarhad_v4(hyp_ttbar.tophad_v4() + gluon_cand1.v4());
 	current_tstartstar.set_tstarlep_v4(hyp_ttbar.toplep_v4() + gluon_cand2.v4());
 
 	current_tstartstar.set_tstar1gluon_v4(hyp_ttbar.toplep_v4() + gluon_cand2.v4());
 	current_tstartstar.set_tstar2gluon_v4(hyp_ttbar.tophad_v4() + gluon_cand1.v4());
 
+	current_tstartstar.set_gluon1_v4(gluon_cand1.v4());
+	current_tstartstar.set_gluon2_v4(gluon_cand2.v4());
+
 	current_tstartstar.add_tstarhad_jet(gluon_cand1);
 	current_tstartstar.add_tstarlep_jet(gluon_cand2);
+	current_tstartstar.set_used_ttbarjet_flags(overlap_flag);
 	//	recoHyps.push_back(current_tstartstar);
+	current_tstartstar.set_ttbar(hyp_ttbar);
 	recoHyp_best = current_tstartstar;
       }
       if(debug) cout<<"i1,i2:"<<i1<<" "<<i2<<" M_Tstargluon_had, M_Tstargluon_lep "<<M_Tstargluon_had<<", "<<M_Tstargluon_lep<<"; diff = "<<diffM<<endl;
@@ -320,12 +331,12 @@ bool TstarTstar_tgluon_tgluon_Reconstruction::process(uhh2::Event& event){
 
   double M_Tstargluon_had_best_ = inv_mass(hyp_ttbar.tophad_v4() + notused_topjets_.at(gluon_cand_min.first).v4());
   double M_Tstargluon_lep_best_ = inv_mass(hyp_ttbar.toplep_v4() + notused_topjets_.at(gluon_cand_min.second).v4());
-  if(debug) cout<<"ttbar: lep "<<inv_mass(hyp_ttbar.toplep_v4())<<" had:"<<inv_mass(hyp_ttbar.tophad_v4())<<endl;
+  if(debug) cout<<"ttbar: lep "<<inv_mass(hyp_ttbar.toplep_v4())<<" had:"<<inv_mass(hyp_ttbar.tophad_v4())<<" chi2 = "
+		<<hyp_ttbar.discriminator("chi2_total")<<" chi2_lep = "<<hyp_ttbar.discriminator("chi2_leptonic")
+		<<" chi2_had = "<<hyp_ttbar.discriminator("chi2_hadronic")<<" CorrMatch = "<<hyp_ttbar.discriminator("CorrectMatch")<<endl;
+  if(debug) cout<<"  hyp.toplep_jets().size() = "<<hyp_ttbar.toplep_jets().size()<<" hyp.tophad_jets().size() ="<<hyp_ttbar.tophad_jets().size()<<endl;
   if(debug) cout<<"--- Jetid for hadronic and leptonic gluon: "<<gluon_cand_min.first<<" "<<gluon_cand_min.second<<" had,lep:"<<M_Tstargluon_had_best_<<", "<<M_Tstargluon_lep_best_<<" ---"<<endl;
-  // event.set(h_M_Tstar_lep_, M_Tstargluon_lep_best_);
-  // event.set(h_M_Tstar_had_, M_Tstargluon_had_best_);
 
-  //  event.set(h_recohyps_tstartstar_,recoHyps);
   event.set(h_recohyp_tstartstar_best_,recoHyp_best);
 
   if(debug){cout << "Hypothesis written, return to main" << endl;}
