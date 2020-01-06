@@ -20,8 +20,8 @@ namespace {
 
 
 TstarTstarGenRecoMatchedHists::TstarTstarGenRecoMatchedHists(Context & ctx, const string & dirname): Hists(ctx, dirname){
-  // book all histograms here
 
+  // book all histograms here
   book<TH1F>("dR_ele", "dR_{e}(GEN,RECO)", 40, 0, 1.2);  
   book<TH1F>("Pt_ratio_ele", "p_{T}^{e, RECO}/p_{T}^{e, GEN}", 40, 0, 2);  
   book<TH1F>("Pt_ele", "p_{T}^{e, RECO matched}", 50, 0, 1100);  
@@ -196,6 +196,10 @@ void TstarTstarGenRecoMatchedHists::fill(const Event & event){
   }
   //  cout<<"Lepton and neutrino are assigned"<<endl;
 
+
+  // Preparation for finding best hypothesis (if already reconstructed)
+  
+
   //Now let's find match from RECO objects
   // lepton
   if(fabs(lepton->pdgId()) == 11){
@@ -253,7 +257,7 @@ void TstarTstarGenRecoMatchedHists::fill(const Event & event){
   // Consider AK4 jets first
   double dR_max = 0.2;
   int bAK4match = 0, gluonAK4match = 0, topAK4match=0;
-int jetid = 0;
+  int jetid = 0;
   for(const auto & jet : *event.jets){
     if(deltaR(*b1,jet) <= dR_max){
       hist("AK4_dR_b")->Fill(deltaR(*b1,jet), weight);

@@ -25,7 +25,7 @@ TstarTstarRecoTstarHists::TstarTstarRecoTstarHists(Context & ctx, const string &
 
 
   // ###### Handles ######
-  h_recohyp_ = ctx.get_handle<ReconstructionHypothesis>("TTbarReconstruction_best"); 
+  //h_recohyp_ = ctx.get_handle<ReconstructionHypothesis>("TTbarReconstruction_best"); 
   h_is_ttbar_reconstructed_ = ctx.get_handle< bool >("is_ttbar_reconstructed_chi2");
   h_ttbar_hyps_ = ctx.get_handle< std::vector<ReconstructionHypothesis> >("TTbarReconstruction");
   if(is_tgtg) h_recohyp_tstartstar_best_ = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_tgtg_best");
@@ -36,8 +36,8 @@ TstarTstarRecoTstarHists::TstarTstarRecoTstarHists(Context & ctx, const string &
 
   // #### M_Tstar
   // tgtgamma
-  book<TH1F>("M_Tstar_gluon", "M_{T^{*}_{g}} [GeV]", 30, 0, 3000);
-  book<TH1F>("M_Tstar_gamma", "M_{T^{*}_{#gamma}} [GeV]", 30, 0, 3000);
+  book<TH1F>("M_Tstar_gluon", "M_{T^{*}_{g}} [GeV]", 100, 0, 3000);
+  book<TH1F>("M_Tstar_gamma", "M_{T^{*}_{#gamma}} [GeV]", 100, 0, 3000);
   // tgtg
   book<TH1F>("M_Tstar_lep", "Mass T^{*}_{tgtg,lep} [GeV]", 100, 0, 3000);
   book<TH1F>("M_Tstar_had", "Mass T^{*}_{tgtg,had} [GeV]", 100, 0, 3000);
@@ -72,12 +72,13 @@ TstarTstarRecoTstarHists::TstarTstarRecoTstarHists(Context & ctx, const string &
   book<TH1F>("Pt_ratio_Tstar_lep_to_Tstar_had", "(p_{T} T^{*}_{tgtg,lep})/(p_{T} T^{*}_{tgtg,had})", 100, 0, 1e1);
 
 
-  // #### chi2 ttbar
+  // #### ttbar
   book<TH1F>("Mtoplep_bestchi2", "M^{best #chi^{2}}_{toplep} [GeV]", 100, 0, 500);
   book<TH1F>("Mtophad_bestchi2", "M^{best #chi^{2}}_{tophad} [GeV]", 100, 0, 500);
   book<TH1F>("Chi2_bestchi2", "#chi^{2}_{best #chi^{2}}", 50, 0, 100);
   book<TH1F>("dRCorrMatch_bestchi2", "#sum dR^{Match}_{best #chi^{2}}", 50, 0, 1e1);
-
+  book<TH1F>("t_lep_used_jets", "N_{Jets} (leptonic top)", 10, 0, 10); 
+  book<TH1F>("t_had_used_jets", "N_{Jets} (hadronic top)", 11, -1, 10);
   
   // #### other
   // tgtg
@@ -108,7 +109,7 @@ void TstarTstarRecoTstarHists::fill(const Event & event){
   double weight = event.weight;
   
   // ###### Handles ######
-  ReconstructionHypothesis hyp = event.get(h_recohyp_);
+  ReconstructionHypothesis hyp = event.get(h_recohyp_tstartstar_best_).ttbar_hyp();
   ReconstructionTstarHypothesis tstar_hyp_best = event.get(h_recohyp_tstartstar_best_);
 
 
@@ -198,11 +199,14 @@ void TstarTstarRecoTstarHists::fill(const Event & event){
   hist("dR_top_gluon_Tstar_lep")->Fill(dR_top_gluon_Tstar_lep, weight);
   hist("dR_top_gluon_Tstar_had")->Fill(dR_top_gluon_Tstar_had, weight);
   
-  // #### chi2 ttbar
+  // #### ttbar
   hist("Mtoplep_bestchi2")->Fill(inv_mass(hyp.toplep_v4()), weight);
   hist("Mtophad_bestchi2")->Fill(inv_mass(hyp.tophad_v4()), weight);
   hist("Chi2_bestchi2")->Fill(hyp.discriminator("chi2_total"), weight);
   hist("dRCorrMatch_bestchi2")->Fill(hyp.discriminator("CorrectMatch"), weight);
+  hist("t_lep_used_jets")->Fill(hyp.toplep_jets().size(), weight);
+  if(!hyp.tophad_topjet_ptr()){hist("t_had_used_jets")->Fill(hyp.tophad_jets().size(), weight);}
+  else {hist("t_had_used_jets")->Fill(-0.5, weight);}
   
   // //Loop over ttbar hypothesis to extract mean and sigma for leptonic and hadronic top mass
   // const std::vector<ReconstructionHypothesis>& candidates = event.get(h_ttbar_hyps_);

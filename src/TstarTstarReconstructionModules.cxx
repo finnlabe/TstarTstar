@@ -56,8 +56,7 @@ ttbarChi2Discriminator::ttbarChi2Discriminator(uhh2::Context& ctx){
 
 bool ttbarChi2Discriminator::process(uhh2::Event& event){
   
-  //  bool debug = true;
-    bool debug = false;
+  bool debug = false;
   if(debug){cout << "Hello World from ttbarChi2Discriminator!" << endl;}  
  
   if(debug){cout << "Reading in the hypothesis vector... ";}
@@ -135,20 +134,13 @@ bool ttbarChi2Discriminator::process(uhh2::Event& event){
 TstarTstar_tgluon_tgamma_Reconstruction::TstarTstar_tgluon_tgamma_Reconstruction(uhh2::Context& ctx){
   h_recohyp_ttbar_ = ctx.get_handle<ReconstructionHypothesis>("TTbarReconstruction_best");
   h_recohyp_tstartstar_best_ = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_tgtgamma_best");
-  // h_M_Tstar_gluon_ = ctx.get_handle< float >("M_Tstar_gluon");
-  // h_M_Tstar_gamma_ = ctx.get_handle< float >("M_Tstar_gamma");
   
-  // h_DeltaR_toplep_ak8jet1_ = ctx.get_handle< float >("DeltaR_toplep_ak8jet1");
-  // h_DeltaR_tophad_ak8jet1_ = ctx.get_handle< float >("DeltaR_tophad_ak8jet1");
-  // h_DeltaR_toplep_ak8jet2_ = ctx.get_handle< float >("DeltaR_toplep_ak8jet2");
-  // h_DeltaR_tophad_ak8jet2_ = ctx.get_handle< float >("DeltaR_tophad_ak8jet2");
 }
 
 bool TstarTstar_tgluon_tgamma_Reconstruction::process(uhh2::Event& event){
 
-  //bool debug = true;
   bool debug = false;
-
+  
   if(debug){cout << "Hello World from Tstartstar_tgluon_tgamma_Reconstruction!" << endl;}
 
   // Get Information about jets that have been used in Reconstruction
@@ -161,33 +153,40 @@ bool TstarTstar_tgluon_tgamma_Reconstruction::process(uhh2::Event& event){
   std::vector<Jet> used_jets_ = hyp_ttbar.tophad_jets();
   used_jets_.insert( used_jets_.end(), hyp_ttbar.toplep_jets().begin(), hyp_ttbar.toplep_jets().end() );
   std::vector<TopJet> all_topjets_ = *event.topjets;
-  std::vector<bool> topjets_usage_(all_topjets_.size(), false);
-  int notusedtopjets_count_ = all_topjets_.size();
+  std::vector<bool> overlap_flag;
+
+  for(uint j = 0; j < all_topjets_.size(); j++){
+    overlap_flag.push_back(false);
+  }
+
   if(debug){cout << "Searching for separated AK8Jet... " << endl;}
   for(uint j = 0; j < all_topjets_.size(); j++){
     for (uint i = 0; i < used_jets_.size(); i++){
       double dR_ =  deltaR(all_topjets_.at(j), used_jets_.at(i));
-      if(dR_<0.4){
-	topjets_usage_.at(j) = true;
-	notusedtopjets_count_--;
-      }
+      if(dR_<1.2) overlap_flag[j] = true;
     }
   }
-  
 
-  if(debug) cout<<"Number of not used in ttbar AK8 jets is "<<notusedtopjets_count_<<endl;
-  if(notusedtopjets_count_<1) return false; // Require one AK8 Jet
+  int notused_topjets = 0;
+  std::vector<TopJet> notused_topjets_;
+  for(uint j = 0; j < all_topjets_.size(); j++){
+    if(!overlap_flag[j]){
+      notused_topjets_.push_back(all_topjets_.at(j));
+      notused_topjets++;
+    }
+  }
 
-  float M_tophad_gluon, M_toplep_gluon, M_tophad_photon, M_toplep_photon;
-  float diffM_min = 1e9;
+  if(debug) cout<<"Number of not used in ttbar AK8 jets is "<<notused_topjets<<endl;
+  if(notused_topjets<1) return false; // Require one AK8 Jet
+
+  double M_tophad_gluon, M_toplep_gluon, M_tophad_photon, M_toplep_photon;
+  float diffM_min = 1e7;
 
   if(debug){cout << "Calculating all possible M_Tstar pairs..." << endl;}
 
-  for (uint i = 0; i < all_topjets_.size(); i++){
-    if(topjets_usage_.at(i)){break;}
-
-    M_tophad_gluon = inv_mass(hyp_ttbar.tophad_v4() + all_topjets_.at(i).v4());
-    M_toplep_gluon = inv_mass(hyp_ttbar.toplep_v4() + all_topjets_.at(i).v4());
+  for (uint i = 0; i < notused_topjets_.size(); i++){
+    M_tophad_gluon = inv_mass(hyp_ttbar.tophad_v4() + notused_topjets_.at(i).v4());
+    M_toplep_gluon = inv_mass(hyp_ttbar.toplep_v4() + notused_topjets_.at(i).v4());
     
     for (uint j = 0; j < event.photons->size(); j++){
       M_tophad_photon = inv_mass(hyp_ttbar.tophad_v4() + event.photons->at(j).v4());
@@ -245,7 +244,6 @@ TstarTstar_tgluon_tgluon_Reconstruction::TstarTstar_tgluon_tgluon_Reconstruction
 
 bool TstarTstar_tgluon_tgluon_Reconstruction::process(uhh2::Event& event){
 
-  //  bool debug = true;
   bool debug = false;
 
   if(debug){cout << "Hello World from Tstartstar_tgluon_tgluon_Reconstruction!" << endl;}
@@ -286,7 +284,7 @@ bool TstarTstar_tgluon_tgluon_Reconstruction::process(uhh2::Event& event){
   }
 
   if(debug) cout<<"Number of not used in ttbar AK8 jets is "<<notused_topjets<<endl;
-  if(notused_topjets<2) return false;
+  if(notused_topjets<2) return false; // Require two AK8 Jets
 
   double M_Tstargluon_had,M_Tstargluon_lep, diffM;
   std::pair<int,int> gluon_cand_min;//gluon from hadronic (first) and leptonic (second) side

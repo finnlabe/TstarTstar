@@ -10,6 +10,8 @@
 #include "UHH2/common/include/ReconstructionHypothesis.h"
 #include "UHH2/common/include/ReconstructionHypothesisDiscriminators.h"
 #include "UHH2/TstarTstar/include/ReconstructionTstarHypothesis.h"
+#include "UHH2/TstarTstar/include/TstarTstarSelections.h"
+
 
 class TstarTstarGenMatcher : uhh2::AnalysisModule{
 
@@ -18,7 +20,11 @@ public:
   virtual bool process(uhh2::Event&) override;
 
  private:
-  uhh2::Event::Handle<std::vector<ReconstructionTstarHypothesis>> h_tstartstar_hyps;
+  std::unique_ptr<uhh2::TTbarSemiLepMatchableSelection> TTbarSemiLepMatchable_selection;
+
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
   bool is_tgtg, is_tgtgamma;
+  uhh2::Event::Handle<std::vector<ReconstructionHypothesis>> h_ttbar_hyps;
+  uhh2::Event::Handle<ReconstructionTstarHypothesis> h_recohyp_tstartstar;
+
 };

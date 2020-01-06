@@ -47,7 +47,7 @@
 
 <!--
 <ConfigParse NEventsBreak="0" LastBreak="0" FileSplit="20" AutoResubmit="100"/>
-<ConfigSGE RAM="2" DISK="2" Mail="finn.labe@desy.de" Notification="as" Workdir="workdir_TstarTstar_MC_only_Study_2016v3_mvawp90"/>
+<ConfigSGE RAM="2" DISK="2" Mail="finn.labe@desy.de" Notification="as" Workdir="workdir_TstarTstar_MC_only_Study_2016v3_mvawp90_tgtp_TEST"/>
 -->
 
 <!-- OutputLevel controls which messages are printed; set to VERBOSE or DEBUG for more verbosity, to WARNING or ERROR for less -->
@@ -62,6 +62,7 @@
 
 	<!-- ##### gamma gluon ##### -->
 
+<!--
 	<InputData Lumi="35000" NEventsMax="100" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-700_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgammaTgluon_M-700_Run2016v3;
           <InputTree Name="AnalysisTree" />
@@ -79,9 +80,9 @@
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
-	
+-->	
 
-	<InputData Lumi="35000" NEventsMax="100" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1000_Run2016v3" Cacheable="False">
+	<InputData Lumi="35000" NEventsMax="1000" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1000_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgammaTgluon_M-1000_Run2016v3;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
@@ -95,7 +96,7 @@
         </InputData>
 	-->
 	
-	
+<!--	
 	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1200_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgammaTgluon_M-1200_Run2016v3;
           <InputTree Name="AnalysisTree" />
@@ -120,6 +121,7 @@
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
+-->
 
 	<!-- makes problems
 	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgluon_M-1600_Run2016v3" Cacheable="False">
@@ -129,101 +131,6 @@
         </InputData>
 	-->
 
-
-	<!-- ##### gluon gluon ##### -->
-
-	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-700_Run2016v3" Cacheable="False">
-	  &MC_TstarTstarToTgluonTgluon_M-700_Run2016v3;
-          <InputTree Name="AnalysisTree" />
-          <OutputTree Name="AnalysisTree" />
-        </InputData>
-
-        <InputData Lumi="33400" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-800_Run2016v3" Cacheable="False">
-	  &MC_TstarTstarToTgluonTgluon_M-800_Run2016v3;
-          <InputTree Name="AnalysisTree" />
-          <OutputTree Name="AnalysisTree" />
-        </InputData>
-
-        <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-900_Run2016v3" Cacheable="False">
-	  &MC_TstarTstarToTgluonTgluon_M-900_Run2016v3;
-          <InputTree Name="AnalysisTree" />
-          <OutputTree Name="AnalysisTree" />
-        </InputData>
-        <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1000_Run2016v3" Cacheable="False">
-	  &MC_TstarTstarToTgluonTgluon_M-1000_Run2016v3;
-          <InputTree Name="AnalysisTree" />
-          <OutputTree Name="AnalysisTree" />
-        </InputData>
-
-        <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1100_Run2016v3" Cacheable="False">
-	  &MC_TstarTstarToTgluonTgluon_M-1100_Run2016v3;
-          <InputTree Name="AnalysisTree" />
-          <OutputTree Name="AnalysisTree" />
-        </InputData>
-        <InputData Lumi="34600" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1200_Run2016v3" Cacheable="False">
-	  &MC_TstarTstarToTgluonTgluon_M-1200_Run2016v3;
-          <InputTree Name="AnalysisTree" />
-          <OutputTree Name="AnalysisTree" />
-        </InputData>
-
-        <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1300_Run2016v3" Cacheable="False">
-	  &MC_TstarTstarToTgluonTgluon_M-1300_Run2016v3;
-          <InputTree Name="AnalysisTree" />
-          <OutputTree Name="AnalysisTree" />
-        </InputData>
-
-        <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1400_Run2016v3" Cacheable="False">
-	  &MC_TstarTstarToTgluonTgluon_M-1400_Run2016v3;
-          <InputTree Name="AnalysisTree" />
-          <OutputTree Name="AnalysisTree" />
-        </InputData>
-
-        <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1500_Run2016v3" Cacheable="False">
-	  &MC_TstarTstarToTgluonTgluon_M-1500_Run2016v3;
-          <InputTree Name="AnalysisTree" />
-          <OutputTree Name="AnalysisTree" />
-        </InputData>
-
-        <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1600_Run2016v3" Cacheable="False">
-	  &MC_TstarTstarToTgluonTgluon_M-1600_Run2016v3;
-          <InputTree Name="AnalysisTree" />
-          <OutputTree Name="AnalysisTree" />
-        </InputData>
-
-	<!-- ##### gamma gamma ##### -->
-
-	<!--
-
-        <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgamma_M-700_Run2016v3" Cacheable="False"> 
-	  &MC_TstarTstarToTgammaTgamma_M-700_Run2016v3;
-          <InputTree Name="AnalysisTree" />
-          <OutputTree Name="AnalysisTree" />
-        </InputData>
-
-        <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgamma_M-800_Run2016v3" Cacheable="False">
-	  &MC_TstarTstarToTgammaTgamma_M-800_Run2016v3;
-          <InputTree Name="AnalysisTree" />
-          <OutputTree Name="AnalysisTree" />
-        </InputData>
-        <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgamma_M-900_Run2016v3" Cacheable="False">
-	  &MC_TstarTstarToTgammaTgamma_M-900_Run2016v3;
-          <InputTree Name="AnalysisTree" />
-          <OutputTree Name="AnalysisTree" />
-        </InputData>
-
-        <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgamma_M-1000_Run2016v3" Cacheable="False">
-	  &MC_TstarTstarToTgammaTgamma_M-1000_Run2016v3;
-          <InputTree Name="AnalysisTree" />
-          <OutputTree Name="AnalysisTree" />
-        </InputData>
-
-        <InputData Lumi="34200" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgamma_M-1100_Run2016v3" Cacheable="False">
-	  &MC_TstarTstarToTgammaTgamma_M-1100_Run2016v3;
-          <InputTree Name="AnalysisTree" />
-          <OutputTree Name="AnalysisTree" />
-        </InputData>
-
-	-->
 
         <UserConfig>
             <!-- define which collections to read from the input. Only specify what you need to save I/O time -->
@@ -240,7 +147,7 @@
 	    <Item Name="METName"                 Value="slimmedMETsPuppi"/>
 	    <Item Name="genMETName"              Value="slimmedMETs_GenMET"/>
 	    <Item Name="lumi_file" Value="/nfs/dust/cms/user/karavdia/CMSSW_10_2_10/src/UHH2/common/data/2016/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root"/>
-	    <Item Name="lumihists_lumi_per_bin" Value="500.0"/>
+	    <Item Name="lumihists_lumi_per_bin" Value="1.0"/>
 	    
 <!--	    <Item Name="is_puppi" Value="&IS_PUPPI;"/> -->
 
