@@ -399,3 +399,23 @@ bool uhh2::STCut::passes(const uhh2::Event& event){
   for(const auto & jet : *jets) st_jets += jet.pt();
   return (st_jets > min_st_) && (st_jets < max_st_);
 }
+
+
+uhh2::TopTagEventSelection::TopTagEventSelection(const TopJetId& tjetID, float minDR_jet_ttag):
+  topjetID_(tjetID), minDR_jet_toptag_(minDR_jet_ttag) {
+
+}
+
+bool uhh2::TopTagEventSelection::passes(const uhh2::Event& event){ 
+
+  for(auto & topjet : * event.topjets){
+    if(topjetID_(topjet, event)) return true; // was continue;
+    
+    /**
+    for(auto & jet : * event.jets)
+      if(deltaR(jet, topjet) > minDR_jet_toptag_) return true;
+    **/
+  }
+  return false;
+}
+////////////////////////////////////////////////////////

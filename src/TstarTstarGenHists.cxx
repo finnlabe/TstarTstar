@@ -79,11 +79,11 @@ void TstarTstarGenHists::fill(const Event & event){
       antitop = gp;
       found_antitop = true;
     }
-    else if(gp.pdgId() == 9000005){
+    else if(gp.pdgId() == 9000005 && (gp.status()==23 || gp.status()==22)){
       tstar = gp;
       found_tstar = true;
     }
-    else if(gp.pdgId() == -9000005){
+    else if(gp.pdgId() == -9000005 && (gp.status()==23 || gp.status()==22)){
       antitstar = gp;
       found_antitstar = true;
     }

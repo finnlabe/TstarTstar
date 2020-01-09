@@ -81,11 +81,13 @@
         </InputData>
 
 -->
-        <InputData Lumi="35000" NEventsMax="10000" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1000_Run2016v3" Cacheable="False">
+<!--
+        <InputData Lumi="35000" NEventsMax="1000" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1000_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgluonTgluon_M-1000_Run2016v3;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
+-->
 <!--
         <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1100_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgluonTgluon_M-1100_Run2016v3;
@@ -118,13 +120,14 @@
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
+-->
 
         <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1600_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgluonTgluon_M-1600_Run2016v3;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
--->
+
 	<!-- ##### gamma gamma ##### -->
 
 	<!--

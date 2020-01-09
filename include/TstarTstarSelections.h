@@ -4,6 +4,8 @@
 #include "UHH2/core/include/Selection.h"
 #include "UHH2/core/include/GenParticle.h"
 #include "UHH2/common/include/ReconstructionHypothesis.h"
+#include "UHH2/common/include/TopJetIds.h"
+
 
 #include <string>
 #include <vector>
@@ -55,4 +57,16 @@ namespace uhh2 {
   };
   ////
 
+  class TopTagEventSelection: public Selection {
+  public:
+    explicit TopTagEventSelection(const TopJetId& tjet_id=CMSTopTag(), float minDR_jet_ttag=1.2);
+    virtual bool passes(const Event&) override;
+
+  private:
+    TopJetId topjetID_;
+    //std::unique_ptr<Selection> topjet1_sel_;
+    float minDR_jet_toptag_;
+  };
+  /////
+  
 }

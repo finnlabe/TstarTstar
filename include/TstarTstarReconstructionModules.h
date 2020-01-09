@@ -11,6 +11,30 @@
 #include "UHH2/common/include/ReconstructionHypothesisDiscriminators.h"
 #include "UHH2/TstarTstar/include/ReconstructionTstarHypothesis.h"
 
+class TopTagMassWindow {
+public:
+  
+  explicit TopTagMassWindow(double mlower=105., double mupper=220.);
+  
+  bool operator()(const TopJet & topjet, const uhh2::Event & event) const;
+
+ private:
+  double m_mlower;
+  double m_mupper;
+};
+
+class TopTagSubbtag {
+public:
+  
+  explicit TopTagSubbtag(double btag=0.5);
+  
+  bool operator()(const TopJet & topjet, const uhh2::Event & event) const;
+
+ private:
+  double m_btag;
+};
+
+
 class ttbarChi2Discriminator : uhh2::AnalysisModule{
 
 public:
@@ -55,7 +79,8 @@ public:
 private:
   uhh2::Event::Handle<ReconstructionHypothesis> h_recohyp_ttbar_; //best ttbar hypothesis reconstructed with  UHH2/common/src/TTbarReconstruction.cxx 
   uhh2::Event::Handle<ReconstructionTstarHypothesis> h_recohyp_tstartstar_best_; //best of TstarTstar hypothesis reconstructed in this class
-
+  uhh2::Event::Handle<int> h_flag_toptagevent; //Check if event has a TopTag
 
 
 };
+

@@ -105,6 +105,8 @@ void TstarTstarRecoTstarHists::fill(const Event & event){
   // slow when you have many histograms; therefore, better
   // use histogram pointers as members as in 'UHH2/common/include/ElectronHists.h'
   
+  bool debug = false;
+
   // Don't forget to always use the weight when filling.
   double weight = event.weight;
   
@@ -112,6 +114,7 @@ void TstarTstarRecoTstarHists::fill(const Event & event){
   ReconstructionHypothesis hyp = event.get(h_recohyp_tstartstar_best_).ttbar_hyp();
   ReconstructionTstarHypothesis tstar_hyp_best = event.get(h_recohyp_tstartstar_best_);
 
+  if(debug){cout << "Starting filling histograms..." << endl;}
 
   // ###### Histgram Filling ######
 
@@ -123,6 +126,7 @@ void TstarTstarRecoTstarHists::fill(const Event & event){
   hist("M_Tstar_lep")->Fill(inv_mass(tstar_hyp_best.tstarlep_v4()), weight);
   hist("M_Tstar_had")->Fill(inv_mass(tstar_hyp_best.tstarhad_v4()), weight);
   
+  if(debug){cout << "Finished writing Tstar masses." << endl;}
   
   // #### Delta_R
   // tgtgamma
@@ -199,6 +203,8 @@ void TstarTstarRecoTstarHists::fill(const Event & event){
   hist("dR_top_gluon_Tstar_lep")->Fill(dR_top_gluon_Tstar_lep, weight);
   hist("dR_top_gluon_Tstar_had")->Fill(dR_top_gluon_Tstar_had, weight);
   
+  if(debug){cout << "Finished writing DeltaRs." << endl;}
+
   // #### ttbar
   hist("Mtoplep_bestchi2")->Fill(inv_mass(hyp.toplep_v4()), weight);
   hist("Mtophad_bestchi2")->Fill(inv_mass(hyp.tophad_v4()), weight);
@@ -208,6 +214,8 @@ void TstarTstarRecoTstarHists::fill(const Event & event){
   if(!hyp.tophad_topjet_ptr()){hist("t_had_used_jets")->Fill(hyp.tophad_jets().size(), weight);}
   else {hist("t_had_used_jets")->Fill(-0.5, weight);}
   
+  if(debug){cout << "Finished writing ttbar plots." << endl;}
+
   // //Loop over ttbar hypothesis to extract mean and sigma for leptonic and hadronic top mass
   // const std::vector<ReconstructionHypothesis>& candidates = event.get(h_ttbar_hyps_);
   // for(unsigned int i=0; i<candidates.size(); i++){
@@ -230,6 +238,9 @@ void TstarTstarRecoTstarHists::fill(const Event & event){
   //  book<TH1F>("dR_top_gluon_Tstar_had", "#DeltaR(top, gluon) T^{*}_{tgtg,had}", 50, 0, 1e1);
 
   //  cout<<"Following values filled into mass histograms: "<<inv_mass(tstar_hyp_best.tstarlep_v4())<<", "<<inv_mass(tstar_hyp_best.tstarhad_v4())<<endl;
+
+  if(debug){cout << "Finished filling hists, return to main!" << endl;}
+
 }
 
 

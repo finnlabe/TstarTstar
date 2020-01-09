@@ -16,6 +16,35 @@ namespace {
 
 }
 
+bool TopTagMassWindow::operator()(const TopJet & topjet, const uhh2::Event &) const {
+  //auto subjets = topjet.subjets();
+  //if(subjets.size() < 3) return false;
+  
+  float mjet = topjet.softdropmass();
+  
+  if(mjet < m_mlower) return false;
+  if(mjet > m_mupper) return false;
+  
+  return true;
+}
+
+TopTagMassWindow::TopTagMassWindow(double mlower, double mupper): m_mlower(mlower), m_mupper(mupper) {}
+
+bool TopTagSubbtag::operator()(const TopJet & topjet, const uhh2::Event &) const {
+  auto subjets = topjet.subjets();
+  //if(subjets.size() < 3) return false;
+  
+  for(const auto & subjet : subjets){
+    if(subjet.btag_DeepCSV() > m_btag){return true;}
+  }
+  
+  return false;
+}
+
+TopTagSubbtag::TopTagSubbtag(double btag): m_btag(btag) {}
+
+
+
 ttbarChi2Discriminator::ttbarChi2Discriminator(uhh2::Context& ctx){
 
   //Getting needed Handles
@@ -63,8 +92,8 @@ bool ttbarChi2Discriminator::process(uhh2::Event& event){
   std::vector<ReconstructionHypothesis>& candidates = event.get(h_ttbar_hyps_);
   ReconstructionHypothesis bestCand;
 
-  if(debug && (candidates.size() < 1)){cout << "No candidates found!" << endl;}
   if(candidates.size() < 1) {
+    if(debug){cout << "No candidates found!" << endl;}
     bestCand = ReconstructionHypothesis(); //Fixing crash when no BestCandidate is found (handle must not be empty)
     event.set(h_recohyp_, bestCand);
     event.set(h_is_ttbar_reconstructed_, false);
@@ -81,7 +110,7 @@ bool ttbarChi2Discriminator::process(uhh2::Event& event){
     float mhad = 0.;
     float mlep = 0.;
 
-    /** TODO: What does this do? Do I need it?
+    /** TODO: What does this do? Do I need it? TODO this has to do with toptagging!!!
     //bool is_toptag_reconstruction = candidates.at(i).is_toptag_reconstruction(); //Was macht das?
     if(is_toptag_reconstruction){
       if(!candidates.at(i).is_puppi_reconstruction()) mhad = candidates.at(i).tophad_topjet_ptr()->softdropmass();
@@ -114,6 +143,7 @@ bool ttbarChi2Discriminator::process(uhh2::Event& event){
     candidates.at(i).set_discriminator("chi2_hadronic", chi2_had);
     candidates.at(i).set_discriminator("chi2_leptonic", chi2_lep);
     candidates.at(i).set_discriminator("chi2_total", chi2);
+    candidates.at(i).set_discriminator("CorrectMatch", 0);
 
     if(chi2 < chi2_best){
       if(debug){cout << "Best chi2 was " << chi2_best << ". Set new best chi2." << endl;}
@@ -240,6 +270,8 @@ bool TstarTstar_tgluon_tgamma_Reconstruction::process(uhh2::Event& event){
 TstarTstar_tgluon_tgluon_Reconstruction::TstarTstar_tgluon_tgluon_Reconstruction(uhh2::Context& ctx){
   h_recohyp_ttbar_ = ctx.get_handle<ReconstructionHypothesis>("TTbarReconstruction_best");
   h_recohyp_tstartstar_best_ = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_tgtg_best");
+  h_flag_toptagevent = ctx.get_handle<int>("flag_toptagevent");
+
 }
 
 bool TstarTstar_tgluon_tgluon_Reconstruction::process(uhh2::Event& event){
@@ -253,33 +285,46 @@ bool TstarTstar_tgluon_tgluon_Reconstruction::process(uhh2::Event& event){
   ReconstructionHypothesis hyp_ttbar = event.get(h_recohyp_ttbar_);//best ttbar hypothesis
   ReconstructionTstarHypothesis recoHyp_best;
   recoHyp_best.set_ttbar(hyp_ttbar);
-  //  event.set(h_recohyps_tstartstar_,recoHyps);//fill empty values
   event.set(h_recohyp_tstartstar_best_,recoHyp_best);//fill empty values
-
-  std::vector<Jet> used_jets_ = hyp_ttbar.tophad_jets();
-  used_jets_.insert( used_jets_.end(), hyp_ttbar.toplep_jets().begin(), hyp_ttbar.toplep_jets().end() );
-
-  std::vector<TopJet> all_topjets_ = *event.topjets;
-  std::vector<bool> overlap_flag;
-
-  for(uint j = 0; j < all_topjets_.size(); j++){
-    overlap_flag.push_back(false);
-  }
-  //  std::vector<TopJet> notused_topjets_; 
-  if(debug){cout << "Searching for separated AK8Jet... " << endl;}
-  for(uint j = 0; j < all_topjets_.size(); j++){
-    for (uint i = 0; i < used_jets_.size(); i++){
-      double dR_ =  deltaR(all_topjets_.at(j),used_jets_.at(i));
-      if(dR_<1.2) overlap_flag[j] = true;
-    }
-  }
 
   int notused_topjets = 0;
   std::vector<TopJet> notused_topjets_;
-  for(uint j = 0; j < all_topjets_.size(); j++){
-    if(!overlap_flag[j]){
-      notused_topjets_.push_back(all_topjets_.at(j));
-      notused_topjets++;
+  std::vector<bool> overlap_flag;
+
+  // do an if to see whether it it toptag!
+  if(event.get(h_flag_toptagevent) == 1){
+    TopJet toptagjet = *hyp_ttbar.tophad_topjet_ptr();
+
+    std::vector<TopJet> all_topjets_ = *event.topjets;
+    if(debug){cout << "We start with " << all_topjets_.size() << " topjets." << endl;}
+    for(const auto & topjet : all_topjets_){
+      if(toptagjet.v4() != topjet.v4()){notused_topjets_.push_back(topjet); notused_topjets++;}
+    }
+
+    if(all_topjets_.size()-1 != notused_topjets_.size()){cout << "Topjets remove from collection: " << (all_topjets_.size() - notused_topjets_.size()) << endl;}
+
+  }
+  else {
+    std::vector<Jet> used_jets_ = hyp_ttbar.tophad_jets();
+    used_jets_.insert( used_jets_.end(), hyp_ttbar.toplep_jets().begin(), hyp_ttbar.toplep_jets().end() );
+
+    std::vector<TopJet> all_topjets_ = *event.topjets;
+
+    for(uint j = 0; j < all_topjets_.size(); j++){
+      overlap_flag.push_back(false);
+    }
+    if(debug){cout << "Searching for separated AK8Jet... " << endl;}
+    for(uint j = 0; j < all_topjets_.size(); j++){
+      for (uint i = 0; i < used_jets_.size(); i++){
+	double dR_ =  deltaR(all_topjets_.at(j),used_jets_.at(i));
+	if(dR_<1.2) overlap_flag[j] = true;
+      }
+    }
+    for(uint j = 0; j < all_topjets_.size(); j++){
+      if(!overlap_flag[j]){
+	notused_topjets_.push_back(all_topjets_.at(j));
+	notused_topjets++;
+      }
     }
   }
 
@@ -341,3 +386,4 @@ bool TstarTstar_tgluon_tgluon_Reconstruction::process(uhh2::Event& event){
   return true;
 }
  
+

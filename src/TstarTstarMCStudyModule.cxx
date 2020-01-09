@@ -1,4 +1,4 @@
-roo#include <iostream>
+#include <iostream>
 #include <memory>
 
 #include "UHH2/core/include/AnalysisModule.h"
@@ -12,6 +12,7 @@ roo#include <iostream>
 #include <UHH2/common/include/MuonIds.h>
 #include <UHH2/common/include/TriggerSelection.h>
 #include "UHH2/common/include/TTbarGen.h"
+#include "UHH2/common/include/TopJetIds.h"
 #include "UHH2/TstarTstar/include/TstarTstarSelections.h"
 #include "UHH2/TstarTstar/include/TstarTstarHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarRecoTstarHists.h"
@@ -42,11 +43,12 @@ private:
   // Apply common modules: JetPFid, JEC, JER, MET corrections, etc
   std::unique_ptr<CommonModules> common;
   
-  // Declare the Selections to use. Use unique_ptr to ensure automatic call of delete in the destructor,
-  // to avoid memory leaks.
+  // Declare the Selections to use. Use unique_ptr to ensure automatic call of delete in the destructor, to avoid memory leaks.
   unique_ptr<Selection> twodcut_sel;   
-  //  unique_ptr<Selection> TTbarSemiLepMatchable_selection;
   unique_ptr<TTbarSemiLepMatchableSelection> TTbarSemiLepMatchable_selection;
+  unique_ptr<Selection> met_sel, st_sel; 
+  unique_ptr<Selection> topjet_selection;
+  unique_ptr<Selection> toptagevt_sel;
 
   //Trigger Selections
   unique_ptr<Selection> triggerSingleJet450_sel;
@@ -59,11 +61,11 @@ private:
   unique_ptr<Selection> triggerSingleLeptonMu4_sel;
   unique_ptr<Selection> triggerHT1_sel, triggerHT2_sel, triggerHT3_sel, triggerHT4_sel, triggerHT5_sel,  triggerHT6_sel;
   unique_ptr<Selection> triggerPFHT_sel;
-  unique_ptr<Selection>  met_sel, st_sel; 
-  unique_ptr<Selection> topjet_selection;
+
 
   // ##### Histograms #####
   // Store the Hists collection as member variables. Again, use unique_ptr to avoid memory leaks.
+  std::unique_ptr<Hists> h_nocuts_gen, h_allcuts_gen;
   std::unique_ptr<Hists> h_nocuts, h_common, h_lepsel, h_njetsel, h_nphosel, h_2dcut, h_allcuts, h_semilepttbarmatch, h_nosemilepttbarmatch;
   std::unique_ptr<Hists> h_semilepttbarmatch_triggerSingleJet, h_semilepttbarmatch_triggerSingleLeptonMu, h_semilepttbarmatch_triggerSingleLeptonEle, h_semilepttbarmatch_triggerHT, h_semilepttbarmatch_triggerPFHT;
   std::unique_ptr<Hists> h_semilepttbarmatch_gen;
@@ -78,10 +80,10 @@ private:
   std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_GEN;
   
   // Bools for Debugging/Options
-  bool isTrigger = false;
   bool debug = false;
+
   bool check_ttbar_reco = true;
-  bool checkGEN_noCuts = false;
+  bool useTopTag = true;
 
   // Modules
   std::unique_ptr<uhh2::AnalysisModule> ttgenprod;
@@ -93,6 +95,7 @@ private:
   std::unique_ptr<CorrectMatchDiscriminator> ttbar_CorrectMatchDiscriminator;
   std::unique_ptr<TstarTstar_tgluon_tgamma_Reconstruction> TstarTstar_tgluon_tgamma_reco;
   std::unique_ptr<TstarTstar_tgluon_tgluon_Reconstruction> TstarTstar_tgluon_tgluon_reco;
+  std::unique_ptr<uhh2::AnalysisModule> ttbar_reco_toptag;
 
   // Handles
   uhh2::Event::Handle<std::vector<ReconstructionHypothesis>> h_ttbar_hyps;
@@ -101,8 +104,10 @@ private:
   uhh2::Event::Handle<std::vector<ReconstructionTstarHypothesis>> h_tstartstar_hyps;
   uhh2::Event::Handle<ReconstructionTstarHypothesis> h_recohyp_tstartstar;
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
+  uhh2::Event::Handle<int> h_flag_toptagevent;
 
-  bool is_tgtg, is_tgtgamma;
+  // bools for channel. will be read in later
+  bool is_tgtg, is_tgtgamma, isTrigger;
 };
 
 
@@ -123,9 +128,7 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
     
    }
   
-  if(checkGEN_noCuts){cout << "#### checkGEN_noCuts = true ####" << endl;}
-
-  // Reading in which channel
+  // 0. Reading in which channel
   is_tgtg = false; is_tgtgamma = false;
   if(ctx.get("channel") == "tgtg") is_tgtg = true;
   if(ctx.get("channel") == "tgtgamma") is_tgtgamma = true;
@@ -134,7 +137,8 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   common.reset(new CommonModules());
   common->disable_mcpileupreweight();//FixME: PU re-weighting crushes
   common->switch_metcorrection();
-  //    common->disable_metfilters();//FixME: met filters missing in some Z' samples, remove after tests with them are done
+
+  // Jets
   common->switch_jetlepcleaner();
   common->switch_jetPtSorter();
   common->set_jet_id(AndId<Jet>(JetPFID(JetPFID::WP_TIGHT_PUPPI), PtEtaCut(30.0,5.2)));
@@ -155,7 +159,6 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   else if (ctx.get("PhotonID") == "mvaPhoIDwp90Fall17"){phoID = PhotonTagID(Photon::mvaPhoID_Fall17_iso_V2_wp90);}
   else if (ctx.get("PhotonID") == "mvaPhoIDwp80Fall17"){phoID = PhotonTagID(Photon::mvaPhoID_Fall17_iso_V2_wp80);}
   else {cout << "error: unrecognized photonID "  << ctx.get("PhotonID") << endl;}
-  
   if (ctx.get("PhotonID") != "noPhotonID") {common->set_photon_id(AndId<Photon>(PtEtaCut(photon_pt, 5.2), phoID));}
   else {common->set_photon_id(PtEtaCut(photon_pt, 5.2));}
   
@@ -163,28 +166,32 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   MuonId muID;
   double muon_pt(20.);
   muID = MuonID(Muon::Highpt);
-  //    muID = MuonID(Muon::CutBasedIdTight);
   common->set_muon_id(AndId<Muon>(PtEtaCut(muon_pt, 2.4), muID));
   
+  // init common.
   common->init(ctx);
 
-  // Prepare genjetsttbar gen
+
+
+  // Prepare GEN
   ttgenprod.reset(new TTbarGenProducer(ctx, "ttbargen", false));
   h_ttbargen = ctx.get_handle<TTbarGen>("ttbargen");
     
+
+
   // 2. set up selections
-  ///2D Cut Lepton-Jets
-  twodcut_sel.reset(new TwoDCut(0.4, 25.0));  // The same as in Z'->ttbar semileptonic
+  // 2D Cut Lepton-Jets
+  twodcut_sel.reset(new TwoDCut(0.4, 25.0));  // The same as in Z'->ttbar semileptonic TODO what does this mean physically?
   TTbarSemiLepMatchable_selection.reset(new TTbarSemiLepMatchableSelection());
   
+  // Trigger Stuff
   isTrigger = (ctx.get("UseTrigger") == "true");
-  //isTrigger =  false; //TEST
   triggerSingleJet450_sel.reset(new TriggerSelection("HLT_PFJet450_v*"));
-  //    triggerSingleLeptonEle_sel.reset(new TriggerSelection("HLT_Ele32_eta2p1_WPTight_Gsf_v*"));
+  // triggerSingleLeptonEle_sel.reset(new TriggerSelection("HLT_Ele32_eta2p1_WPTight_Gsf_v*"));
   // triggerSingleLeptonMu1_sel.reset(new TriggerSelection("HLT_IsoMu24_v*"));
   // triggerSingleLeptonMu2_sel.reset(new TriggerSelection("HLT_IsoTkMu24_v*"));
   
-  //    triggerSingleLeptonEle_sel.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
+  // triggerSingleLeptonEle_sel.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
   triggerSingleLeptonEle1_sel.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
   triggerSingleLeptonEle2_sel.reset(new TriggerSelection("HLT_Ele25_eta2p1_WPTight_Gsf_v*"));
   triggerSingleLeptonEle3_sel.reset(new TriggerSelection("HLT_Ele32_eta2p1_WPTight_Gsf_v*"));
@@ -206,14 +213,24 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   //MET selection
   met_sel.reset(new METCut  (50.,1e6));
   
-  //ST selection
+  //ST selection TODO what is this?
   st_sel.reset(new STCut  (500.,1e6));
   
-  //Ak8jet selection
-  topjet_selection.reset(new NTopJetSelection(1, -1, TopJetId(PtEtaCut(100, 2.1))));
-  
-  
+  //Ak8jet selection TODO check whether I really need to cut on min 3 ak8... although it seems alright
+  topjet_selection.reset(new NTopJetSelection(3, -1, TopJetId(PtEtaCut(100, 2.1))));
+
+  //TopTag
+  const TopJetId topjetID = AndId<TopJet>(TopTagMassWindow(), TopTagSubbtag(DeepCSVBTag::WP_LOOSE),  Tau32(0.65)); // TODO
+  const float minDR_topjet_jet(1.2);
+  toptagevt_sel.reset(new TopTagEventSelection(topjetID, minDR_topjet_jet));
+  h_flag_toptagevent = ctx.declare_event_output<int>("flag_toptagevent");
+ 
+
+
   // 3. Set up Hists classes:
+  h_nocuts_gen.reset(new TstarTstarGenHists(ctx, "NoCuts_GEN"));
+  h_allcuts_gen.reset(new TstarTstarGenHists(ctx, "AfterAllcuts_GEN"));
+
   h_nocuts.reset(new TstarTstarHists(ctx, "NoCuts"));
   h_common.reset(new TstarTstarHists(ctx, "AfterCommon"));
   h_njetsel.reset(new TstarTstarHists(ctx, "AfterNjets"));
@@ -257,6 +274,8 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   h_RecoPlots_After_TstarTstar_match.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_After_TstarTstar_match"));
   h_RecoPlots_GEN.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN"));
 
+
+
   //4. Set up ttbar reconstruction
   const std::string ttbar_hyps_label("TTbarReconstruction");
   const std::string ttbar_chi2_label("Chi2");
@@ -289,47 +308,33 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   TstarTstar_tgluon_tgamma_reco.reset(new TstarTstar_tgluon_tgamma_Reconstruction(ctx));
   TstarTstar_tgluon_tgluon_reco.reset(new TstarTstar_tgluon_tgluon_Reconstruction(ctx));
 
+  ttbar_reco_toptag.reset(new TopTagReconstruction(ctx, NeutrinoReconstruction, ttbar_hyps_label, topjetID, minDR_topjet_jet));
+
   genmatcher.reset(new TstarTstarGenMatcher(ctx));
 }
 
 
 bool TstarTstarMCStudyModule::process(Event & event) {
    
-  if(debug)   
-    cout << endl << "TstarTstarMCStudyModule: Starting to process event (runid, eventid) = (" << event.run << ", " << event.event << "); weight = " << event.weight << endl;
-  // if(debug){
-  //   cout<<"BEFORE N photons = "<<event.photons->size()<<endl;
-  //   for (const Photon & thisgamma : *event.photons){
-  //     cout<<" thisgamma.pt() = "<<thisgamma.pt()<<" thisgamma.eta() = "<<thisgamma.eta()<<endl;
-  //   }
-  // }
+  if(debug){cout << endl << "TstarTstarMCStudyModule: Starting to process event (runid, eventid) = (" << event.run << ", " << event.event << "); weight = " << event.weight << endl;}
 
+  // Fix empty handle problem
+  // (Dummy values are filled into handles so that they are not empty)
   event.set(h_is_ttbar_reconstructed, false);
   event.set(h_recohyp, ReconstructionHypothesis());
-  event.set(h_recohyp_tstartstar,ReconstructionTstarHypothesis());
-
+  event.set(h_recohyp_tstartstar, ReconstructionTstarHypothesis());
+  std::vector<ReconstructionHypothesis> fixvec;
+  event.set(h_ttbar_hyps, fixvec);
   if(debug){cout << "Finished initialization of Handle Variables" << endl;}
 
+  // ##### Selection #####
   h_nocuts->fill(event);
+  h_nocuts_gen->fill(event);
   if(!(common->process(event))){return false;}
   h_common->fill(event);
 
   //Fill ttgen object for correct matching check, etc
   ttgenprod->process(event);
-
-  // GEN study with no reco cuts (except for common)
-  if(checkGEN_noCuts){
-    reco_primlep->process(event);//set "primary lepton"
-    ttbar_reco->process(event);//reconstruct ttbar
-    ttbar_CorrectMatchDiscriminator->process(event);
-    ttbar_discriminator->process(event);
-    if(event.get(h_is_ttbar_reconstructed)){
-      if(genmatcher->process(event)){
-	h_RecoPlots_GEN->fill(event);
-      }
-    }
-  }
-
 
   //---- Loose selection
   // Require at least 1 jet
@@ -339,15 +344,15 @@ bool TstarTstarMCStudyModule::process(Event & event) {
 
   // Require exactly one muon or one electron
   const bool pass_lep1 = (((event.muons->size() == 1) || (event.electrons->size() == 1)) && (event.electrons->size()+event.muons->size()) == 1);
-
   if(!pass_lep1) return false;
   h_lepsel->fill(event);
   
-  // Require more than one photon
-  const bool pass_npho = (event.photons->size()>0);
-
-  if(!pass_npho) return false;
-  h_nphosel->fill(event);
+  if(is_tgtgamma){
+    // Require more than one photon
+    const bool pass_npho = (event.photons->size()>0);
+    if(!pass_npho) return false;
+    h_nphosel->fill(event);
+  }
 
   // Lepton-2Dcut variables
   for(auto& muo : *event.muons){
@@ -382,11 +387,24 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   bool pass_ak8 = topjet_selection->passes(event);
   if(!pass_ak8) return false;
 
+
+  if(debug) cout<<"passed all cuts"<<endl;
   h_allcuts->fill(event);
 
-  //---- Matching to GEN
-  const bool pass_ttbarsemilep = TTbarSemiLepMatchable_selection->passes(event);
+  h_nocuts_gen->fill(event);
+
+
+  /* TOPTAG-EVENT boolean */
+  const bool pass_ttagevt = toptagevt_sel->passes(event);
+  /* add flag_toptagevent to output ntuple */
+  if(debug){cout << "TTag:" << pass_ttagevt << endl;}
+  event.set(h_flag_toptagevent, int(pass_ttagevt));
+  ////
+
+  // ##### Matching to GEN ######
+  const bool pass_ttbarsemilep = TTbarSemiLepMatchable_selection->passes(event); // check whether event is matchable to GEN ttbar
   if(pass_ttbarsemilep){
+    if(debug) cout<<"event is matchable"<<endl;
     h_semilepttbarmatch->fill(event);
     h_semilepttbarmatch_gen->fill(event);
     h_semilepttbarmatch_genreco->fill(event);
@@ -395,8 +413,10 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   }
   else h_nosemilepttbarmatch->fill(event);
 
-  // Trigger analysis
+
+  // ##### Trigger analysis #####
   if(isTrigger){
+    if(debug) cout<<"Starting arigger analysis"<<endl;
     if(debug) cout<<"N AK4 jets = "<<event.jets->size()<<" N AK8 jets = "<<event.topjets->size()<<endl;
     bool pass_trigger_SingleJet = (triggerSingleJet450_sel->passes(event) && event.jets->at(0).pt()>450);
     if(pass_trigger_SingleJet && pass_ttbarsemilep){
@@ -444,66 +464,103 @@ bool TstarTstarMCStudyModule::process(Event & event) {
 
 
   // ########### TstarTstarReco! ############
+  if(debug) cout<<"Starting TstarTstar Reconstruction part"<<endl;
   reco_primlep->process(event);//set "primary lepton"
-  if(debug) {cout << "Starting ttbar reconstruction... ";}\
-  ttbar_reco->process(event);//reconstruct ttbar
 
-  ttbar_CorrectMatchDiscriminator->process(event);//find matched to ttbar gen hypothesis
+  if(useTopTag){
+    if(debug) cout<<"We are using toptagging!"<<endl;
 
-  if(debug) {cout << "Finished. Finding best Hypothesis..."<< endl;}   
-  ttbar_discriminator->process(event); // minimizing chi2
+    if(is_tgtg){
 
-  ReconstructionHypothesis hyp = event.get(h_recohyp); 
-  ReconstructionTstarHypothesis hyp_tmp = event.get(h_recohyp_tstartstar); 
-  if(debug) {cout << "Start TstarTstar reconstruction ..."<< endl;}
-  if(event.get(h_is_ttbar_reconstructed)){
+      if(pass_ttagevt){
+	if(debug){cout << "We have an event with TopTag!" << endl;}
 
-    if(is_tgtgamma){ // Tstar+Tstar -> t+g + t+gamma
+	ttbar_reco_toptag->process(event);
+	if(debug){cout << "all possible ttbar reconstructed using toptag!" << endl;}
+	
+	ttbar_discriminator->process(event); // Chose best ttbar hypothesis
+	
+	ReconstructionTstarHypothesis hyp_fix; // Plugging in ttbar in a (dummy) Tstar, to be able to plot already
+	hyp_fix.set_ttbar(event.get(h_recohyp));
+	event.set( h_recohyp_tstartstar, hyp_fix );
+	
+	if(event.get(h_is_ttbar_reconstructed)){
+	  if(debug){cout << "best ttbar hyp chosen" << endl;}
+	  h_RecoPlots_After_ttbar->fill(event);
+	  
+	  if(TstarTstar_tgluon_tgluon_reco->process(event)){
+	    if(debug){cout << "Tstar Reconstructed: filling histogram" << endl;}
+	    h_After_TstarTstar_Reco->fill(event);
+	    h_RecoPlots_After_TstarTstar->fill(event);
+	  }
 
-      //h_RecoPlots_After_ttbar->fill(event); // Fill to see deltaR Distributions pre cutting
+	}
+      }
+    }
+    else if (is_tgtgamma){
+      // TODO
+    }
 
-      if(debug){cout << "ttbar is reco. start TstarTstarReco" << endl;}
-      if(TstarTstar_tgluon_tgamma_reco->process(event)){
-	h_After_TstarTstar_Reco->fill(event);
-	h_RecoPlots_After_TstarTstar->fill(event);
+  }
+  else{  
+    if(debug) {cout << "Starting ttbar reconstruction... ";}\
+    ttbar_reco->process(event);//reconstruct ttbar
 
-	if(pass_ttbarsemilep){   //Check same plots for matching
+    ttbar_CorrectMatchDiscriminator->process(event);//find matched to ttbar gen hypothesis
+
+    if(debug) {cout << "Finished. Finding best Hypothesis..."<< endl;}  
+    ttbar_discriminator->process(event); // minimizing chi2
+
+    if(debug) {cout << "Start TstarTstar reconstruction ..."<< endl;}
+    if(event.get(h_is_ttbar_reconstructed)){
+
+      if(is_tgtgamma){ // Tstar+Tstar -> t+g + t+gamma
+
+	//h_RecoPlots_After_ttbar->fill(event); // Fill to see deltaR Distributions pre cutting
+
+	if(debug){cout << "ttbar is reco. start TstarTstarReco" << endl;}
+	if(TstarTstar_tgluon_tgamma_reco->process(event)){
+	  h_After_TstarTstar_Reco->fill(event);
+	  h_RecoPlots_After_TstarTstar->fill(event);
+
+	  if(pass_ttbarsemilep){   //Check same plots for matching
+	    h_After_TstarTstar_Reco_match->fill(event);
+	    h_RecoPlots_After_TstarTstar_match->fill(event);
+	  }
+	}
+
+      } // End tgtgamma
+    
+      if(is_tgtg){ // Tstar+Tstar -> t+g + t+g
+	bool pass_tgluon_tgluon_reco = TstarTstar_tgluon_tgluon_reco->process(event);
+	if(pass_tgluon_tgluon_reco){
+	  h_After_TstarTstar_Reco->fill(event);
+	  h_RecoPlots_After_TstarTstar->fill(event);
+	}
+	if(pass_tgluon_tgluon_reco && pass_ttbarsemilep){
 	  h_After_TstarTstar_Reco_match->fill(event);
 	  h_RecoPlots_After_TstarTstar_match->fill(event);
 	}
-      }
-
-    } // End tgtgamma
-    
-    if(is_tgtg){ // Tstar+Tstar -> t+g + t+g
-      bool pass_tgluon_tgluon_reco = TstarTstar_tgluon_tgluon_reco->process(event);
-      if(pass_tgluon_tgluon_reco){
-	h_After_TstarTstar_Reco->fill(event);
-	h_RecoPlots_After_TstarTstar->fill(event);
-      }
-      if(pass_tgluon_tgluon_reco && pass_ttbarsemilep){
-	h_After_TstarTstar_Reco_match->fill(event);
-	h_RecoPlots_After_TstarTstar_match->fill(event);
-      }
-    } // End tgtg
+      } // End tgtg
   
-    if(debug){cout << "starting GEN studies!" << endl;}
+      if(debug){cout << "starting GEN studies!" << endl;}
     
-  }
-  else{
-   if(debug){cout << "Event has no best hypothesis!" << endl;}
-  }
+    }
+    else{
+      if(debug){cout << "Event has no best hypothesis!" << endl;}
+    }
   
-  // ##### GEN Matching
-  if(check_ttbar_reco){ // Check matching
-    ReconstructionTstarHypothesis hyp_tmp = event.get(h_recohyp_tstartstar);
-    if(genmatcher->process(event)){
-      //cout << "GEN MATCHED!" << endl;
-      h_RecoPlots_GEN->fill(event);
-      event.set(h_recohyp_tstartstar, hyp_tmp);
+    // ##### GEN Matching
+    if(check_ttbar_reco){ // Check matching
+      ReconstructionTstarHypothesis hyp_tmp = event.get(h_recohyp_tstartstar);
+      if(genmatcher->process(event)){
+	//cout << "GEN MATCHED!" << endl;
+	h_RecoPlots_GEN->fill(event);
+	event.set(h_recohyp_tstartstar, hyp_tmp);
+      }
     }
   }
-  
+
   if(debug){cout << "Done ##################################" << endl;}
   return true;
 }
