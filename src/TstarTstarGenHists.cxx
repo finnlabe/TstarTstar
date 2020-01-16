@@ -8,6 +8,7 @@
 #include "TH1F.h"
 #include "TH2F.h"
 #include <iostream>
+#include "UHH2/TstarTstar/include/TstarTstarRecoTstarHists.h"
 
 using namespace std;
 using namespace uhh2;
@@ -109,9 +110,8 @@ void TstarTstarGenHists::fill(const Event & event){
 	found_photon2 = true;
       }
     }
-
-
   }
+
   if(!found_tstar || !found_antitstar) return;
   if(!found_top || !found_antitop) return;
 
@@ -212,3 +212,105 @@ void TstarTstarGenHists::fill(const Event & event){
 }
 
 TstarTstarGenHists::~TstarTstarGenHists(){}
+
+
+TstarTstarMergedHists::TstarTstarMergedHists(Context & ctx, const string & dirname): Hists(ctx, dirname){
+  // book all histograms here
+  book<TH1F>("Merge_leading_gluon", "Merge_g1 gen", 4, 0, 4);  
+  book<TH1F>("Merge_second_gluon", "Merge_g2 gen", 4, 0, 4);  
+  book<TH1F>("Merge_TstarLep", "Merge_TstarLep gen", 4, 0, 4);  
+  book<TH1F>("Merge_TstarHad", "Merge_TstarHad gen", 4, 0, 4);  
+  book<TH1F>("Merge_tLep", "Merge_tLep gen", 4, 0, 4);  
+  book<TH1F>("Merge_tHad", "Merge_tHad gen", 4, 0, 4);  
+
+  bool is_tgtg = false; 
+  bool is_tgtgamma = false;
+  if(ctx.get("channel") == "tgtg") is_tgtg = true;
+  if(ctx.get("channel") == "tgtgamma") is_tgtgamma = true;
+
+  if(is_tgtg) h_recohyp_tstartstar_best_ = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_tgtg_best");
+
+  is_mc = ctx.get("dataset_type") == "MC";
+
+}
+
+void TstarTstarMergedHists::fill(const Event & event){
+
+  // HELP CLASS FOR THE MOMENT ONLY VALID FOR TGTG!!!!
+  //if(is_tgtgamma){return false;}
+  
+  if(!is_mc) return;
+  assert(event.genparticles);
+  // Don't forget to always use the weight when filling.
+  double weight = event.weight;
+
+  // Find signal, top, and antitop
+  GenParticle tstar, antitstar, top, antitop, gluon1, gluon2;
+  bool found_tstar = false, found_antitstar = false, found_top = false, found_antitop = false;
+  bool found_gluon1 = false, found_gluon2 = false;
+  for(const GenParticle & gp : *event.genparticles){
+    if(gp.pdgId() == 6){
+      top = gp;
+      found_top = true;
+    }
+    else if(gp.pdgId() == -6){
+      antitop = gp;
+      found_antitop = true;
+    }
+    else if(gp.pdgId() == 9000005 && (gp.status()==23 || gp.status()==22)){
+      tstar = gp;
+      found_tstar = true;
+    }
+    else if(gp.pdgId() == -9000005 && (gp.status()==23 || gp.status()==22)){
+      antitstar = gp;
+      found_antitstar = true;
+    }
+    else if(gp.pdgId() == 21 && gp.status()==23){//only gluons from Tstar decay
+      if(!found_gluon1){
+	gluon1 = gp;
+	found_gluon1 = true;
+      }
+      else{
+	gluon2 = gp;
+	found_gluon2 = true;
+      }
+    }
+  }
+
+  if(!(found_tstar && found_antitstar && found_top && found_antitop && found_gluon1 && found_gluon2)) {return;}
+
+  ReconstructionTstarHypothesis tstar_hyp_best = event.get(h_recohyp_tstartstar_best_);
+
+  double fill = 0;
+  if(deltaR(gluon1.v4(), tstar_hyp_best.gluon1_v4()) < 0.8){fill+=1;}
+  if(deltaR(gluon2.v4(), tstar_hyp_best.gluon1_v4()) < 0.8){fill+=1;}
+  hist("Merge_leading_gluon")->Fill(fill +0.5);
+
+  fill = 0;
+  if(deltaR(gluon1.v4(), tstar_hyp_best.gluon2_v4()) < 0.8){fill+=1;}
+  if(deltaR(gluon2.v4(), tstar_hyp_best.gluon2_v4()) < 0.8){fill+=1;}
+  hist("Merge_second_gluon")->Fill(fill+0.5);
+
+  fill = 0;
+  if(deltaR(tstar.v4(), tstar_hyp_best.tstarlep_v4()) < 0.8){fill+=1;}
+  if(deltaR(antitstar.v4(), tstar_hyp_best.tstarlep_v4()) < 0.8){fill+=1;}
+  hist("Merge_TstarLep")->Fill(fill+0.5);
+
+  fill = 0;
+  if(deltaR(tstar.v4(), tstar_hyp_best.tstarhad_v4()) < 0.8){fill+=1;}
+  if(deltaR(antitstar.v4(), tstar_hyp_best.tstarhad_v4()) < 0.8){fill+=1;}
+  hist("Merge_TstarHad")->Fill(fill+0.5);
+
+  fill = 0;
+  if(deltaR(top.v4(), tstar_hyp_best.ttbar_hyp().toplep_v4()) < 0.8){fill+=1;}
+  if(deltaR(antitop.v4(), tstar_hyp_best.ttbar_hyp().toplep_v4()) < 0.8){fill+=1;}
+  hist("Merge_tLep")->Fill(fill+0.5);  
+
+  fill = 0;
+  if(deltaR(top.v4(), tstar_hyp_best.ttbar_hyp().tophad_v4()) < 0.8){fill+=1;}
+  if(deltaR(antitop.v4(), tstar_hyp_best.ttbar_hyp().tophad_v4()) < 0.8){fill+=1;}
+  hist("Merge_tHad")->Fill(fill+0.5);  
+
+}
+
+//TstarTstarMergedHists::~TstarTstarMergedHists(){}

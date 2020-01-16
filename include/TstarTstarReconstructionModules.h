@@ -35,6 +35,21 @@ public:
 };
 
 
+class TstarTstarTopTagReconstruction: public uhh2::AnalysisModule {
+ public:
+  explicit TstarTstarTopTagReconstruction(uhh2::Context&, const NeutrinoReconstructionMethod&, const std::string& label="TstarTstarTopTagReconstruction", TopJetId id=CMSTopTag(), float dr=1.2);
+  virtual bool process(uhh2::Event&) override;
+
+ private:
+  NeutrinoReconstructionMethod m_neutrinofunction;
+  uhh2::Event::Handle<std::vector<ReconstructionHypothesis>> h_recohyps;
+  uhh2::Event::Handle<FlavorParticle> h_primlep;
+
+  TopJetId topjetID_;
+  float minDR_topjet_jet_;
+};
+
+
 class ttbarChi2Discriminator : uhh2::AnalysisModule{
 
 public:
@@ -45,6 +60,7 @@ private:
   uhh2::Event::Handle< std::vector<ReconstructionHypothesis> > h_ttbar_hyps_;
   uhh2::Event::Handle<ReconstructionHypothesis> h_recohyp_;
   uhh2::Event::Handle<bool> h_is_ttbar_reconstructed_;
+  uhh2::Event::Handle<int> h_ttag_jet_pos;
   float mtoplep_, mtoplep_ttag_;
   float sigmatoplep_, sigmatoplep_ttag_;
   float mtophad_, mtophad_ttag_;
@@ -81,6 +97,21 @@ private:
   uhh2::Event::Handle<ReconstructionTstarHypothesis> h_recohyp_tstartstar_best_; //best of TstarTstar hypothesis reconstructed in this class
   uhh2::Event::Handle<int> h_flag_toptagevent; //Check if event has a TopTag
 
+
+};
+
+
+class TstarTstar_tgluon_tgluon_Reconstruction2 : uhh2::AnalysisModule{
+
+public:
+  explicit TstarTstar_tgluon_tgluon_Reconstruction2(uhh2::Context&);
+  virtual bool process(uhh2::Event&) override;
+
+private:
+  uhh2::Event::Handle<ReconstructionHypothesis> h_recohyp_ttbar_; //best ttbar hypothesis reconstructed with  UHH2/common/src/TTbarReconstruction.cxx 
+  uhh2::Event::Handle<ReconstructionTstarHypothesis> h_recohyp_tstartstar_best_; //best of TstarTstar hypothesis reconstructed in this class
+  uhh2::Event::Handle<int> h_flag_toptagevent; //Check if event has a TopTag
+  uhh2::Event::Handle<int> h_ttag_jet_pos;
 
 };
 

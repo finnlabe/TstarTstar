@@ -41,6 +41,7 @@ TstarTstarRecoTstarHists::TstarTstarRecoTstarHists(Context & ctx, const string &
   // tgtg
   book<TH1F>("M_Tstar_lep", "Mass T^{*}_{tgtg,lep} [GeV]", 100, 0, 3000);
   book<TH1F>("M_Tstar_had", "Mass T^{*}_{tgtg,had} [GeV]", 100, 0, 3000);
+  book<TH1F>("deltaM_Tstar", "Mass difference of T^{*}_{tgtg,lep} and T^{*}_{tgtg,had} (normalized)", 100, 0, 1);
 
 
   // #### Delta_R
@@ -120,12 +121,15 @@ void TstarTstarRecoTstarHists::fill(const Event & event){
 
   // #### M_Tstar
   // tgtgamma
-  hist("M_Tstar_gluon")->Fill(inv_mass(tstar_hyp_best.tstar1gluon_v4()), weight);
-  hist("M_Tstar_gamma")->Fill(inv_mass(tstar_hyp_best.tstar1gamma_v4()), weight);
+  //hist("M_Tstar_gluon")->Fill(inv_mass(tstar_hyp_best.tstar1gluon_v4()), weight);
+  //hist("M_Tstar_gamma")->Fill(inv_mass(tstar_hyp_best.tstar1gamma_v4()), weight);
 
-  hist("M_Tstar_lep")->Fill(inv_mass(tstar_hyp_best.tstarlep_v4()), weight);
-  hist("M_Tstar_had")->Fill(inv_mass(tstar_hyp_best.tstarhad_v4()), weight);
-  
+  double mTstarlep = inv_mass(tstar_hyp_best.tstarlep_v4());
+  double mTstarhad = inv_mass(tstar_hyp_best.tstarhad_v4());
+  hist("M_Tstar_lep")->Fill(mTstarlep, weight);
+  hist("M_Tstar_had")->Fill(mTstarhad, weight);
+  hist("deltaM_Tstar")->Fill((mTstarlep-mTstarhad)/(mTstarlep+mTstarhad), weight);
+
   if(debug){cout << "Finished writing Tstar masses." << endl;}
   
   // #### Delta_R
@@ -231,7 +235,7 @@ void TstarTstarRecoTstarHists::fill(const Event & event){
   hist("Pt_gluon_Tstar_had")->Fill(tstar_hyp_best.gluon1_v4().pt(), weight);
   hist("Pt_ratio_Tstar_lep_to_Tstar_had")->Fill(tstar_hyp_best.tstarlep_v4().pt()/tstar_hyp_best.tstarhad_v4().pt(), weight);
   
-  for(int i=0;i<tstar_hyp_best.used_ttbarjet_flags().size();i++){
+  for(uint i=0;i<tstar_hyp_best.used_ttbarjet_flags().size();i++){
     if(tstar_hyp_best.used_ttbarjet_flags()[i]) hist("AK8_id_topjets_ttbar")->Fill(i, weight);
   }
   //  book<TH1F>("dR_top_gluon_Tstar_lep", "#DeltaR(top, gluon) T^{*}_{tgtg,lep}", 50, 0, 1e1);

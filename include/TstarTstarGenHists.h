@@ -5,6 +5,8 @@
 #include <UHH2/common/include/TTbarGen.h>
 #include <UHH2/common/include/TTbarReconstruction.h>
 #include <UHH2/common/include/ReconstructionHypothesisDiscriminators.h>
+#include "UHH2/TstarTstar/include/ReconstructionTstarHypothesis.h"
+
 
 namespace uhh2{
 
@@ -25,5 +27,21 @@ protected:
     bool is_mc;
     virtual ~TstarTstarGenHists();
 };
+
+class TstarTstarMergedHists: public uhh2::Hists {
+public:
+    // use the same constructor arguments as Hists for forwarding:
+    explicit TstarTstarMergedHists(uhh2::Context & ctx, const std::string & dirname);
+    virtual void fill(const uhh2::Event & ev) override;
+    
+protected:
+    bool is_mc;
+    //virtual ~TstarTstarMergedHists();
+
+    uhh2::Event::Handle< ReconstructionTstarHypothesis > h_recohyp_tstartstar_best_;
+
+};
+
+
 
 }

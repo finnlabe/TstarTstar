@@ -75,15 +75,18 @@ private:
   std::unique_ptr<Hists> h_semilepttbarmatch_triggerSingleJet_genreco_ele, h_semilepttbarmatch_triggerHT_genreco_ele, h_semilepttbarmatch_triggerPFHT_genreco_ele;
 
   std::unique_ptr<Hists> h_After_TstarTstar_Reco, h_After_TstarTstar_Reco_match;
-  std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_After_ttbar,h_RecoPlots_After_TstarTstar, h_RecoPlots_After_TstarTstar_match;
+  std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_Full, h_RecoPlots_ttag, h_RecoPlots_nottag; 
   std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_After_ttbar_correct_ttbar;
   std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_GEN;
+  std::unique_ptr<TstarTstarMergedHists> h_merged;
   
   // Bools for Debugging/Options
   bool debug = false;
 
   bool check_ttbar_reco = true;
-  bool useTopTag = true;
+  bool doTopTagged = true;
+  bool doNotTopTagged = false;
+  
 
   // Modules
   std::unique_ptr<uhh2::AnalysisModule> ttgenprod;
@@ -94,7 +97,7 @@ private:
   //  std::unique_ptr<ttbarCorrectMatchDiscriminator> ttbar_CorrectMatchDiscriminator;
   std::unique_ptr<CorrectMatchDiscriminator> ttbar_CorrectMatchDiscriminator;
   std::unique_ptr<TstarTstar_tgluon_tgamma_Reconstruction> TstarTstar_tgluon_tgamma_reco;
-  std::unique_ptr<TstarTstar_tgluon_tgluon_Reconstruction> TstarTstar_tgluon_tgluon_reco;
+  std::unique_ptr<TstarTstar_tgluon_tgluon_Reconstruction2> TstarTstar_tgluon_tgluon_reco;
   std::unique_ptr<uhh2::AnalysisModule> ttbar_reco_toptag;
 
   // Handles
@@ -105,6 +108,7 @@ private:
   uhh2::Event::Handle<ReconstructionTstarHypothesis> h_recohyp_tstartstar;
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
   uhh2::Event::Handle<int> h_flag_toptagevent;
+  uhh2::Event::Handle<int> h_ttag_jet_pos;
 
   // bools for channel. will be read in later
   bool is_tgtg, is_tgtgamma, isTrigger;
@@ -181,7 +185,7 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
 
   // 2. set up selections
   // 2D Cut Lepton-Jets
-  twodcut_sel.reset(new TwoDCut(0.4, 25.0));  // The same as in Z'->ttbar semileptonic TODO what does this mean physically?
+  twodcut_sel.reset(new TwoDCut(0.4, 25.0));  // The same as in Z'->ttbar semileptonic
   TTbarSemiLepMatchable_selection.reset(new TTbarSemiLepMatchableSelection());
   
   // Trigger Stuff
@@ -216,11 +220,11 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   //ST selection TODO what is this?
   st_sel.reset(new STCut  (500.,1e6));
   
-  //Ak8jet selection TODO check whether I really need to cut on min 3 ak8... although it seems alright
+  //Ak8jet selection TODO check whether I really need to cut on min 2 ak8... although it seems alright
   topjet_selection.reset(new NTopJetSelection(3, -1, TopJetId(PtEtaCut(100, 2.1))));
 
   //TopTag
-  const TopJetId topjetID = AndId<TopJet>(TopTagMassWindow(), TopTagSubbtag(DeepCSVBTag::WP_LOOSE),  Tau32(0.65)); // TODO
+  const TopJetId topjetID = AndId<TopJet>(TopTagMassWindow(), TopTagSubbtag(DeepCSVBTag::WP_LOOSE),  Tau32(0.65));
   const float minDR_topjet_jet(1.2);
   toptagevt_sel.reset(new TopTagEventSelection(topjetID, minDR_topjet_jet));
   h_flag_toptagevent = ctx.declare_event_output<int>("flag_toptagevent");
@@ -240,39 +244,42 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   h_allcuts.reset(new TstarTstarHists(ctx, "AfterAllcuts"));
   h_semilepttbarmatch.reset(new TstarTstarHists(ctx, "SemiLepTTBarMatch"));
   
-  h_semilepttbarmatch_triggerSingleJet.reset(new TstarTstarHists(ctx, "SemiLepTTBarMatch_triggerSingleJet"));
-  h_semilepttbarmatch_triggerSingleLeptonMu.reset(new TstarTstarHists(ctx, "SemiLepTTBarMatch_triggerSingleLeptonMu"));
-  h_semilepttbarmatch_triggerSingleLeptonEle.reset(new TstarTstarHists(ctx, "SemiLepTTBarMatch_triggerSingleLeptonEle"));
-  h_semilepttbarmatch_triggerHT.reset(new TstarTstarHists(ctx, "SemiLepTTBarMatch_triggerHT"));
-  h_semilepttbarmatch_triggerPFHT.reset(new TstarTstarHists(ctx, "SemiLepTTBarMatch_triggerPFHT"));
-
   h_nosemilepttbarmatch.reset(new TstarTstarHists(ctx, "NotSemiLepTTBarMatch"));
   h_semilepttbarmatch_gen.reset(new TstarTstarGenHists(ctx, "SemiLepTTBarMatchGEN"));
   h_semilepttbarmatch_genreco.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO"));
   h_semilepttbarmatch_genreco_mu.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_mu"));
   h_semilepttbarmatch_genreco_ele.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_ele"));
 
-  h_semilepttbarmatch_triggerSingleJet_genreco.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerSingleJet"));
-  h_semilepttbarmatch_triggerHT_genreco.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerHT"));
-  h_semilepttbarmatch_triggerSingleJet_genreco_mu.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerSingleJet_mu"));
-  h_semilepttbarmatch_triggerHT_genreco_mu.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerHT_mu"));
-  h_semilepttbarmatch_triggerPFHT_genreco_mu.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerPFHT_mu"));
-  h_semilepttbarmatch_triggerSingleJet_genreco_ele.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerSingleJet_ele"));
-  h_semilepttbarmatch_triggerHT_genreco_ele.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerHT_ele"));
-  h_semilepttbarmatch_triggerPFHT_genreco_ele.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerPFHT_ele"));
-  h_semilepttbarmatch_triggerPFHT_genreco.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerPFHT"));
-
-  h_semilepttbarmatch_triggerSingleLeptonMu_genreco.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerSingleLeptonMu"));
-  h_semilepttbarmatch_triggerSingleLeptonEle_genreco.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerSingleLeptonEle"));
+  if(isTrigger){
+    h_semilepttbarmatch_triggerSingleJet.reset(new TstarTstarHists(ctx, "SemiLepTTBarMatch_triggerSingleJet"));
+    h_semilepttbarmatch_triggerSingleLeptonMu.reset(new TstarTstarHists(ctx, "SemiLepTTBarMatch_triggerSingleLeptonMu"));
+    h_semilepttbarmatch_triggerSingleLeptonEle.reset(new TstarTstarHists(ctx, "SemiLepTTBarMatch_triggerSingleLeptonEle"));
+    h_semilepttbarmatch_triggerHT.reset(new TstarTstarHists(ctx, "SemiLepTTBarMatch_triggerHT"));
+    h_semilepttbarmatch_triggerPFHT.reset(new TstarTstarHists(ctx, "SemiLepTTBarMatch_triggerPFHT"));
+    
+    h_semilepttbarmatch_triggerSingleJet_genreco.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerSingleJet"));
+    h_semilepttbarmatch_triggerHT_genreco.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerHT"));
+    h_semilepttbarmatch_triggerSingleJet_genreco_mu.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerSingleJet_mu"));
+    h_semilepttbarmatch_triggerHT_genreco_mu.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerHT_mu"));
+    h_semilepttbarmatch_triggerPFHT_genreco_mu.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerPFHT_mu"));
+    h_semilepttbarmatch_triggerSingleJet_genreco_ele.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerSingleJet_ele"));
+    h_semilepttbarmatch_triggerHT_genreco_ele.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerHT_ele"));
+    h_semilepttbarmatch_triggerPFHT_genreco_ele.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerPFHT_ele"));
+    h_semilepttbarmatch_triggerPFHT_genreco.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerPFHT"));
+    
+    h_semilepttbarmatch_triggerSingleLeptonMu_genreco.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerSingleLeptonMu"));
+    h_semilepttbarmatch_triggerSingleLeptonEle_genreco.reset(new TstarTstarGenRecoMatchedHists(ctx, "SemiLepTTBarMatchGENRECO_triggerSingleLeptonEle"));
+  }
 
   h_After_TstarTstar_Reco.reset(new TstarTstarHists(ctx, "After_TstarTstar_Reco"));
   h_After_TstarTstar_Reco_match.reset(new TstarTstarHists(ctx, "After_TstarTstar_Reco_match"));
 
-  h_RecoPlots_After_ttbar.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_After_ttbar"));
-  h_RecoPlots_After_ttbar_correct_ttbar.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_After_ttbar_correct_ttbar"));
-  h_RecoPlots_After_TstarTstar.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_After_TstarTstar"));
-  h_RecoPlots_After_TstarTstar_match.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_After_TstarTstar_match"));
+  h_RecoPlots_Full.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_Full"));
+  h_RecoPlots_ttag.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_ttag"));
+  h_RecoPlots_nottag.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_nottag"));
+
   h_RecoPlots_GEN.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN"));
+  h_merged.reset(new TstarTstarMergedHists(ctx, "Merge Check"));
 
 
 
@@ -306,11 +313,14 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   ttbar_CorrectMatchDiscriminator.reset(new CorrectMatchDiscriminator(ctx,ttbar_hyps_label));
   
   TstarTstar_tgluon_tgamma_reco.reset(new TstarTstar_tgluon_tgamma_Reconstruction(ctx));
-  TstarTstar_tgluon_tgluon_reco.reset(new TstarTstar_tgluon_tgluon_Reconstruction(ctx));
+  TstarTstar_tgluon_tgluon_reco.reset(new TstarTstar_tgluon_tgluon_Reconstruction2(ctx));
 
-  ttbar_reco_toptag.reset(new TopTagReconstruction(ctx, NeutrinoReconstruction, ttbar_hyps_label, topjetID, minDR_topjet_jet));
+  ttbar_reco_toptag.reset(new TstarTstarTopTagReconstruction(ctx, NeutrinoReconstruction, ttbar_hyps_label, topjetID, minDR_topjet_jet));
 
   genmatcher.reset(new TstarTstarGenMatcher(ctx));
+  
+  h_ttag_jet_pos = ctx.get_handle<int>("ttag_jet_pos");
+
 }
 
 
@@ -325,6 +335,7 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   event.set(h_recohyp_tstartstar, ReconstructionTstarHypothesis());
   std::vector<ReconstructionHypothesis> fixvec;
   event.set(h_ttbar_hyps, fixvec);
+  event.set(h_ttag_jet_pos, -1);
   if(debug){cout << "Finished initialization of Handle Variables" << endl;}
 
   // ##### Selection #####
@@ -348,7 +359,7 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   h_lepsel->fill(event);
   
   if(is_tgtgamma){
-    // Require more than one photon
+    // Require at least 1 photon
     const bool pass_npho = (event.photons->size()>0);
     if(!pass_npho) return false;
     h_nphosel->fill(event);
@@ -390,7 +401,6 @@ bool TstarTstarMCStudyModule::process(Event & event) {
 
   if(debug) cout<<"passed all cuts"<<endl;
   h_allcuts->fill(event);
-
   h_nocuts_gen->fill(event);
 
 
@@ -399,7 +409,7 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   /* add flag_toptagevent to output ntuple */
   if(debug){cout << "TTag:" << pass_ttagevt << endl;}
   event.set(h_flag_toptagevent, int(pass_ttagevt));
-  ////
+
 
   // ##### Matching to GEN ######
   const bool pass_ttbarsemilep = TTbarSemiLepMatchable_selection->passes(event); // check whether event is matchable to GEN ttbar
@@ -467,89 +477,48 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   if(debug) cout<<"Starting TstarTstar Reconstruction part"<<endl;
   reco_primlep->process(event);//set "primary lepton"
 
-  if(useTopTag){
-    if(debug) cout<<"We are using toptagging!"<<endl;
+  if(is_tgtg){
 
-    if(is_tgtg){
-
-      if(pass_ttagevt){
-	if(debug){cout << "We have an event with TopTag!" << endl;}
-
-	ttbar_reco_toptag->process(event);
-	if(debug){cout << "all possible ttbar reconstructed using toptag!" << endl;}
-	
-	ttbar_discriminator->process(event); // Chose best ttbar hypothesis
-	
-	ReconstructionTstarHypothesis hyp_fix; // Plugging in ttbar in a (dummy) Tstar, to be able to plot already
-	hyp_fix.set_ttbar(event.get(h_recohyp));
-	event.set( h_recohyp_tstartstar, hyp_fix );
-	
-	if(event.get(h_is_ttbar_reconstructed)){
-	  if(debug){cout << "best ttbar hyp chosen" << endl;}
-	  h_RecoPlots_After_ttbar->fill(event);
-	  
-	  if(TstarTstar_tgluon_tgluon_reco->process(event)){
-	    if(debug){cout << "Tstar Reconstructed: filling histogram" << endl;}
-	    h_After_TstarTstar_Reco->fill(event);
-	    h_RecoPlots_After_TstarTstar->fill(event);
-	  }
-
-	}
-      }
+    if(event.get(h_flag_toptagevent) && doTopTagged){ // if we have a TopTag!
+      if(debug){cout << "We have an event with TopTag!" << endl;}
+      ttbar_reco_toptag->process(event);
     }
-    else if (is_tgtgamma){
-      // TODO
+    else{
+      if(!doNotTopTagged){return false;}
+      ttbar_reco->process(event);
     }
 
-  }
-  else{  
-    if(debug) {cout << "Starting ttbar reconstruction... ";}\
-    ttbar_reco->process(event);//reconstruct ttbar
-
-    ttbar_CorrectMatchDiscriminator->process(event);//find matched to ttbar gen hypothesis
-
+    // TODO ttbar_CorrectMatchDiscriminator->process(event);//find matched to ttbar gen hypothesis
+      
     if(debug) {cout << "Finished. Finding best Hypothesis..."<< endl;}  
-    ttbar_discriminator->process(event); // minimizing chi2
-
+    ttbar_discriminator->process(event); // Chose best ttbar hypothesis
+    
     if(debug) {cout << "Start TstarTstar reconstruction ..."<< endl;}
+
     if(event.get(h_is_ttbar_reconstructed)){
+      if(debug){cout << "best ttbar hyp chosen" << endl;}
+            
+      if(TstarTstar_tgluon_tgluon_reco->process(event)){
+	if(debug){cout << "Tstar Reconstructed: filling histogram" << endl;}
+	h_After_TstarTstar_Reco->fill(event);
+	h_RecoPlots_Full->fill(event);
+	h_merged->fill(event);
+	if(event.get(h_flag_toptagevent)){h_RecoPlots_ttag->fill(event);}
+	else{h_RecoPlots_nottag->fill(event);}
 
-      if(is_tgtgamma){ // Tstar+Tstar -> t+g + t+gamma
-
-	//h_RecoPlots_After_ttbar->fill(event); // Fill to see deltaR Distributions pre cutting
-
-	if(debug){cout << "ttbar is reco. start TstarTstarReco" << endl;}
-	if(TstarTstar_tgluon_tgamma_reco->process(event)){
-	  h_After_TstarTstar_Reco->fill(event);
-	  h_RecoPlots_After_TstarTstar->fill(event);
-
-	  if(pass_ttbarsemilep){   //Check same plots for matching
-	    h_After_TstarTstar_Reco_match->fill(event);
-	    h_RecoPlots_After_TstarTstar_match->fill(event);
-	  }
-	}
-
-      } // End tgtgamma
-    
-      if(is_tgtg){ // Tstar+Tstar -> t+g + t+g
-	bool pass_tgluon_tgluon_reco = TstarTstar_tgluon_tgluon_reco->process(event);
-	if(pass_tgluon_tgluon_reco){
-	  h_After_TstarTstar_Reco->fill(event);
-	  h_RecoPlots_After_TstarTstar->fill(event);
-	}
-	if(pass_tgluon_tgluon_reco && pass_ttbarsemilep){
-	  h_After_TstarTstar_Reco_match->fill(event);
-	  h_RecoPlots_After_TstarTstar_match->fill(event);
-	}
-      } // End tgtg
-  
-      if(debug){cout << "starting GEN studies!" << endl;}
-    
+	// TODO Stuff mit pass_ttbarsemilep
+      }
+      
     }
     else{
       if(debug){cout << "Event has no best hypothesis!" << endl;}
     }
+  }
+  else if (is_tgtgamma){
+    // TODO
+  }  
   
+  if(false){
     // ##### GEN Matching
     if(check_ttbar_reco){ // Check matching
       ReconstructionTstarHypothesis hyp_tmp = event.get(h_recohyp_tstartstar);
@@ -560,6 +529,7 @@ bool TstarTstarMCStudyModule::process(Event & event) {
       }
     }
   }
+
 
   if(debug){cout << "Done ##################################" << endl;}
   return true;

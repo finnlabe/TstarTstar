@@ -61,13 +61,14 @@
         <!-- Verion attribute must have year in it, same as used in ntuple config, e.g. 2018, 2016v3, etc -->
 
 	<!-- ##### gluon gluon ##### -->
-<!--
+
 	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-700_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgluonTgluon_M-700_Run2016v3;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
+<!--
         <InputData Lumi="33400" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-800_Run2016v3" Cacheable="False">
 	  &MC_TstarTstarToTgluonTgluon_M-800_Run2016v3;
           <InputTree Name="AnalysisTree" />
@@ -128,40 +129,6 @@
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<!-- ##### gamma gamma ##### -->
-
-	<!--
-
-        <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgamma_M-700_Run2016v3" Cacheable="False"> 
-	  &MC_TstarTstarToTgammaTgamma_M-700_Run2016v3;
-          <InputTree Name="AnalysisTree" />
-          <OutputTree Name="AnalysisTree" />
-        </InputData>
-
-        <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgamma_M-800_Run2016v3" Cacheable="False">
-	  &MC_TstarTstarToTgammaTgamma_M-800_Run2016v3;
-          <InputTree Name="AnalysisTree" />
-          <OutputTree Name="AnalysisTree" />
-        </InputData>
-        <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgamma_M-900_Run2016v3" Cacheable="False">
-	  &MC_TstarTstarToTgammaTgamma_M-900_Run2016v3;
-          <InputTree Name="AnalysisTree" />
-          <OutputTree Name="AnalysisTree" />
-        </InputData>
-
-        <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgamma_M-1000_Run2016v3" Cacheable="False">
-	  &MC_TstarTstarToTgammaTgamma_M-1000_Run2016v3;
-          <InputTree Name="AnalysisTree" />
-          <OutputTree Name="AnalysisTree" />
-        </InputData>
-
-        <InputData Lumi="34200" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgammaTgamma_M-1100_Run2016v3" Cacheable="False">
-	  &MC_TstarTstarToTgammaTgamma_M-1100_Run2016v3;
-          <InputTree Name="AnalysisTree" />
-          <OutputTree Name="AnalysisTree" />
-        </InputData>
-
-	-->
 
         <UserConfig>
             <!-- define which collections to read from the input. Only specify what you need to save I/O time -->
