@@ -3,11 +3,11 @@
 <!ENTITY TargetLumi      "35920">
 <!ENTITY b_Cacheable     "False">
 <!ENTITY NEVT            "-1">
-<!ENTITY CHANNEL "semileptonic"> 
+<!ENTITY CHANNEL "tgtg"> 
 
 <!-- <!ENTITY OUTPUTdir           "/nfs/dust/cms/user/karavdia/TstarTstar/102X_v1/Preselection_DATA/RunII_2016_NoTriggers_Fall17loosePho_CutTightSum16Ele_HighPtMu/&CHANNEL;/"> -->
-<!ENTITY OUTPUTdir  "/nfs/dust/cms/user/karavdia/TstarTstar/102X_v1/Selection_DATA/RunII_2016_NoTriggers_Fall17loosePho_CutTightSum16Ele_HighPtMu_IsoNonIsoLepHLT_HLTroughThresh_METcut50_STcut/&CHANNEL;/">
-<!ENTITY PRESELdir   "/nfs/dust/cms/user/karavdia/TstarTstar/102X_v1/Preselection_DATA/RunII_2016_NoTriggers_Fall17loosePho_CutTightSum16Ele_HighPtMu/&CHANNEL;/">
+<!ENTITY OUTPUTdir  "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/&CHANNEL;/">
+<!ENTITY PRESELdir   "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/&CHANNEL;/">
 
 
 
