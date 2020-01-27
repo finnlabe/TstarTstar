@@ -18,32 +18,27 @@ namespace {
 
 TstarTstarRecoTstarHists::TstarTstarRecoTstarHists(Context & ctx, const string & dirname): Hists(ctx, dirname){
   // ###### Case Handling ######
-  bool is_tgtg = false; 
-  bool is_tgtgamma = false;
+  is_tgtg = false; 
+  is_tgtgamma = false;
   if(ctx.get("channel") == "tgtg") is_tgtg = true;
   if(ctx.get("channel") == "tgtgamma") is_tgtgamma = true;
 
 
   // ###### Handles ######
-  //h_recohyp_ = ctx.get_handle<ReconstructionHypothesis>("TTbarReconstruction_best"); 
-  h_is_ttbar_reconstructed_ = ctx.get_handle< bool >("is_ttbar_reconstructed_chi2");
-  h_ttbar_hyps_ = ctx.get_handle< std::vector<ReconstructionHypothesis> >("TTbarReconstruction");
-  if(is_tgtg) h_recohyp_tstartstar_best_ = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_tgtg_best");
-  if(is_tgtgamma) h_recohyp_tstartstar_best_ = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_tgtgamma_best");
-
+  if(is_tgtg) h_recohyp_tstartstar_best_ = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_Hyp");
 
   // ###### Histograms ######
 
   // #### M_Tstar
   // tgtgamma
-  book<TH1F>("M_Tstar_gluon", "M_{T^{*}_{g}} [GeV]", 100, 0, 3000);
-  book<TH1F>("M_Tstar_gamma", "M_{T^{*}_{#gamma}} [GeV]", 100, 0, 3000);
+  //book<TH1F>("M_Tstar_gluon", "M_{T^{*}_{g}} [GeV]", 100, 0, 3000);
+  //book<TH1F>("M_Tstar_gamma", "M_{T^{*}_{#gamma}} [GeV]", 100, 0, 3000);
   // tgtg
   book<TH1F>("M_Tstar_lep", "Mass T^{*}_{tgtg,lep} [GeV]", 100, 0, 3000);
   book<TH1F>("M_Tstar_had", "Mass T^{*}_{tgtg,had} [GeV]", 100, 0, 3000);
   book<TH1F>("deltaM_Tstar", "Mass difference of T^{*}_{tgtg,lep} and T^{*}_{tgtg,had} (normalized)", 100, 0, 1);
 
-
+  /**
   // #### Delta_R
   // tgtgamma
   // book<TH1F>("DeltaR_closest_toplepjet_ak8jet1", "DeltaR_toplepjet_ak8jet1", 50, 0, 5);
@@ -89,7 +84,7 @@ TstarTstarRecoTstarHists::TstarTstarRecoTstarHists(Context & ctx, const string &
   // book<TH1F>("Mtoplep_CorrectMatch", "M_{best match}^{toplep} [GeV]", 200, 0, 1000);
   // book<TH1F>("Mtophad_CorrectMatch", "M_{best macth}^{tophad} [GeV]", 200, 0, 1000);
 
-
+  **/
 
 
   // For tests of tg+tg reconstruction (with TstarTstar_tgluon_tgluon_Reconstruction class)
@@ -106,6 +101,8 @@ void TstarTstarRecoTstarHists::fill(const Event & event){
   // slow when you have many histograms; therefore, better
   // use histogram pointers as members as in 'UHH2/common/include/ElectronHists.h'
   
+  if(is_tgtgamma){return;}
+
   bool debug = false;
 
   // Don't forget to always use the weight when filling.
@@ -132,6 +129,8 @@ void TstarTstarRecoTstarHists::fill(const Event & event){
 
   if(debug){cout << "Finished writing Tstar masses." << endl;}
   
+  /**
+
   // #### Delta_R
   // tgtgamma
   
@@ -212,8 +211,8 @@ void TstarTstarRecoTstarHists::fill(const Event & event){
   // #### ttbar
   hist("Mtoplep_bestchi2")->Fill(inv_mass(hyp.toplep_v4()), weight);
   hist("Mtophad_bestchi2")->Fill(inv_mass(hyp.tophad_v4()), weight);
-  hist("Chi2_bestchi2")->Fill(hyp.discriminator("chi2_total"), weight);
-  hist("dRCorrMatch_bestchi2")->Fill(hyp.discriminator("CorrectMatch"), weight);
+  //hist("Chi2_bestchi2")->Fill(hyp.discriminator("chi2_total"), weight);
+  //hist("dRCorrMatch_bestchi2")->Fill(hyp.discriminator("CorrectMatch"), weight);
   hist("t_lep_used_jets")->Fill(hyp.toplep_jets().size(), weight);
   if(!hyp.tophad_topjet_ptr()){hist("t_had_used_jets")->Fill(hyp.tophad_jets().size(), weight);}
   else {hist("t_had_used_jets")->Fill(-0.5, weight);}
@@ -245,6 +244,7 @@ void TstarTstarRecoTstarHists::fill(const Event & event){
 
   if(debug){cout << "Finished filling hists, return to main!" << endl;}
 
+  **/
 }
 
 

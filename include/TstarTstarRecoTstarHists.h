@@ -26,11 +26,11 @@ namespace uhh2{
     
   private:
     
-    uhh2::Event::Handle< ReconstructionHypothesis > h_recohyp_;
-    uhh2::Event::Handle< bool > h_is_ttbar_reconstructed_;
-    uhh2::Event::Handle< std::vector<ReconstructionHypothesis> > h_ttbar_hyps_;
     uhh2::Event::Handle< ReconstructionTstarHypothesis > h_recohyp_tstartstar_best_;
     
+    bool is_tgtg;
+    bool is_tgtgamma;
+
   };
 
 }
