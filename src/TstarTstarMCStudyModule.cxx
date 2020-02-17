@@ -13,6 +13,7 @@
 #include <UHH2/common/include/TriggerSelection.h>
 #include "UHH2/common/include/TTbarGen.h"
 #include "UHH2/common/include/TopJetIds.h"
+#include "UHH2/common/include/MCWeight.h"
 #include "UHH2/TstarTstar/include/TstarTstarSelections.h"
 #include "UHH2/TstarTstar/include/TstarTstarHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarRecoTstarHists.h"
@@ -26,6 +27,9 @@ using namespace std;
 using namespace uhh2;
 
 namespace uhh2 {
+
+  float inv_mass(const LorentzVector& p4){ return p4.isTimelike() ? p4.mass() : -sqrt(-p4.mass2()); }
+
 
 /** \brief Module for the T*T*->ttbar gg MC based study  
  *  
@@ -46,16 +50,18 @@ private:
   // ##### Histograms #####
   // Store the Hists collection as member variables. Again, use unique_ptr to avoid memory leaks.
 
-  std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_Full, h_RecoPlots_ttag, h_RecoPlots_nottag; 
+  std::unique_ptr<Hists> h_beforeReco, h_afterReco_Full, h_afterReco_ttag, h_afterReco_nottag, h_afterMtcut, h_afterGEN;
+  std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_Full, h_RecoPlots_ttag, h_RecoPlots_nottag, h_RecoPlots_Mtcut; 
   std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_GEN;
   
+  std::unique_ptr<Hists> h_GEN_Hists;
+
   // Bools for Debugging/Options
   bool debug = false;
 
-  bool check_ttbar_reco = true;
   bool doTopTagged = true;
   bool doNotTopTagged = false;
-  bool doGen = false;
+  bool doGen = true;
   
 
   // Modules
@@ -65,6 +71,8 @@ private:
   std::unique_ptr<CorrectMatchDiscriminator> ttbar_CorrectMatchDiscriminator;
   std::unique_ptr<TstarTstar_tgtg_TopTag_Reconstruction> TstarTstarHypCreator;
   std::unique_ptr<TstarTstar_Discrimination> TstarTstarHypSelector;
+
+  std::unique_ptr<uhh2::AnalysisModule> MCWeight;
 
   // Handles
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
@@ -105,7 +113,8 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   if(doGen){
     ttgenprod.reset(new TTbarGenProducer(ctx, "ttbargen", false));
     h_ttbargen = ctx.get_handle<TTbarGen>("ttbargen");
-    TTbarSemiLepMatchable_selection.reset(new TTbarSemiLepMatchableSelection()); // TODO what does this do???
+    TTbarSemiLepMatchable_selection.reset(new TTbarSemiLepMatchableSelection());
+    genmatcher.reset(new TstarTstarGenMatcher(ctx));
   }
   
   //TopTag
@@ -116,24 +125,34 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
  
 
   // 3. Set up Hists classes:
+
+  h_beforeReco.reset(new TstarTstarHists(ctx, "beforeReco"));
+  h_afterReco_Full.reset(new TstarTstarHists(ctx, "AfterReco_Full"));
+  h_afterReco_ttag.reset(new TstarTstarHists(ctx, "AfterReco_ttag"));
+  h_afterReco_nottag.reset(new TstarTstarHists(ctx, "AfterReco_nottag"));
+  h_afterMtcut.reset(new TstarTstarHists(ctx, "AfterMtcut"));
+  h_afterGEN.reset(new TstarTstarHists(ctx, "AfterGEN"));
+
   h_RecoPlots_Full.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_Full"));
   h_RecoPlots_ttag.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_ttag"));
   h_RecoPlots_nottag.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_nottag"));
-
+  h_RecoPlots_Mtcut.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_Mtcut"));
+ 
   h_RecoPlots_GEN.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN"));
 
+  h_GEN_Hists.reset(new TstarTstarGenHists(ctx, "GEN_Hists_AfterReco"));
+  
 
   //4. Set up ttbar reconstruction
   reco_primlep.reset(new PrimaryLepton(ctx));
 
   h_tstartstar_hyp_vector = ctx.get_handle<std::vector<ReconstructionTstarHypothesis>>("TstarTstar_Hyp_Vector");
   h_tstartstar_hyp = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_Hyp");
+
   TstarTstarHypCreator.reset(new TstarTstar_tgtg_TopTag_Reconstruction(ctx, NeutrinoReconstruction, topjetID, minDR_topjet_jet));
   TstarTstarHypSelector.reset(new TstarTstar_Discrimination(ctx));
-  
-  // GEN stuff
-  //genmatcher.reset(new TstarTstarGenMatcher(ctx));
-  
+
+  MCWeight.reset(new MCLumiWeight(ctx));
 
 }
 
@@ -142,33 +161,45 @@ bool TstarTstarMCStudyModule::process(Event & event) {
    
   if(debug){cout << endl << "TstarTstarMCStudyModule: Starting to process event (runid, eventid) = (" << event.run << ", " << event.event << "); weight = " << event.weight << endl;}
 
+  MCWeight->process(event);
+  ttgenprod->process(event);
+
+  h_beforeReco->fill(event);
+
   // Fix empty handle problem
   // (Dummy values are filled into handles so that they are not empty)
   event.set(h_tstartstar_hyp, ReconstructionTstarHypothesis());
   if(debug){cout << "Finished initialization of Handle Variables" << endl;}
 
-  if(doGen){
-    //Fill ttgen object for correct matching check, etc
-    ttgenprod->process(event);
-  }
-
+  if(debug) cout << "Checking for ttag." << endl;
   /* TOPTAG-EVENT boolean */
   const bool pass_ttagevt = toptagevt_sel->passes(event);
   /* add flag_toptagevent to output ntuple */
   if(debug){cout << "TTag:" << pass_ttagevt << endl;}
   event.set(h_flag_toptagevent, int(pass_ttagevt));
 
-
   // ########### TstarTstarReco! ############
   if(debug) cout<<"Starting TstarTstar Reconstruction part"<<endl;
+
   reco_primlep->process(event);//set "primary lepton"
 
+  bool TstarHypsCreated = false;
+
   if(is_tgtg){
-    if(debug){ cout << "Starting to construct all TstarTstar Hypothesiseseses" << endl;}
+    if(debug){cout << "Starting to construct all TstarTstar Hypothesiseseses" << endl;}
     if(event.get(h_flag_toptagevent) && doTopTagged){ // if we have a TopTag!
-      if(TstarTstarHypCreator->process(event)){
+      TstarHypsCreated = TstarTstarHypCreator->process(event);
+      if(TstarHypsCreated){
 	if(TstarTstarHypSelector->process(event)){
 	  h_RecoPlots_Full->fill(event);
+	  h_afterReco_Full->fill(event);
+	  h_GEN_Hists->fill(event);
+
+	  // Fill a new hist with some cut(s):
+	  if(inv_mass(event.get(h_tstartstar_hyp).ttbar_hyp().tophad_v4()) > 165){
+	    h_RecoPlots_Mtcut->fill(event);
+	    h_afterMtcut->fill(event);
+	  }
 	}
       }
     }
@@ -177,20 +208,18 @@ bool TstarTstarMCStudyModule::process(Event & event) {
     // TODO
   }
 
-  /**
-  if(doGen){
+  if(doGen && TstarHypsCreated){
+    if(debug){ cout << "Doing GEN matching check" << endl;}
     // ##### GEN Matching
-    if(check_ttbar_reco){ // Check matching
-      ReconstructionTstarHypothesis hyp_tmp = event.get(h_recohyp_tstartstar);
-      if(genmatcher->process(event)){
-	//cout << "GEN MATCHED!" << endl;
+    ReconstructionTstarHypothesis hyp_tmp = event.get(h_tstartstar_hyp);
+    if(genmatcher->process(event)){
+	if(debug)cout << "GEN MATCHED!" << endl;
 	h_RecoPlots_GEN->fill(event);
-	event.set(h_recohyp_tstartstar, hyp_tmp);
-      }
+	h_afterGEN->fill(event);
+	event.set(h_tstartstar_hyp, hyp_tmp);
     }
   }
-  **/
-
+  
   if(debug){cout << "Done ##################################" << endl;}
   return true;
 }

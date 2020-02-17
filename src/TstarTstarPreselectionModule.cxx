@@ -10,6 +10,7 @@
 #include "UHH2/common/include/ElectronIds.h"
 #include "UHH2/common/include/PhotonIds.h"
 #include <UHH2/common/include/MuonIds.h>
+#include "UHH2/common/include/MCWeight.h"
 
 #include "UHH2/TstarTstar/include/TstarTstarSelections.h"
 #include "UHH2/TstarTstar/include/TstarTstarHists.h"
@@ -43,9 +44,7 @@ private:
   unique_ptr<TTbarSemiLepMatchableSelection> TTbarSemiLepMatchable_selection;
   unique_ptr<Selection> met_sel, st_sel; 
   unique_ptr<Selection> topjet_selection;
-
   
-
   // ##### Histograms #####
   // Store the Hists collection as member variables. Again, use unique_ptr to avoid memory leaks.
   std::unique_ptr<Hists> h_nocuts_gen, h_allcuts_gen;
@@ -89,7 +88,7 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   
   // 1. setup other modules. CommonModules
   common.reset(new CommonModules());
-  common->disable_mcpileupreweight();//FixME: PU re-weighting crushes
+  common->disable_mcpileupreweight(); //FixME: PU re-weighting crushes TODO
   common->switch_metcorrection();
 
   // Jets
@@ -169,6 +168,7 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
     
     TTbarSemiLepMatchable_selection.reset(new TTbarSemiLepMatchableSelection());
   }
+
 }
 
 

@@ -22,6 +22,9 @@ namespace {
 
 TstarTstarGenHists::TstarTstarGenHists(Context & ctx, const string & dirname): Hists(ctx, dirname){
   // book all histograms here
+
+  h_ttbargen = ctx.get_handle<TTbarGen>("ttbargen");
+
   // Generated Masses
   book<TH1F>("M_tstar_gen", "M_{Tstar} gen", 100, 0, 2000);  
   book<TH1F>("Pt_tstar_gen", "Pt_{Tstar} gen", 100, 0, 3000);  
@@ -48,7 +51,9 @@ TstarTstarGenHists::TstarTstarGenHists(Context & ctx, const string & dirname): H
   book<TH1F>("Phi_photon2_gen", "#phi_{#gamma2} gen", 100, -3.14, 3.14);  
 
   book<TH1F>("N_photon_gen", "N_{photons} from TstarTstar", 10, 0, 10);  
-  book<TH1F>("N_gluon_gen", "N_{gluons} from TstarTstar", 10, 0, 10);  
+  book<TH1F>("N_gluon_gen", "N_{gluons} from TstarTstar", 10, 0, 10);
+  book<TH1F>("dR_tophad_gluon_gen", "dR (tophad, gluon)", 30, 0, 6);  
+  book<TH1F>("dR_toplep_gluon_gen", "dR (toplep, gluon)", 30, 0, 6);  
   book<TH1F>("dR_min_gluon_top_gen", "dR^{min}(gluon,top)", 30, 0, 6);  
   book<TH1F>("dR_min_photon_top_gen", "dR^{min}(#gamma,top)", 30, 0, 6);  
   book<TH1F>("dR_photon_gluon_gen", "dR(#gamma,gluon) (only for Tgamma+Tgluon)", 30, 0, 6);  
@@ -206,12 +211,41 @@ void TstarTstarGenHists::fill(const Event & event){
     hist("dR_min_photon_top_gen")->Fill(dR_min2,weight);
 
     //Plot this only for the interesting Tgluon+Tgamma case
+    /**
     double dRgluongamma = deltaR(gluon, photon);
     hist("dR_photon_gluon_gen")->Fill(dRgluongamma, weight);
+    **/
   }
+
+  TTbarGen ttbargen = event.get(h_ttbargen);
+  if(!ttbargen.IsSemiLeptonicDecay()){return;}
+  
+  GenParticle toplep = ttbargen.TopLep();
+  GenParticle tophad = ttbargen.TopHad();
+  
+  GenParticle gluonlep, gluonhad;
+  if(toplep.mother1() ==  gluon1.mother1()){
+    gluonlep = gluon1;
+    gluonhad = gluon2;
+  }
+  else{
+    gluonlep = gluon2;
+    gluonhad = gluon1;
+  }
+  
+  double dR_toplep_gluon = deltaR(toplep, gluonlep);
+  double dR_tophad_gluon = deltaR(tophad, gluonhad);
+  hist("dR_toplep_gluon_gen")->Fill(dR_toplep_gluon,weight);
+  hist("dR_tophad_gluon_gen")->Fill(dR_tophad_gluon,weight);
+ 
 }
 
 TstarTstarGenHists::~TstarTstarGenHists(){}
+
+
+
+// #########################
+
 
 
 TstarTstarMergedHists::TstarTstarMergedHists(Context & ctx, const string & dirname): Hists(ctx, dirname){

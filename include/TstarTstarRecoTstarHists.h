@@ -26,7 +26,7 @@ namespace uhh2{
     
   private:
     
-    uhh2::Event::Handle< ReconstructionTstarHypothesis > h_recohyp_tstartstar_best_;
+    uhh2::Event::Handle<ReconstructionTstarHypothesis> h_tstartstar_hyp;
     
     bool is_tgtg;
     bool is_tgtgamma;

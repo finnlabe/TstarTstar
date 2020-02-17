@@ -257,6 +257,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
     TTbarSemiLepMatchable_selection.reset(new TTbarSemiLepMatchableSelection());// for x-checks
 
     // 3. Set up Tstar-Tstar reconstruction
+    /**
     ttgenprod.reset(new TTbarGenProducer(ctx, "ttbargen", false));
     h_ttbargen = ctx.get_handle<TTbarGen>("ttbargen");
 
@@ -289,6 +290,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
 
     TstarTstar_tgluon_tgamma_reco.reset(new TstarTstar_tgluon_tgamma_Reconstruction(ctx));
     TstarTstar_tgluon_tgluon_reco.reset(new TstarTstar_tgluon_tgluon_Reconstruction(ctx));
+    **/
 
     // 4. Set up Hists
     vector<string> histogram_tags = {"PreSelection","PreSelection_mu","PreSelection_ele","AK8sel","AK8sel_mu","AK8sel_ele",

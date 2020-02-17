@@ -22,9 +22,10 @@ public:
  private:
   std::unique_ptr<uhh2::TTbarSemiLepMatchableSelection> TTbarSemiLepMatchable_selection;
 
+  uhh2::Event::Handle<std::vector<ReconstructionTstarHypothesis>> h_tstartstar_hyp_vector;
+  uhh2::Event::Handle<ReconstructionTstarHypothesis> h_tstartstar_hyp;
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
+
   bool is_tgtg, is_tgtgamma;
-  uhh2::Event::Handle<std::vector<ReconstructionHypothesis>> h_ttbar_hyps;
-  uhh2::Event::Handle<ReconstructionTstarHypothesis> h_recohyp_tstartstar;
 
 };

@@ -1,4 +1,6 @@
 #include "UHH2/TstarTstar/include/TstarTstarHists.h"
+#include "UHH2/TstarTstar/include/TstarTstarSelections.h"
+#include "UHH2/TstarTstar/include/TstarTstarReconstructionModules.h"
 #include "UHH2/core/include/Event.h"
 
 #include "TH1F.h"
@@ -12,8 +14,9 @@ using namespace uhh2;
 TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(ctx, dirname){
   // book all histograms here
   // jets
-  book<TH1F>("N_jets", "N_{AK4 jets}", 20, 0, 20);  
+  book<TH1F>("N_jets", "N_{AK4 jets}", 20, 0, 20);
   book<TH1F>("N_AK8jets", "N_{AK8 jets}", 20, 0, 20);  
+  book<TH1F>("N_toptagged_AK8jets", "N_{toptagged AK8 jets}", 20, 0, 20);  
   book<TH1F>("N_PU", "N_{PU}", 100, 0, 100);  
   book<TH1F>("eta_jet1", "#eta^{jet 1}", 50, -5.2, 5.2);
   book<TH1F>("pt_jet1", "p_{T}^{jet 1}", 100, 10, 2000);
@@ -157,6 +160,12 @@ void TstarTstarHists::fill(const Event & event){
   hist("N_pv")->Fill(Npvs, weight);
 
   hist("N_AK8jets")->Fill(event.topjets->size(), weight);
+
+  const TopJetId topjetID_ = AndId<TopJet>(TopTagMassWindow(), TopTagSubbtag(DeepCSVBTag::WP_LOOSE),  Tau32(0.65));
+  int toptaggedjets = 0;
+  for(auto & topjet : * event.topjets){if(topjetID_(topjet, event))toptaggedjets++;}
+  hist("N_toptagged_AK8jets")->Fill(toptaggedjets, weight);
+
   if(event.topjets->size()>0){
     hist("eta_ak8jet1")->Fill(event.topjets->at(0).eta(), weight);
     hist("pt_ak8jet1")->Fill(event.topjets->at(0).pt(), weight);
