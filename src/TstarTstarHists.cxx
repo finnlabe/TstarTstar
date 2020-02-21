@@ -88,13 +88,16 @@ void TstarTstarHists::fill(const Event & event){
   // slow when you have many histograms; therefore, better
   // use histogram pointers as members as in 'UHH2/common/include/ElectronHists.h'
   
+  bool debug = false;
+
   // Don't forget to always use the weight when filling.
   double weight = event.weight;
+
+  if(debug) cout << "Starting Tstar Hists." << endl;
   
   std::vector<Jet>* jets = event.jets;
   int Njets = jets->size();
   hist("N_jets")->Fill(Njets, weight);
-
 
   if(!event.isRealData)  hist("N_PU")->Fill(event.genInfo->pileup_TrueNumInteractions(), weight);
 
@@ -129,6 +132,7 @@ void TstarTstarHists::fill(const Event & event){
     hist("eta_jet4")->Fill(jets->at(3).eta(), weight);
     hist("pt_jet4")->Fill(jets->at(3).pt(), weight);
   }
+  if(debug) cout << "Finished filling jet observables." << endl;
 
   int Nmuons = event.muons->size();
   hist("N_mu")->Fill(Nmuons, weight);
@@ -144,6 +148,7 @@ void TstarTstarHists::fill(const Event & event){
       hist("pt_ele")->Fill(thisele.pt(), weight);
       hist("eta_ele")->Fill(thisele.eta(), weight);
   }
+  if(debug) cout << "Finished filling lepton observables." << endl;
 
   int Ngamma = event.photons->size();
   hist("N_photon")->Fill(Ngamma, weight);
@@ -155,16 +160,18 @@ void TstarTstarHists::fill(const Event & event){
     hist("eta_photon")->Fill(thisgamma.eta(), weight);
     countgamma++;
   }
+  if(debug) cout << "Finished filling photon observables." << endl;
 
   int Npvs = event.pvs->size();
   hist("N_pv")->Fill(Npvs, weight);
+  if(debug) cout << "Finished filling PV observables." << endl;
 
   hist("N_AK8jets")->Fill(event.topjets->size(), weight);
-
   const TopJetId topjetID_ = AndId<TopJet>(TopTagMassWindow(), TopTagSubbtag(DeepCSVBTag::WP_LOOSE),  Tau32(0.65));
   int toptaggedjets = 0;
-  for(auto & topjet : * event.topjets){if(topjetID_(topjet, event))toptaggedjets++;}
+  for(auto & topjet : * event.topjets){ if(topjetID_(topjet, event)) toptaggedjets++;}
   hist("N_toptagged_AK8jets")->Fill(toptaggedjets, weight);
+  if(debug) cout << "Finished filling ttag observables." << endl;
 
   if(event.topjets->size()>0){
     hist("eta_ak8jet1")->Fill(event.topjets->at(0).eta(), weight);
@@ -178,16 +185,22 @@ void TstarTstarHists::fill(const Event & event){
     hist("eta_ak8jet3")->Fill(event.topjets->at(2).eta(), weight);
     hist("pt_ak8jet3")->Fill(event.topjets->at(2).pt(), weight);
   }
+  if(debug) cout << "Finished filling AK8 jet observables." << endl;
+
   if(Nele>0 && Njets>0) ((TH2D*)hist("pt_ele_pt_ak4jet1"))->Fill(event.electrons->at(0).pt(),jets->at(0).pt(), weight);
   if(Nmuons>0 && Njets>0) ((TH2D*)hist("pt_mu_pt_ak4jet1"))->Fill(event.muons->at(0).pt(),jets->at(0).pt(), weight);
   if(Nele>0 && event.topjets->size()>0) ((TH2D*)hist("pt_ele_pt_ak8jet1"))->Fill(event.electrons->at(0).pt(),event.topjets->at(0).pt(), weight);
   if(Nmuons>0 && event.topjets->size()>0) ((TH2D*)hist("pt_mu_pt_ak8jet1"))->Fill(event.muons->at(0).pt(),event.topjets->at(0).pt(), weight);
+  if(debug) cout << "Finished filling pt observables." << endl;
 
   hist("pt_MET")->Fill(event.met->pt(), weight);
+  if(debug) cout << "Finished filling MET observables." << endl;
 
   double st_jets = 0.;
   for(const auto & jet : *jets) st_jets += jet.pt();
   hist("pt_ST_jets")->Fill(st_jets, weight);
+
+  if(debug) cout << "Finished Tstar Hists!" << endl;
 
 }
 

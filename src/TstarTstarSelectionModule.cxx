@@ -32,171 +32,64 @@ using namespace uhh2;
  * All objects are expected to be corrected in PreSelection stage
  *
  */
-// class TstarTstarSelectionModule: public AnalysisModule {
-class TstarTstarSelectionModule: public ModuleBASE {
+class TstarTstarSelectionModule: public AnalysisModule {
 public:
     
     explicit TstarTstarSelectionModule(Context & ctx);
     virtual bool process(Event & event) override;
-    void book_histograms(uhh2::Context&, vector<string>);
-    void fill_histograms(uhh2::Event&, string, bool);
-    void book_TTreeVars(uhh2::Context& ctx, vector<string>);
-    void fill_TTreeVars(uhh2::Event & event, string var_name, float var_value);
-
-    void fill_MLinput(uhh2::Event & event);
 
 private:
-    
 
-    // Declare the Selections to use. Use unique_ptr to ensure automatic call of delete in the destructor,
-    // to avoid memory leaks.
-
-    unique_ptr<Selection> TTbarSemiLepMatchable_selection;
+  // Declare the Selections to use. Use unique_ptr to ensure automatic call of delete in the destructor,
+  // to avoid memory leaks.
   
-    unique_ptr<Selection> triggerPFHT_sel;
-    unique_ptr<Selection> triggerSingleJet450_sel;
-    unique_ptr<Selection> triggerSingleLeptonEle1_sel;
-    unique_ptr<Selection> triggerSingleLeptonEle2_sel;
-    unique_ptr<Selection> triggerSingleLeptonEle3_sel;
-    unique_ptr<Selection> triggerSingleLeptonMu1_sel;
-    unique_ptr<Selection> triggerSingleLeptonMu2_sel;
-    unique_ptr<Selection> triggerSingleLeptonMu3_sel;
-    unique_ptr<Selection> triggerSingleLeptonMu4_sel;
-    unique_ptr<Selection> triggerHT1_sel, triggerHT2_sel, triggerHT3_sel, triggerHT4_sel, triggerHT5_sel,  triggerHT6_sel;
-    unique_ptr<Selection>  met_sel, st_sel; //selections defined in UHH2/TstarTstar/include/TstarTstarSelections.h
-    unique_ptr<Selection> topjet_selection;
+  unique_ptr<AnalysisModule> LumiWeight_module;
+  
+  // Store the Hists collection as member variables. Again, use unique_ptr to avoid memory leaks.
+  std::unique_ptr<Hists> h_AK4cleaning,     h_AK8cleaning,     h_METsel,     h_2Dcut,     h_STcut,     h_ttagsel,     h_isoAK4;
+  std::unique_ptr<Hists> h_AK4cleaning_gen, h_AK8cleaning_gen, h_METsel_gen, h_2Dcut_gen, h_STcut_gen, h_ttagsel_gen, h_isoAK4_gen;
 
-    unique_ptr<AnalysisModule> LumiWeight_module;
-    // Store the Hists collection as member variables. Again, use unique_ptr to avoid memory leaks.
-  //  std::unique_ptr<Hists> h_nocuts, h_common, h_lepsel, h_2dcut, h_semilepttbarmatch, h_nosemilepttbarmatch;// h_trigger;
-  //    std::unique_ptr<Hists> h_semilepttbarmatch_gen;
-  //    std::unique_ptr<Hists> h_semilepttbarmatch_genreco;
-  bool debug = false;
-  //  bool debug = true;
+  std::unique_ptr<Hists> h_AK8jetsel_3;
+  std::unique_ptr<Hists> h_AK8jetsel_3_gen;
 
-  //Tstar-Tstar reconstruction
+
+  // Selections
+  JetId AK4pteta;
+  TopJetId AK8pteta;  
+  TopJetId ttag;
+
+  unique_ptr<Selection> met_sel;
+  unique_ptr<Selection> st_sel;
+  unique_ptr<Selection> twodcut_sel;
+  unique_ptr<Selection> toptagevt_sel;
+
+  unique_ptr<JetCleaner> AK4cleaner;
+  unique_ptr<TopJetCleaner> AK8cleaner;
+
+  uhh2::Event::Handle<int> h_flag_toptagevent;
+  
+  // GEN stuff
   std::unique_ptr<uhh2::AnalysisModule> ttgenprod; 
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
-  std::unique_ptr<uhh2::AnalysisModule> reco_primlep;
-  std::unique_ptr<uhh2::AnalysisModule> ttbar_reco;
-  std::unique_ptr<ttbarChi2Discriminator> ttbar_discriminator;
-  //  std::unique_ptr<ttbarCorrectMatchDiscriminator> ttbar_CorrectMatchDiscriminator;
-  std::unique_ptr<CorrectMatchDiscriminator> ttbar_CorrectMatchDiscriminator;
-  std::unique_ptr<TstarTstar_tgluon_tgamma_Reconstruction> TstarTstar_tgluon_tgamma_reco;
-  std::unique_ptr<TstarTstar_tgluon_tgluon_Reconstruction> TstarTstar_tgluon_tgluon_reco;
-  //  uhh2::Event::Handle<std::vector<ReconstructionHypothesis>> h_ttbar_hyps;
-  uhh2::Event::Handle<bool> h_is_ttbar_reconstructed;
-  uhh2::Event::Handle<ReconstructionHypothesis> h_recohyp;
 
-  uhh2::Event::Handle<std::vector<ReconstructionTstarHypothesis>> h_tstartstar_hyps;
-  uhh2::Event::Handle<ReconstructionTstarHypothesis> h_recohyp_tstartstar;
+  bool debug = false;
 
-  std::unique_ptr<TstarTstarRecoTstarHists>  h_RecoPlots_After_TstarTstar_tgtg, h_RecoPlots_After_TstarTstar_tgtg_ttbarsemilep;
-
+  // bools for channel and stuff. will be read in later
+  bool is_MC;
   bool is_tgtg, is_tgtgamma;
-  std::vector<Event::Handle<float>> h_MLinput_values;
-  std::vector<string> h_MLinput_names;
-  Event::Handle<float> h_weight;
 
 };
 
-void TstarTstarSelectionModule::book_histograms(uhh2::Context& ctx, vector<string> tags){
-  for(const auto & tag : tags){
-    string  mytag = tag + "_RECO";
-    book_HFolder(mytag, new TstarTstarHists(ctx,mytag));
-    mytag = tag + "_GEN";
-    book_HFolder(mytag, new TstarTstarGenHists(ctx,mytag));
-    mytag = tag + "_GENRECO";
-    book_HFolder(mytag, new TstarTstarGenRecoMatchedHists(ctx,mytag));
-  }
-}
-
-  void TstarTstarSelectionModule::fill_histograms(uhh2::Event& event, string tag, bool pass_ttbarsemilep){
-    //  for(const auto & tag : tags){
-    string mytag = tag + "_RECO";
-    HFolder(mytag)->fill(event);
-    if(pass_ttbarsemilep){
-      mytag = tag + "_GEN";
-      HFolder(mytag)->fill(event);
-      mytag = tag + "_GENRECO";
-      HFolder(mytag)->fill(event);
-    }
-    //  }
-}
-  
-void TstarTstarSelectionModule::book_TTreeVars(uhh2::Context& ctx, vector<string> vars){
-  for(const auto & var : vars){
-    string  myvar = "TstarTstarReco_" + var;
-    Event::Handle<float> dummy;
-    h_MLinput_values.push_back(dummy);
-    h_MLinput_names.push_back(myvar);
-    h_MLinput_values[h_MLinput_values.size()-1] = ctx.declare_event_output<float>(myvar);
-  }
-}
-
-void TstarTstarSelectionModule::fill_TTreeVars(uhh2::Event& event,string var_name, float var_value){ //fill the variable with calculated value
-  for(unsigned int iname = 0; iname<h_MLinput_names.size(); iname++){
-    if(h_MLinput_names[iname]==var_name)  event.set(h_MLinput_values[iname],var_value);
-  }
-}
-
-void TstarTstarSelectionModule::fill_MLinput(uhh2::Event & event){
-  ReconstructionTstarHypothesis hyp_Tstar = event.get(h_recohyp_tstartstar);  
-  ReconstructionHypothesis hyp_ttbar = hyp_Tstar.ttbar_hyp();
-
-  //lepton
-  float lep_pt = hyp_ttbar.lepton().pt();
-  fill_TTreeVars(event, "TstarTstarReco_lepton_pt", lep_pt);
-  float lep_eta = hyp_ttbar.lepton().eta();
-  fill_TTreeVars(event, "TstarTstarReco_lepton_eta", lep_eta);
-  float lep_phi = hyp_ttbar.lepton().phi();
-  fill_TTreeVars(event, "TstarTstarReco_lepton_phi", lep_phi);
-
-  //dR
-  float dR_ttbar = deltaR(hyp_ttbar.toplep_v4(),hyp_ttbar.tophad_v4());
-  fill_TTreeVars(event, "TstarTstarReco_dR_ttbar", dR_ttbar);
-  float dR_gluon_toplep = deltaR(hyp_Tstar.gluon1_v4(),hyp_ttbar.toplep_v4());
-  fill_TTreeVars(event, "TstarTstarReco_dR_gluon_toplep", dR_gluon_toplep);
-  float dR_gluon_tophad = deltaR(hyp_Tstar.gluon1_v4(),hyp_ttbar.tophad_v4());
-  fill_TTreeVars(event, "TstarTstarReco_dR_gluon_tophad", dR_gluon_tophad);
-  float dR_tstartstar = deltaR(hyp_Tstar.tstarlep_v4(),hyp_Tstar.tstarhad_v4());
-  fill_TTreeVars(event, "TstarTstarReco_dR_tstartstar", dR_tstartstar);
-
-  //gluon
-  float gluon_pt = hyp_Tstar.gluon1_v4().pt();
-  float gluon_eta = hyp_Tstar.gluon1_v4().eta();
-  float gluon_phi = hyp_Tstar.gluon1_v4().phi();
-  fill_TTreeVars(event, "TstarTstarReco_gluon_pt", gluon_pt);
-  fill_TTreeVars(event, "TstarTstarReco_gluon_eta", gluon_eta);
-  fill_TTreeVars(event, "TstarTstarReco_gluon_phi", gluon_phi);
-
-  //Tstar leptonic and hadronic
-  float Tstarlep_pt = hyp_Tstar.tstarlep_v4().pt();
-  float Tstarlep_eta = hyp_Tstar.tstarlep_v4().eta();
-  float Tstarlep_phi = hyp_Tstar.tstarlep_v4().phi();
-  float Tstarhad_pt = hyp_Tstar.tstarhad_v4().pt();
-  float Tstarhad_eta = hyp_Tstar.tstarhad_v4().eta();
-  float Tstarhad_phi = hyp_Tstar.tstarhad_v4().phi();
-
-  fill_TTreeVars(event, "TstarTstarReco_Tstarlep_pt", Tstarlep_pt);
-  fill_TTreeVars(event, "TstarTstarReco_Tstarlep_eta", Tstarlep_eta);
-  fill_TTreeVars(event, "TstarTstarReco_Tstarlep_phi", Tstarlep_phi);
-  fill_TTreeVars(event, "TstarTstarReco_Tstarhad_pt", Tstarhad_pt);
-  fill_TTreeVars(event, "TstarTstarReco_Tstarhad_eta", Tstarhad_eta);
-  fill_TTreeVars(event, "TstarTstarReco_Tstarhad_phi", Tstarhad_phi);
-
-
-}
-
-
 TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
     
-  is_tgtg = false; is_tgtgamma = false;
-  if(ctx.get("channel") == "tgtg") is_tgtg = true;
-  if(ctx.get("channel") == "tgtgamma") is_tgtgamma = true;
-  ctx.undeclare_all_event_output();//store only what we really want later
+  // 0. Reading in whether MC and if so, which channel
+  is_MC = ctx.get("dataset_type") == "MC";
 
-  h_weight = ctx.declare_event_output<float>("eventweight");
+  if(is_MC){
+    is_tgtg = false; is_tgtgamma = false;
+    if(ctx.get("channel") == "tgtg") is_tgtg = true;
+    if(ctx.get("channel") == "tgtgamma") is_tgtgamma = true;
+  }
 
   if(debug) {
     cout << "Hello World from TstarTstarSelectionModule!" << endl;  
@@ -205,242 +98,160 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
     // and "target_lumi" are set to the according values in the xml file. For CMSSW, these are
     // not set automatically, but can be set in the python config file.
     for(auto & kv : ctx.get_all()){
-        cout << " " << kv.first << " = " << kv.second << endl;
-    }
-    
-   }
+      cout << " " << kv.first << " = " << kv.second << endl;
+    }  
+  }
+  
+  // 1. set up lumi rewitghting
+  LumiWeight_module.reset(new MCLumiWeight(ctx));
 
-    // 1. setup common selection  module -> skipped here, because done at preselection
-    // 1b. set up lumi rewitghting
-    LumiWeight_module.reset(new MCLumiWeight(ctx));
-    
-
-    // 2. set up selections
-    //Trigger selection
-    //
-
-    //HT triggers
-    triggerHT1_sel.reset(new TriggerSelection("HLT_HT430to450_v*"));
-    triggerHT2_sel.reset(new TriggerSelection("HLT_HT450to470_v*"));
-    triggerHT3_sel.reset(new TriggerSelection("HLT_HT470to500_v*"));
-    triggerHT4_sel.reset(new TriggerSelection("HLT_HT500to550_v*"));
-    triggerHT5_sel.reset(new TriggerSelection("HLT_HT550to650_v*"));
-    triggerHT6_sel.reset(new TriggerSelection("HLT_HT650_v*"));
-
-    //PF HT trigger
-    triggerPFHT_sel.reset(new TriggerSelection("HLT_PFHT900_v*"));
-
-    //SingleJet trigger
-    triggerSingleJet450_sel.reset(new TriggerSelection("HLT_PFJet450_v*"));
-
-    //Lepton trigger
-    triggerSingleLeptonEle1_sel.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
-    triggerSingleLeptonEle2_sel.reset(new TriggerSelection("HLT_Ele25_eta2p1_WPTight_Gsf_v*"));
-    triggerSingleLeptonEle3_sel.reset(new TriggerSelection("HLT_Ele32_eta2p1_WPTight_Gsf_v*"));
-
-
-    triggerSingleLeptonMu1_sel.reset(new TriggerSelection("HLT_Mu50_v*"));
-    triggerSingleLeptonMu2_sel.reset(new TriggerSelection("HLT_Mu55_v*"));
-    triggerSingleLeptonMu3_sel.reset(new TriggerSelection("HLT_IsoMu24_v*"));
-    triggerSingleLeptonMu4_sel.reset(new TriggerSelection("HLT_IsoTkMu24_v*"));
-
-    //MET selection
-    met_sel.reset(new METCut  (50.,1e6));
-
-    //ST selection
-    st_sel.reset(new STCut  (500.,1e6));
-
-    //Ak8jet selection
-    topjet_selection.reset(new NTopJetSelection(1, -1, TopJetId(PtEtaCut(100, 2.1))));
-
-    //Match to semileptonic ttbar
-    TTbarSemiLepMatchable_selection.reset(new TTbarSemiLepMatchableSelection());// for x-checks
-
-    // 3. Set up Tstar-Tstar reconstruction
-    /**
+  if(is_MC){
+    // Prepare GEN
     ttgenprod.reset(new TTbarGenProducer(ctx, "ttbargen", false));
-    h_ttbargen = ctx.get_handle<TTbarGen>("ttbargen");
+  }
+  
+  // 2. set up selections
+  if(debug) cout << "Setting up Selections." << endl;  
 
-    const std::string ttbar_hyps_label("TTbarReconstruction");
-    const std::string ttbar_chi2_label("Chi2");
-    reco_primlep.reset(new PrimaryLepton(ctx));
-    if(is_tgtg){
-      ttbar_reco.reset(new HighMassSkipJetsTTbarReconstruction(ctx, NeutrinoReconstruction,ttbar_hyps_label,0));
-      //      h_ttbar_hyps = ctx.get_handle<std::vector<ReconstructionHypothesis>>(ttbar_hyps_label);
-      h_is_ttbar_reconstructed = ctx.get_handle< bool >("is_ttbar_reconstructed_chi2");
-      h_recohyp = ctx.declare_event_output<ReconstructionHypothesis>(ttbar_hyps_label+"_best");
+  twodcut_sel.reset(new TwoDCut(0.4, 25.0));  // The same as in Z'->ttbar semileptonic
 
-      const std::string tstartstar_hyps_label("TstarTstar_tgtg");
-      h_tstartstar_hyps = ctx.get_handle<std::vector<ReconstructionTstarHypothesis>>(tstartstar_hyps_label);
-      h_recohyp_tstartstar = ctx.declare_event_output<ReconstructionTstarHypothesis>(tstartstar_hyps_label+"_best");
-    }
-    if(is_tgtgamma){
-      ttbar_reco.reset(new HighMassSkipJetsTTbarReconstruction(ctx, NeutrinoReconstruction,ttbar_hyps_label,1));
-      //      h_ttbar_hyps = ctx.get_handle<std::vector<ReconstructionHypothesis>>(ttbar_hyps_label);
-      h_is_ttbar_reconstructed = ctx.get_handle< bool >("is_ttbar_reconstructed_chi2");
-      h_recohyp = ctx.declare_event_output<ReconstructionHypothesis>(ttbar_hyps_label+"_best");
+  // Jet pt/Eta Cuts
+  AK4pteta = JetId(PtEtaCut(100, 2.1));
+  AK8pteta = TopJetId(PtEtaCut(100, 2.1));
 
-      const std::string tstartstar_hyps_label("TstarTstar_tgtgamma");
-      h_tstartstar_hyps = ctx.get_handle<std::vector<ReconstructionTstarHypothesis>>(tstartstar_hyps_label);
-      h_recohyp_tstartstar = ctx.declare_event_output<ReconstructionTstarHypothesis>(tstartstar_hyps_label+"_best");
-    }
+  //MET selection
+  met_sel.reset(new METCut  (50.,1e6));
+  
+  //ST selection
+  st_sel.reset(new STCut  (500.,1e6));
 
-    ttbar_discriminator.reset(new ttbarChi2Discriminator(ctx));
-    ttbar_CorrectMatchDiscriminator.reset(new CorrectMatchDiscriminator(ctx,ttbar_hyps_label));
+  // ttag
+  ttag = AndId<TopJet>(TopTagMassWindow(), TopTagSubbtag(DeepCSVBTag::WP_LOOSE),  Tau32(0.65));
+  const float minDR_topjet_jet(1.2);
+  toptagevt_sel.reset(new TopTagEventSelection(ttag, minDR_topjet_jet));
+  h_flag_toptagevent = ctx.declare_event_output<int>("flag_toptagevent");
 
-    TstarTstar_tgluon_tgamma_reco.reset(new TstarTstar_tgluon_tgamma_Reconstruction(ctx));
-    TstarTstar_tgluon_tgluon_reco.reset(new TstarTstar_tgluon_tgluon_Reconstruction(ctx));
-    **/
+  AK4cleaner.reset(new JetCleaner(ctx, PtEtaCut(100.0, 2.5)));
+  AK8cleaner.reset(new TopJetCleaner(ctx, PtEtaCut(100.0, 2.5)));
 
-    // 4. Set up Hists
-    vector<string> histogram_tags = {"PreSelection","PreSelection_mu","PreSelection_ele","AK8sel","AK8sel_mu","AK8sel_ele",
-				     "MET","MET_mu","MET_ele","ST","ST_mu","ST_ele","triggerSingleLeptonMu",
-				     "triggerSingleLeptonEle","triggerSingleJet_mu","triggerSingleJet_ele",
-				     "triggerHT_mu","triggerHT_ele","triggerPFHT_mu","triggerPFHT_ele"};
-    book_histograms(ctx, histogram_tags);
-    h_RecoPlots_After_TstarTstar_tgtg.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_After_TstarTstar_tgtg"));
-    h_RecoPlots_After_TstarTstar_tgtg_ttbarsemilep.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_After_TstarTstar_tgtg_SemiLepTTBarMatch"));
+  // 4. Set up Hists
+  if(debug) cout << "Setting up Hists." << endl;
+  h_AK4cleaning.reset(new TstarTstarHists(ctx, "AK4cleaning"));
+  h_AK8cleaning.reset(new TstarTstarHists(ctx, "AK8cleaning"));
+  h_METsel.reset(new TstarTstarHists(ctx, "AfterMET"));
+  h_2Dcut.reset(new TstarTstarHists(ctx, "After2D"));
+  h_STcut.reset(new TstarTstarHists(ctx, "AfterST"));
+  h_ttagsel.reset(new TstarTstarHists(ctx, "Afterttagsel"));
+  h_AK8jetsel_3.reset(new TstarTstarHists(ctx, "AfterNAK8sel_3"));
+  h_isoAK4.reset(new TstarTstarHists(ctx, "AfterIsoAK4"));
 
-    // 5. Set up variables for ML
-    vector<string> vars = {"lepton_pt","lepton_eta","lepton_phi",
-			   "dR_ttbar","dR_gluon_toplep","dR_gluon_tophad","dR_tstartstar",
-			   "gluon_pt","gluon_eta","gluon_phi",
-			   "Tstarlep_pt","Tstarlep_eta","Tstarlep_phi",
-			   "Tstarhad_pt","Tstarhad_eta","Tstarhad_phi"};
-    book_TTreeVars(ctx, vars);
+  h_AK4cleaning_gen.reset(new TstarTstarHists(ctx, "AK4cleaning_gen"));
+  h_AK8cleaning_gen.reset(new TstarTstarHists(ctx, "AK8cleaning_gen"));
+  h_METsel_gen.reset(new TstarTstarHists(ctx, "AfterMET_gen"));
+  h_2Dcut_gen.reset(new TstarTstarHists(ctx, "After2D_gen"));
+  h_STcut_gen.reset(new TstarTstarHists(ctx, "AfterST_gen"));
+  h_ttagsel_gen.reset(new TstarTstarHists(ctx, "Afterttagsel_gen"));
+  h_AK8jetsel_3_gen.reset(new TstarTstarHists(ctx, "AfterNAK8sel_3_gen"));
+  h_isoAK4_gen.reset(new TstarTstarHists(ctx, "AfterIsoAK4_gen"));
+
 }
 
 
 bool TstarTstarSelectionModule::process(Event & event) {
 
-  event.set(h_is_ttbar_reconstructed, false);
-  event.set(h_recohyp, ReconstructionHypothesis());
-  event.set(h_recohyp_tstartstar,ReconstructionTstarHypothesis());
+  if(debug) cout << "TstarTstarSelectionModule: Starting to process event (runid, eventid) = (" << event.run << ", " << event.event << "); weight = " << event.weight << endl;
+
+  LumiWeight_module->process(event); // apply correct weights
+  if(debug) cout << "Lumi weights applied." << endl;
+
+  //Fill ttgen object for correct matching check, etc
+  if(is_MC){
+    ttgenprod->process(event);
+    if(debug) cout << "ttgen produced." << endl;
+  }
+
+  AK4cleaner->process(event);
+  h_AK4cleaning->fill(event);
+  h_AK4cleaning_gen->fill(event);
+  if(debug) cout << "Cleaned AK4 jets." << endl;
+
+  AK8cleaner->process(event);
+  h_AK8cleaning->fill(event);
+  h_AK8cleaning_gen->fill(event);
+  if(debug) cout << "Cleaned AK8 jets." << endl;
+
+  // MET Cut
+  bool pass_MET =  met_sel->passes(event);
+  if(!pass_MET) return false;
+  h_METsel->fill(event);
+  h_METsel_gen->fill(event);
+  if(debug) cout << "Passed strict MET cut." << endl;
   
-  if(debug)   
-    cout << "TstarTstarSelectionModule: Starting to process event (runid, eventid) = (" << event.run << ", " << event.event << "); weight = " << event.weight << endl;
-  LumiWeight_module->process(event);
-  const bool pass_ttbarsemilep = TTbarSemiLepMatchable_selection->passes(event);
-  fill_histograms(event, "PreSelection", pass_ttbarsemilep);
-  if(event.muons->size() == 1) fill_histograms(event, "PreSelection_mu", pass_ttbarsemilep);
-  if(event.electrons->size() == 1) fill_histograms(event, "PreSelection_ele", pass_ttbarsemilep);
- if(debug)   
-   cout << "pass_ttbarsemilep" <<endl;
- if(event.jets->size()<1) return false;//FixMe: why this is happening?
-
-
- bool pass_ak8 = topjet_selection->passes(event);
- if(!pass_ak8) return false;
-
- fill_histograms(event, "AK8sel", pass_ttbarsemilep);
- if(event.muons->size() == 1) fill_histograms(event, "AK8sel_mu", pass_ttbarsemilep);
- if(event.electrons->size() == 1) fill_histograms(event, "AK8sel_ele", pass_ttbarsemilep);
-
-
- bool pass_MET =  met_sel->passes(event);
- if(!pass_MET) return false;
-
- fill_histograms(event, "MET", pass_ttbarsemilep);
- if(event.muons->size() == 1) fill_histograms(event, "MET_mu", pass_ttbarsemilep);
- if(event.electrons->size() == 1) fill_histograms(event, "MET_ele", pass_ttbarsemilep);
-
- bool pass_ST =  st_sel->passes(event);
- if(!pass_ST) return false;
- fill_histograms(event, "ST", pass_ttbarsemilep);
- if(event.muons->size() == 1) fill_histograms(event, "ST_mu", pass_ttbarsemilep);
- if(event.electrons->size() == 1) fill_histograms(event, "ST_ele", pass_ttbarsemilep);
-
- //Fill ttgen object for correct matching check, etc
-  ttgenprod->process(event);
-
-  bool pass_trigger_SingleJet = (triggerSingleJet450_sel->passes(event) && event.jets->at(0).pt()>500);
-  if(pass_trigger_SingleJet){
-    if(event.muons->size() == 1) fill_histograms(event, "triggerSingleJet_mu", pass_ttbarsemilep);
-    if(event.electrons->size() == 1) fill_histograms(event, "triggerSingleJet_ele", pass_ttbarsemilep);
+  // Lepton-2Dcut
+  for(auto& muo : *event.muons){
+    if(debug) cout<<"AFTER Muon (pt,eta): "<<muo.pt()<<", "<<muo.eta()<<endl;
+    float    dRmin, pTrel;
+    std::tie(dRmin, pTrel) = drmin_pTrel(muo, *event.jets);
+    muo.set_tag(Muon::twodcut_dRmin, dRmin);
+    muo.set_tag(Muon::twodcut_pTrel, pTrel);
   }
- if(debug)   
-   cout << "pass_trigger_SingleJet" <<endl;
-
-  bool pass_trigger_SingleMu = (triggerSingleLeptonMu1_sel->passes(event) || triggerSingleLeptonMu2_sel->passes(event) 
-				|| triggerSingleLeptonMu3_sel->passes(event) || triggerSingleLeptonMu4_sel->passes(event));
-
-  if(pass_trigger_SingleMu){
-    if((event.muons->size() == 1) && (event.muons->at(0).pt()>60))
-      fill_histograms(event, "triggerSingleLeptonMu", pass_ttbarsemilep); //FixMe: each Muon trigger should have its own threshold
+  for(auto& ele : *event.electrons){
+    if(debug) cout<<"Electron (pt,eta): "<<ele.pt()<<", "<<ele.eta()<<endl;
+    float    dRmin, pTrel;
+    std::tie(dRmin, pTrel) = drmin_pTrel(ele, *event.jets);
+    ele.set_tag(Electron::twodcut_dRmin, dRmin);
+    ele.set_tag(Electron::twodcut_pTrel, pTrel);
   }
- if(debug)   
-   cout << "pass_trigger_SingleMu" <<endl;
+  const bool pass_twodcut = twodcut_sel->passes(event);
+  if(!pass_twodcut) return false;
+  h_2Dcut->fill(event);
+  h_2Dcut_gen->fill(event);
+  if(debug) cout << "Passed 2D cut." << endl;
 
- bool pass_trigger_SingleEle = (triggerSingleLeptonEle1_sel->passes(event) || triggerSingleLeptonEle2_sel->passes(event) || triggerSingleLeptonEle3_sel->passes(event));
- if(pass_trigger_SingleEle){
-   if((event.electrons->size() == 1) && (event.electrons->at(0).pt()>120)) 
-     fill_histograms(event, "triggerSingleLeptonEle", pass_ttbarsemilep); //FixMe: each Electron trigger should have its own threshold
- }
- if(debug)   
-   cout << "pass_trigger_SingleEle" <<endl;
+  // ST cut
+  bool pass_ST =  st_sel->passes(event);
+  if(!pass_ST) return false;
+  h_STcut->fill(event);
+  h_STcut_gen->fill(event);
+  if(debug) cout << "Passed ST cut." << endl;
 
- double st_jets = 0.;
- std::vector<Jet>* jets = event.jets;
- for(const auto & jet : *jets) st_jets += jet.pt();
+  // ttag
+  const bool pass_ttag = toptagevt_sel->passes(event);
+  event.set(h_flag_toptagevent, int(pass_ttag));
+  if(!pass_ttag) return false;
+  h_ttagsel->fill(event);
+  h_ttagsel_gen->fill(event);
+  if(debug) cout << "Passed TTag cut." << endl;
 
- bool pass_trigegr_HT = (triggerHT1_sel->passes(event) || triggerHT2_sel->passes(event) || triggerHT3_sel->passes(event) 
-    || triggerHT4_sel->passes(event) || triggerHT5_sel->passes(event) || triggerHT6_sel->passes(event));
-  if(pass_trigegr_HT){
-    if((event.muons->size() == 1) && st_jets>650) fill_histograms(event, "triggerHT_mu", pass_ttbarsemilep); //FixME: each HT trigger should have different st_jets threshold
-    if((event.electrons->size() == 1) && st_jets>650) fill_histograms(event, "triggerHT_ele", pass_ttbarsemilep);
-  }
- if(debug)   
-   cout << "pass_trigegr_HT" <<endl;
+  // HERE NOW ALL CUTS NEEDED FOR RECONSTRUCTION CODE-WISE:
 
-  bool pass_trigegr_PFHT = triggerPFHT_sel->passes(event);
-  if(pass_trigegr_PFHT){
-    if((event.muons->size() == 1) && st_jets>900) fill_histograms(event, "triggerPFHT_mu", pass_ttbarsemilep); //FixME: PFHT trigger might have different st_jets threshold
-    if((event.electrons->size() == 1) && st_jets>900) fill_histograms(event, "triggerPFHT_ele", pass_ttbarsemilep);
-  }
- if(debug)   
-   cout << "pass_trigegr_PFHT"<<endl;
+  // cut on min 3 AK8
+  bool pass_ak8_njet_3 = (event.topjets->size()>2);
+  if(!pass_ak8_njet_3) return false;
+  h_AK8jetsel_3->fill(event);
+  h_AK8jetsel_3_gen->fill(event);
+  if(debug) cout << "Filled hists after AK8jetsel" << endl;
 
-
-  reco_primlep->process(event);//set "primary lepton"
-  if(debug) {cout << "Starting ttbar reconstruction... ";}\
-  ttbar_reco->process(event);//reconstruct ttbar
-  ttbar_CorrectMatchDiscriminator->process(event);//find matched to ttbar gen hypothesis
-  if(debug) {cout << "Finished. Finding best Hypothesis..."<< endl;}   
-  ttbar_discriminator->process(event);
-
-  //make sure we fill all values with smth
-  for(unsigned int iname = 0; iname<h_MLinput_names.size(); iname++)
-    event.set(h_MLinput_values[iname],0);
-
-  ReconstructionHypothesis hyp = event.get(h_recohyp);  
-  if(debug) {cout << "Start TstarTstar reconstruction ..."<< endl;}
-  bool pass_tgluon_tgluon_reco = false;
-  if(event.get(h_is_ttbar_reconstructed)){
-    if(is_tgtgamma){ // Tstar+Tstar -> t+g + t+gamma //FixME: the code is broken and most probably won't work. Sorry!
-      cout<<"Nothing is done for tgtgamma at the moment"<<endl;
+  // cut on min 1 isolated AK4
+  bool pass_iso_AK4jet = false;
+  for(uint i = 0; i < event.topjets->size(); i++){
+    TopJet tj = event.topjets->at(i);
+    if(!ttag(tj, event)) continue; // loop over all top tagged jets
+    for(const auto & jet : *event.jets){
+      if(deltaR(tj, jet) > 1.2) pass_iso_AK4jet = true;
     }
-    if(is_tgtg){ // Tstar+Tstar -> t+g + t+g
-      pass_tgluon_tgluon_reco = TstarTstar_tgluon_tgluon_reco->process(event);
-      if(pass_tgluon_tgluon_reco){
-	h_RecoPlots_After_TstarTstar_tgtg->fill(event);
-	fill_MLinput(event);
-      }
-      if(pass_tgluon_tgluon_reco && pass_ttbarsemilep) 
-	h_RecoPlots_After_TstarTstar_tgtg_ttbarsemilep->fill(event);
-    }
-    // void TstarTstarSelectionModule::fill_TTreeVars(string var_name, float var_value){ 
   }
-  else{
-    if(debug){cout << "Event has no best hypothesis!" << endl;}
-  }
+  if(!pass_iso_AK4jet) return false;
+  h_isoAK4->fill(event);
+  h_isoAK4_gen->fill(event);
+  if(debug) cout << "Filled hists after isoAK4jet" << endl;
 
-  event.set(h_weight,event.weight);
-  //  return true;
-  return pass_tgluon_tgluon_reco;//store only events, which pass tgtg reconstruction
+
+  return true;
 }
 
 // as we want to run the ExampleCycleNew directly with AnalysisModuleRunner,
 // make sure the TstarTstarSelectionModule is found by class name. This is ensured by this macro:
 UHH2_REGISTER_ANALYSIS_MODULE(TstarTstarSelectionModule)
 
-//}
+

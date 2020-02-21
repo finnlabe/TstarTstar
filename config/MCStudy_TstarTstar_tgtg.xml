@@ -4,7 +4,7 @@
 
 <!ENTITY CHANNEL "tgtg">
 <!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/MCStudy/&CHANNEL;/">
-<!ENTITY INPUTdir  "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/&CHANNEL;/">
+<!ENTITY INPUTdir  "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/&CHANNEL;/">
 ]>
 
 <!--
@@ -102,6 +102,8 @@
 	    <Item Name="lumi_file" Value="/nfs/dust/cms/user/karavdia/CMSSW_10_2_10/src/UHH2/common/data/2016/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root"/>
 	    <Item Name="lumihists_lumi_per_bin" Value="1.0"/>
 	    
+	    <Item Name="additionalBranches" Value="flag_toptagevent"/>
+
 <!--	    <Item Name="is_puppi" Value="&IS_PUPPI;"/> -->
 
 	    <Item Name="jersmear_direction" Value="nominal"/>

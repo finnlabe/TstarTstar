@@ -11,6 +11,8 @@ void FitDeltaM(TString channel = "tgtg", TString masspoint="700", TString subpat
 
   gStyle->SetOptStat(0);
   gStyle->SetOptFit(0001);
+  gStyle->SetHistFillStyle(1);
+
 
   TString path = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/MCStudy/tgtg/hadded/";
   TString filename = "uhh2.AnalysisModuleRunner.MC.TstarTstar_M-"+masspoint+".root";
@@ -28,6 +30,7 @@ void FitDeltaM(TString channel = "tgtg", TString masspoint="700", TString subpat
   hist->SetTitle("");
   hist->SetMarkerStyle(20);
   hist->SetMarkerColor(1);
+  hist->SetFillColor(kGray);
   hist->SetLineColor(1);
   hist->Draw("hist");
   fit->Draw("same");

@@ -50,7 +50,7 @@ private:
   // ##### Histograms #####
   // Store the Hists collection as member variables. Again, use unique_ptr to avoid memory leaks.
 
-  std::unique_ptr<Hists> h_beforeReco, h_afterReco_Full, h_afterReco_ttag, h_afterReco_nottag, h_afterMtcut, h_afterGEN;
+  std::unique_ptr<Hists> h_beforeReco, h_afterPrimlep, h_afterHypCreation, h_afterReco_Full, h_afterReco_ttag, h_afterReco_nottag, h_afterMtcut, h_afterGEN;
   std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_Full, h_RecoPlots_ttag, h_RecoPlots_nottag, h_RecoPlots_Mtcut; 
   std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_GEN;
   
@@ -62,7 +62,29 @@ private:
   bool doTopTagged = true;
   bool doNotTopTagged = false;
   bool doGen = true;
-  
+
+  // save pt, eta, phi for ttagged jet, leptop, MET, leptopjet, gluon candidates
+  bool forDNN = true;
+  uhh2::Event::Handle<double> h_DNN_ttaggedjet_pt;
+  uhh2::Event::Handle<double> h_DNN_ttaggedjet_eta;
+  uhh2::Event::Handle<double> h_DNN_ttaggedjet_phi;
+  uhh2::Event::Handle<double> h_DNN_lepton_pt;
+  uhh2::Event::Handle<double> h_DNN_lepton_eta;
+  uhh2::Event::Handle<double> h_DNN_lepton_phi;
+  uhh2::Event::Handle<double> h_DNN_MET_pt;
+  uhh2::Event::Handle<double> h_DNN_MET_eta;
+  uhh2::Event::Handle<double> h_DNN_MET_phi;
+  uhh2::Event::Handle<double> h_DNN_leptopjet_pt;
+  uhh2::Event::Handle<double> h_DNN_leptopjet_eta;
+  uhh2::Event::Handle<double> h_DNN_leptopjet_phi;
+  uhh2::Event::Handle<double> h_DNN_gluon1_pt;
+  uhh2::Event::Handle<double> h_DNN_gluon1_eta;
+  uhh2::Event::Handle<double> h_DNN_gluon1_phi;
+  uhh2::Event::Handle<double> h_DNN_gluon2_pt;
+  uhh2::Event::Handle<double> h_DNN_gluon2_eta;
+  uhh2::Event::Handle<double> h_DNN_gluon2_phi;
+
+  uhh2::Event::Handle<FlavorParticle> h_primlep;
 
   // Modules
   std::unique_ptr<uhh2::AnalysisModule> ttgenprod;
@@ -102,7 +124,7 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
    }
 
   // Dont save everything!
-  ctx.undeclare_all_event_output();
+  //ctx.undeclare_all_event_output();
   
   // 0. Reading in which channel
   is_tgtg = false; is_tgtgamma = false;
@@ -121,12 +143,14 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   const TopJetId topjetID = AndId<TopJet>(TopTagMassWindow(), TopTagSubbtag(DeepCSVBTag::WP_LOOSE),  Tau32(0.65));
   const float minDR_topjet_jet(1.2);
   toptagevt_sel.reset(new TopTagEventSelection(topjetID, minDR_topjet_jet));
-  h_flag_toptagevent = ctx.declare_event_output<int>("flag_toptagevent");
+  h_flag_toptagevent = ctx.get_handle<int>("flag_toptagevent");
  
 
   // 3. Set up Hists classes:
 
   h_beforeReco.reset(new TstarTstarHists(ctx, "beforeReco"));
+  h_afterPrimlep.reset(new TstarTstarHists(ctx, "afterPrimlep"));
+  h_afterHypCreation.reset(new TstarTstarHists(ctx, "afterHypCreation"));
   h_afterReco_Full.reset(new TstarTstarHists(ctx, "AfterReco_Full"));
   h_afterReco_ttag.reset(new TstarTstarHists(ctx, "AfterReco_ttag"));
   h_afterReco_nottag.reset(new TstarTstarHists(ctx, "AfterReco_nottag"));
@@ -154,6 +178,31 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
 
   MCWeight.reset(new MCLumiWeight(ctx));
 
+  // 5. Handles for DNN
+  if(forDNN){
+    h_DNN_ttaggedjet_pt = ctx.declare_event_output<double>("DNN_ttaggedjet_pt");
+    h_DNN_ttaggedjet_eta = ctx.declare_event_output<double>("DNN_ttaggedjet_eta");
+    h_DNN_ttaggedjet_phi = ctx.declare_event_output<double>("DNN_ttaggedjet_phi");
+    h_DNN_lepton_pt = ctx.declare_event_output<double>("DNN_lepton_pt");
+    h_DNN_lepton_eta = ctx.declare_event_output<double>("DNN_lepton_eta");
+    h_DNN_lepton_phi = ctx.declare_event_output<double>("DNN_lepton_phi");
+    h_DNN_MET_pt = ctx.declare_event_output<double>("DNN_MET_pt");
+    h_DNN_MET_eta = ctx.declare_event_output<double>("DNN_MET_eta");
+    h_DNN_MET_phi = ctx.declare_event_output<double>("DNN_MET_phi");
+    h_DNN_leptopjet_pt = ctx.declare_event_output<double>("DNN_leptopjet_pt");
+    h_DNN_leptopjet_eta = ctx.declare_event_output<double>("DNN_leptopjet_eta");
+    h_DNN_leptopjet_phi = ctx.declare_event_output<double>("DNN_leptopjet_phi");
+    h_DNN_gluon1_pt = ctx.declare_event_output<double>("DNN_gluon1_pt");
+    h_DNN_gluon1_eta = ctx.declare_event_output<double>("DNN_gluon1_eta");
+    h_DNN_gluon1_phi = ctx.declare_event_output<double>("DNN_gluon1_phi");
+    h_DNN_gluon2_pt = ctx.declare_event_output<double>("DNN_gluon2_pt");
+    h_DNN_gluon2_eta = ctx.declare_event_output<double>("DNN_gluon2_eta");
+    h_DNN_gluon2_phi = ctx.declare_event_output<double>("DNN_gluon2_phi");
+
+    reco_primlep.reset(new PrimaryLepton(ctx));
+    h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
+  }
+
 }
 
 
@@ -171,26 +220,24 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   event.set(h_tstartstar_hyp, ReconstructionTstarHypothesis());
   if(debug){cout << "Finished initialization of Handle Variables" << endl;}
 
-  if(debug) cout << "Checking for ttag." << endl;
-  /* TOPTAG-EVENT boolean */
-  const bool pass_ttagevt = toptagevt_sel->passes(event);
-  /* add flag_toptagevent to output ntuple */
-  if(debug){cout << "TTag:" << pass_ttagevt << endl;}
-  event.set(h_flag_toptagevent, int(pass_ttagevt));
-
   // ########### TstarTstarReco! ############
   if(debug) cout<<"Starting TstarTstar Reconstruction part"<<endl;
 
   reco_primlep->process(event);//set "primary lepton"
 
   bool TstarHypsCreated = false;
+  bool bestHypFound = false;
+
+  h_afterPrimlep->fill(event);
 
   if(is_tgtg){
     if(debug){cout << "Starting to construct all TstarTstar Hypothesiseseses" << endl;}
     if(event.get(h_flag_toptagevent) && doTopTagged){ // if we have a TopTag!
       TstarHypsCreated = TstarTstarHypCreator->process(event);
       if(TstarHypsCreated){
-	if(TstarTstarHypSelector->process(event)){
+	h_afterHypCreation->fill(event);
+	bestHypFound = TstarTstarHypSelector->process(event);
+	if(bestHypFound){
 	  h_RecoPlots_Full->fill(event);
 	  h_afterReco_Full->fill(event);
 	  h_GEN_Hists->fill(event);
@@ -208,6 +255,45 @@ bool TstarTstarMCStudyModule::process(Event & event) {
     // TODO
   }
 
+  // Filling output for DNN
+  // TODO put this in extra file that you pass an hypothesis
+  if(forDNN && bestHypFound){
+    if(debug) cout << "Start filling of DNN stuff" << endl;
+    ReconstructionTstarHypothesis best_hyp = event.get(h_tstartstar_hyp);
+    ReconstructionHypothesis best_hyp_ttbar = best_hyp.ttbar_hyp();
+
+    event.set(h_DNN_ttaggedjet_pt, best_hyp_ttbar.tophad_v4().pt());
+    event.set(h_DNN_ttaggedjet_eta, best_hyp_ttbar.tophad_v4().eta());
+    event.set(h_DNN_ttaggedjet_phi, best_hyp_ttbar.tophad_v4().phi());
+    if(debug) cout << "Done with ttagjet." << endl;
+
+    event.set(h_DNN_lepton_pt, best_hyp_ttbar.lepton().pt());
+    event.set(h_DNN_lepton_eta, best_hyp_ttbar.lepton().eta());
+    event.set(h_DNN_lepton_phi, best_hyp_ttbar.lepton().phi());
+    if(debug) cout << "Done with lepton." << endl;
+
+    event.set(h_DNN_MET_pt, best_hyp_ttbar.neutrino_v4().pt());
+    event.set(h_DNN_MET_eta, best_hyp_ttbar.neutrino_v4().eta());
+    event.set(h_DNN_MET_phi, best_hyp_ttbar.neutrino_v4().phi());
+    if(debug) cout << "Done with neutrino." << endl;
+
+    event.set(h_DNN_leptopjet_pt, best_hyp_ttbar.blep_v4().pt());
+    event.set(h_DNN_leptopjet_eta, best_hyp_ttbar.blep_v4().eta());
+    event.set(h_DNN_leptopjet_phi, best_hyp_ttbar.blep_v4().phi());
+    if(debug) cout << "Done with leptopjet." << endl;
+
+    event.set(h_DNN_gluon1_pt, best_hyp.gluon1_v4().pt());
+    event.set(h_DNN_gluon1_eta, best_hyp.gluon1_v4().eta());
+    event.set(h_DNN_gluon1_phi, best_hyp.gluon1_v4().phi());
+    if(debug) cout << "Done with gluon1." << endl;
+    
+    event.set(h_DNN_gluon2_pt, best_hyp.gluon2_v4().pt());
+    event.set(h_DNN_gluon2_eta, best_hyp.gluon2_v4().eta());
+    event.set(h_DNN_gluon2_phi, best_hyp.gluon2_v4().phi());
+    if(debug) cout << "Done with gluon2." << endl;
+  }
+  
+  
   if(doGen && TstarHypsCreated){
     if(debug){ cout << "Doing GEN matching check" << endl;}
     // ##### GEN Matching
@@ -221,7 +307,7 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   }
   
   if(debug){cout << "Done ##################################" << endl;}
-  return true;
+  return bestHypFound;
 }
 
 // as we want to run the ExampleCycleNew directly with AnalysisModuleRunner,
