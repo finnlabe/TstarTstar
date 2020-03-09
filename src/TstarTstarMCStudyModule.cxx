@@ -22,6 +22,7 @@
 #include "UHH2/TstarTstar/include/TstarTstarReconstructionModules.h"
 #include "UHH2/TstarTstar/include/ReconstructionTstarHypothesis.h"
 #include "UHH2/TstarTstar/include/TstarTstarGenMatch.h"
+#include "UHH2/HOTVR/include/HOTVRIds.h"
 
 using namespace std;
 using namespace uhh2;
@@ -50,8 +51,8 @@ private:
   // ##### Histograms #####
   // Store the Hists collection as member variables. Again, use unique_ptr to avoid memory leaks.
 
-  std::unique_ptr<Hists> h_beforeReco, h_afterPrimlep, h_afterHypCreation, h_afterReco_Full, h_afterReco_ttag, h_afterReco_nottag, h_afterMtcut, h_afterGEN;
-  std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_Full, h_RecoPlots_ttag, h_RecoPlots_nottag, h_RecoPlots_Mtcut; 
+  std::unique_ptr<Hists> h_beforeReco, h_afterPrimlep, h_afterHypCreation, h_afterReco_Full, h_afterReco_ttag, h_afterReco_nottag, h_afterGEN;
+  std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_Full, h_RecoPlots_ttag, h_RecoPlots_nottag;
   std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_GEN;
   
   std::unique_ptr<Hists> h_GEN_Hists;
@@ -61,7 +62,6 @@ private:
 
   bool doTopTagged = true;
   bool doNotTopTagged = false;
-  bool doGen = true;
 
   // save pt, eta, phi for ttagged jet, leptop, MET, leptopjet, gluon candidates
   bool forDNN = true;
@@ -89,8 +89,7 @@ private:
   // Modules
   std::unique_ptr<uhh2::AnalysisModule> ttgenprod;
   std::unique_ptr<uhh2::AnalysisModule> reco_primlep;
-  std::unique_ptr<TstarTstarGenMatcher> genmatcher;
-  std::unique_ptr<CorrectMatchDiscriminator> ttbar_CorrectMatchDiscriminator;
+  std::unique_ptr<TstarTstarGenDiscriminator> genmatcher;
   std::unique_ptr<TstarTstar_tgtg_TopTag_Reconstruction> TstarTstarHypCreator;
   std::unique_ptr<TstarTstar_Discrimination> TstarTstarHypSelector;
 
@@ -103,7 +102,8 @@ private:
   uhh2::Event::Handle<ReconstructionTstarHypothesis> h_tstartstar_hyp;
 
   // bools for channel and stuff. will be read in later
-  bool is_tgtg, is_tgtgamma, isTrigger;
+  bool is_tgtg, is_tgtgamma, isTrigger, is_HOTVR;
+  bool is_MC;
 };
 
 
@@ -113,7 +113,6 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
     
   if(debug) {
     cout << "Hello World from TstarTstarMCStudyModule!" << endl;
-    
     
     // If running in SFrame, the keys "dataset_version", "dataset_type", "dataset_lumi",
     // and "target_lumi" are set to the according values in the xml file. For CMSSW, these are
@@ -126,24 +125,27 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   // Dont save everything!
   //ctx.undeclare_all_event_output();
   
-  // 0. Reading in which channel
+  // 0. Reading in whether MC and if so, which channel
+  is_MC = ctx.get("dataset_type") == "MC";
   is_tgtg = false; is_tgtgamma = false;
   if(ctx.get("channel") == "tgtg") is_tgtg = true;
   if(ctx.get("channel") == "tgtgamma") is_tgtgamma = true;
+  if(ctx.get("channel") == "HOTVR") is_HOTVR = true;
   
   // Prepare GEN
-  if(doGen){
+  if(is_MC){
     ttgenprod.reset(new TTbarGenProducer(ctx, "ttbargen", false));
     h_ttbargen = ctx.get_handle<TTbarGen>("ttbargen");
-    TTbarSemiLepMatchable_selection.reset(new TTbarSemiLepMatchableSelection());
-    genmatcher.reset(new TstarTstarGenMatcher(ctx));
+    genmatcher.reset(new TstarTstarGenDiscriminator(ctx));
   }
   
   //TopTag
-  const TopJetId topjetID = AndId<TopJet>(TopTagMassWindow(), TopTagSubbtag(DeepCSVBTag::WP_LOOSE),  Tau32(0.65));
+  TopJetId topjetID;
+  if(is_HOTVR) topjetID = HOTVRTopTag();
+  else topjetID = AndId<TopJet>(TopTagMassWindow(), Tau32(0.8));
   const float minDR_topjet_jet(1.2);
-  toptagevt_sel.reset(new TopTagEventSelection(topjetID, minDR_topjet_jet));
-  h_flag_toptagevent = ctx.get_handle<int>("flag_toptagevent");
+  toptagevt_sel.reset(new TopTagEventSelection(topjetID));
+  h_flag_toptagevent = ctx.declare_event_output<int>("flag_toptagevent");
  
 
   // 3. Set up Hists classes:
@@ -154,14 +156,11 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   h_afterReco_Full.reset(new TstarTstarHists(ctx, "AfterReco_Full"));
   h_afterReco_ttag.reset(new TstarTstarHists(ctx, "AfterReco_ttag"));
   h_afterReco_nottag.reset(new TstarTstarHists(ctx, "AfterReco_nottag"));
-  h_afterMtcut.reset(new TstarTstarHists(ctx, "AfterMtcut"));
   h_afterGEN.reset(new TstarTstarHists(ctx, "AfterGEN"));
 
   h_RecoPlots_Full.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_Full"));
   h_RecoPlots_ttag.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_ttag"));
-  h_RecoPlots_nottag.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_nottag"));
-  h_RecoPlots_Mtcut.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_Mtcut"));
- 
+  h_RecoPlots_nottag.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_nottag")); 
   h_RecoPlots_GEN.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN"));
 
   h_GEN_Hists.reset(new TstarTstarGenHists(ctx, "GEN_Hists_AfterReco"));
@@ -211,9 +210,14 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   if(debug){cout << endl << "TstarTstarMCStudyModule: Starting to process event (runid, eventid) = (" << event.run << ", " << event.event << "); weight = " << event.weight << endl;}
 
   MCWeight->process(event);
-  ttgenprod->process(event);
+  if(is_MC) ttgenprod->process(event);
 
   h_beforeReco->fill(event);
+
+  // check wether ttag is present
+  const bool pass_ttag = toptagevt_sel->passes(event);
+  event.set(h_flag_toptagevent, int(pass_ttag));
+  if(debug) cout << "Done checking ttag" << endl;
 
   // Fix empty handle problem
   // (Dummy values are filled into handles so that they are not empty)
@@ -230,31 +234,28 @@ bool TstarTstarMCStudyModule::process(Event & event) {
 
   h_afterPrimlep->fill(event);
 
-  if(is_tgtg){
-    if(debug){cout << "Starting to construct all TstarTstar Hypothesiseseses" << endl;}
-    if(event.get(h_flag_toptagevent) && doTopTagged){ // if we have a TopTag!
-      TstarHypsCreated = TstarTstarHypCreator->process(event);
-      if(TstarHypsCreated){
-	h_afterHypCreation->fill(event);
-	bestHypFound = TstarTstarHypSelector->process(event);
-	if(bestHypFound){
-	  h_RecoPlots_Full->fill(event);
-	  h_afterReco_Full->fill(event);
-	  h_GEN_Hists->fill(event);
-
-	  // Fill a new hist with some cut(s):
-	  if(inv_mass(event.get(h_tstartstar_hyp).ttbar_hyp().tophad_v4()) > 165){
-	    h_RecoPlots_Mtcut->fill(event);
-	    h_afterMtcut->fill(event);
-	  }
-	}
+  if(debug){cout << "Starting to construct all TstarTstar Hypothesiseseses" << endl;}
+  TstarHypsCreated = TstarTstarHypCreator->process(event);
+  if(TstarHypsCreated){
+    h_afterHypCreation->fill(event);
+    bestHypFound = TstarTstarHypSelector->process(event);
+    if(bestHypFound){
+      h_RecoPlots_Full->fill(event);
+      h_afterReco_Full->fill(event);
+      h_GEN_Hists->fill(event);
+      
+      bool is_toptagevt = event.get(h_flag_toptagevent);
+      if(is_toptagevt){
+	h_RecoPlots_ttag->fill(event);
+	h_afterReco_ttag->fill(event);
+      }
+      else{
+	h_RecoPlots_nottag->fill(event);
+	h_afterReco_nottag->fill(event);	  
       }
     }
   }
-  else if(is_tgtgamma){
-    // TODO
-  }
-
+  
   // Filling output for DNN
   // TODO put this in extra file that you pass an hypothesis
   if(forDNN && bestHypFound){
@@ -294,7 +295,7 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   }
   
   
-  if(doGen && TstarHypsCreated){
+  if(is_MC && TstarHypsCreated){
     if(debug){ cout << "Doing GEN matching check" << endl;}
     // ##### GEN Matching
     ReconstructionTstarHypothesis hyp_tmp = event.get(h_tstartstar_hyp);
@@ -307,7 +308,7 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   }
   
   if(debug){cout << "Done ##################################" << endl;}
-  return bestHypFound;
+  return TstarHypsCreated;
 }
 
 // as we want to run the ExampleCycleNew directly with AnalysisModuleRunner,

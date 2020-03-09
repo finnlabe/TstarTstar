@@ -59,13 +59,11 @@ namespace uhh2 {
 
   class TopTagEventSelection: public Selection {
   public:
-    explicit TopTagEventSelection(const TopJetId& tjet_id=CMSTopTag(), float minDR_jet_ttag=1.2);
+    explicit TopTagEventSelection(const TopJetId& tjet_id=CMSTopTag());
     virtual bool passes(const Event&) override;
 
   private:
     TopJetId topjetID_;
-    //std::unique_ptr<Selection> topjet1_sel_;
-    float minDR_jet_toptag_;
   };
   /////
   

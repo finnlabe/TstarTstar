@@ -11,6 +11,7 @@
 #include "UHH2/common/include/PhotonIds.h"
 #include <UHH2/common/include/MuonIds.h>
 #include "UHH2/common/include/MCWeight.h"
+#include <UHH2/common/include/TriggerSelection.h>
 
 #include "UHH2/TstarTstar/include/TstarTstarSelections.h"
 #include "UHH2/TstarTstar/include/TstarTstarHists.h"
@@ -40,12 +41,21 @@ private:
   std::unique_ptr<CommonModules> common;
   
   // Declare the Selections to use. Use unique_ptr to ensure automatic call of delete in the destructor, to avoid memory leaks.
+  unique_ptr<TopJetCleaner> AK8cleaner;
+  unique_ptr<TopJetCleaner> HOTVRcleaner;
   unique_ptr<Selection> met_sel;
+  unique_ptr<Selection> triggerSingleLeptonEle1_sel;
+  unique_ptr<Selection> triggerSingleLeptonEle2_sel;
+  unique_ptr<Selection> triggerSingleLeptonEle3_sel;
+  unique_ptr<Selection> triggerSingleLeptonMu1_sel;
+  unique_ptr<Selection> triggerSingleLeptonMu2_sel;
+  unique_ptr<Selection> triggerSingleLeptonMu3_sel;
+  unique_ptr<Selection> triggerSingleLeptonMu4_sel;
   
   // ##### Histograms #####
   // Store the Hists collection as member variables. Again, use unique_ptr to avoid memory leaks.
-  std::unique_ptr<Hists> h_nocuts,     h_common,     h_lepsel,     h_AK8jetsel,     h_AK4jetsel,     h_METsel;
-  std::unique_ptr<Hists> h_nocuts_gen, h_common_gen, h_lepsel_gen, h_AK8jetsel_gen, h_AK4jetsel_gen, h_METsel_gen;
+  std::unique_ptr<Hists> h_nocuts,     h_common,     h_lepsel,     h_AK8jetsel,     h_AK4jetsel,     h_METsel,     h_trigger;
+  std::unique_ptr<Hists> h_nocuts_gen, h_common_gen, h_lepsel_gen, h_AK8jetsel_gen, h_AK4jetsel_gen, h_METsel_gen, h_trigger_gen;
 
   std::unique_ptr<uhh2::AnalysisModule> ttgenprod;
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
@@ -82,7 +92,7 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
     if(ctx.get("channel") == "tgtg") is_tgtg = true;
     if(ctx.get("channel") == "tgtgamma") is_tgtgamma = true;
   }
-  
+
   // 1. setup modules. CommonModules
   common.reset(new CommonModules());
   common->disable_mcpileupreweight(); //FixME: PU re-weighting crushes TODO
@@ -92,18 +102,21 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   ElectronId eleID; 
   double electron_pt(20.);
   eleID = ElectronID_Summer16_tight_noIso;
-  common->set_electron_id(AndId<Electron>(PtEtaSCCut(electron_pt, 2.5), eleID));
+  common->set_electron_id(AndId<Electron>(PtEtaSCCut(electron_pt, 2.4), eleID));
 
   //Muon
   MuonId muID;
   double muon_pt(20.);
   muID = MuonID(Muon::Highpt);
-  common->set_muon_id(AndId<Muon>(PtEtaCut(muon_pt, 2.4), muID));
+  common->set_muon_id(AndId<Muon>(PtEtaCut(muon_pt, 2.5), muID));
 
   // Jets
   common->switch_jetlepcleaner();
   common->switch_jetPtSorter();
-  common->set_jet_id(JetPFID(JetPFID::WP_TIGHT_PUPPI));
+  double jet_pt(30.);
+  common->set_jet_id(AndId<Jet>(PtEtaCut(jet_pt, 2.5), JetPFID(JetPFID::WP_TIGHT_PUPPI)));
+  AK8cleaner.reset(new TopJetCleaner(ctx, PtEtaCut(150.0, 2.5)));
+  HOTVRcleaner.reset(new TopJetCleaner(ctx, PtEtaCut(150.0, 2.5), "hotvrPuppi"));
 
   // init common.
   common->init(ctx);
@@ -114,9 +127,19 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   }
 
   // 2. set up selections
+  
+  // Triggers
+  triggerSingleLeptonMu1_sel.reset(new TriggerSelection("HLT_Mu50_v*"));
+  triggerSingleLeptonMu2_sel.reset(new TriggerSelection("HLT_Mu55_v*"));
+  triggerSingleLeptonMu3_sel.reset(new TriggerSelection("HLT_IsoMu24_v*"));
+  triggerSingleLeptonMu4_sel.reset(new TriggerSelection("HLT_IsoTkMu24_v*"));
 
+  triggerSingleLeptonEle1_sel.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
+  triggerSingleLeptonEle2_sel.reset(new TriggerSelection("HLT_Ele25_eta2p1_WPTight_Gsf_v*"));
+  triggerSingleLeptonEle3_sel.reset(new TriggerSelection("HLT_Ele32_eta2p1_WPTight_Gsf_v*"));
+  
   // MET selection
-  met_sel.reset(new METCut  (30.,1e6));
+  met_sel.reset(new METCut  (30.,1e9));
 
   // 3. Set up Hists classes:
   h_nocuts.reset(new TstarTstarHists(ctx, "NoCuts"));
@@ -125,6 +148,8 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   h_AK8jetsel.reset(new TstarTstarHists(ctx, "AfterAK8jets"));
   h_AK4jetsel.reset(new TstarTstarHists(ctx, "AfterAK4jets"));
   h_METsel.reset(new TstarTstarHists(ctx, "AfterMET"));
+  h_trigger.reset(new TstarTstarHists(ctx, "AfterTrigger"));
+ 
 
   h_nocuts_gen.reset(new TstarTstarHists(ctx, "NoCuts_gen"));
   h_common_gen.reset(new TstarTstarHists(ctx, "AfterCommon_gen"));
@@ -132,6 +157,7 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   h_AK8jetsel_gen.reset(new TstarTstarHists(ctx, "AfterAK8jets_gen"));
   h_AK4jetsel_gen.reset(new TstarTstarHists(ctx, "AfterAK4jets_gen"));
   h_METsel_gen.reset(new TstarTstarHists(ctx, "AfterMET_gen"));
+  h_trigger_gen.reset(new TstarTstarHists(ctx, "AfterTrigger_gen"));
 
 }
 
@@ -156,6 +182,8 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   if(debug) cout<<"Filled hists without any cuts, and GEN with no cuts"<<endl;
 
   if(!(common->process(event))) return false;
+  if(!(AK8cleaner->process(event))) return false;
+  if(!(HOTVRcleaner->process(event))) return false;
   h_common->fill(event);
   h_common_gen->fill(event);
   if(debug) cout<<"Filled hists after cleaning"<<endl;
@@ -190,10 +218,20 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   h_METsel->fill(event);
   h_METsel_gen->fill(event);
   if(debug) cout<<"Filled hists after MET"<<endl;
-  if(debug) cout<<"passed all cuts"<<endl;
 
+  // Trigger
+  bool pass_trigger = false;
+  bool pass_trigger_SingleMu = (triggerSingleLeptonMu1_sel->passes(event) || triggerSingleLeptonMu2_sel->passes(event) || triggerSingleLeptonMu3_sel->passes(event) || triggerSingleLeptonMu4_sel->passes(event));
+  if(pass_trigger_SingleMu && (event.muons->size() == 1)){ pass_trigger = true; }
+  bool pass_trigger_SingleEle = (triggerSingleLeptonEle1_sel->passes(event) || triggerSingleLeptonEle2_sel->passes(event) || triggerSingleLeptonEle3_sel->passes(event));
+  if(pass_trigger_SingleEle && (event.electrons->size() == 1)){ pass_trigger = true; }
+  if(!pass_trigger) return false;
+  h_trigger->fill(event);
+  h_trigger_gen->fill(event);
+  if(debug) cout<<"Filled hists after Trigger"<<endl;
+  
   if(debug) cout << "########### Done with preselection! ###########" << endl << endl;
-
+  
   return true;
 }
 

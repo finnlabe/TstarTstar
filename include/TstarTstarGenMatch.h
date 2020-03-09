@@ -13,6 +13,21 @@
 #include "UHH2/TstarTstar/include/TstarTstarSelections.h"
 
 
+class TstarTstarGenDiscriminator : uhh2::AnalysisModule{
+
+public:
+  explicit TstarTstarGenDiscriminator(uhh2::Context&);
+  virtual bool process(uhh2::Event&) override;
+
+ private:
+  uhh2::Event::Handle<std::vector<ReconstructionTstarHypothesis>> h_tstartstar_hyp_vector;
+  uhh2::Event::Handle<ReconstructionTstarHypothesis> h_tstartstar_hyp;
+  uhh2::Event::Handle<TTbarGen> h_ttbargen;
+
+  bool is_tgtg, is_tgtgamma;
+
+};
+
 class TstarTstarGenMatcher : uhh2::AnalysisModule{
 
 public:

@@ -2,11 +2,11 @@
 <!DOCTYPE JobConfiguration PUBLIC "" "JobConfig.dtd" [
 
 
-<!ENTITY CHANNEL "tgtg">
+<!ENTITY CHANNEL "HOTVR">
 <!ENTITY b_Cacheable "False">
 <!ENTITY NEVT "-1">
-<!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/MCStudy/&CHANNEL;/">
-<!ENTITY INPUTdir  "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/&CHANNEL;/">
+<!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/MCStudy/HOTVR/">
+<!ENTITY INPUTdir  "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/HOTVR/">
 ]>
 
 <!--
@@ -112,9 +112,8 @@
 	    <Item Name="MuonCollection"          Value="slimmedMuonsUSER"/>
 	    <Item Name="JetCollection"           Value="jetsAk4Puppi"/>
 	    <Item Name="GenJetCollection"        Value="slimmedGenJets"/> 
-	    <Item Name="TopJetCollection"        Value="jetsAk8CHSSubstructure_SoftDropCHS"/>
-	    <Item Name="GenTopJetCollection"     Value="genjetsAk8SubstructureSoftDrop"/>  <!-- Check odinary ak8GenJetsFat !--> <!-- new in ntuples! -->
-	    <Item Name="TopPuppiJetCollection"   Value="jetsAk8PuppiSubstructure_SoftDropPuppi"/>
+	    <Item Name="TopJetCollection"        Value="hotvrPuppi"/>
+	    <Item Name="GenTopJetCollection"     Value="hotvrGen"/>
 	    <Item Name="METName"                 Value="slimmedMETsPuppi"/>
 	    <Item Name="genMETName"              Value="slimmedMETs_GenMET"/>
 	    <Item Name="lumi_file" Value="/nfs/dust/cms/user/karavdia/CMSSW_10_2_10/src/UHH2/common/data/2016/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root"/>

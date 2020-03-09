@@ -4,7 +4,7 @@
 // Run it with following command:
 // root -l -b -q FitDeltaM.C
 
-void FitDeltaM(TString channel = "tgtg", TString subpath="RecoPlots_GEN", TString histname="deltaM_Tstar"){
+void FitTopMass(TString channel = "tgtg", TString subpath="RecoPlots_GEN", TString histname="Mtophad"){
   
   Double_t w = 800;
   Double_t h = 600;
@@ -15,16 +15,16 @@ void FitDeltaM(TString channel = "tgtg", TString subpath="RecoPlots_GEN", TStrin
 
 
   TString path = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/MCStudy/tgtg/hadded/";
-  TString filename = "fullSignal.root";
+  TString filename = "uhh2.AnalysisModuleRunner.MC.TstarTstar_M-700.root";
   
   TCanvas *c1_hist = new TCanvas("chist", "c", w, h);
 
   TFile *input = TFile::Open(path+filename);
   TH1D *hist = (TH1D*)input->Get(subpath+"/"+histname); //histogram
   if(!hist) cout<<"Hist is empty"<<endl;
-  TF1 *fit = new TF1("fit", "gaus", -2, 2);
-  hist->Fit(fit, "", "SAME", -0.5, 0.5);
-  hist->GetXaxis()->SetTitle("#DeltaM_{T*T*} [GeV]");
+  TF1 *fit = new TF1("fit", "gaus", 0, 500);
+  hist->Fit(fit, "", "SAME", 0, 500);
+  hist->GetXaxis()->SetTitle("M_{t} [GeV]");
   hist->GetYaxis()->SetTitle("Events / GeV");
   hist->SetTitle("");
   hist->SetMarkerStyle(20);
@@ -34,5 +34,5 @@ void FitDeltaM(TString channel = "tgtg", TString subpath="RecoPlots_GEN", TStrin
   hist->Draw("hist");
   fit->Draw("same");
 
-  c1_hist->SaveAs("FitDeltaM.pdf");
+  c1_hist->SaveAs("Fit"+histname+".pdf");
 }

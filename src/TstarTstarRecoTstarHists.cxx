@@ -30,9 +30,7 @@ TstarTstarRecoTstarHists::TstarTstarRecoTstarHists(Context & ctx, const string &
   // ###### Histograms ######
 
   // #### M_Tstar
-  // tgtgamma
-  //book<TH1F>("M_Tstar_gluon", "M_{T^{*}_{g}} [GeV]", 100, 0, 3000);
-  //book<TH1F>("M_Tstar_gamma", "M_{T^{*}_{#gamma}} [GeV]", 100, 0, 3000);
+  book<TH1F>("M_Tstar", "Mass T^{*} [GeV]", 50, 0, 3000);
   // tgtg
   book<TH1F>("M_Tstar_lep", "Mass T^{*}_{tgtg,lep} [GeV]", 50, 0, 3000);
   book<TH1F>("M_Tstar_had", "Mass T^{*}_{tgtg,had} [GeV]", 50, 0, 3000);
@@ -54,6 +52,33 @@ TstarTstarRecoTstarHists::TstarTstarRecoTstarHists(Context & ctx, const string &
   book<TH1F>("Pt_gluon_Tstar_lep", "p_{T} gluon, T^{*}_{tgtg,lep} [GeV]", 50, 0, 1000);
   book<TH1F>("Pt_gluon_Tstar_had", "p_{T} gluon, T^{*}_{tgtg,had} [GeV]", 50, 0, 1000);
   book<TH1F>("Pt_ratio_Tstar_lep_to_Tstar_had", "(p_{T} T^{*}_{tgtg,lep})/(p_{T} T^{*}_{tgtg,had})", 50, 0, 1e1);
+
+  // #### DNN Hists ####
+
+  book<TH1F>("DNN_hadtopjet_pt", "p_{T, jet_{had top}} [GeV]", 50, 0, 1000);
+  book<TH1F>("DNN_hadtopjet_eta", "#eta_{jet_{had top}} [GeV]", 30, -3, 3);
+  book<TH1F>("DNN_hadtopjet_phi", "#phi_{jet_{had top}} [GeV]", 25, -3.2, 3.2);
+
+  book<TH1F>("DNN_leptopjet_pt", "p_{T, jet_{lep top}} [GeV]", 50, 0, 1000);
+  book<TH1F>("DNN_leptopjet_eta", "#eta_{jet_{lep top}} [GeV]", 30, -3, 3);
+  book<TH1F>("DNN_leptopjet_phi", "#phi_{jet_{lep top}} [GeV]", 25, -3.2, 3.2);
+
+  book<TH1F>("DNN_lepton_pt", "p_{T, lepton} [GeV]", 50, 0, 1000);
+  book<TH1F>("DNN_lepton_eta", "#eta_{lepton} [GeV]", 30, -3, 3);
+  book<TH1F>("DNN_lepton_phi", "#phi_{lepton} [GeV]", 25, -3.2, 3.2);
+
+  book<TH1F>("DNN_MET_pt", "p_{T, MET} [GeV]", 50, 0, 1000);
+  book<TH1F>("DNN_MET_eta", "#eta_{MET} [GeV]", 30, -3, 3);
+  book<TH1F>("DNN_MET_phi", "#phi_{MET} [GeV]", 25, -3.2, 3.2);
+
+  book<TH1F>("DNN_gluon1_pt", "p_{T, g_1} [GeV]", 50, 0, 1000);
+  book<TH1F>("DNN_gluon1_eta", "#eta_{g_1} [GeV]", 30, -3, 3);
+  book<TH1F>("DNN_gluon1_phi", "#phi_{g_1} [GeV]", 25, -3.2, 3.2);
+
+  book<TH1F>("DNN_gluon2_pt", "p_{T, g_2} [GeV]", 50, 0, 1000);
+  book<TH1F>("DNN_gluon2_eta", "#eta_{g_2} [GeV]", 30, -3, 3);
+  book<TH1F>("DNN_gluon2_phi", "#phi_{g_2} [GeV]", 25, -3.2, 3.2);
+
 
 }
 
@@ -86,6 +111,8 @@ void TstarTstarRecoTstarHists::fill(const Event & event){
   // tgtg
   double mTstarlep = inv_mass(tstar_hyp_best.tstarlep_v4());
   double mTstarhad = inv_mass(tstar_hyp_best.tstarhad_v4());
+  double mTstar = (mTstarlep+mTstarhad)/2;
+  hist("M_Tstar")->Fill(mTstar, weight);
   hist("M_Tstar_lep")->Fill(mTstarlep, weight);
   hist("M_Tstar_had")->Fill(mTstarhad, weight);
   hist("deltaM_Tstar")->Fill((mTstarlep-mTstarhad)*2/(mTstarlep+mTstarhad), weight);
@@ -115,9 +142,46 @@ void TstarTstarRecoTstarHists::fill(const Event & event){
   hist("Pt_gluon_Tstar_had")->Fill(tstar_hyp_best.gluon2_v4().pt(), weight);
   hist("Pt_ratio_Tstar_lep_to_Tstar_had")->Fill(tstar_hyp_best.tstarlep_v4().pt()/tstar_hyp_best.tstarhad_v4().pt(), weight);
   
+  // ##########################
+  // Filling output for DNN
+  // TODO put this in extra file that you pass an hypothesis
+  if(debug) cout << "Start filling of DNN stuff" << endl;
+  ReconstructionTstarHypothesis best_hyp = event.get(h_tstartstar_hyp);
+  ReconstructionHypothesis best_hyp_ttbar = best_hyp.ttbar_hyp();
+  
+  hist("DNN_hadtopjet_pt")->Fill(best_hyp_ttbar.tophad_v4().pt(), weight);
+  hist("DNN_hadtopjet_eta")->Fill(best_hyp_ttbar.tophad_v4().eta(), weight);
+  hist("DNN_hadtopjet_phi")->Fill(best_hyp_ttbar.tophad_v4().phi(), weight);
+  if(debug) cout << "Done with ttagjet." << endl;
+  
+  hist("DNN_lepton_pt")->Fill( best_hyp_ttbar.lepton().pt(), weight);
+  hist("DNN_lepton_eta")->Fill( best_hyp_ttbar.lepton().eta(), weight);
+  hist("DNN_lepton_phi")->Fill( best_hyp_ttbar.lepton().phi(), weight);
+  if(debug) cout << "Done with lepton." << endl;
+  
+  hist("DNN_MET_pt")->Fill( best_hyp_ttbar.neutrino_v4().pt(), weight);
+  hist("DNN_MET_eta")->Fill(best_hyp_ttbar.neutrino_v4().eta(), weight);
+  hist("DNN_MET_phi")->Fill( best_hyp_ttbar.neutrino_v4().phi(), weight);
+  if(debug) cout << "Done with neutrino." << endl;
+  
+  hist("DNN_leptopjet_pt")->Fill( best_hyp_ttbar.blep_v4().pt(), weight);
+  hist("DNN_leptopjet_eta")->Fill( best_hyp_ttbar.blep_v4().eta(), weight);
+  hist("DNN_leptopjet_phi")->Fill( best_hyp_ttbar.blep_v4().phi(), weight);
+  if(debug) cout << "Done with leptopjet." << endl;
+  
+  hist("DNN_gluon1_pt")->Fill(best_hyp.gluon1_v4().pt(), weight);
+  hist("DNN_gluon1_eta")->Fill( best_hyp.gluon1_v4().eta(), weight);
+  hist("DNN_gluon1_phi")->Fill( best_hyp.gluon1_v4().phi(), weight);
+  if(debug) cout << "Done with gluon1." << endl;
+  
+  hist("DNN_gluon2_pt")->Fill(best_hyp.gluon2_v4().pt(), weight);
+  hist("DNN_gluon2_eta")->Fill( best_hyp.gluon2_v4().eta(), weight);
+  hist("DNN_gluon2_phi")->Fill( best_hyp.gluon2_v4().phi(), weight);
+  if(debug) cout << "Done with gluon2." << endl;
+
   if(debug){cout << "Finished filling hists, return to main!" << endl;}
 
-  
+
 }
 
 

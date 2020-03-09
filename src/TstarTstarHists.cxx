@@ -167,7 +167,7 @@ void TstarTstarHists::fill(const Event & event){
   if(debug) cout << "Finished filling PV observables." << endl;
 
   hist("N_AK8jets")->Fill(event.topjets->size(), weight);
-  const TopJetId topjetID_ = AndId<TopJet>(TopTagMassWindow(), TopTagSubbtag(DeepCSVBTag::WP_LOOSE),  Tau32(0.65));
+  const TopJetId topjetID_ = AndId<TopJet>(TopTagMassWindow(), /*TopTagSubbtag(DeepCSVBTag::WP_LOOSE),*/ Tau32(0.8));
   int toptaggedjets = 0;
   for(auto & topjet : * event.topjets){ if(topjetID_(topjet, event)) toptaggedjets++;}
   hist("N_toptagged_AK8jets")->Fill(toptaggedjets, weight);

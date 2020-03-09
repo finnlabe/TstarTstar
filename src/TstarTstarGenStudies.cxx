@@ -16,7 +16,7 @@
 #include "UHH2/TstarTstar/include/TstarTstarHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarGenHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarGenRecoMatchedHists.h"
-#include "UHH2/TstarTstar/include/TstarTstarTESTHists.h"
+#include "UHH2/TstarTstar/include/TstarTstarGenInfoHists.h"
 
 
 using namespace std;
@@ -29,10 +29,10 @@ namespace uhh2 {
  * blub
  *
  */
-class TstarTstarTESTGEN: public AnalysisModule {
+class TstarTstarGenStudies: public AnalysisModule {
 public:
     
-  explicit TstarTstarTESTGEN(Context & ctx);
+  explicit TstarTstarGenStudies(Context & ctx);
   virtual bool process(Event & event) override;
 
 private:
@@ -50,9 +50,9 @@ private:
 };
 
 
-TstarTstarTESTGEN::TstarTstarTESTGEN(Context & ctx){
+TstarTstarGenStudies::TstarTstarGenStudies(Context & ctx){
   
-  h_GenInfo.reset(new TstarTstarTESTHists(ctx, "GenInfo"));
+  h_GenInfo.reset(new TstarTstarGenInfoHists(ctx, "GenInfo"));
   h_GenHists.reset(new TstarTstarGenHists(ctx, "GenHists"));  
     
   ttgenprod.reset(new TTbarGenProducer(ctx, "ttbargen", false));
@@ -61,7 +61,7 @@ TstarTstarTESTGEN::TstarTstarTESTGEN(Context & ctx){
 }
 
 
-bool TstarTstarTESTGEN::process(Event & event) {
+bool TstarTstarGenStudies::process(Event & event) {
    
   ttgenprod->process(event);
 
@@ -73,6 +73,6 @@ bool TstarTstarTESTGEN::process(Event & event) {
 
 // as we want to run the ExampleCycleNew directly with AnalysisModuleRunner,
 // make sure the TstarTstarPreselectionModule is found by class name. This is ensured by this macro:
-UHH2_REGISTER_ANALYSIS_MODULE(TstarTstarTESTGEN)
+UHH2_REGISTER_ANALYSIS_MODULE(TstarTstarGenStudies)
 
 }

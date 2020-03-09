@@ -31,8 +31,10 @@ namespace {
     double chi2_top_lep = pow((inv_mass(ttbar_hyp.toplep_v4()) - (mtoplep_))/(sigmatoplep_) ,2);
     chi2 += chi2_top_lep;
 
-    double sigma_deltaM_Tstar = 400.;
-    double chi2_deltaM_Tstar = pow( (inv_mass(hyp.tstarlep_v4()) - inv_mass(hyp.tstarhad_v4()) - 50)/(sigma_deltaM_Tstar) ,2);
+    double sigma_deltaM_Tstar = 0.2532;
+    double mean_deltaM_Tstar = 0.1175;
+    double deltaM_norm = (inv_mass(hyp.tstarlep_v4()) - inv_mass(hyp.tstarhad_v4()))*2/(inv_mass(hyp.tstarlep_v4()) + inv_mass(hyp.tstarhad_v4()));
+    double chi2_deltaM_Tstar = pow( (deltaM_norm - mean_deltaM_Tstar)/(sigma_deltaM_Tstar) ,2);
     chi2 += chi2_deltaM_Tstar;
 
     //cout << "Hyp detailed chi2:    top_had = " << chi2_top_had << "    top_lep = " << chi2_top_lep << "    deltaM_Tstar = " << chi2_deltaM_Tstar << endl;
@@ -75,7 +77,8 @@ TstarTstar_tgtg_TopTag_Reconstruction::TstarTstar_tgtg_TopTag_Reconstruction(Con
   m_neutrinofunction(neutrinofunction), topjetID_(tjetid), minDR_topjet_jet_(minDR_tj_j) {
 
   h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
-  h_tstartstar_hyp_vector = ctx.get_handle<std::vector<ReconstructionTstarHypothesis>>("TstarTstar_Hyp_Vector");  
+  h_tstartstar_hyp_vector = ctx.get_handle<std::vector<ReconstructionTstarHypothesis>>("TstarTstar_Hyp_Vector");
+  h_flag_toptagevent = ctx.get_handle<int>("flag_toptagevent");
 }
 
 // #########################################
@@ -86,7 +89,9 @@ TstarTstar_tgtg_TopTag_Reconstruction::TstarTstar_tgtg_TopTag_Reconstruction(Con
 bool TstarTstar_tgtg_TopTag_Reconstruction::process(uhh2::Event& event){
 
   bool debug = false;
-  bool cuts = false;
+  bool addCuts = false;
+
+  bool is_toptagevt = event.get(h_flag_toptagevent);
 
   if(debug){cout << "Hello World from Tstartstar_Full_Toptag_Reconstruction!" << endl;}
 
@@ -113,28 +118,24 @@ bool TstarTstar_tgtg_TopTag_Reconstruction::process(uhh2::Event& event){
   const Particle& lepton = event.get(h_primlep); // Primary Lepton has to be set
   std::vector<LorentzVector> neutrinos = m_neutrinofunction(lepton.v4(), event.met->v4());
 
-  if(cuts) cout << "Start building hyps" << endl;
-  
   for(uint i = 0; i < event.topjets->size(); i++){
     TopJet tj = event.topjets->at(i);
     
-    if(!topjetID_(tj, event)) continue; // loop over all top tagged jets
+    if(is_toptagevt && !topjetID_(tj, event)) continue; // loop over all top tagged jets if one is present
 
-    if(cuts) cout << "Found at least one ttag" << endl;
+    if(addCuts && (tj.pt() < 350 || fabs(tj.eta()) > 2.5 )) continue;
 
     if(debug){cout << "Finding bjet candidate for leptonic top." << endl;}
     std::vector<const Jet*> tlep_jets;
     tlep_jets.reserve(event.jets->size());
     for(const auto & jet : *event.jets){
-      if((deltaR(tj, jet) > minDR_topjet_jet_) /*&& (jet.btag_DeepJet() > 0.0494)*/){tlep_jets.push_back(&jet);}
+      if(deltaR(tj, jet) > minDR_topjet_jet_){tlep_jets.push_back(&jet);}
     }
 
     for(const auto & tlep_jet : tlep_jets){
-      if(cuts) cout << "Found at least one seperated ak4Jet" << endl;
       // TODO Save Btag in ReconstructionTstarHypothesis
       if(debug){cout << "Finding Neutrino candidates..." << endl;}
       for(const auto& neutrino_p4 : neutrinos){ // loop over Neutrinos
-	if(cuts) cout << "Found at least one neutrino" << endl;
 	if(debug){cout << "Finding Gluon candidates..." << endl;}
 	std::vector<LorentzVector> gluonCands;
 	for(uint j = 0; j < event.topjets->size(); j++){
@@ -142,14 +143,18 @@ bool TstarTstar_tgtg_TopTag_Reconstruction::process(uhh2::Event& event){
 	  TopJet other_tj = event.topjets->at(j);
 	  
 	  if((i == j) || (deltaR(other_tj, *tlep_jet) < minDR_topjet_jet_)) continue;
+	  else if((addCuts && gluonCands.size() == 0) && (other_tj.pt() < 250)) continue;
+	  else if((addCuts && gluonCands.size() == 1) && (other_tj.pt() < 150)) continue;
 	  else if(gluonCands.size() == 2) continue; // only take leading two gluon candidates. shortens calculation time and improves result.
-	  
+
 	  gluonCands.push_back(event.topjets->at(j).v4());
 	  
-	}	
-	if(gluonCands.size() < 2) continue;
-	
-	if(cuts) cout << "Found two gluon candidates" << endl;
+	}
+	if(debug) cout << "Check gluons... " << endl;
+	if(gluonCands.size() < 2) {
+	  if(debug) cout << "Not enough gluons" << endl;
+	  continue;
+	}
 
 	if(debug){cout << "Starting Hypothesis construction..." << endl;}
 	ReconstructionHypothesis ttbar_hyp;
@@ -166,14 +171,15 @@ bool TstarTstar_tgtg_TopTag_Reconstruction::process(uhh2::Event& event){
 		
 	ttbar_hyp.set_toplep_v4(toplep_v4);
 	ttbar_hyp.set_tophad_v4(tophad_v4);
+
+	if(addCuts && inv_mass(tophad_v4) < 145) continue;
+	if(addCuts && inv_mass(neutrino_p4 + lepton.v4()) > 153.2) continue;
 	
 	// Have one ttbar. Now create TstarTstar with all combinations of gluons. 
 	for(uint g1 = 0; g1 < gluonCands.size(); g1++){
 	  for(uint g2 = 0; g2 < gluonCands.size(); g2++){
 	    if(g1 == g2) continue;
 	    
-	    if(cuts) cout << "Built a Hyp!" << endl;
-
 	    LorentzVector gluon1_v4 = gluonCands.at(g1);
 	    LorentzVector gluon2_v4 = gluonCands.at(g2);
 	    
@@ -202,7 +208,6 @@ bool TstarTstar_tgtg_TopTag_Reconstruction::process(uhh2::Event& event){
     }
   }
 
-  if(cuts) cout << endl << "FINISHED EVENT!!!!" << endl << endl;
   
   if(debug){cout << "Done, return to main" << endl;}
   event.set(h_tstartstar_hyp_vector, TstarTstar_hyp_vector);
@@ -225,7 +230,7 @@ bool TstarTstar_Discrimination::process(uhh2::Event& event){
   // Read in all Hypothesiseses
   // save chi2 in each Hyp.
   // Chose hyp with lowest chi2
-  // save in h_tstartstar_hyp
+  // save in h_tstartstar_hyp TODO
 
   std::vector<ReconstructionTstarHypothesis> hyp_vector = event.get(h_tstartstar_hyp_vector);
 

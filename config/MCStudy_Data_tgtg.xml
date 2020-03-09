@@ -4,7 +4,7 @@
 
 <!ENTITY CHANNEL "tgtg">
 <!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/MCStudy/&CHANNEL;/">
-<!ENTITY INPUTdir  "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/&CHANNEL;">
+<!ENTITY INPUTdir  "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/&CHANNEL;/">
 ]>
 
 <!--
@@ -22,64 +22,88 @@
 
         <!-- Verion attribute must have year in it, same as used in ntuple config, e.g. 2018, 2016v3, etc -->
 
-	<!-- ##### gluon gluon ##### -->
-
-	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-700_Run2016v3" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-700_Run2016v3.root" Lumi="0.0"/>
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleElectron2016_RunB_2016v3" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.SingleElectron2016_RunB_2016v3.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="33400" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-800_Run2016v3" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-800_Run2016v3.root" Lumi="0.0"/>
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleElectron2016_RunC_2016v3" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.SingleElectron2016_RunC_2016v3.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-900_Run2016v3" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-900_Run2016v3.root" Lumi="0.0"/>
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleElectron2016_RunD_2016v3" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.SingleElectron2016_RunD_2016v3.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1000_Run2016v3" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1000_Run2016v3.root" Lumi="0.0"/>
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleElectron2016_RunE_2016v3" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.SingleElectron2016_RunE_2016v3.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1100_Run2016v3" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1100_Run2016v3.root" Lumi="0.0"/>
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleElectron2016_RunF_2016v3" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.SingleElectron2016_RunF_2016v3.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="34600" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1200_Run2016v3" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1200_Run2016v3.root" Lumi="0.0"/>
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleElectron2016_RunG_2016v3" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.SingleElectron2016_RunG_2016v3.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1300_Run2016v3" Cacheable="False">
-          <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1300_Run2016v3.root" Lumi="0.0"/>
-	  <InputTree Name="AnalysisTree" />
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleElectron2016_RunH_2016v3" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.SingleElectron2016_RunH_2016v3.root" Lumi="0.0"/>
+          <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
+	
+	<!-- ##### muon ##### -->
 
-        <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1400_Run2016v3" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1400_Run2016v3.root" Lumi="0.0"/>
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleMuon2016_RunB_2016v3" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.SingleMuon2016_RunB_2016v3.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1500_Run2016v3" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1500_Run2016v3.root" Lumi="0.0"/>
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleMuon2016_RunC_2016v3" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.SingleMuon2016_RunC_2016v3.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="35000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1600_Run2016v3" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1600_Run2016v3.root" Lumi="0.0"/>
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleMuon2016_RunD_2016v3" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.SingleMuon2016_RunD_2016v3.root" Lumi="0.0"/>
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleMuon2016_RunE_2016v3" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.SingleMuon2016_RunE_2016v3.root" Lumi="0.0"/>
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleMuon2016_RunF_2016v3" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.SingleMuon2016_RunF_2016v3.root" Lumi="0.0"/>
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleMuon2016_RunG_2016v3" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.SingleMuon2016_RunG_2016v3.root" Lumi="0.0"/>
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleMuon2016_RunH_2016v3" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.SingleMuon2016_RunH_2016v3.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
@@ -88,17 +112,13 @@
         <UserConfig>
             <!-- define which collections to read from the input. Only specify what you need to save I/O time -->
 	    <Item Name="PrimaryVertexCollection" Value="offlineSlimmedPrimaryVertices"/>
-	    <Item Name="GenParticleCollection"   Value="GenParticles"/>
 	    <Item Name="ElectronCollection"      Value="slimmedElectronsUSER"/>
 	    <Item Name="PhotonCollection"        Value="slimmedPhotonsUSER"/>
 	    <Item Name="MuonCollection"          Value="slimmedMuonsUSER"/>
 	    <Item Name="JetCollection"           Value="jetsAk4Puppi"/>
-	    <Item Name="GenJetCollection"        Value="slimmedGenJets"/> 
 	    <Item Name="TopJetCollection"        Value="jetsAk8CHSSubstructure_SoftDropCHS"/>
-	    <Item Name="GenTopJetCollection"     Value="genjetsAk8SubstructureSoftDrop"/> <!-- Check odinary ak8GenJetsFat !--> <!-- new in ntuples! -->
 	    <Item Name="TopPuppiJetCollection"   Value="jetsAk8PuppiSubstructure_SoftDropPuppi"/>
 	    <Item Name="METName"                 Value="slimmedMETsPuppi"/>
-	    <Item Name="genMETName"              Value="slimmedMETs_GenMET"/>
 	    <Item Name="lumi_file" Value="/nfs/dust/cms/user/karavdia/CMSSW_10_2_10/src/UHH2/common/data/2016/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root"/>
 	    <Item Name="lumihists_lumi_per_bin" Value="1.0"/>
 	    

@@ -46,8 +46,8 @@ private:
   unique_ptr<AnalysisModule> LumiWeight_module;
   
   // Store the Hists collection as member variables. Again, use unique_ptr to avoid memory leaks.
-  std::unique_ptr<Hists> h_AK4cleaning,     h_AK8cleaning,     h_METsel,     h_2Dcut,     h_STcut,     h_ttagsel,     h_isoAK4;
-  std::unique_ptr<Hists> h_AK4cleaning_gen, h_AK8cleaning_gen, h_METsel_gen, h_2Dcut_gen, h_STcut_gen, h_ttagsel_gen, h_isoAK4_gen;
+  std::unique_ptr<Hists> h_AK4cleaning,     h_AK8cleaning,     h_METsel,     h_2Dcut,     h_STcut,     h_isoAK4;
+  std::unique_ptr<Hists> h_AK4cleaning_gen, h_AK8cleaning_gen, h_METsel_gen, h_2Dcut_gen, h_STcut_gen, h_isoAK4_gen;
 
   std::unique_ptr<Hists> h_AK8jetsel_3;
   std::unique_ptr<Hists> h_AK8jetsel_3_gen;
@@ -56,18 +56,14 @@ private:
   // Selections
   JetId AK4pteta;
   TopJetId AK8pteta;  
-  TopJetId ttag;
 
   unique_ptr<Selection> met_sel;
   unique_ptr<Selection> st_sel;
   unique_ptr<Selection> twodcut_sel;
-  unique_ptr<Selection> toptagevt_sel;
 
   unique_ptr<JetCleaner> AK4cleaner;
   unique_ptr<TopJetCleaner> AK8cleaner;
 
-  uhh2::Event::Handle<int> h_flag_toptagevent;
-  
   // GEN stuff
   std::unique_ptr<uhh2::AnalysisModule> ttgenprod; 
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
@@ -113,46 +109,23 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   // 2. set up selections
   if(debug) cout << "Setting up Selections." << endl;  
 
+  // 2D cut
   twodcut_sel.reset(new TwoDCut(0.4, 25.0));  // The same as in Z'->ttbar semileptonic
-
-  // Jet pt/Eta Cuts
-  AK4pteta = JetId(PtEtaCut(100, 2.1));
-  AK8pteta = TopJetId(PtEtaCut(100, 2.1));
 
   //MET selection
   met_sel.reset(new METCut  (50.,1e6));
   
-  //ST selection
-  st_sel.reset(new STCut  (500.,1e6));
-
-  // ttag
-  ttag = AndId<TopJet>(TopTagMassWindow(), TopTagSubbtag(DeepCSVBTag::WP_LOOSE),  Tau32(0.65));
-  const float minDR_topjet_jet(1.2);
-  toptagevt_sel.reset(new TopTagEventSelection(ttag, minDR_topjet_jet));
-  h_flag_toptagevent = ctx.declare_event_output<int>("flag_toptagevent");
-
-  AK4cleaner.reset(new JetCleaner(ctx, PtEtaCut(100.0, 2.5)));
-  AK8cleaner.reset(new TopJetCleaner(ctx, PtEtaCut(100.0, 2.5)));
-
   // 4. Set up Hists
   if(debug) cout << "Setting up Hists." << endl;
-  h_AK4cleaning.reset(new TstarTstarHists(ctx, "AK4cleaning"));
-  h_AK8cleaning.reset(new TstarTstarHists(ctx, "AK8cleaning"));
   h_METsel.reset(new TstarTstarHists(ctx, "AfterMET"));
   h_2Dcut.reset(new TstarTstarHists(ctx, "After2D"));
-  h_STcut.reset(new TstarTstarHists(ctx, "AfterST"));
-  h_ttagsel.reset(new TstarTstarHists(ctx, "Afterttagsel"));
   h_AK8jetsel_3.reset(new TstarTstarHists(ctx, "AfterNAK8sel_3"));
   h_isoAK4.reset(new TstarTstarHists(ctx, "AfterIsoAK4"));
 
-  h_AK4cleaning_gen.reset(new TstarTstarHists(ctx, "AK4cleaning_gen"));
-  h_AK8cleaning_gen.reset(new TstarTstarHists(ctx, "AK8cleaning_gen"));
-  h_METsel_gen.reset(new TstarTstarHists(ctx, "AfterMET_gen"));
-  h_2Dcut_gen.reset(new TstarTstarHists(ctx, "After2D_gen"));
-  h_STcut_gen.reset(new TstarTstarHists(ctx, "AfterST_gen"));
-  h_ttagsel_gen.reset(new TstarTstarHists(ctx, "Afterttagsel_gen"));
-  h_AK8jetsel_3_gen.reset(new TstarTstarHists(ctx, "AfterNAK8sel_3_gen"));
-  h_isoAK4_gen.reset(new TstarTstarHists(ctx, "AfterIsoAK4_gen"));
+  h_METsel_gen.reset(new TstarTstarGenHists(ctx, "AfterMET_gen"));
+  h_2Dcut_gen.reset(new TstarTstarGenHists(ctx, "After2D_gen"));
+  h_AK8jetsel_3_gen.reset(new TstarTstarGenHists(ctx, "AfterNAK8sel_3_gen"));
+  h_isoAK4_gen.reset(new TstarTstarGenHists(ctx, "AfterIsoAK4_gen"));
 
 }
 
@@ -169,16 +142,6 @@ bool TstarTstarSelectionModule::process(Event & event) {
     ttgenprod->process(event);
     if(debug) cout << "ttgen produced." << endl;
   }
-
-  AK4cleaner->process(event);
-  h_AK4cleaning->fill(event);
-  h_AK4cleaning_gen->fill(event);
-  if(debug) cout << "Cleaned AK4 jets." << endl;
-
-  AK8cleaner->process(event);
-  h_AK8cleaning->fill(event);
-  h_AK8cleaning_gen->fill(event);
-  if(debug) cout << "Cleaned AK8 jets." << endl;
 
   // MET Cut
   bool pass_MET =  met_sel->passes(event);
@@ -208,23 +171,8 @@ bool TstarTstarSelectionModule::process(Event & event) {
   h_2Dcut_gen->fill(event);
   if(debug) cout << "Passed 2D cut." << endl;
 
-  // ST cut
-  bool pass_ST =  st_sel->passes(event);
-  if(!pass_ST) return false;
-  h_STcut->fill(event);
-  h_STcut_gen->fill(event);
-  if(debug) cout << "Passed ST cut." << endl;
-
-  // ttag
-  const bool pass_ttag = toptagevt_sel->passes(event);
-  event.set(h_flag_toptagevent, int(pass_ttag));
-  if(!pass_ttag) return false;
-  h_ttagsel->fill(event);
-  h_ttagsel_gen->fill(event);
-  if(debug) cout << "Passed TTag cut." << endl;
-
   // HERE NOW ALL CUTS NEEDED FOR RECONSTRUCTION CODE-WISE:
-
+  
   // cut on min 3 AK8
   bool pass_ak8_njet_3 = (event.topjets->size()>2);
   if(!pass_ak8_njet_3) return false;
@@ -233,6 +181,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
   if(debug) cout << "Filled hists after AK8jetsel" << endl;
 
   // cut on min 1 isolated AK4
+  /**
   bool pass_iso_AK4jet = false;
   for(uint i = 0; i < event.topjets->size(); i++){
     TopJet tj = event.topjets->at(i);
@@ -245,7 +194,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
   h_isoAK4->fill(event);
   h_isoAK4_gen->fill(event);
   if(debug) cout << "Filled hists after isoAK4jet" << endl;
-
+  **/
 
   return true;
 }

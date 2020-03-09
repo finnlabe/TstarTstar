@@ -43,8 +43,8 @@ void cutflowPlot(){
   TString histname = "N_jets";
 
   // Defining Steps
-  std::vector<TString> preselSteps = {"AfterCommon", "AfterLepSel", "AfterAK8jets", "AfterMET"};
-  std::vector<TString> selSteps = {"AfterMET", "After2D", "AfterST", "Afterttagsel", "AfterNAK8sel_3", "AfterIsoAK4"};
+  std::vector<TString> preselSteps = {"AfterCommon", "AfterMET"};
+  std::vector<TString> selSteps = {"AfterMET", "After2D", "AfterNAK8sel_3"};
   std::vector<TString> recoSteps = {"AfterReco_Full"};
   int stepcount = preselSteps.size() + selSteps.size() + recoSteps.size();
 
@@ -55,7 +55,7 @@ void cutflowPlot(){
   // Defining Drawing options
   std::vector<int> colors_Signal = {632, 820, 432};
   std::vector<int> colors_BG = {810, 800, 600, 416};
-  std::vector<TString> labels = {"Initial", "Lepton cut", "NJet cut (loose)", "MET cut (loose)", "MET cut (strict)", "2D cut", "ST cut", "ttag cut", "NJet cut (strict)", "N Iso AK4", "After Reconstruction"};
+  std::vector<TString> labels = {"Initial", "Presel","MET", "2D", "N_AK8_Jet","AfterReco"};
 
   // ########################
   // ## Finish Definitions ##
@@ -173,14 +173,27 @@ void cutflowPlot(){
     index_draw_signal++;
   }
   
-  // Draw line after certain bin to split presel, sel, 
-  double pos1 = cutflow_BG.at(0)->GetBinLowEdge(1+preselSteps.size());
-  TLine *line1 = new TLine(pos1,1.25,pos1,1.9);
-  line1->Draw("same");
-  double pos2 = cutflow_BG.at(0)->GetBinLowEdge(1+preselSteps.size()+selSteps.size());
-  TLine *line2 = new TLine(pos2,1.25,pos2,1.9);
-  line2->Draw("same");
-
+  // Draw line after certain bin to split presel, sel,
+  bool doLine = false;
+  if(doLine){
+    double pos1 = cutflow_BG.at(0)->GetBinLowEdge(1+preselSteps.size());
+    TLine *line1 = new TLine(pos1,1.25,pos1,1.9);
+    line1->Draw("same");
+    double pos2 = cutflow_BG.at(0)->GetBinLowEdge(1+preselSteps.size()+selSteps.size());
+    TLine *line2 = new TLine(pos2,1.25,pos2,1.9);
+    line2->Draw("same");
+  }
   canvas->SaveAs("Cutflow.pdf");
+
+  // Additional console oputput: efficiency of ttbarcut
+  /**
+  int index_sample = 0;
+  for(const auto & sample : signalSamples){
+    double pre_ttag = cutflow_Signal.at(index_sample)->GetBinContent(4);
+    double post_ttag = cutflow_Signal.at(index_sample)->GetBinContent(5);
+    cout << "For " << sample << " the efficiency of the t tag cut is " << post_ttag/pre_ttag << endl;
+    index_sample++;
+  }
+  **/
 
 }

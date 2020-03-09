@@ -55,8 +55,12 @@ TstarTstarGenHists::TstarTstarGenHists(Context & ctx, const string & dirname): H
   book<TH1F>("dR_tophad_gluon_gen", "dR (tophad, gluon)", 30, 0, 6);  
   book<TH1F>("dR_toplep_gluon_gen", "dR (toplep, gluon)", 30, 0, 6);  
   book<TH1F>("dR_min_gluon_top_gen", "dR^{min}(gluon,top)", 30, 0, 6);  
-  book<TH1F>("dR_min_photon_top_gen", "dR^{min}(#gamma,top)", 30, 0, 6);  
+  book<TH1F>("dR_min_photon_top_gen", "dR^{min}(#gamma,top)", 30, 0, 6);
   book<TH1F>("dR_photon_gluon_gen", "dR(#gamma,gluon) (only for Tgamma+Tgluon)", 30, 0, 6);  
+
+  book<TH1F>("dR_hadtop_b_q1", "dR(b, q1)", 30, 0, 6);  
+  book<TH1F>("dR_hadtop_b_q2", "dR(b, q2)", 30, 0, 6);  
+  book<TH1F>("dR_hadtop_q1_q2", "dR(q1, q2)", 30, 0, 6);  
 
   is_mc = ctx.get("dataset_type") == "MC";
 }
@@ -237,7 +241,11 @@ void TstarTstarGenHists::fill(const Event & event){
   double dR_tophad_gluon = deltaR(tophad, gluonhad);
   hist("dR_toplep_gluon_gen")->Fill(dR_toplep_gluon,weight);
   hist("dR_tophad_gluon_gen")->Fill(dR_tophad_gluon,weight);
- 
+
+  hist("dR_hadtop_b_q1")->Fill(deltaR(ttbargen.BHad(), ttbargen.Q1()), weight);
+  hist("dR_hadtop_b_q2")->Fill(deltaR(ttbargen.BHad(), ttbargen.Q2()), weight);
+  hist("dR_hadtop_q1_q2")->Fill(deltaR(ttbargen.Q1(), ttbargen.Q2()), weight);
+
 }
 
 TstarTstarGenHists::~TstarTstarGenHists(){}

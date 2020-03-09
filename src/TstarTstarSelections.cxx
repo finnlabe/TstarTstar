@@ -401,20 +401,15 @@ bool uhh2::STCut::passes(const uhh2::Event& event){
 }
 
 
-uhh2::TopTagEventSelection::TopTagEventSelection(const TopJetId& tjetID, float minDR_jet_ttag):
-  topjetID_(tjetID), minDR_jet_toptag_(minDR_jet_ttag) {
+uhh2::TopTagEventSelection::TopTagEventSelection(const TopJetId& tjetID):
+  topjetID_(tjetID) {
 
 }
 
 bool uhh2::TopTagEventSelection::passes(const uhh2::Event& event){ 
 
   for(auto & topjet : * event.topjets){
-    if(topjetID_(topjet, event)) return true; // was continue;
-    
-    /**
-    for(auto & jet : * event.jets)
-      if(deltaR(jet, topjet) > minDR_jet_toptag_) return true;
-    **/
+    if(topjetID_(topjet, event)) return true; 
   }
   return false;
 }
