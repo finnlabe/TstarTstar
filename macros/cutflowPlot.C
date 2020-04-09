@@ -36,16 +36,16 @@ void cutflowPlot(){
   canvas->SetLogy();
 
   // Defining paths
-  TString pathPresel = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/tgtg/hadded/";
-  TString pathSel = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/tgtg/hadded/";
+  TString pathPresel = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/HOTVR/hadded/";
+  TString pathSel = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/HOTVR/hadded/";
   TString pathReco = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/MCStudy/tgtg/hadded/";
   TString fileprefix = "uhh2.AnalysisModuleRunner.MC.";
   TString histname = "N_jets";
 
   // Defining Steps
-  std::vector<TString> preselSteps = {"AfterCommon", "AfterMET"};
-  std::vector<TString> selSteps = {"AfterMET", "After2D", "AfterNAK8sel_3"};
-  std::vector<TString> recoSteps = {"AfterReco_Full"};
+  std::vector<TString> preselSteps = {};
+  std::vector<TString> selSteps = {"AfterMET", "After2D", "AfterNAK8sel", "AfterTtagsel", "AfterPhisel"};
+  std::vector<TString> recoSteps = {};
   int stepcount = preselSteps.size() + selSteps.size() + recoSteps.size();
 
   // Defining Samples
@@ -55,7 +55,7 @@ void cutflowPlot(){
   // Defining Drawing options
   std::vector<int> colors_Signal = {632, 820, 432};
   std::vector<int> colors_BG = {810, 800, 600, 416};
-  std::vector<TString> labels = {"Initial", "Presel","MET", "2D", "N_AK8_Jet","AfterReco"};
+  std::vector<TString> labels = {"AfterMET (initial)", "2D","N_fatjet = 1", "Ttag", "phi"};
 
   // ########################
   // ## Finish Definitions ##
@@ -65,6 +65,7 @@ void cutflowPlot(){
   std::vector<double> initial_signal;
   std::vector<double> initial_BG;
   double initial_BG_sum = 0;
+  /**
   for(const auto & sample : signalSamples){
     input = TFile::Open(pathPresel+fileprefix+sample);
     hist = (TH1D*)input->Get(preselSteps.at(0)+"/"+histname);
@@ -73,6 +74,19 @@ void cutflowPlot(){
   for(const auto & sample : BGSamples){
     input = TFile::Open(pathPresel+fileprefix+sample);
     hist = (TH1D*)input->Get(preselSteps.at(0)+"/"+histname);
+    initial_BG.push_back(hist->Integral());
+    initial_BG_sum += hist->Integral();
+  }
+  **/
+  // if no presel is present:
+  for(const auto & sample : signalSamples){
+    input = TFile::Open(pathSel+fileprefix+sample);
+    hist = (TH1D*)input->Get(selSteps.at(0)+"/"+histname);
+    initial_signal.push_back(hist->Integral());
+  }
+  for(const auto & sample : BGSamples){
+    input = TFile::Open(pathSel+fileprefix+sample);
+    hist = (TH1D*)input->Get(selSteps.at(0)+"/"+histname);
     initial_BG.push_back(hist->Integral());
     initial_BG_sum += hist->Integral();
   }
@@ -88,6 +102,7 @@ void cutflowPlot(){
 
   // Preselection
   for(const auto & step : preselSteps){
+    std::cout << "Start preselStep: " << step << endl;
     int index_sample = 0;
     for(const auto & sample : signalSamples){
       input = TFile::Open(pathPresel+fileprefix+sample);
@@ -109,6 +124,7 @@ void cutflowPlot(){
 
   // Selection
   for(const auto & step : selSteps){
+    std::cout << "Start selStep: " << step << endl;
     int index_sample = 0;
     for(const auto & sample : signalSamples){
       input = TFile::Open(pathSel+fileprefix+sample);
@@ -130,6 +146,7 @@ void cutflowPlot(){
 
   // Reconstruction
   for(const auto & step : recoSteps){
+    std::cout << "Start recoStep: " << step << endl;
     int index_sample = 0;
     for(const auto & sample : signalSamples){
       input = TFile::Open(pathReco+fileprefix+sample);

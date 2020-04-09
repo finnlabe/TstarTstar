@@ -2,6 +2,8 @@
 #include "UHH2/TstarTstar/include/TstarTstarSelections.h"
 #include "UHH2/TstarTstar/include/TstarTstarReconstructionModules.h"
 #include "UHH2/core/include/Event.h"
+#include "UHH2/HOTVR/include/HOTVRIds.h"
+
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -12,12 +14,16 @@ using namespace uhh2;
 //using namespace uhh2examples;
 
 TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(ctx, dirname){
+  topjetID = AndId<TopJet>(HOTVRTopTag(), Tau32Groomed(0.56));
+
+  h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
+
   // book all histograms here
   // jets
   book<TH1F>("N_jets", "N_{AK4 jets}", 20, 0, 20);
-  book<TH1F>("N_AK8jets", "N_{AK8 jets}", 20, 0, 20);  
-  book<TH1F>("N_toptagged_AK8jets", "N_{toptagged AK8 jets}", 20, 0, 20);  
-  book<TH1F>("N_PU", "N_{PU}", 100, 0, 100);  
+  book<TH1F>("N_AK8jets", "N_{AK8 jets}", 20, 0, 20);
+  book<TH1F>("N_toptagged_AK8jets", "N_{toptagged AK8 jets}", 20, 0, 20);
+  book<TH1F>("N_PU", "N_{PU}", 100, 0, 100);
   book<TH1F>("eta_jet1", "#eta^{jet 1}", 50, -5.2, 5.2);
   book<TH1F>("pt_jet1", "p_{T}^{jet 1}", 100, 10, 2000);
   book<TH1F>("eta_jet2", "#eta^{jet 2}", 50, -5.2, 5.2);
@@ -38,20 +44,21 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   book<TH1F>("pt_ak8jet2", "p_{T}^{ak8jet 2}", 100, 10, 2000);
   book<TH1F>("eta_ak8jet3", "#eta^{ak8jet 3}", 50, -5.2, 5.2);
   book<TH1F>("pt_ak8jet3", "p_{T}^{ak8jet 3}", 100, 10, 2000);
+  book<TH1F>("R_fat_jet", "R_{fat jet} (only valid for HOTVR)", 30, 0, 6);
 
   book<TH2D>("pt_mu_pt_ak4jet1", ";p_{T}^{#mu}; p_{T}^{AK4 jet 1}", 60, 10, 1100, 70, 10, 2500);
   book<TH2D>("pt_ele_pt_ak4jet1", ";p_{T}^{ele}; p_{T}^{AK4 jet 1}", 60, 10, 1100, 70, 10, 2500);
   book<TH2D>("pt_mu_pt_ak8jet1", ";p_{T}^{#mu}; p_{T}^{AK8 jet 1}", 60, 10, 1100, 70, 10, 2500);
   book<TH2D>("pt_ele_pt_ak8jet1", ";p_{T}^{ele}; p_{T}^{AK8 jet 1}", 60, 10, 1100, 70, 10, 2500);
 
-  // book<TH2D>("EMcharged_vs_eta_jet1","EMcharged vs #eta; #eta; EMcharged",100,-6,6,100,0.0,1.0);   
-  // book<TH2D>("EMneutral_vs_eta_jet1","EMneutral vs #eta; #eta; EMneutral",100,-6,6,100,0.0,1.0);   
-  // book<TH2D>("HADcharged_vs_eta_jet1","HADcharged vs #eta; #eta; HADcharged",100,-6,6,100,0.0,1.0);   
-  // book<TH2D>("HADneutral_vs_eta_jet1","HADneutral vs #eta; #eta; HADneutral",100,-6,6,100,0.0,1.0);   
-  // book<TH2D>("EMcharged_vs_PU_jet1","EMcharged vs PU; PU; EMcharged",100,0,100,100,0.0,1.0);   
-  // book<TH2D>("EMneutral_vs_PU_jet1","EMneutral vs PU; PU; EMneutral",100,0,100,100,0.0,1.0);   
-  // book<TH2D>("HADcharged_vs_PU_jet1","HADcharged vs PU; PU; HADcharged",100,0,100,100,0.0,1.0);   
-  // book<TH2D>("HADneutral_vs_PU_jet1","HADneutral vs PU; PU; HADneutral",100,0,100,100,0.0,1.0);   
+  // book<TH2D>("EMcharged_vs_eta_jet1","EMcharged vs #eta; #eta; EMcharged",100,-6,6,100,0.0,1.0);
+  // book<TH2D>("EMneutral_vs_eta_jet1","EMneutral vs #eta; #eta; EMneutral",100,-6,6,100,0.0,1.0);
+  // book<TH2D>("HADcharged_vs_eta_jet1","HADcharged vs #eta; #eta; HADcharged",100,-6,6,100,0.0,1.0);
+  // book<TH2D>("HADneutral_vs_eta_jet1","HADneutral vs #eta; #eta; HADneutral",100,-6,6,100,0.0,1.0);
+  // book<TH2D>("EMcharged_vs_PU_jet1","EMcharged vs PU; PU; EMcharged",100,0,100,100,0.0,1.0);
+  // book<TH2D>("EMneutral_vs_PU_jet1","EMneutral vs PU; PU; EMneutral",100,0,100,100,0.0,1.0);
+  // book<TH2D>("HADcharged_vs_PU_jet1","HADcharged vs PU; PU; HADcharged",100,0,100,100,0.0,1.0);
+  // book<TH2D>("HADneutral_vs_PU_jet1","HADneutral vs PU; PU; HADneutral",100,0,100,100,0.0,1.0);
 
 
   // leptons
@@ -71,13 +78,27 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   book<TH1F>("pt_photon_1", "p_{T}^{leading #gamma} [GeV/c]", 50, 10, 2000);
   book<TH1F>("pt_photon_2", "p_{T}^{second #gamma} [GeV/c]", 50, 10, 2000);
 
-
   // primary vertices
   book<TH1F>("N_pv", "N^{PV}", 50, 0, 50);
 
   //MET and HT
   book<TH1F>("pt_MET", "missing E_{T} [GeV]", 100, 0, 2000);
-  book<TH1F>("pt_ST_jets", "S_{T}^{jets}=#sum_{i}|AK4 p^{i}_{T}| [GeV/c]", 100, 10, 4000);
+  book<TH1F>("pt_ST_jets", "S_{T}^{jets}=#sum_{i}|AK4 p^{i}_{T}| [GeV/c]", 25, 10, 4000);
+  book<TH1F>("pt_ST_jets_oldbins", "S_{T}^{jets}=#sum_{i}|AK4 p^{i}_{T}| [GeV/c]", 100, 10, 4000);
+
+  // deltaR observables
+  book<TH1F>("dR_fatjet1_fatjet2", "#DeltaR (hotvrjet 1, hotvrjet 1)", 20, 0, 6);
+  book<TH1F>("dR_lepton_fatjet1", "#DeltaR (lepton, hotvrjet 1)", 20, 0, 6);
+  book<TH1F>("dR_lepton_fatjet2", "#DeltaR (lepton, hotvrjet 2)", 20, 0, 6);
+  book<TH1F>("dR_ttagjet_gluonjet", "#DeltaR (ttagjet, gluonjet)", 20, 0, 6);
+
+  // deltaPhi observables
+  book<TH1F>("dphi_fatjet1_fatjet2", "#Delta#phi (hotvrjet 1, hotvrjet 2)", 21, 0, 7);
+  book<TH1F>("dphi_lepton_fatjet1", "#Delta#phi (lepton, hotvrjet 1)", 21, 0, 7);
+  book<TH1F>("dphi_lepton_fatjet2", "#Delta#phi (lepton, hotvrjet 2)", 21, 0, 7);
+  book<TH1F>("dphi_ttagjet_gluonjet", "#Delta#phi (ttagjet, gluonjet)", 21, 0, 7);
+
+
 
 }
 
@@ -87,14 +108,14 @@ void TstarTstarHists::fill(const Event & event){
   // 'hist' is used here a lot for simplicity, but it will be rather
   // slow when you have many histograms; therefore, better
   // use histogram pointers as members as in 'UHH2/common/include/ElectronHists.h'
-  
+
   bool debug = false;
 
   // Don't forget to always use the weight when filling.
   double weight = event.weight;
 
   if(debug) cout << "Starting Tstar Hists." << endl;
-  
+
   std::vector<Jet>* jets = event.jets;
   int Njets = jets->size();
   hist("N_jets")->Fill(Njets, weight);
@@ -108,7 +129,7 @@ void TstarTstarHists::fill(const Event & event){
     hist("EMneutral_jet1")->Fill(jets->at(0).neutralEmEnergyFraction(), weight);
     hist("HADcharged_jet1")->Fill(jets->at(0).chargedHadronEnergyFraction(), weight);
     hist("HADneutral_jet1")->Fill(jets->at(0).neutralHadronEnergyFraction(), weight);
-    
+
     // ((TH2D*)hist("EMcharged_vs_eta_jet1"))->Fill(jets->at(0).eta(),jets->at(0).chargedEmEnergyFraction(), weight);
     // ((TH2D*)hist("EMneutral_vs_eta_jet1"))->Fill(jets->at(0).eta(),jets->at(0).neutralEmEnergyFraction(), weight);
     // ((TH2D*)hist("HADcharged_vs_eta_jet1"))->Fill(jets->at(0).eta(),jets->at(0).chargedHadronEnergyFraction(), weight);
@@ -132,6 +153,7 @@ void TstarTstarHists::fill(const Event & event){
     hist("eta_jet4")->Fill(jets->at(3).eta(), weight);
     hist("pt_jet4")->Fill(jets->at(3).pt(), weight);
   }
+
   if(debug) cout << "Finished filling jet observables." << endl;
 
   int Nmuons = event.muons->size();
@@ -141,7 +163,7 @@ void TstarTstarHists::fill(const Event & event){
       hist("eta_mu")->Fill(thismu.eta(), weight);
       hist("reliso_mu")->Fill(thismu.relIso(), weight);
   }
-  
+
   int Nele = event.electrons->size();
   hist("N_ele")->Fill(Nele, weight);
   for (const Electron & thisele : *event.electrons){
@@ -167,9 +189,17 @@ void TstarTstarHists::fill(const Event & event){
   if(debug) cout << "Finished filling PV observables." << endl;
 
   hist("N_AK8jets")->Fill(event.topjets->size(), weight);
-  const TopJetId topjetID_ = AndId<TopJet>(TopTagMassWindow(), /*TopTagSubbtag(DeepCSVBTag::WP_LOOSE),*/ Tau32(0.8));
+
   int toptaggedjets = 0;
-  for(auto & topjet : * event.topjets){ if(topjetID_(topjet, event)) toptaggedjets++;}
+  for(auto & topjet : * event.topjets){
+    double Rtopjet;
+    if(topjet.pt() == 0) continue;
+    Rtopjet = 600/topjet.pt();
+    if(Rtopjet > 1.5) Rtopjet = 1.5;
+    if(Rtopjet < 0.1) Rtopjet = 0.1;
+    if(topjet.pt() > 0) hist("R_fat_jet")->Fill(Rtopjet, weight);
+    if(topjetID(topjet, event)) toptaggedjets++;
+  }
   hist("N_toptagged_AK8jets")->Fill(toptaggedjets, weight);
   if(debug) cout << "Finished filling ttag observables." << endl;
 
@@ -197,11 +227,68 @@ void TstarTstarHists::fill(const Event & event){
   if(debug) cout << "Finished filling MET observables." << endl;
 
   double st_jets = 0.;
-  for(const auto & jet : *jets) st_jets += jet.pt();
+  for(const auto & jet : *event.topjets) st_jets += jet.pt();
   hist("pt_ST_jets")->Fill(st_jets, weight);
+  hist("pt_ST_jets_oldbins")->Fill(st_jets, weight);
 
-  if(debug) cout << "Finished Tstar Hists!" << endl;
+  // dR stuff
+  FlavorParticle primary_lepton;
+  try {
+    primary_lepton = event.get(h_primlep);
+  } catch(...) {return;}
+  if(event.topjets->size()>1){
+    hist("dR_fatjet1_fatjet2")->Fill(deltaR(event.topjets->at(0), event.topjets->at(1)), weight);
+    hist("dphi_fatjet1_fatjet2")->Fill(abs(event.topjets->at(0).phi() - event.topjets->at(1).phi()), weight);
+  }
+  if(event.topjets->size()>0){
+    hist("dR_lepton_fatjet1")->Fill(deltaR(primary_lepton, event.topjets->at(0)), weight);
+    hist("dphi_lepton_fatjet1")->Fill(abs(primary_lepton.phi() - event.topjets->at(0).phi()), weight);
+  }
+  if(event.topjets->size()>1){
+    hist("dR_lepton_fatjet2")->Fill(deltaR(primary_lepton, event.topjets->at(1)), weight);
+    hist("dphi_lepton_fatjet2")->Fill(abs(primary_lepton.phi() - event.topjets->at(1).phi()), weight);
+  }
 
-}
+  bool found_ttagjet = false;
+  bool found_gluonjet = false;
+
+  //find ttagged jet
+  std::vector<TopJet> ttagjets;
+  for(auto & topjet : * event.topjets){
+    if(topjetID(topjet, event)){
+      ttagjets.push_back(topjet);
+      found_ttagjet = true;
+      break;
+    }
+  }
+  //match gluon jets
+  TopJet gluonjet;
+  TopJet ttagjet_best;
+  double currentbestdpt = 999;
+  double topmass = 173.0;
+  for (const auto & ttagjet : ttagjets){
+    for(const auto & topjet : * event.topjets){
+      if(topjet.pt() == ttagjet.pt()) continue; // dont take same jet twice
+      if(topjet.pt() == 0) continue;
+      double topjetradius = 600/(topjet.pt());
+      if(topjetradius < 0.1) topjetradius = 0.1;
+      else if(topjetradius > 1.5) topjetradius = 1.5;
+      if(deltaR(primary_lepton, topjet) < topjetradius) continue;
+      if(abs(topjet.pt() - (ttagjet.pt() + topmass)) < currentbestdpt){
+        currentbestdpt = abs(topjet.pt() - (ttagjet.pt() + topmass));
+        gluonjet = topjet;
+        ttagjet_best = ttagjet;
+        found_gluonjet = true;
+        }
+      }
+    }
+    if(found_ttagjet && found_gluonjet){
+      hist("dR_ttagjet_gluonjet")->Fill(deltaR(ttagjet_best, gluonjet), weight);
+      hist("dphi_ttagjet_gluonjet")->Fill(abs(ttagjet_best.phi() - gluonjet.phi()), weight);
+    }
+
+    if(debug) cout << "Finished Tstar Hists!" << endl;
+
+  }
 
 TstarTstarHists::~TstarTstarHists(){}

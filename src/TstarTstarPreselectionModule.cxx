@@ -25,21 +25,21 @@ using namespace uhh2;
 namespace uhh2 {
 
 /** \brief Module for the T*T*->ttbar gg/gamma preselection
- *  
+ *
  * Corrects all objects via CommonModules and applies some loose cuts
  *
  */
 class TstarTstarPreselectionModule: public AnalysisModule {
 public:
-    
+
   explicit TstarTstarPreselectionModule(Context & ctx);
   virtual bool process(Event & event) override;
 
 private:
-    
+
   // Apply common modules: JetPFid, JEC, JER, MET corrections, etc
   std::unique_ptr<CommonModules> common;
-  
+
   // Declare the Selections to use. Use unique_ptr to ensure automatic call of delete in the destructor, to avoid memory leaks.
   unique_ptr<TopJetCleaner> AK8cleaner;
   unique_ptr<TopJetCleaner> HOTVRcleaner;
@@ -51,47 +51,40 @@ private:
   unique_ptr<Selection> triggerSingleLeptonMu2_sel;
   unique_ptr<Selection> triggerSingleLeptonMu3_sel;
   unique_ptr<Selection> triggerSingleLeptonMu4_sel;
-  
+
   // ##### Histograms #####
   // Store the Hists collection as member variables. Again, use unique_ptr to avoid memory leaks.
-  std::unique_ptr<Hists> h_nocuts,     h_common,     h_lepsel,     h_AK8jetsel,     h_AK4jetsel,     h_METsel,     h_trigger;
-  std::unique_ptr<Hists> h_nocuts_gen, h_common_gen, h_lepsel_gen, h_AK8jetsel_gen, h_AK4jetsel_gen, h_METsel_gen, h_trigger_gen;
+  std::unique_ptr<Hists> h_nocuts,     h_common,     h_lepsel,     h_fatjetsel,     h_METsel,     h_trigger;
+  std::unique_ptr<Hists> h_nocuts_gen, h_common_gen, h_lepsel_gen, h_fatjetsel_gen, h_METsel_gen, h_trigger_gen;
 
   std::unique_ptr<uhh2::AnalysisModule> ttgenprod;
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
-  
+
   bool debug = false;
 
   // bools for channel and stuff. will be read in later
   bool is_MC;
-  bool is_tgtg, is_tgtgamma;
 
 };
 
 
 TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
-  
-  
+
+
   if(debug) {
     cout << "Hello World from TstarTstarPreselectionModule!" << endl;
-    
+
     // If running in SFrame, the keys "dataset_version", "dataset_type", "dataset_lumi",
     // and "target_lumi" are set to the according values in the xml file. For CMSSW, these are
     // not set automatically, but can be set in the python config file.
     for(auto & kv : ctx.get_all()){
       cout << " " << kv.first << " = " << kv.second << endl;
     }
-    
+
   }
-  
+
   // 0. Reading in whether MC and if so, which channel
   is_MC = ctx.get("dataset_type") == "MC";
-
-  if(is_MC){
-    is_tgtg = false; is_tgtgamma = false;
-    if(ctx.get("channel") == "tgtg") is_tgtg = true;
-    if(ctx.get("channel") == "tgtgamma") is_tgtgamma = true;
-  }
 
   // 1. setup modules. CommonModules
   common.reset(new CommonModules());
@@ -99,7 +92,7 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   common->switch_metcorrection();
 
   // Electron
-  ElectronId eleID; 
+  ElectronId eleID;
   double electron_pt(20.);
   eleID = ElectronID_Summer16_tight_noIso;
   common->set_electron_id(AndId<Electron>(PtEtaSCCut(electron_pt, 2.4), eleID));
@@ -108,15 +101,14 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   MuonId muID;
   double muon_pt(20.);
   muID = MuonID(Muon::Highpt);
-  common->set_muon_id(AndId<Muon>(PtEtaCut(muon_pt, 2.5), muID));
+  common->set_muon_id(AndId<Muon>(PtEtaCut(muon_pt, 2.4), muID));
 
   // Jets
   common->switch_jetlepcleaner();
   common->switch_jetPtSorter();
   double jet_pt(30.);
   common->set_jet_id(AndId<Jet>(PtEtaCut(jet_pt, 2.5), JetPFID(JetPFID::WP_TIGHT_PUPPI)));
-  AK8cleaner.reset(new TopJetCleaner(ctx, PtEtaCut(150.0, 2.5)));
-  HOTVRcleaner.reset(new TopJetCleaner(ctx, PtEtaCut(150.0, 2.5), "hotvrPuppi"));
+  HOTVRcleaner.reset(new TopJetCleaner(ctx, PtEtaCut(150.0, 2.5)));
 
   // init common.
   common->init(ctx);
@@ -127,7 +119,7 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   }
 
   // 2. set up selections
-  
+
   // Triggers
   triggerSingleLeptonMu1_sel.reset(new TriggerSelection("HLT_Mu50_v*"));
   triggerSingleLeptonMu2_sel.reset(new TriggerSelection("HLT_Mu55_v*"));
@@ -137,25 +129,23 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   triggerSingleLeptonEle1_sel.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
   triggerSingleLeptonEle2_sel.reset(new TriggerSelection("HLT_Ele25_eta2p1_WPTight_Gsf_v*"));
   triggerSingleLeptonEle3_sel.reset(new TriggerSelection("HLT_Ele32_eta2p1_WPTight_Gsf_v*"));
-  
+
   // MET selection
-  met_sel.reset(new METCut  (30.,1e9));
+  met_sel.reset(new METCut  (50.,1e9));
 
   // 3. Set up Hists classes:
   h_nocuts.reset(new TstarTstarHists(ctx, "NoCuts"));
   h_common.reset(new TstarTstarHists(ctx, "AfterCommon"));
   h_lepsel.reset(new TstarTstarHists(ctx, "AfterLepSel"));
-  h_AK8jetsel.reset(new TstarTstarHists(ctx, "AfterAK8jets"));
-  h_AK4jetsel.reset(new TstarTstarHists(ctx, "AfterAK4jets"));
+  h_fatjetsel.reset(new TstarTstarHists(ctx, "AfterAK8jets"));
   h_METsel.reset(new TstarTstarHists(ctx, "AfterMET"));
   h_trigger.reset(new TstarTstarHists(ctx, "AfterTrigger"));
- 
+
 
   h_nocuts_gen.reset(new TstarTstarHists(ctx, "NoCuts_gen"));
   h_common_gen.reset(new TstarTstarHists(ctx, "AfterCommon_gen"));
   h_lepsel_gen.reset(new TstarTstarHists(ctx, "AfterLepSel_gen"));
-  h_AK8jetsel_gen.reset(new TstarTstarHists(ctx, "AfterAK8jets_gen"));
-  h_AK4jetsel_gen.reset(new TstarTstarHists(ctx, "AfterAK4jets_gen"));
+  h_fatjetsel_gen.reset(new TstarTstarHists(ctx, "AfterAK8jets_gen"));
   h_METsel_gen.reset(new TstarTstarHists(ctx, "AfterMET_gen"));
   h_trigger_gen.reset(new TstarTstarHists(ctx, "AfterTrigger_gen"));
 
@@ -163,8 +153,8 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
 
 
 bool TstarTstarPreselectionModule::process(Event & event) {
-   
-  if(debug)   
+
+  if(debug)
     cout << "TstarTstarPreselectionModule: Starting to process event (runid, eventid) = (" << event.run << ", " << event.event << "); weight = " << event.weight << endl;
   if(debug)
     cout<<"N muons = "<<event.muons->size()<<", N electrons = "<<event.electrons->size()<<", N photons = "<<event.photons->size()<<endl;
@@ -181,14 +171,14 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   h_nocuts_gen->fill(event);
   if(debug) cout<<"Filled hists without any cuts, and GEN with no cuts"<<endl;
 
+  // cleaning & common modules
   if(!(common->process(event))) return false;
-  if(!(AK8cleaner->process(event))) return false;
   if(!(HOTVRcleaner->process(event))) return false;
   h_common->fill(event);
   h_common_gen->fill(event);
   if(debug) cout<<"Filled hists after cleaning"<<endl;
 
-  
+
   //---- Preselection
 
   // Require exactly one muon or one electron
@@ -198,19 +188,12 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   h_lepsel_gen->fill(event);
   if(debug) cout << "Filled hists after lepsel" << endl;
 
-  // AK8 jet selection
-  bool pass_ak8_njet = (event.topjets->size()>1);
-  if(!pass_ak8_njet) return false;
-  h_AK8jetsel->fill(event);
-  h_AK8jetsel_gen->fill(event);
-  if(debug) cout << "Filled hists after AK8jetsel" << endl;
-
-  // AK4 jet selection
-  const bool pass_ak4_njet = (event.jets->size()>0);
-  if(!pass_ak4_njet) return false;
-  h_AK4jetsel->fill(event);
-  h_AK4jetsel_gen->fill(event);
-  if(debug) cout << "Filled hists after AK4jetsel" << endl;
+  // fat jet selection
+  bool pass_fat_njet = (event.topjets->size()>0);
+  if(!pass_fat_njet) return false;
+  h_fatjetsel->fill(event);
+  h_fatjetsel_gen->fill(event);
+  if(debug) cout << "Filled hists after fatjetsel" << endl;
 
   // MET Selection
   bool pass_MET =  met_sel->passes(event);
@@ -229,9 +212,9 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   h_trigger->fill(event);
   h_trigger_gen->fill(event);
   if(debug) cout<<"Filled hists after Trigger"<<endl;
-  
+
   if(debug) cout << "########### Done with preselection! ###########" << endl << endl;
-  
+
   return true;
 }
 

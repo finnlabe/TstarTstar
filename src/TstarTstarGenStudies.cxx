@@ -16,7 +16,6 @@
 #include "UHH2/TstarTstar/include/TstarTstarHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarGenHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarGenRecoMatchedHists.h"
-#include "UHH2/TstarTstar/include/TstarTstarGenInfoHists.h"
 
 
 using namespace std;
@@ -39,7 +38,6 @@ private:
     
   // ##### Histograms #####
   // Store the Hists collection as member variables. Again, use unique_ptr to avoid memory leaks.
-  std::unique_ptr<Hists> h_GenInfo;
   std::unique_ptr<Hists> h_GenHists;
 
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
@@ -52,7 +50,6 @@ private:
 
 TstarTstarGenStudies::TstarTstarGenStudies(Context & ctx){
   
-  h_GenInfo.reset(new TstarTstarGenInfoHists(ctx, "GenInfo"));
   h_GenHists.reset(new TstarTstarGenHists(ctx, "GenHists"));  
     
   ttgenprod.reset(new TTbarGenProducer(ctx, "ttbargen", false));
@@ -65,7 +62,6 @@ bool TstarTstarGenStudies::process(Event & event) {
    
   ttgenprod->process(event);
 
-  h_GenInfo->fill(event);
   h_GenHists->fill(event);
 
   return true;

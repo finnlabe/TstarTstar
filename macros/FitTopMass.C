@@ -4,7 +4,7 @@
 // Run it with following command:
 // root -l -b -q FitDeltaM.C
 
-void FitTopMass(TString channel = "tgtg", TString subpath="RecoPlots_GEN", TString histname="Mtophad"){
+void FitTopMass(TString channel = "tgtg", TString subpath="RecoPlots_GEN_onlyttbar_ttag", TString histname="Mtophad"){
   
   Double_t w = 800;
   Double_t h = 600;
@@ -14,8 +14,8 @@ void FitTopMass(TString channel = "tgtg", TString subpath="RecoPlots_GEN", TStri
   gStyle->SetHistFillStyle(1);
 
 
-  TString path = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/MCStudy/tgtg/hadded/";
-  TString filename = "uhh2.AnalysisModuleRunner.MC.TstarTstar_M-700.root";
+  TString path = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/MCStudy/HOTVR/hadded/";
+  TString filename = "FullSignal.root";
   
   TCanvas *c1_hist = new TCanvas("chist", "c", w, h);
 
@@ -23,7 +23,7 @@ void FitTopMass(TString channel = "tgtg", TString subpath="RecoPlots_GEN", TStri
   TH1D *hist = (TH1D*)input->Get(subpath+"/"+histname); //histogram
   if(!hist) cout<<"Hist is empty"<<endl;
   TF1 *fit = new TF1("fit", "gaus", 0, 500);
-  hist->Fit(fit, "", "SAME", 0, 500);
+  hist->Fit(fit, "", "SAME", 125, 220);
   hist->GetXaxis()->SetTitle("M_{t} [GeV]");
   hist->GetYaxis()->SetTitle("Events / GeV");
   hist->SetTitle("");
@@ -34,5 +34,5 @@ void FitTopMass(TString channel = "tgtg", TString subpath="RecoPlots_GEN", TStri
   hist->Draw("hist");
   fit->Draw("same");
 
-  c1_hist->SaveAs("Fit"+histname+".pdf");
+  c1_hist->SaveAs("Fit_"+subpath+"_"+histname+".pdf");
 }

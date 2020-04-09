@@ -16,7 +16,7 @@
 class TstarTstarGenDiscriminator : uhh2::AnalysisModule{
 
 public:
-  explicit TstarTstarGenDiscriminator(uhh2::Context&);
+  explicit TstarTstarGenDiscriminator(uhh2::Context&, bool do_only_ttbar=false);
   virtual bool process(uhh2::Event&) override;
 
  private:
@@ -24,7 +24,7 @@ public:
   uhh2::Event::Handle<ReconstructionTstarHypothesis> h_tstartstar_hyp;
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
 
-  bool is_tgtg, is_tgtgamma;
+  bool is_tgtg, is_tgtgamma, only_ttbar;
 
 };
 

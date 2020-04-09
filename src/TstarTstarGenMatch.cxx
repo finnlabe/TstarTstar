@@ -18,7 +18,7 @@ namespace {
 
 }
 
-TstarTstarGenDiscriminator::TstarTstarGenDiscriminator(uhh2::Context& ctx){
+TstarTstarGenDiscriminator::TstarTstarGenDiscriminator(uhh2::Context& ctx, bool do_only_ttbar){
   
   is_tgtg = false; is_tgtgamma = false;
   if(ctx.get("channel") == "tgtg") is_tgtg = true;
@@ -27,6 +27,8 @@ TstarTstarGenDiscriminator::TstarTstarGenDiscriminator(uhh2::Context& ctx){
   h_tstartstar_hyp_vector = ctx.get_handle<std::vector<ReconstructionTstarHypothesis>>("TstarTstar_Hyp_Vector");
   h_tstartstar_hyp = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_Hyp");
   h_ttbargen = ctx.get_handle<TTbarGen>("ttbargen");
+
+  only_ttbar = do_only_ttbar;
 
 }
 
@@ -94,20 +96,22 @@ bool TstarTstarGenDiscriminator::process(uhh2::Event& event){
     vals.push_back(dR_lepton);
     matched.push_back(dR_lepton < 0.4);
     
-    // match gluons
-    double dR_gluon_possibility1 = deltaR(hyp.gluon1_v4(), gluons.at(0)) + deltaR(hyp.gluon2_v4(), gluons.at(1));
-    double dR_gluon_possibility2 = deltaR(hyp.gluon2_v4(), gluons.at(0)) + deltaR(hyp.gluon1_v4(), gluons.at(1));
-    if(dR_gluon_possibility1 < dR_gluon_possibility2){
-      dRsum += dR_gluon_possibility1;
-      vals.push_back(dR_gluon_possibility1);
-      matched.push_back(deltaR(hyp.gluon1_v4(), gluons.at(0)) < 0.8);
-      matched.push_back(deltaR(hyp.gluon2_v4(), gluons.at(1)) < 0.8);
-    }
-    else {
-      dRsum += dR_gluon_possibility2;
-      vals.push_back(dR_gluon_possibility2);
-      matched.push_back(deltaR(hyp.gluon2_v4(), gluons.at(0)) < 0.8);
-      matched.push_back(deltaR(hyp.gluon1_v4(), gluons.at(1)) < 0.8);
+    if(!only_ttbar){
+      // match gluons
+      double dR_gluon_possibility1 = deltaR(hyp.gluon1_v4(), gluons.at(0)) + deltaR(hyp.gluon2_v4(), gluons.at(1));
+      double dR_gluon_possibility2 = deltaR(hyp.gluon2_v4(), gluons.at(0)) + deltaR(hyp.gluon1_v4(), gluons.at(1));
+      if(dR_gluon_possibility1 < dR_gluon_possibility2){
+	dRsum += dR_gluon_possibility1;
+	vals.push_back(dR_gluon_possibility1);
+	matched.push_back(deltaR(hyp.gluon1_v4(), gluons.at(0)) < 0.8);
+	matched.push_back(deltaR(hyp.gluon2_v4(), gluons.at(1)) < 0.8);
+      }
+      else {
+	dRsum += dR_gluon_possibility2;
+	vals.push_back(dR_gluon_possibility2);
+	matched.push_back(deltaR(hyp.gluon2_v4(), gluons.at(0)) < 0.8);
+	matched.push_back(deltaR(hyp.gluon1_v4(), gluons.at(1)) < 0.8);
+      }
     }
     
     // Checking if new best

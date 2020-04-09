@@ -13,9 +13,9 @@
 
 class TopTagMassWindow {
 public:
-  
+
   explicit TopTagMassWindow(double mlower=105., double mupper=220.);
-  
+
   bool operator()(const TopJet & topjet, const uhh2::Event & event) const;
 
  private:
@@ -25,9 +25,9 @@ public:
 
 class TopTagSubbtag {
 public:
-  
+
   explicit TopTagSubbtag(double btag=0.5);
-  
+
   bool operator()(const TopJet & topjet, const uhh2::Event & event) const;
 
  private:
@@ -50,24 +50,23 @@ private:
   float sigmatoplep_, sigmatoplep_ttag_;
   float mtophad_, mtophad_ttag_;
   float sigmatophad_, sigmatophad_ttag_;
-  
+
 };
 
 
 class TstarTstar_tgtg_TopTag_Reconstruction : uhh2::AnalysisModule{
 
  public:
-  explicit TstarTstar_tgtg_TopTag_Reconstruction(uhh2::Context&, const NeutrinoReconstructionMethod&, TopJetId id=CMSTopTag(), float dr=1.2);
+  explicit TstarTstar_tgtg_TopTag_Reconstruction(uhh2::Context&, const NeutrinoReconstructionMethod&, TopJetId id=CMSTopTag());
   virtual bool process(uhh2::Event&) override;
-  
+
  private:
   NeutrinoReconstructionMethod m_neutrinofunction;
   uhh2::Event::Handle<FlavorParticle> h_primlep;
-  uhh2::Event::Handle<std::vector<ReconstructionTstarHypothesis>> h_tstartstar_hyp_vector;  
+  uhh2::Event::Handle<std::vector<ReconstructionTstarHypothesis>> h_tstartstar_hyp_vector;
   uhh2::Event::Handle<int> h_flag_toptagevent;
 
   TopJetId topjetID_;
-  float minDR_topjet_jet_;
 };
 
 
@@ -76,8 +75,9 @@ class TstarTstar_Discrimination : uhh2::AnalysisModule{
  public:
   explicit TstarTstar_Discrimination(uhh2::Context&);
   virtual bool process(uhh2::Event&) override;
-  
+
  private:
-  uhh2::Event::Handle<std::vector<ReconstructionTstarHypothesis>> h_tstartstar_hyp_vector;  
+  uhh2::Event::Handle<std::vector<ReconstructionTstarHypothesis>> h_tstartstar_hyp_vector;
   uhh2::Event::Handle<ReconstructionTstarHypothesis> h_tstartstar_hyp;
+  bool is_HOTVR;   // For toggling softdropmass or "normal" mass depending on Jet collection
 };

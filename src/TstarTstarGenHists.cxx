@@ -25,44 +25,64 @@ TstarTstarGenHists::TstarTstarGenHists(Context & ctx, const string & dirname): H
 
   h_ttbargen = ctx.get_handle<TTbarGen>("ttbargen");
 
-  // Generated Masses
-  book<TH1F>("M_tstar_gen", "M_{Tstar} gen", 100, 0, 2000);  
-  book<TH1F>("Pt_tstar_gen", "Pt_{Tstar} gen", 100, 0, 3000);  
-  book<TH1F>("M_tstartstar_gen", "M_{TstarTstar} gen", 200, 0, 10000);  
-  book<TH1F>("M_ttbar_gen", "M_{ttbar} gen", 100, 0, 5000);  
-  book<TH1F>("M_top_gen", "M_{top} gen", 50, 0, 500);  
-  book<TH1F>("Pt_top_gen", "Pt_{top} gen", 100, 0, 3000);  
-  book<TH1F>("dR_tstartstar_gen", "dR(Tstar,Tstar)", 30, 0, 6);  
-  book<TH1F>("dR_ttbar_gen", "dR(top,top)", 30, 0, 6);  
+  book<TH1F>("x_g1", "x_g1", 20, 0, 1);
+  book<TH1F>("x_g2", "x_g2", 20, 0, 1);
+
+  book<TH1F>("Tstar_spin", "Tstar_Spin", 30, -3, 3);
+
+  book<TH1F>("dR_top_gluon", "dR_top_gluon", 24, 0, 6);
+
+  book<TH1F>("gluon_Efrac_AK4", "gluon_Efrac_AK4", 20, 0, 2);
+  book<TH1F>("gluon_Efrac_AK8", "gluon_Efrac_AK8", 20, 0, 2);
+
+  book<TH1F>("dR_hadtop_jet1", "dR_{t_{had} jet 1}", 30, 0, 3);
+  book<TH1F>("dR_hadtop_jet2", "dR_{t_{had} jet 2}", 30, 0, 3);
+  book<TH1F>("dR_hadtop_jet3", "dR_{t_{had} jet 3}", 30, 0, 3);
+  book<TH1F>("dR_bquark_jets", "dR_{b jets}", 30, 0, 3);
+  book<TH1F>("dR_gluon_jets", "dR_{gluon jets}", 30, 0, 3);
+
+  book<TH1F>("M_tstar_gen", "M_{Tstar} gen", 100, 0, 2000);
+  book<TH1F>("Pt_tstar_gen", "Pt_{Tstar} gen", 100, 0, 3000);
+  book<TH1F>("M_tstartstar_gen", "M_{TstarTstar} gen", 200, 0, 10000);
+  book<TH1F>("M_ttbar_gen", "M_{ttbar} gen", 100, 0, 5000);
+  book<TH1F>("M_top_gen", "M_{top} gen", 50, 0, 500);
+  book<TH1F>("Pt_top_gen", "Pt_{top} gen", 100, 0, 3000);
+  book<TH1F>("dR_tstartstar_gen", "dR(Tstar,Tstar)", 30, 0, 6);
+  book<TH1F>("dR_ttbar_gen", "dR(top,top)", 30, 0, 6);
 
 
-  book<TH1F>("Pt_gluon1_gen", "Pt_{gluon1} gen", 100, 0, 3000);  
-  book<TH1F>("Pt_gluon2_gen", "Pt_{gluon2} gen", 100, 0, 3000);  
-  book<TH1F>("Eta_gluon1_gen", "#eta_{gluon1} gen", 100, -5.2, 5.2);  
-  book<TH1F>("Eta_gluon2_gen", "#eta_{gluon2} gen", 100, -5.2, 5.2);  
-  book<TH1F>("Phi_gluon1_gen", "#phi_{gluon1} gen", 100, -3.14, 3.14);  
-  book<TH1F>("Phi_gluon2_gen", "#phi_{gluon2} gen", 100, -3.14, 3.14);  
+  book<TH1F>("Pt_gluon1_gen", "Pt_{gluon1} gen", 100, 0, 3000);
+  book<TH1F>("Pt_gluon2_gen", "Pt_{gluon2} gen", 100, 0, 3000);
+  book<TH1F>("Eta_gluon1_gen", "#eta_{gluon1} gen", 100, -5.2, 5.2);
+  book<TH1F>("Eta_gluon2_gen", "#eta_{gluon2} gen", 100, -5.2, 5.2);
+  book<TH1F>("Phi_gluon1_gen", "#phi_{gluon1} gen", 100, -3.14, 3.14);
+  book<TH1F>("Phi_gluon2_gen", "#phi_{gluon2} gen", 100, -3.14, 3.14);
 
-  book<TH1F>("Pt_photon1_gen", "Pt_{#gamma1} gen", 100, 0, 3000);  
-  book<TH1F>("Pt_photon2_gen", "Pt_{#gamma2} gen", 100, 0, 3000);  
-  book<TH1F>("Eta_photon1_gen", "#eta_{#gamma1} gen", 100, -5.2, 5.2);  
-  book<TH1F>("Eta_photon2_gen", "#eta_{#gamma2} gen", 100, -5.2, 5.2);  
-  book<TH1F>("Phi_photon1_gen", "#phi_{#gamma1} gen", 100, -3.14, 3.14);  
-  book<TH1F>("Phi_photon2_gen", "#phi_{#gamma2} gen", 100, -3.14, 3.14);  
+  book<TH1F>("Pt_photon1_gen", "Pt_{#gamma1} gen", 100, 0, 3000);
+  book<TH1F>("Pt_photon2_gen", "Pt_{#gamma2} gen", 100, 0, 3000);
+  book<TH1F>("Eta_photon1_gen", "#eta_{#gamma1} gen", 100, -5.2, 5.2);
+  book<TH1F>("Eta_photon2_gen", "#eta_{#gamma2} gen", 100, -5.2, 5.2);
+  book<TH1F>("Phi_photon1_gen", "#phi_{#gamma1} gen", 100, -3.14, 3.14);
+  book<TH1F>("Phi_photon2_gen", "#phi_{#gamma2} gen", 100, -3.14, 3.14);
 
-  book<TH1F>("N_photon_gen", "N_{photons} from TstarTstar", 10, 0, 10);  
+  book<TH1F>("N_photon_gen", "N_{photons} from TstarTstar", 10, 0, 10);
   book<TH1F>("N_gluon_gen", "N_{gluons} from TstarTstar", 10, 0, 10);
-  book<TH1F>("dR_tophad_gluon_gen", "dR (tophad, gluon)", 30, 0, 6);  
-  book<TH1F>("dR_toplep_gluon_gen", "dR (toplep, gluon)", 30, 0, 6);  
-  book<TH1F>("dR_min_gluon_top_gen", "dR^{min}(gluon,top)", 30, 0, 6);  
+  book<TH1F>("dR_tophad_gluon_gen", "dR (tophad, gluon)", 30, 0, 6);
+  book<TH1F>("dR_toplep_gluon_gen", "dR (toplep, gluon)", 30, 0, 6);
+  book<TH1F>("dR_min_gluon_top_gen", "dR^{min}(gluon,top)", 30, 0, 6);
   book<TH1F>("dR_min_photon_top_gen", "dR^{min}(#gamma,top)", 30, 0, 6);
-  book<TH1F>("dR_photon_gluon_gen", "dR(#gamma,gluon) (only for Tgamma+Tgluon)", 30, 0, 6);  
+  book<TH1F>("dR_photon_gluon_gen", "dR(#gamma,gluon) (only for Tgamma+Tgluon)", 30, 0, 6);
 
-  book<TH1F>("dR_hadtop_b_q1", "dR(b, q1)", 30, 0, 6);  
-  book<TH1F>("dR_hadtop_b_q2", "dR(b, q2)", 30, 0, 6);  
-  book<TH1F>("dR_hadtop_q1_q2", "dR(q1, q2)", 30, 0, 6);  
+  book<TH1F>("dR_hadtop_b_q1", "dR(b, q1)", 30, 0, 6);
+  book<TH1F>("dR_hadtop_b_q2", "dR(b, q2)", 30, 0, 6);
+  book<TH1F>("dR_hadtop_q1_q2", "dR(q1, q2)", 30, 0, 6);
+  book<TH1F>("max_dR_hadtop", "max dR(t_{had}) decay products", 30, 0, 6);
+  book<TH2D>("2D_max_dR_hadtop", "pT t_{had} vs max(dR) of t_{had} decays", 100, 0, 3000, 100, 0, 6);
+
+  book<TH1F>("isolated_partons", "number of isolated partons", 7, -1, 6);
 
   is_mc = ctx.get("dataset_type") == "MC";
+
 }
 
 
@@ -71,6 +91,9 @@ void TstarTstarGenHists::fill(const Event & event){
   assert(event.genparticles);
   // Don't forget to always use the weight when filling.
   double weight = event.weight;
+
+  TTbarGen ttbargen = event.get(h_ttbargen);
+  if(!ttbargen.IsSemiLeptonicDecay()){return;}
 
   // Find signal, top, and antitop
   GenParticle tstar, antitstar, top, antitop, gluon1, gluon2, photon1, photon2;
@@ -124,12 +147,26 @@ void TstarTstarGenHists::fill(const Event & event){
   if(!found_tstar || !found_antitstar) return;
   if(!found_top || !found_antitop) return;
 
+  int isolated_partons = 4;
+  std::vector<GenParticle> partons = {top, antitop, gluon1, gluon2};
+  for(uint i = 0; i < 4; i++){
+    for(uint j = 0; j < 4; j++){
+      if(j == i) continue;
+      if(partons.at(i).pt() == 0){isolated_partons--;}
+      else if(deltaR(partons.at(i), partons.at(j)) < 600/(partons.at(i).pt())){
+        isolated_partons--;
+        break;
+      }
+    }
+  }
+  hist("isolated_partons")->Fill(isolated_partons, weight);
+
   double dR_tstarstar = deltaR(tstar,antitstar);
   double dR_ttbar = deltaR(top,antitop);
   hist("dR_tstartstar_gen")->Fill(dR_tstarstar, weight);
   hist("dR_ttbar_gen")->Fill(dR_ttbar, weight);
-  // book<TH1F>("dR_tstartstar_gen", "dR(Tstar,Tstar)", 30, 0, 6);  
-  // book<TH1F>("dR_ttbar_gen", "dR(top,top)", 30, 0, 6);  
+  // book<TH1F>("dR_tstartstar_gen", "dR(Tstar,Tstar)", 30, 0, 6);
+  // book<TH1F>("dR_ttbar_gen", "dR(top,top)", 30, 0, 6);
 
   if(found_tstar){
     float m_tstar = inv_mass(tstar.v4());
@@ -148,24 +185,24 @@ void TstarTstarGenHists::fill(const Event & event){
   hist("M_top_gen")->Fill(inv_mass(antitop.v4()), weight);
 
   if(found_gluon1){
-    hist("Pt_gluon1_gen")->Fill(gluon1.pt(),weight);  
-    hist("Eta_gluon1_gen")->Fill(gluon1.eta(),weight);  
-    hist("Phi_gluon1_gen")->Fill(gluon1.phi(),weight);  
+    hist("Pt_gluon1_gen")->Fill(gluon1.pt(),weight);
+    hist("Eta_gluon1_gen")->Fill(gluon1.eta(),weight);
+    hist("Phi_gluon1_gen")->Fill(gluon1.phi(),weight);
   }
   if(found_gluon2){
-    hist("Pt_gluon2_gen")->Fill(gluon2.pt(),weight);  
-    hist("Eta_gluon2_gen")->Fill(gluon2.eta(),weight);  
-    hist("Phi_gluon2_gen")->Fill(gluon2.phi(),weight);  
+    hist("Pt_gluon2_gen")->Fill(gluon2.pt(),weight);
+    hist("Eta_gluon2_gen")->Fill(gluon2.eta(),weight);
+    hist("Phi_gluon2_gen")->Fill(gluon2.phi(),weight);
   }
   if(found_photon1){
-    hist("Pt_photon1_gen")->Fill(photon1.pt(),weight);  
-    hist("Eta_photon1_gen")->Fill(photon1.eta(),weight);  
-    hist("Phi_photon1_gen")->Fill(photon1.phi(),weight);  
+    hist("Pt_photon1_gen")->Fill(photon1.pt(),weight);
+    hist("Eta_photon1_gen")->Fill(photon1.eta(),weight);
+    hist("Phi_photon1_gen")->Fill(photon1.phi(),weight);
   }
   if(found_photon2){
-    hist("Pt_photon2_gen")->Fill(photon2.pt(),weight);  
-    hist("Eta_photon2_gen")->Fill(photon2.eta(),weight);  
-    hist("Phi_photon2_gen")->Fill(photon2.phi(),weight);  
+    hist("Pt_photon2_gen")->Fill(photon2.pt(),weight);
+    hist("Eta_photon2_gen")->Fill(photon2.eta(),weight);
+    hist("Phi_photon2_gen")->Fill(photon2.phi(),weight);
   }
   hist("N_gluon_gen")->Fill(n_gluons,weight);
   hist("N_photon_gen")->Fill(n_photons,weight);
@@ -221,12 +258,9 @@ void TstarTstarGenHists::fill(const Event & event){
     **/
   }
 
-  TTbarGen ttbargen = event.get(h_ttbargen);
-  if(!ttbargen.IsSemiLeptonicDecay()){return;}
-  
   GenParticle toplep = ttbargen.TopLep();
   GenParticle tophad = ttbargen.TopHad();
-  
+
   GenParticle gluonlep, gluonhad;
   if(toplep.mother1() ==  gluon1.mother1()){
     gluonlep = gluon1;
@@ -236,17 +270,156 @@ void TstarTstarGenHists::fill(const Event & event){
     gluonlep = gluon2;
     gluonhad = gluon1;
   }
-  
+
   double dR_toplep_gluon = deltaR(toplep, gluonlep);
   double dR_tophad_gluon = deltaR(tophad, gluonhad);
   hist("dR_toplep_gluon_gen")->Fill(dR_toplep_gluon,weight);
   hist("dR_tophad_gluon_gen")->Fill(dR_tophad_gluon,weight);
 
-  hist("dR_hadtop_b_q1")->Fill(deltaR(ttbargen.BHad(), ttbargen.Q1()), weight);
-  hist("dR_hadtop_b_q2")->Fill(deltaR(ttbargen.BHad(), ttbargen.Q2()), weight);
-  hist("dR_hadtop_q1_q2")->Fill(deltaR(ttbargen.Q1(), ttbargen.Q2()), weight);
+  double dR_hadtop_b_q1 = deltaR(ttbargen.BHad(), ttbargen.Q1());
+  double dR_hadtop_b_q2 = deltaR(ttbargen.BHad(), ttbargen.Q2());
+  double dR_hadtop_q1_q2 = deltaR(ttbargen.Q1(), ttbargen.Q2());
+  hist("dR_hadtop_b_q1")->Fill(dR_hadtop_b_q1, weight);
+  hist("dR_hadtop_b_q2")->Fill(dR_hadtop_b_q2, weight);
+  hist("dR_hadtop_q1_q2")->Fill(dR_hadtop_q1_q2, weight);
+  hist("max_dR_hadtop")->Fill(max({dR_hadtop_b_q1, dR_hadtop_b_q2, dR_hadtop_q1_q2}), weight);
+  ((TH2D*)hist("2D_max_dR_hadtop"))->Fill(tophad.pt(), max({dR_hadtop_b_q1, dR_hadtop_b_q2, dR_hadtop_q1_q2}), weight);
+
+  GenInfo* genInfo = event.genInfo;
+
+  hist("x_g1")->Fill(genInfo->pdf_x1(), weight);
+  hist("x_g2")->Fill(genInfo->pdf_x2(), weight);
+
+  std::vector<GenParticle> gluons;
+  std::vector<GenParticle> tops;
+  int ngluons = 0;
+  for(const GenParticle & gp : *event.genparticles){
+    if(gp.pdgId() == 9000005 && (gp.status()==23 || gp.status()==22)){
+      hist("Tstar_spin")->Fill(gp.spin(), weight);
+    }
+    else if(gp.pdgId() == -9000005 && (gp.status()==23 || gp.status()==22)){
+      hist("Tstar_spin")->Fill(gp.spin(), weight);
+    }
+      else if(gp.pdgId() == 21 && (gp.status()==23 || gp.status()==22)){
+      gluons.push_back(gp);
+      ngluons++;
+    }
+    else if((gp.pdgId() == 6) || (gp.pdgId() == -6))
+      tops.push_back(gp);
+  }
+
+  int combsFound = 0;
+  for(const auto & top : tops){
+    for(const auto & gluon : gluons){
+      if(top.mother1() == gluon.mother1()){
+	combsFound++;
+	hist("dR_top_gluon")->Fill(deltaR(top, gluon), weight);
+      }
+    }
+  }
+
+  if(combsFound != 2){cout << "Error: not exactly two top gluon sibling pairs found!" << endl;}
+
+  // Check energy in jets corresponding to gluons
+  for(const auto & gluon : gluons){
+    bool matchedAK4 = false;
+    double bestmatchAK4 = 999;
+    Jet matchedAK4jet;
+    for(const auto & jet : *event.jets){
+      double dR = deltaR(gluon, jet);
+      if(dR < 0.4 && dR < bestmatchAK4){
+	matchedAK4 = true;
+	bestmatchAK4 = dR;
+	matchedAK4jet = jet;
+      }
+    } // found (best) matched AK4 jet
+
+    bool matchedAK8 = false;
+    double bestmatchAK8 = 999;
+    Jet matchedAK8jet;
+    for(const auto & jet : *event.topjets){
+      double dR = deltaR(gluon, jet);
+      if(dR < 0.8 && dR < bestmatchAK8){
+	matchedAK8 = true;
+	bestmatchAK8 = dR;
+	matchedAK8jet = jet;
+      }
+    } // found (best) matched AK4 jet
+
+    double gluon_E = gluon.energy();
+    if(matchedAK4 && matchedAK8){
+      hist("gluon_Efrac_AK4")->Fill(matchedAK4jet.energy()/gluon_E, weight);
+      hist("gluon_Efrac_AK8")->Fill(matchedAK8jet.energy()/gluon_E, weight);
+    }
+
+    hist("dR_gluon_jets")->Fill(deltaR(matchedAK4jet, matchedAK8jet), weight);
+
+  }
+
+  // Find hadronic top jet
+  double dR_hadtopjet = 999;
+  TopJet hadtopjet;
+  for(const auto & jet : *event.topjets){
+    double dR = deltaR(jet, ttbargen.TopHad());
+    if(dR < dR_hadtopjet){
+      dR_hadtopjet = dR;
+      hadtopjet = jet;
+    }
+  }
+
+  // Find leptonic b jet
+  double dR_lepbjet = 999;
+  Jet lepbjet;
+  for(const auto & jet : *event.jets){
+    //if(deltaR(jet, hadtopjet) < 1.2) continue;
+    double dR = deltaR(jet, ttbargen.BLep());
+    if(dR < dR_lepbjet){
+      dR_lepbjet = dR;
+      lepbjet = jet;
+    }
+  }
+
+  // Find hadronic slim jet
+  double dR_hadtopjet_slim = 999;
+  Jet hadtopjet_slim1;
+  Jet hadtopjet_slim2;
+  Jet hadtopjet_slim3;
+  int count_found = 0;
+  for(const auto & jet : *event.jets){
+    double dR = deltaR(jet, ttbargen.TopHad());
+    if(dR < dR_hadtopjet_slim){
+      count_found++;
+      dR_hadtopjet_slim = dR;
+      hadtopjet_slim3 = hadtopjet_slim2;
+      hadtopjet_slim2 = hadtopjet_slim1;
+      hadtopjet_slim1 = jet;
+    }
+  }
+  if(count_found > 0){
+    hist("dR_hadtop_jet1")->Fill(deltaR(hadtopjet, hadtopjet_slim1), weight);
+    if(count_found > 1){
+      hist("dR_hadtop_jet2")->Fill(deltaR(hadtopjet, hadtopjet_slim2), weight);
+      if(count_found > 2){
+	hist("dR_hadtop_jet3")->Fill(deltaR(hadtopjet, hadtopjet_slim3), weight);
+      }
+    }
+  }
+
+  // Find leptonic b jet
+  double dR_lepbjet_fat = 999;
+  TopJet lepbjet_fat;
+  for(const auto & jet : *event.topjets){
+    double dR = deltaR(jet, ttbargen.BLep());
+    if(dR < dR_lepbjet_fat){
+      dR_lepbjet_fat = dR;
+      lepbjet_fat = jet;
+    }
+  }
+  hist("dR_bquark_jets")->Fill(deltaR(lepbjet, lepbjet_fat), weight);
+
 
 }
+
 
 TstarTstarGenHists::~TstarTstarGenHists(){}
 
@@ -256,16 +429,20 @@ TstarTstarGenHists::~TstarTstarGenHists(){}
 
 
 
+
+
+
+
 TstarTstarMergedHists::TstarTstarMergedHists(Context & ctx, const string & dirname): Hists(ctx, dirname){
   // book all histograms here
-  book<TH1F>("Merge_leading_gluon", "Merge_g1 gen", 4, 0, 4);  
-  book<TH1F>("Merge_second_gluon", "Merge_g2 gen", 4, 0, 4);  
-  book<TH1F>("Merge_TstarLep", "Merge_TstarLep gen", 4, 0, 4);  
-  book<TH1F>("Merge_TstarHad", "Merge_TstarHad gen", 4, 0, 4);  
-  book<TH1F>("Merge_tLep", "Merge_tLep gen", 4, 0, 4);  
-  book<TH1F>("Merge_tHad", "Merge_tHad gen", 4, 0, 4);  
+  book<TH1F>("Merge_leading_gluon", "Merge_g1 gen", 4, 0, 4);
+  book<TH1F>("Merge_second_gluon", "Merge_g2 gen", 4, 0, 4);
+  book<TH1F>("Merge_TstarLep", "Merge_TstarLep gen", 4, 0, 4);
+  book<TH1F>("Merge_TstarHad", "Merge_TstarHad gen", 4, 0, 4);
+  book<TH1F>("Merge_tLep", "Merge_tLep gen", 4, 0, 4);
+  book<TH1F>("Merge_tHad", "Merge_tHad gen", 4, 0, 4);
 
-  bool is_tgtg = false; 
+  bool is_tgtg = false;
   bool is_tgtgamma = false;
   if(ctx.get("channel") == "tgtg") is_tgtg = true;
   if(ctx.get("channel") == "tgtgamma") is_tgtgamma = true;
@@ -280,7 +457,7 @@ void TstarTstarMergedHists::fill(const Event & event){
 
   // HELP CLASS FOR THE MOMENT ONLY VALID FOR TGTG!!!!
   //if(is_tgtgamma){return false;}
-  
+
   if(!is_mc) return;
   assert(event.genparticles);
   // Don't forget to always use the weight when filling.
@@ -346,12 +523,12 @@ void TstarTstarMergedHists::fill(const Event & event){
   fill = 0;
   if(deltaR(top.v4(), tstar_hyp_best.ttbar_hyp().toplep_v4()) < 0.8){fill+=1;}
   if(deltaR(antitop.v4(), tstar_hyp_best.ttbar_hyp().toplep_v4()) < 0.8){fill+=1;}
-  hist("Merge_tLep")->Fill(fill+0.5);  
+  hist("Merge_tLep")->Fill(fill+0.5);
 
   fill = 0;
   if(deltaR(top.v4(), tstar_hyp_best.ttbar_hyp().tophad_v4()) < 0.8){fill+=1;}
   if(deltaR(antitop.v4(), tstar_hyp_best.ttbar_hyp().tophad_v4()) < 0.8){fill+=1;}
-  hist("Merge_tHad")->Fill(fill+0.5);  
+  hist("Merge_tHad")->Fill(fill+0.5);
 
 }
 
