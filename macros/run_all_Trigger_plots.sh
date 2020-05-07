@@ -1,14 +1,15 @@
 #!/bin/bash
 #loop over samples
-for sample in MC\_TstarTstarToTgammaTgamma\_M-700\_Run2016v3 MC\_TstarTstarToTgammaTgamma\_M-800\_Run2016v3 MC\_TstarTstarToTgammaTgamma\_M-900\_Run2016v3 MC\_TstarTstarToTgammaTgamma\_M-1100\_Run2016v3 MC\_TstarTstarToTgammaTgluon\_M-1500\_Run2016v3 MC\_TstarTstarToTgammaTgluon\_M-1600\_Run2016v3 MC\_TstarTstarToTgluonTgluon\_M-700\_Run2016v3 MC\_TstarTstarToTgluonTgluon\_M-800\_Run2016v3 MC\_TstarTstarToTgluonTgluon\_M-900\_Run2016v3 MC\_TstarTstarToTgluonTgluon\_M-1100\_Run2016v3 MC\_TstarTstarToTgluonTgluon\_M-1200\_Run2016v3 MC\_TstarTstarToTgluonTgluon\_M-1300\_Run2016v3 MC\_TstarTstarToTgluonTgluon\_M-1500\_Run2016v3
+denomstep=After2D
+for sample in TstarTstar\_M-700 TstarTstar\_M-800 TstarTstar\_M-900 TstarTstar\_M-1000 TstarTstar\_M-1100 TstarTstar\_M-1200 TstarTstar\_M-1300 TstarTstar\_M-1400 TstarTstar\_M-1500 TstarTstar\_M-1600
 do
     #loop over triggers
-    for step in SemiLepTTBarMatchGENRECO_triggerSingleLeptonMu SemiLepTTBarMatchGENRECO_triggerSingleJet SemiLepTTBarMatchGENRECO_triggerSingleLeptonEle SemiLepTTBarMatchGENRECO_triggerHT
+    for step in triggerSingleJet triggerHT triggerPFHT
     do
         #loop over hists
-	for hist in Pt_mu Eta_mu AK4_Pt_b AK8_Pt_gluon AK8_Pt_top
+	for hist in pt_mu eta_mu pt_ele eta_ele pt_jet1 pt_ak8jet1
 	do
-	    root -l -b -q TriggerEffPlots.C\(\"uhh2.AnalysisModuleRunner.MC.${sample}.root\",\"${sample}\",\"${step}\",\"${hist}\"\)
+    root -l -b -q TriggerEffPlots.C\(\"uhh2.AnalysisModuleRunner.MC.${sample}.root\",\"${sample}\",\"${step}\",\"${hist}\",\"${denomstep}\"\)
 	done
     done
 done

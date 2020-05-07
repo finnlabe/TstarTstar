@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE JobConfiguration PUBLIC "" "JobConfig.dtd" [
 
-<!ENTITY CHANNEL "tgtg">
-<!ENTITY INPUTdir  "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/&CHANNEL;/">
-<!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/&CHANNEL;/">
+<!ENTITY INPUTdir  "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/">
+<!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/">
 
 ]>
 
 <!--
 <ConfigParse NEventsBreak="0" LastBreak="0" FileSplit="35" AutoResubmit="100"/>
-<ConfigSGE RAM="2" DISK="2" Mail="finn.labe@desy.de" Notification="as" Workdir="workdir_Selection_Data_tgtg_2016v3"/>
+<ConfigSGE RAM="2" DISK="2" Mail="finn.labe@desy.de" Notification="as" Workdir="workdir_Selection_Data_HOTVR_2016v3"/>
 -->
 
 <!-- OutputLevel controls which messages are printed; set to VERBOSE or DEBUG for more verbosity, to WARNING or ERROR for less -->
@@ -63,7 +62,7 @@
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
-	
+
 	<!-- ##### muon ##### -->
 
 	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleMuon2016_RunB_2016v3" Cacheable="False">
@@ -116,12 +115,11 @@
 	    <Item Name="PhotonCollection"        Value="slimmedPhotonsUSER"/>
 	    <Item Name="MuonCollection"          Value="slimmedMuonsUSER"/>
 	    <Item Name="JetCollection"           Value="jetsAk4Puppi"/>
-	    <Item Name="TopJetCollection"        Value="jetsAk8CHSSubstructure_SoftDropCHS"/>
-	    <Item Name="TopPuppiJetCollection"   Value="jetsAk8PuppiSubstructure_SoftDropPuppi"/>
+	    <Item Name="TopJetCollection"        Value="hotvrPuppi"/>
 	    <Item Name="METName"                 Value="slimmedMETsPuppi"/>
 	    <Item Name="lumi_file" Value="/nfs/dust/cms/user/karavdia/CMSSW_10_2_10/src/UHH2/common/data/2016/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root"/>
 	    <Item Name="lumihists_lumi_per_bin" Value="500.0"/>
-	    
+
 	    <Item Name="jersmear_direction" Value="nominal"/>
 	    <Item Name="jecsmear_direction" Value="nominal"/>
 
@@ -140,8 +138,6 @@
 
             <!-- Some test configuration; see TstarTstarModule.cxx for how to access it: -->
             <Item Name="TestKey" Value="TestKeyValue" />
-
-	    <Item Name="channel" Value="&CHANNEL;" />
 
         </UserConfig>
     </Cycle>

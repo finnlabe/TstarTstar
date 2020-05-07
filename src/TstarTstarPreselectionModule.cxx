@@ -44,21 +44,17 @@ private:
   unique_ptr<TopJetCleaner> AK8cleaner;
   unique_ptr<TopJetCleaner> HOTVRcleaner;
   unique_ptr<Selection> met_sel;
-  unique_ptr<Selection> triggerSingleLeptonEle1_sel;
-  unique_ptr<Selection> triggerSingleLeptonEle2_sel;
-  unique_ptr<Selection> triggerSingleLeptonEle3_sel;
-  unique_ptr<Selection> triggerSingleLeptonMu1_sel;
-  unique_ptr<Selection> triggerSingleLeptonMu2_sel;
-  unique_ptr<Selection> triggerSingleLeptonMu3_sel;
-  unique_ptr<Selection> triggerSingleLeptonMu4_sel;
+
 
   // ##### Histograms #####
   // Store the Hists collection as member variables. Again, use unique_ptr to avoid memory leaks.
-  std::unique_ptr<Hists> h_nocuts,     h_common,     h_lepsel,     h_fatjetsel,     h_METsel,     h_trigger;
-  std::unique_ptr<Hists> h_nocuts_gen, h_common_gen, h_lepsel_gen, h_fatjetsel_gen, h_METsel_gen, h_trigger_gen;
-
+  std::unique_ptr<Hists> h_nocuts,     h_common,     h_lepsel,     h_fatjetsel,     h_METsel;
+  std::unique_ptr<Hists> h_nocuts_gen, h_common_gen, h_lepsel_gen, h_fatjetsel_gen, h_METsel_gen;
+  std::unique_ptr<Hists> h_lepsel_ele,     h_fatjetsel_ele,     h_METsel_ele;
+  std::unique_ptr<Hists> h_lepsel_mu,     h_fatjetsel_mu,     h_METsel_mu;
   std::unique_ptr<uhh2::AnalysisModule> ttgenprod;
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
+  uhh2::Event::Handle<bool> h_is_muevt;
 
   bool debug = false;
 
@@ -88,18 +84,17 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
 
   // 1. setup modules. CommonModules
   common.reset(new CommonModules());
-  common->disable_mcpileupreweight(); //FixME: PU re-weighting crushes TODO
   common->switch_metcorrection();
 
   // Electron
   ElectronId eleID;
-  double electron_pt(20.);
+  double electron_pt(30.);
   eleID = ElectronID_Summer16_tight_noIso;
   common->set_electron_id(AndId<Electron>(PtEtaSCCut(electron_pt, 2.4), eleID));
 
   //Muon
   MuonId muID;
-  double muon_pt(20.);
+  double muon_pt(30.);
   muID = MuonID(Muon::Highpt);
   common->set_muon_id(AndId<Muon>(PtEtaCut(muon_pt, 2.4), muID));
 
@@ -120,16 +115,6 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
 
   // 2. set up selections
 
-  // Triggers
-  triggerSingleLeptonMu1_sel.reset(new TriggerSelection("HLT_Mu50_v*"));
-  triggerSingleLeptonMu2_sel.reset(new TriggerSelection("HLT_Mu55_v*"));
-  triggerSingleLeptonMu3_sel.reset(new TriggerSelection("HLT_IsoMu24_v*"));
-  triggerSingleLeptonMu4_sel.reset(new TriggerSelection("HLT_IsoTkMu24_v*"));
-
-  triggerSingleLeptonEle1_sel.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
-  triggerSingleLeptonEle2_sel.reset(new TriggerSelection("HLT_Ele25_eta2p1_WPTight_Gsf_v*"));
-  triggerSingleLeptonEle3_sel.reset(new TriggerSelection("HLT_Ele32_eta2p1_WPTight_Gsf_v*"));
-
   // MET selection
   met_sel.reset(new METCut  (50.,1e9));
 
@@ -139,15 +124,22 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   h_lepsel.reset(new TstarTstarHists(ctx, "AfterLepSel"));
   h_fatjetsel.reset(new TstarTstarHists(ctx, "AfterAK8jets"));
   h_METsel.reset(new TstarTstarHists(ctx, "AfterMET"));
-  h_trigger.reset(new TstarTstarHists(ctx, "AfterTrigger"));
 
+  h_lepsel_ele.reset(new TstarTstarHists(ctx, "AfterLepSel_ele"));
+  h_fatjetsel_ele.reset(new TstarTstarHists(ctx, "AfterAK8jets_ele"));
+  h_METsel_ele.reset(new TstarTstarHists(ctx, "AfterMET_ele"));
+
+  h_lepsel_mu.reset(new TstarTstarHists(ctx, "AfterLepSel_mu"));
+  h_fatjetsel_mu.reset(new TstarTstarHists(ctx, "AfterAK8jets_mu"));
+  h_METsel_mu.reset(new TstarTstarHists(ctx, "AfterMET_mu"));
 
   h_nocuts_gen.reset(new TstarTstarHists(ctx, "NoCuts_gen"));
   h_common_gen.reset(new TstarTstarHists(ctx, "AfterCommon_gen"));
   h_lepsel_gen.reset(new TstarTstarHists(ctx, "AfterLepSel_gen"));
   h_fatjetsel_gen.reset(new TstarTstarHists(ctx, "AfterAK8jets_gen"));
   h_METsel_gen.reset(new TstarTstarHists(ctx, "AfterMET_gen"));
-  h_trigger_gen.reset(new TstarTstarHists(ctx, "AfterTrigger_gen"));
+
+  h_is_muevt = ctx.declare_event_output<bool>("is_muevt");
 
 }
 
@@ -184,8 +176,12 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   // Require exactly one muon or one electron
   const bool pass_lep1 = (((event.muons->size() == 1) || (event.electrons->size() == 1)) && (event.electrons->size()+event.muons->size()) == 1);
   if(!pass_lep1) return false;
+  if(event.muons->size() == 1) event.set(h_is_muevt, true);
+  else event.set(h_is_muevt, false);
   h_lepsel->fill(event);
   h_lepsel_gen->fill(event);
+  if(event.get(h_is_muevt)) h_lepsel_mu->fill(event);
+  else h_lepsel_ele->fill(event);
   if(debug) cout << "Filled hists after lepsel" << endl;
 
   // fat jet selection
@@ -193,6 +189,8 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   if(!pass_fat_njet) return false;
   h_fatjetsel->fill(event);
   h_fatjetsel_gen->fill(event);
+  if(event.get(h_is_muevt)) h_fatjetsel_mu->fill(event);
+  else h_fatjetsel_ele->fill(event);
   if(debug) cout << "Filled hists after fatjetsel" << endl;
 
   // MET Selection
@@ -200,18 +198,9 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   if(!pass_MET) return false;
   h_METsel->fill(event);
   h_METsel_gen->fill(event);
+  if(event.get(h_is_muevt)) h_METsel_mu->fill(event);
+  else h_METsel_ele->fill(event);
   if(debug) cout<<"Filled hists after MET"<<endl;
-
-  // Trigger
-  bool pass_trigger = false;
-  bool pass_trigger_SingleMu = (triggerSingleLeptonMu1_sel->passes(event) || triggerSingleLeptonMu2_sel->passes(event) || triggerSingleLeptonMu3_sel->passes(event) || triggerSingleLeptonMu4_sel->passes(event));
-  if(pass_trigger_SingleMu && (event.muons->size() == 1)){ pass_trigger = true; }
-  bool pass_trigger_SingleEle = (triggerSingleLeptonEle1_sel->passes(event) || triggerSingleLeptonEle2_sel->passes(event) || triggerSingleLeptonEle3_sel->passes(event));
-  if(pass_trigger_SingleEle && (event.electrons->size() == 1)){ pass_trigger = true; }
-  if(!pass_trigger) return false;
-  h_trigger->fill(event);
-  h_trigger_gen->fill(event);
-  if(debug) cout<<"Filled hists after Trigger"<<endl;
 
   if(debug) cout << "########### Done with preselection! ###########" << endl << endl;
 

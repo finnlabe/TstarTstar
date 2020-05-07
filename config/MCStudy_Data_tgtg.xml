@@ -2,9 +2,8 @@
 <!DOCTYPE JobConfiguration PUBLIC "" "JobConfig.dtd" [
 
 
-<!ENTITY CHANNEL "tgtg">
-<!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/MCStudy/&CHANNEL;/">
-<!ENTITY INPUTdir  "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/&CHANNEL;/">
+<!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/MCStudy/">
+<!ENTITY INPUTdir  "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/">
 ]>
 
 <!--
@@ -63,7 +62,7 @@
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
-	
+
 	<!-- ##### muon ##### -->
 
 	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleMuon2016_RunB_2016v3" Cacheable="False">
@@ -116,12 +115,11 @@
 	    <Item Name="PhotonCollection"        Value="slimmedPhotonsUSER"/>
 	    <Item Name="MuonCollection"          Value="slimmedMuonsUSER"/>
 	    <Item Name="JetCollection"           Value="jetsAk4Puppi"/>
-	    <Item Name="TopJetCollection"        Value="jetsAk8CHSSubstructure_SoftDropCHS"/>
-	    <Item Name="TopPuppiJetCollection"   Value="jetsAk8PuppiSubstructure_SoftDropPuppi"/>
+	    <Item Name="TopJetCollection"        Value="hotvrPuppi"/>
 	    <Item Name="METName"                 Value="slimmedMETsPuppi"/>
 	    <Item Name="lumi_file" Value="/nfs/dust/cms/user/karavdia/CMSSW_10_2_10/src/UHH2/common/data/2016/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root"/>
-	    <Item Name="lumihists_lumi_per_bin" Value="1.0"/>
-	    
+	    <Item Name="lumihists_lumi_per_bin" Value="500.0"/>
+
 <!--	    <Item Name="is_puppi" Value="&IS_PUPPI;"/> -->
 
 	    <Item Name="jersmear_direction" Value="nominal"/>
@@ -144,10 +142,6 @@
             <Item Name="TestKey" Value="TestKeyValue" />
 
             <Item Name="UseTrigger" Value="false" />
-
-	    <Item Name="channel" Value="&CHANNEL;" /> <!-- final state: expected 'tgtg' or 'tgtgamma' -->
-
-
 
         </UserConfig>
     </Cycle>

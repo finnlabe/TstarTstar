@@ -3,9 +3,8 @@
 <!ENTITY TargetLumi      "35900">
 <!ENTITY b_Cacheable     "False">
 <!ENTITY NEVT            "-1">
-<!ENTITY CHANNEL         "tgtg">
 
-<!ENTITY OUTPUTdir           "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/GenInfo/&CHANNEL;/">
+<!ENTITY OUTPUTdir           "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/GenInfo/">
 
 <!ENTITY MC_TstarTstarToTgluonTgluon_M-700_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-700.xml">
 <!ENTITY MC_TstarTstarToTgluonTgluon_M-800_Run2016v3   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-800.xml">
@@ -107,15 +106,14 @@
 	    <Item Name="PhotonCollection"        Value="slimmedPhotonsUSER"/>
 	    <Item Name="MuonCollection"          Value="slimmedMuonsUSER"/>
 	    <Item Name="JetCollection"           Value="jetsAk4Puppi"/>
-	    <Item Name="GenJetCollection"        Value="slimmedGenJets"/> 
-	    <Item Name="TopJetCollection"        Value="jetsAk8CHSSubstructure_SoftDropCHS"/>
-	    <Item Name="GenTopJetCollection"     Value="genjetsAk8SubstructureSoftDrop"/> <!-- Check odinary ak8GenJetsFat !--> <!-- new in ntuples! -->
-	    <Item Name="TopPuppiJetCollection"   Value="jetsAk8PuppiSubstructure_SoftDropPuppi"/>
+	    <Item Name="GenJetCollection"        Value="slimmedGenJets"/>
+	    <Item Name="TopJetCollection"        Value="hotvrPuppi"/>
+	    <Item Name="GenTopJetCollection"     Value="hotvrGen"/>
 	    <Item Name="METName"                 Value="slimmedMETsPuppi"/>
 	    <Item Name="genMETName"              Value="slimmedMETs_GenMET"/>
 	    <Item Name="lumi_file" Value="/nfs/dust/cms/user/karavdia/CMSSW_10_2_10/src/UHH2/common/data/2016/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root"/>
 	    <Item Name="lumihists_lumi_per_bin" Value="500.0"/>
-	    
+
 <!--	    <Item Name="is_puppi" Value="&IS_PUPPI;"/> -->
 
 	    <Item Name="jersmear_direction" Value="nominal"/>
@@ -136,8 +134,6 @@
 
             <!-- Some test configuration; see TstarTstarModule.cxx for how to access it: -->
             <Item Name="TestKey" Value="TestKeyValue" />
-
-	    <Item Name="channel" Value="&CHANNEL;" />
 
         </UserConfig>
     </Cycle>

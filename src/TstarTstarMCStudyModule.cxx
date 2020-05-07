@@ -59,8 +59,8 @@ private:
   // ##### Histograms #####
   // Store the Hists collection as member variables. Again, use unique_ptr to avoid memory leaks.
 
-  std::unique_ptr<Hists> h_beforeReco, h_beforeReco_ttag, h_beforeReco_nottag, h_afterPrimlep, h_afterHypCreation, h_afterReco_Full, h_afterReco_ttag, h_afterReco_nottag, h_afterGEN, h_afterGEN_onlyttbar, h_afterGEN_onlyttbar_ttag, h_afterGEN_onlyttbar_nottag;
-  std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_Full, h_RecoPlots_ttag, h_RecoPlots_nottag;
+  std::unique_ptr<Hists> h_beforeReco, h_beforeReco_ttag, h_beforeReco_nottag, h_afterPrimlep, h_afterHypCreation, h_afterReco_Full, h_afterReco_ttag, h_afterReco_nottag, h_lowchi2, h_highchi2, h_afterGEN, h_afterGEN_onlyttbar, h_afterGEN_onlyttbar_ttag, h_afterGEN_onlyttbar_nottag, h_notReconstructible, h_notReconstructible_ttag, h_notReconstructible_nottag, h_passFatJetSel;
+  std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_Full, h_RecoPlots_ttag, h_RecoPlots_nottag, h_RecoPlots_lowchi2, h_RecoPlots_highchi2;
   std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_GEN, h_RecoPlots_GEN_onlyttbar, h_RecoPlots_GEN_onlyttbar_ttag, h_RecoPlots_GEN_onlyttbar_nottag;
 
   std::unique_ptr<Hists> h_GEN_Hists, h_GEN_Hists_pre;
@@ -147,9 +147,6 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   // 0. Reading in whether MC and if so, which channel
   is_MC = ctx.get("dataset_type") == "MC";
 
-
-  if(is_HOTVR && debug) cout << "We are using HOTVR jets because they are awesome!!!" << endl;
-
   // Prepare GEN
   if(is_MC){
     ttgenprod.reset(new TTbarGenProducer(ctx, "ttbargen", false));
@@ -159,9 +156,7 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   }
 
   //TopTag
-  TopJetId topjetID;
-  if(is_HOTVR) topjetID = AndId<TopJet>(HOTVRTopTag(), Tau32Groomed(0.56));
-  else topjetID = AndId<TopJet>(TopTagMassWindow(), Tau32(0.56));
+  TopJetId topjetID = AndId<TopJet>(HOTVRTopTag(), Tau32Groomed(0.56));
   toptagevt_sel.reset(new TopTagEventSelection(topjetID));
   h_flag_toptagevent = ctx.declare_event_output<int>("flag_toptagevent");
 
@@ -175,18 +170,26 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   h_beforeReco_ttag.reset(new TstarTstarHists(ctx, "beforeReco_ttag"));
   h_beforeReco_nottag.reset(new TstarTstarHists(ctx, "beforeReco_nottag"));
   h_afterPrimlep.reset(new TstarTstarHists(ctx, "afterPrimlep"));
+  h_passFatJetSel.reset(new TstarTstarHists(ctx, "passFatJetSel"));
   h_afterHypCreation.reset(new TstarTstarHists(ctx, "afterHypCreation"));
   h_afterReco_Full.reset(new TstarTstarHists(ctx, "AfterReco_Full"));
   h_afterReco_ttag.reset(new TstarTstarHists(ctx, "AfterReco_ttag"));
   h_afterReco_nottag.reset(new TstarTstarHists(ctx, "AfterReco_nottag"));
+  h_lowchi2.reset(new TstarTstarHists(ctx, "Lowchi2"));
+  h_highchi2.reset(new TstarTstarHists(ctx, "Highchi2"));
   h_afterGEN.reset(new TstarTstarHists(ctx, "AfterGEN"));
   h_afterGEN_onlyttbar.reset(new TstarTstarHists(ctx, "AfterGEN_onlyttbar"));
   h_afterGEN_onlyttbar_ttag.reset(new TstarTstarHists(ctx, "AfterGEN_onlyttbar_ttag"));
   h_afterGEN_onlyttbar_nottag.reset(new TstarTstarHists(ctx, "AfterGEN_onlyttbar_nottag"));
+  h_notReconstructible.reset(new TstarTstarHists(ctx, "notReconstructible"));
+  h_notReconstructible_ttag.reset(new TstarTstarHists(ctx, "notReconstructible_ttag"));
+  h_notReconstructible_nottag.reset(new TstarTstarHists(ctx, "notReconstructible_nottag"));
 
   h_RecoPlots_Full.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_Full"));
   h_RecoPlots_ttag.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_ttag"));
   h_RecoPlots_nottag.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_nottag"));
+  h_RecoPlots_lowchi2.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_lowchi2"));
+  h_RecoPlots_highchi2.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_highchi2"));
   h_RecoPlots_GEN.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN"));
   h_RecoPlots_GEN_onlyttbar.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN_onlyttbar"));
   h_RecoPlots_GEN_onlyttbar_ttag.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN_onlyttbar_ttag"));
@@ -256,6 +259,10 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   MCWeight->process(event);
   if(is_MC) ttgenprod->process(event);
 
+  // check lepton channel
+  const bool muon_evt = (event.muons->size() == 1);
+  event.set(h_flag_muonevent, int(muon_evt));
+
   h_beforeReco->fill(event);
   h_GEN_Hists_pre->fill(event);
 
@@ -266,10 +273,6 @@ bool TstarTstarMCStudyModule::process(Event & event) {
 
   if(pass_ttag){h_beforeReco_ttag->fill(event);}
   else {h_beforeReco_nottag->fill(event);}
-
-  // check lepton channel
-  const bool muon_evt = (event.muons->size() == 1);
-  event.set(h_flag_muonevent, int(muon_evt));
 
   // Fix empty handle problem
   // (Dummy values are filled into handles so that they are not empty)
@@ -286,8 +289,14 @@ bool TstarTstarMCStudyModule::process(Event & event) {
 
   h_afterPrimlep->fill(event);
 
+  // fat jet selection
+  bool pass_fat_njet = (event.topjets->size()>2);
+
   if(debug){cout << "Starting to construct all TstarTstar Hypothesiseseses" << endl;}
-  TstarHypsCreated = TstarTstarHypCreator->process(event);
+  if(pass_fat_njet){
+    h_passFatJetSel->fill(event);
+    TstarHypsCreated = TstarTstarHypCreator->process(event);
+  }
   if(TstarHypsCreated){
     h_afterHypCreation->fill(event);
     bestHypFound = TstarTstarHypSelector->process(event);
@@ -295,7 +304,6 @@ bool TstarTstarMCStudyModule::process(Event & event) {
       h_RecoPlots_Full->fill(event);
       h_afterReco_Full->fill(event);
       h_GEN_Hists->fill(event);
-
       if(pass_ttag){
 	       h_RecoPlots_ttag->fill(event);
 	       h_afterReco_ttag->fill(event);
@@ -304,10 +312,20 @@ bool TstarTstarMCStudyModule::process(Event & event) {
 	       h_RecoPlots_nottag->fill(event);
 	       h_afterReco_nottag->fill(event);
       }
+      if(event.get(h_tstartstar_hyp).chi2()<50){
+        h_RecoPlots_lowchi2->fill(event);
+        h_lowchi2->fill(event);
+      }
+      else {
+        h_RecoPlots_highchi2->fill(event);
+        h_highchi2->fill(event);
+      }
     }
   }
   if(!TstarHypsCreated || !bestHypFound){
-    // TODO FILL A HIST FOR RECO
+    h_notReconstructible->fill(event);
+    if(pass_ttag) h_notReconstructible_ttag->fill(event);
+    else h_notReconstructible_nottag->fill(event);
   }
 
   // Filling output for DNN
@@ -427,7 +445,6 @@ bool TstarTstarMCStudyModule::process(Event & event) {
     }
   }
 
-
   if(forDNN && bestHypFound && includeDNNmodel){
     std::vector<tensorflow::Tensor> outputs;
     tensorflow::Tensor input(tensorflow::DT_FLOAT, {1, 19});
@@ -439,7 +456,7 @@ bool TstarTstarMCStudyModule::process(Event & event) {
     tensorflow::run(session_3, {{"dense_1_input",input}}, {"dense_4/Tanh"}, &outputs);
 
     for (int i = 0; i<1 ; i++){
-      event.set(h_DNN_output, outputs[0].matrix<float>()(0, i)); // Output to console.
+      event.set(h_DNN_output, outputs[0].matrix<float>()(0, i));
     }
   }
 

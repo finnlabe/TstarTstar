@@ -83,8 +83,8 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
 
   //MET and HT
   book<TH1F>("pt_MET", "missing E_{T} [GeV]", 100, 0, 2000);
-  book<TH1F>("pt_ST_jets", "S_{T}^{jets}=#sum_{i}|AK4 p^{i}_{T}| [GeV/c]", 25, 10, 4000);
-  book<TH1F>("pt_ST_jets_oldbins", "S_{T}^{jets}=#sum_{i}|AK4 p^{i}_{T}| [GeV/c]", 100, 10, 4000);
+  book<TH1F>("pt_ST_jets", "S_{T} [GeV]", 20, 0, 3000);
+  book<TH1F>("pt_ST_jets_oldbins", "S_{T}^{jets}=#sum_{i}|HOTVR p^{i}_{T}| [GeV]", 100, 10, 4000);
 
   // deltaR observables
   book<TH1F>("dR_fatjet1_fatjet2", "#DeltaR (hotvrjet 1, hotvrjet 1)", 20, 0, 6);

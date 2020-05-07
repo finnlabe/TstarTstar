@@ -108,7 +108,7 @@
 	    <Item Name="JetCollection"           Value="jetsAk4Puppi"/>
 	    <Item Name="GenJetCollection"        Value="slimmedGenJets"/>
 	    <Item Name="TopJetCollection"        Value="hotvrPuppi"/>
-	    <Item Name="GenTopJetCollection"     Value="hotvrGen"/> <!-- Check odinary ak8GenJetsFat !--> <!-- new in ntuples! -->
+	    <Item Name="GenTopJetCollection"     Value="hotvrGen"/>
 	    <!--<Item Name="TopPuppiJetCollection"   Value="jetsAk8PuppiSubstructure_SoftDropPuppi"/> -->
 	    <Item Name="METName"                 Value="slimmedMETsPuppi"/>
 	    <Item Name="genMETName"              Value="slimmedMETs_GenMET"/>

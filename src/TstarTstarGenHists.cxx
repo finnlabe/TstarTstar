@@ -46,7 +46,7 @@ TstarTstarGenHists::TstarTstarGenHists(Context & ctx, const string & dirname): H
   book<TH1F>("M_tstartstar_gen", "M_{TstarTstar} gen", 200, 0, 10000);
   book<TH1F>("M_ttbar_gen", "M_{ttbar} gen", 100, 0, 5000);
   book<TH1F>("M_top_gen", "M_{top} gen", 50, 0, 500);
-  book<TH1F>("Pt_top_gen", "Pt_{top} gen", 100, 0, 3000);
+  book<TH1F>("Pt_top_gen", "p^{t}_{T}", 100, 0, 3000);
   book<TH1F>("dR_tstartstar_gen", "dR(Tstar,Tstar)", 30, 0, 6);
   book<TH1F>("dR_ttbar_gen", "dR(top,top)", 30, 0, 6);
 
@@ -76,7 +76,7 @@ TstarTstarGenHists::TstarTstarGenHists(Context & ctx, const string & dirname): H
   book<TH1F>("dR_hadtop_b_q1", "dR(b, q1)", 30, 0, 6);
   book<TH1F>("dR_hadtop_b_q2", "dR(b, q2)", 30, 0, 6);
   book<TH1F>("dR_hadtop_q1_q2", "dR(q1, q2)", 30, 0, 6);
-  book<TH1F>("max_dR_hadtop", "max dR(t_{had}) decay products", 30, 0, 6);
+  book<TH1F>("max_dR_hadtop", "max dR(t_{had} decay products)", 30, 0, 6);
   book<TH2D>("2D_max_dR_hadtop", "pT t_{had} vs max(dR) of t_{had} decays", 100, 0, 3000, 100, 0, 6);
 
   book<TH1F>("isolated_partons", "number of isolated partons", 7, -1, 6);

@@ -20,20 +20,20 @@ namespace {
 
     ReconstructionHypothesis ttbar_hyp = hyp.ttbar_hyp();
 
-    double mtophad_ = 166.;
-    double sigmatophad_ = 16.;
+    double mtophad_ = 158.3;
+    double sigmatophad_ = 23.95;
     double chi2_top_had;
     if(is_HOTVR) chi2_top_had = pow((inv_mass(ttbar_hyp.tophad_v4()) - (mtophad_))/(sigmatophad_) ,2);
     else chi2_top_had = pow((ttbar_hyp.tophad_topjet_ptr()->softdropmass() - (mtophad_))/(sigmatophad_) ,2);
     chi2 += chi2_top_had;
 
-    double mtoplep_ = 166.;
-    double sigmatoplep_ = 16.;
+    double mtoplep_ = 171.6;
+    double sigmatoplep_ = 25.68;
     double chi2_top_lep = pow((inv_mass(ttbar_hyp.toplep_v4()) - (mtoplep_))/(sigmatoplep_) ,2);
     chi2 += chi2_top_lep;
 
-    double sigma_deltaM_Tstar = 0.2532;
-    double mean_deltaM_Tstar = 0.1175;
+    double sigma_deltaM_Tstar = 0.136;
+    double mean_deltaM_Tstar = 0.2681;
     double deltaM_norm = (inv_mass(hyp.tstarlep_v4()) - inv_mass(hyp.tstarhad_v4()))*2/(inv_mass(hyp.tstarlep_v4()) + inv_mass(hyp.tstarhad_v4()));
     double chi2_deltaM_Tstar = pow( (deltaM_norm - mean_deltaM_Tstar)/(sigma_deltaM_Tstar) ,2);
     chi2 += chi2_deltaM_Tstar;
@@ -155,14 +155,16 @@ bool TstarTstar_tgtg_TopTag_Reconstruction::process(uhh2::Event& event){
     double R_toptaggedjet = (tj.pt() > 0) ? 600/(tj.pt()) : 1.5;
     if(R_toptaggedjet > 1.5) R_toptaggedjet = 1.5;
     if(R_toptaggedjet < 0.1) R_toptaggedjet = 0.1;
-    double R_g1 = (g1.pt() > 0) ? 600/(g1.pt()) : 1.5;
+    LorentzVector gluon_cand_1 = gluonCands.at(g1);
+    double R_g1 = (gluon_cand_1.pt() > 0) ? 600/(gluon_cand_1.pt()) : 1.5;
     if(R_g1 > 1.5) R_g1 = 1.5;
     if(R_g1 < 0.1) R_g1 = 0.1;
-    double R_g2 = (g2.pt() > 0) ? 600/(g2.pt()) : 1.5;
+    LorentzVector gluon_cand_2 = gluonCands.at(g2);
+    double R_g2 = (gluon_cand_2.pt() > 0) ? 600/(gluon_cand_2.pt()) : 1.5;
     if(R_g2 > 1.5) R_g2 = 1.5;
     if(R_g2 < 0.1) R_g2 = 0.1;
     for(const auto & jet : *event.jets){
-      if((deltaR(tj, jet) > R_toptaggedjet+0.4) && (deltaR(g1, jet) > R_g1+0.4) && (deltaR(g2, jet) > R_g2+0.4)){tlep_jets.push_back(&jet);}
+      if((deltaR(tj, jet) > R_toptaggedjet+0.4) && (deltaR(gluon_cand_1, jet) > R_g1+0.4) && (deltaR(gluon_cand_2, jet) > R_g2+0.4)){tlep_jets.push_back(&jet);}
     }
 
     for(const auto & tlep_jet : tlep_jets){
@@ -227,8 +229,6 @@ TstarTstar_Discrimination::TstarTstar_Discrimination(Context & ctx){
   h_tstartstar_hyp_vector = ctx.get_handle<std::vector<ReconstructionTstarHypothesis>>("TstarTstar_Hyp_Vector");
   h_tstartstar_hyp = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_Hyp");
 
-  is_HOTVR = false;
-  if(ctx.get("channel") == "HOTVR") is_HOTVR = true;
 }
 
 
@@ -246,7 +246,7 @@ bool TstarTstar_Discrimination::process(uhh2::Event& event){
   double chi2_min=1e9;
   ReconstructionTstarHypothesis hyp_best;
   for(auto & hyp : hyp_vector){
-    double chi2 = chi2Function(hyp, is_HOTVR);
+    double chi2 = chi2Function(hyp, true);
     hyp.set_chi2(chi2);
 
     if(chi2 < chi2_min){

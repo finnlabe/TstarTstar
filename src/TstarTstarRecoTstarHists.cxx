@@ -17,12 +17,6 @@ namespace {
 }
 
 TstarTstarRecoTstarHists::TstarTstarRecoTstarHists(Context & ctx, const string & dirname): Hists(ctx, dirname){
-  // ###### Case Handling ######
-  is_tgtg = false;
-  is_tgtgamma = false;
-  if(ctx.get("channel") == "tgtg") is_tgtg = true;
-  if(ctx.get("channel") == "tgtgamma") is_tgtgamma = true;
-
 
   // ###### Handles ######
   h_tstartstar_hyp = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_Hyp");
@@ -30,13 +24,13 @@ TstarTstarRecoTstarHists::TstarTstarRecoTstarHists(Context & ctx, const string &
   // ###### Histograms ######
 
   // #### M_Tstar
-  book<TH1F>("M_Tstar", "Mass T^{*} [GeV]", 50, 0, 3000);
-  book<TH1F>("newST", "Sum of all Fat jets plus lepton", 50, 0, 4000);
+  book<TH1F>("M_Tstar", "m_{T*} [GeV]", 30, 0, 3000);
+  book<TH1F>("newST", "Sum of all Fat jets plus lepton", 40, 0, 4000);
   // tgtg
-  book<TH1F>("M_Tstar_lep", "Mass T^{*}_{tgtg,lep} [GeV]", 50, 0, 3000);
-  book<TH1F>("M_Tstar_had", "Mass T^{*}_{tgtg,had} [GeV]", 50, 0, 3000);
+  book<TH1F>("M_Tstar_lep", "m_{T*_{lep}} [GeV]", 50, 0, 3000);
+  book<TH1F>("M_Tstar_had", "m_{T*_{had}} [GeV]", 50, 0, 3000);
   book<TH1F>("deltaM_Tstar", "Mass difference of T^{*}_{tgtg,lep} and T^{*}_{tgtg,had} [GeV]", 50, -2, 2);
-  book<TH1F>("Chi2_bestchi2", "#chi^{2}_{best #chi^{2}}", 15, 0, 500);
+  book<TH1F>("Chi2_bestchi2", "#chi^{2}_{best hyp}", 20, 0, 500);
 
   // #### Delta_R
   book<TH1F>("DeltaR_toplep_gluon", "#DeltaR (t_{lep}, g)", 15, 0, 6);
@@ -92,8 +86,6 @@ void TstarTstarRecoTstarHists::fill(const Event & event){
   // 'hist' is used here a lot for simplicity, but it will be rather
   // slow when you have many histograms; therefore, better
   // use histogram pointers as members as in 'UHH2/common/include/ElectronHists.h'
-
-  if(is_tgtgamma){return;}
 
   bool debug = false;
 

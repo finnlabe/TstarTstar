@@ -49,16 +49,29 @@ private:
   uhh2::Event::Handle<FlavorParticle> h_primlep;
 
   // Store the Hists collection as member variables. Again, use unique_ptr to avoid memory leaks.
-  std::unique_ptr<Hists> h_AK4cleaning,     h_AK8cleaning,     h_METsel,     h_2Dcut,     h_ttagsel,     h_phisel;
-  std::unique_ptr<Hists> h_AK4cleaning_gen, h_AK8cleaning_gen, h_METsel_gen, h_2Dcut_gen, h_ttagsel_gen, h_phisel_gen;
-
-  std::unique_ptr<Hists> h_AK8jetsel;
-  std::unique_ptr<Hists> h_AK8jetsel_gen;
+  std::unique_ptr<Hists> h_2Dcut, h_trigger;
+  std::unique_ptr<Hists> h_2Dcut_gen, h_trigger_gen;
+  std::unique_ptr<Hists> h_2Dcut_ele, h_trigger_ele;
+  std::unique_ptr<Hists> h_2Dcut_mu, h_trigger_mu;
+  std::unique_ptr<Hists> h_triggerSingleJet, h_triggerSingleLeptonMu, h_triggerSingleLeptonEle, h_triggerHT, h_triggerPFHT;
+  std::unique_ptr<Hists> h_triggerSingleJet_mu, h_triggerHT_mu, h_triggerPFHT_mu;
+  std::unique_ptr<Hists> h_triggerSingleJet_ele, h_triggerHT_ele, h_triggerPFHT_ele;
 
   unique_ptr<Selection> met_sel;
   unique_ptr<Selection> st_sel;
   unique_ptr<Selection> twodcut_sel;
   unique_ptr<Selection> toptagevt_sel;
+
+  unique_ptr<Selection> triggerSingleJet450_sel;
+  unique_ptr<Selection> triggerSingleLeptonEle1_sel;
+  unique_ptr<Selection> triggerSingleLeptonEle2_sel;
+  unique_ptr<Selection> triggerSingleLeptonEle3_sel;
+  unique_ptr<Selection> triggerSingleLeptonMu1_sel;
+  unique_ptr<Selection> triggerSingleLeptonMu2_sel;
+  unique_ptr<Selection> triggerSingleLeptonMu3_sel;
+  unique_ptr<Selection> triggerSingleLeptonMu4_sel;
+  unique_ptr<Selection> triggerHT1_sel, triggerHT2_sel, triggerHT3_sel, triggerHT4_sel, triggerHT5_sel,  triggerHT6_sel;
+  unique_ptr<Selection> triggerPFHT_sel;
 
   unique_ptr<JetCleaner> AK4cleaner;
   unique_ptr<TopJetCleaner> AK8cleaner;
@@ -66,12 +79,13 @@ private:
   // GEN stuff
   std::unique_ptr<uhh2::AnalysisModule> ttgenprod;
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
+  uhh2::Event::Handle<bool> h_is_muevt;
 
   bool debug = false;
+  bool isTrigger = true;
 
   // bools for channel and stuff. will be read in later
   bool is_MC;
-  bool is_tgtg, is_tgtgamma;
 
   TopJetId topjetID;
 
@@ -113,13 +127,61 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   toptagevt_sel.reset(new TopTagEventSelection(topjetID));
   **/
 
+  //trigger studies
+  triggerSingleJet450_sel.reset(new TriggerSelection("HLT_PFJet450_v*"));
+
+  // TODO check 2017 2018 threshholds
+  // until 120 GeV
+  triggerSingleLeptonEle1_sel.reset(new TriggerSelection("HLT_Ele27_WPTight_Gsf_v*"));
+  // above 120 GeV
+  triggerSingleLeptonEle2_sel.reset(new TriggerSelection("HLT_Photon175_v*"));
+  triggerSingleLeptonEle3_sel.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
+
+  // until 27 GeV
+  triggerSingleLeptonMu1_sel.reset(new TriggerSelection("HLT_IsoMu24_v*"));
+  triggerSingleLeptonMu2_sel.reset(new TriggerSelection("HLT_IsoTkMu24_v*"));
+  // above 60 GeV
+  triggerSingleLeptonMu3_sel.reset(new TriggerSelection("HLT_Mu50_v*"));
+  triggerSingleLeptonMu4_sel.reset(new TriggerSelection("HLT_Mu55_v*"));
+
+  triggerHT1_sel.reset(new TriggerSelection("HLT_HT430to450_v*"));
+  triggerHT2_sel.reset(new TriggerSelection("HLT_HT450to470_v*"));
+  triggerHT3_sel.reset(new TriggerSelection("HLT_HT470to500_v*"));
+  triggerHT4_sel.reset(new TriggerSelection("HLT_HT500to550_v*"));
+  triggerHT5_sel.reset(new TriggerSelection("HLT_HT550to650_v*"));
+  triggerHT6_sel.reset(new TriggerSelection("HLT_HT650_v*"));
+
+  triggerPFHT_sel.reset(new TriggerSelection("HLT_PFHT900_v*"));
+
   // 4. Set up Hists
   if(debug) cout << "Setting up Hists." << endl;
   h_2Dcut.reset(new TstarTstarHists(ctx, "After2D"));
+  h_2Dcut_ele.reset(new TstarTstarHists(ctx, "After2D_ele"));
+  h_2Dcut_mu.reset(new TstarTstarHists(ctx, "After2D_mu"));
+  h_trigger.reset(new TstarTstarHists(ctx, "AfterTrigger"));
+  h_trigger_mu.reset(new TstarTstarHists(ctx, "AfterTrigger_mu"));
+  h_trigger_ele.reset(new TstarTstarHists(ctx, "AfterTrigger_ele"));
   //h_ttagsel.reset(new TstarTstarHists(ctx, "AfterTtagsel"));
 
   h_2Dcut_gen.reset(new TstarTstarGenHists(ctx, "After2D_gen"));
+  h_trigger_gen.reset(new TstarTstarGenHists(ctx, "AfterTrigger_gen"));
   //h_ttagsel_gen.reset(new TstarTstarGenHists(ctx, "AfterTtagsel_gen"));
+
+  h_triggerSingleJet.reset(new TstarTstarHists(ctx, "triggerSingleJet"));
+  h_triggerSingleLeptonMu.reset(new TstarTstarHists(ctx, "triggerSingleLeptonMu"));
+  h_triggerSingleLeptonEle.reset(new TstarTstarHists(ctx, "triggerSingleLeptonEle"));
+  h_triggerHT.reset(new TstarTstarHists(ctx, "triggerHT"));
+  h_triggerPFHT.reset(new TstarTstarHists(ctx, "triggerPFHT"));
+
+  h_triggerSingleJet_mu.reset(new TstarTstarHists(ctx, "triggerSingleJet_mu"));
+  h_triggerHT_mu.reset(new TstarTstarHists(ctx, "triggerHT_mu"));
+  h_triggerPFHT_mu.reset(new TstarTstarHists(ctx, "triggerPFHT_mu"));
+
+  h_triggerSingleJet_ele.reset(new TstarTstarHists(ctx, "triggerSingleJet_ele"));
+  h_triggerHT_ele.reset(new TstarTstarHists(ctx, "triggerHT_ele"));
+  h_triggerPFHT_ele.reset(new TstarTstarHists(ctx, "triggerPFHT_ele"));
+
+  h_is_muevt = ctx.get_handle<bool>("is_muevt");
 
 }
 
@@ -156,6 +218,8 @@ bool TstarTstarSelectionModule::process(Event & event) {
   if(!pass_twodcut) return false;
   h_2Dcut->fill(event);
   h_2Dcut_gen->fill(event);
+  if(event.get(h_is_muevt)) h_2Dcut_mu->fill(event);
+  else h_2Dcut_ele->fill(event);
   if(debug) cout << "Passed 2D cut." << endl;
 
   // TopTagEventSelection
@@ -166,6 +230,58 @@ bool TstarTstarSelectionModule::process(Event & event) {
   h_ttagsel_gen->fill(event);
   if(debug) cout << "Filled hists after ttagsel" << endl;
   **/
+
+  // Trigger studies
+  if(isTrigger){
+    if(debug) cout << "is Trigger" << endl;
+    // SingleJet
+    bool pass_trigger_SingleJet = (triggerSingleJet450_sel->passes(event) && event.jets->at(0).pt()>450);
+    if(pass_trigger_SingleJet){
+      h_triggerSingleJet->fill(event);
+      if(event.get(h_is_muevt)) h_triggerSingleJet_mu->fill(event);
+      else h_triggerSingleJet_ele->fill(event);
+    }
+    if(debug) cout << "done SingleJet" << endl;
+    bool pass_trigger_SingleMu = (triggerSingleLeptonMu1_sel->passes(event) || triggerSingleLeptonMu2_sel->passes(event)
+				  || triggerSingleLeptonMu3_sel->passes(event) || triggerSingleLeptonMu4_sel->passes(event));
+    if(pass_trigger_SingleMu && (event.muons->size() == 1)){
+      h_triggerSingleLeptonMu->fill(event);
+    }
+    if(debug) cout << "done SingleMu" << endl;
+    bool pass_trigger_SingleEle = (triggerSingleLeptonEle1_sel->passes(event) || triggerSingleLeptonEle2_sel->passes(event) || triggerSingleLeptonEle3_sel->passes(event));
+    if(pass_trigger_SingleEle && (event.electrons->size() == 1)){
+      h_triggerSingleLeptonEle->fill(event);
+    }
+    if(debug) cout << "done SingleEle" << endl;
+    bool pass_trigegr_HT = triggerHT1_sel->passes(event) || triggerHT2_sel->passes(event) || triggerHT3_sel->passes(event)
+      || triggerHT4_sel->passes(event) || triggerHT5_sel->passes(event) || triggerHT6_sel->passes(event);
+    if(pass_trigegr_HT){
+      h_triggerHT->fill(event);
+      if(event.get(h_is_muevt)) h_triggerHT_mu->fill(event);
+      else h_triggerHT_ele->fill(event);
+    }
+    if(debug) cout << "done HT" << endl;
+    bool pass_trigegr_PFHT = triggerPFHT_sel->passes(event);
+    if(pass_trigegr_PFHT){
+      h_triggerPFHT->fill(event);
+      if(event.get(h_is_muevt)) h_triggerPFHT_mu->fill(event);
+      else h_triggerPFHT_ele->fill(event);
+    }
+    if(debug) cout << "done PFHT" << endl;
+  }
+
+  // Trigger
+  bool pass_trigger = false;
+  bool pass_trigger_SingleMu = (triggerSingleLeptonMu1_sel->passes(event) || triggerSingleLeptonMu2_sel->passes(event) || triggerSingleLeptonMu3_sel->passes(event) || triggerSingleLeptonMu4_sel->passes(event));
+  if(pass_trigger_SingleMu && (event.muons->size() == 1)){ pass_trigger = true; }
+  bool pass_trigger_SingleEle = (triggerSingleLeptonEle1_sel->passes(event) || triggerSingleLeptonEle2_sel->passes(event) || triggerSingleLeptonEle3_sel->passes(event));
+  if(pass_trigger_SingleEle && (event.electrons->size() == 1)){ pass_trigger = true; }
+  if(!pass_trigger) return false;
+  h_trigger->fill(event);
+  h_trigger_gen->fill(event);
+  if(event.get(h_is_muevt)) h_trigger_mu->fill(event);
+  else h_trigger_ele->fill(event);
+  if(debug) cout<<"Filled hists after Trigger"<<endl;
 
   return true;
 }
