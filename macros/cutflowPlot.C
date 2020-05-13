@@ -43,11 +43,11 @@ void cutflowPlot(){
   TString pathReco = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/MCStudy/hadded/";
   TString fileprefix = "uhh2.AnalysisModuleRunner.MC.";
   TString histname = "N_jets";
-  TString suffix = "_ele";
+  TString suffix = "_mu_lowpt";
 
   // Defining Steps
   std::vector<TString> preselSteps = {"AfterLepSel", "AfterAK8jets", "AfterMET"};
-  std::vector<TString> selSteps = {"AfterTrigger"};
+  std::vector<TString> selSteps = {"beginSel", "After2D", "AfterTrigger"};
   std::vector<TString> recoSteps = {};
   int stepcount = preselSteps.size() + selSteps.size() + recoSteps.size();
 
@@ -72,7 +72,7 @@ void cutflowPlot(){
   std::vector<int> colors_Signal = {632, 820, 432};
   std::vector<int> colors_BG = {810, 800, 600, 416};
   //std::vector<TString> labels = {"No cuts", "N lepton","N HOTVR jet = 1", "MET", "Trigger", "2D", "N HOTVR jet = 3", "non-overlap AK4"};
-  std::vector<TString> labels = {"N lepton","N HOTVR jet = 1", "MET", "Trigger"};
+  std::vector<TString> labels = {"N lepton","N HOTVR jet = 1", "MET", "crosscheck", "2D", "Trigger", "should not be visible"};
 
   // ########################
   // ## Finish Definitions ##
@@ -234,7 +234,7 @@ void cutflowPlot(){
     TLine *line2 = new TLine(pos2,1.25,pos2,1.8);
     line2->Draw("same");
   }
-  canvas->SaveAs("Cutflow.pdf");
+  canvas->SaveAs("Cutflow"+suffix+".pdf");
 
   int index_sample = 0;
   for(const auto & sample : signalSamples){

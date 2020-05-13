@@ -25,6 +25,8 @@ TstarTstarGenHists::TstarTstarGenHists(Context & ctx, const string & dirname): H
 
   h_ttbargen = ctx.get_handle<TTbarGen>("ttbargen");
 
+  book<TH1F>("weight", "weight", 40, 0, 2);
+
   book<TH1F>("x_g1", "x_g1", 20, 0, 1);
   book<TH1F>("x_g2", "x_g2", 20, 0, 1);
 
@@ -91,6 +93,8 @@ void TstarTstarGenHists::fill(const Event & event){
   assert(event.genparticles);
   // Don't forget to always use the weight when filling.
   double weight = event.weight;
+
+  hist("weight")->Fill(weight);
 
   TTbarGen ttbargen = event.get(h_ttbargen);
   if(!ttbargen.IsSemiLeptonicDecay()){return;}

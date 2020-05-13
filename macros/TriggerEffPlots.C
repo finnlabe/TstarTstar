@@ -32,6 +32,9 @@ void TriggerEffPlots(TString filename="uhh2.AnalysisModuleRunner.MC.TstarTstar_M
   TH1D *hist_trigger = (TH1D*)input->Get(subpath+"/"+histname);//histogram after trigger selection
   TH1D *hist_denom = (TH1D*)input->Get(subdenomname+"/"+histname);//histogram before trigger selection
 
+  hist_trigger->Rebin(4);
+  hist_denom->Rebin(4);
+
   if(!hist_trigger || !hist_denom) cout<<"Hists are empty"<<endl;;
   if(!hist_trigger || !hist_denom) return;
   //TEfficiency eff;

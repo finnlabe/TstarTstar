@@ -52,10 +52,17 @@ private:
   std::unique_ptr<Hists> h_2Dcut, h_trigger;
   std::unique_ptr<Hists> h_2Dcut_gen, h_trigger_gen;
   std::unique_ptr<Hists> h_2Dcut_ele, h_trigger_ele;
+  std::unique_ptr<Hists> h_2Dcut_ele_lowpt, h_trigger_ele_lowpt;
+  std::unique_ptr<Hists> h_2Dcut_ele_highpt, h_trigger_ele_highpt;
   std::unique_ptr<Hists> h_2Dcut_mu, h_trigger_mu;
+  std::unique_ptr<Hists> h_2Dcut_mu_lowpt, h_trigger_mu_lowpt;
+  std::unique_ptr<Hists> h_2Dcut_mu_highpt, h_trigger_mu_highpt;
   std::unique_ptr<Hists> h_triggerSingleJet, h_triggerSingleLeptonMu, h_triggerSingleLeptonEle, h_triggerHT, h_triggerPFHT;
   std::unique_ptr<Hists> h_triggerSingleJet_mu, h_triggerHT_mu, h_triggerPFHT_mu;
   std::unique_ptr<Hists> h_triggerSingleJet_ele, h_triggerHT_ele, h_triggerPFHT_ele;
+
+  std::unique_ptr<Hists> h_beginSel, h_beginSel_mu, h_beginSel_mu_lowpt, h_beginSel_mu_highpt, h_beginSel_ele, h_beginSel_ele_lowpt, h_beginSel_ele_highpt;
+  std::unique_ptr<Hists> h_beginSel_gen;
 
   unique_ptr<Selection> met_sel;
   unique_ptr<Selection> st_sel;
@@ -69,17 +76,19 @@ private:
   unique_ptr<Selection> triggerSingleLeptonMu1_sel;
   unique_ptr<Selection> triggerSingleLeptonMu2_sel;
   unique_ptr<Selection> triggerSingleLeptonMu3_sel;
-  unique_ptr<Selection> triggerSingleLeptonMu4_sel;
   unique_ptr<Selection> triggerHT1_sel, triggerHT2_sel, triggerHT3_sel, triggerHT4_sel, triggerHT5_sel,  triggerHT6_sel;
   unique_ptr<Selection> triggerPFHT_sel;
 
   unique_ptr<JetCleaner> AK4cleaner;
   unique_ptr<TopJetCleaner> AK8cleaner;
 
-  // GEN stuff
+  // handes
   std::unique_ptr<uhh2::AnalysisModule> ttgenprod;
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
   uhh2::Event::Handle<bool> h_is_muevt;
+
+  uhh2::Event::Handle<double> h_evt_weight;
+
 
   bool debug = false;
   bool isTrigger = true;
@@ -142,7 +151,6 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   triggerSingleLeptonMu2_sel.reset(new TriggerSelection("HLT_IsoTkMu24_v*"));
   // above 60 GeV
   triggerSingleLeptonMu3_sel.reset(new TriggerSelection("HLT_Mu50_v*"));
-  triggerSingleLeptonMu4_sel.reset(new TriggerSelection("HLT_Mu55_v*"));
 
   triggerHT1_sel.reset(new TriggerSelection("HLT_HT430to450_v*"));
   triggerHT2_sel.reset(new TriggerSelection("HLT_HT450to470_v*"));
@@ -157,12 +165,29 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   if(debug) cout << "Setting up Hists." << endl;
   h_2Dcut.reset(new TstarTstarHists(ctx, "After2D"));
   h_2Dcut_ele.reset(new TstarTstarHists(ctx, "After2D_ele"));
+  h_2Dcut_ele_lowpt.reset(new TstarTstarHists(ctx, "After2D_ele_lowpt"));
+  h_2Dcut_ele_highpt.reset(new TstarTstarHists(ctx, "After2D_ele_highpt"));
   h_2Dcut_mu.reset(new TstarTstarHists(ctx, "After2D_mu"));
+  h_2Dcut_mu_lowpt.reset(new TstarTstarHists(ctx, "After2D_mu_lowpt"));
+  h_2Dcut_mu_highpt.reset(new TstarTstarHists(ctx, "After2D_mu_highpt"));
   h_trigger.reset(new TstarTstarHists(ctx, "AfterTrigger"));
   h_trigger_mu.reset(new TstarTstarHists(ctx, "AfterTrigger_mu"));
+  h_trigger_mu_lowpt.reset(new TstarTstarHists(ctx, "AfterTrigger_mu_lowpt"));
+  h_trigger_mu_highpt.reset(new TstarTstarHists(ctx, "AfterTrigger_mu_highpt"));
   h_trigger_ele.reset(new TstarTstarHists(ctx, "AfterTrigger_ele"));
+  h_trigger_ele_lowpt.reset(new TstarTstarHists(ctx, "AfterTrigger_ele_lowpt"));
+  h_trigger_ele_highpt.reset(new TstarTstarHists(ctx, "AfterTrigger_ele_highpt"));
+
+  h_beginSel.reset(new TstarTstarHists(ctx, "beginSel"));
+  h_beginSel_mu.reset(new TstarTstarHists(ctx, "beginSel_mu"));
+  h_beginSel_mu_lowpt.reset(new TstarTstarHists(ctx, "beginSel_mu_lowpt"));
+  h_beginSel_mu_highpt.reset(new TstarTstarHists(ctx, "beginSel_mu_highpt"));
+  h_beginSel_ele.reset(new TstarTstarHists(ctx, "beginSel_ele"));
+  h_beginSel_ele_lowpt.reset(new TstarTstarHists(ctx, "beginSel_ele_lowpt"));
+  h_beginSel_ele_highpt.reset(new TstarTstarHists(ctx, "beginSel_ele_highpt"));
   //h_ttagsel.reset(new TstarTstarHists(ctx, "AfterTtagsel"));
 
+  h_beginSel_gen.reset(new TstarTstarGenHists(ctx, "beginSel_gen"));
   h_2Dcut_gen.reset(new TstarTstarGenHists(ctx, "After2D_gen"));
   h_trigger_gen.reset(new TstarTstarGenHists(ctx, "AfterTrigger_gen"));
   //h_ttagsel_gen.reset(new TstarTstarGenHists(ctx, "AfterTtagsel_gen"));
@@ -182,7 +207,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   h_triggerPFHT_ele.reset(new TstarTstarHists(ctx, "triggerPFHT_ele"));
 
   h_is_muevt = ctx.get_handle<bool>("is_muevt");
-
+  h_evt_weight = ctx.get_handle<double>("evt_weight");
 }
 
 
@@ -190,8 +215,9 @@ bool TstarTstarSelectionModule::process(Event & event) {
 
   if(debug) cout << "TstarTstarSelectionModule: Starting to process event (runid, eventid) = (" << event.run << ", " << event.event << "); weight = " << event.weight << endl;
 
-  LumiWeight_module->process(event); // apply correct weights
-  if(debug) cout << "Lumi weights applied." << endl;
+  //LumiWeight_module->process(event); // apply correct weights
+  event.weight = event.get(h_evt_weight);
+  if(debug) cout << "weights applied." << endl;
 
   //Fill ttgen object for correct matching check, etc
   if(is_MC){
@@ -199,7 +225,23 @@ bool TstarTstarSelectionModule::process(Event & event) {
     if(debug) cout << "ttgen produced." << endl;
   }
 
+  if(debug) std::cout << "Fill Crosscheck hists" << endl;
+  h_beginSel->fill(event);
+  h_beginSel_gen->fill(event);
+  if(event.get(h_is_muevt)){
+    h_beginSel_mu->fill(event);
+    if(event.muons->at(0).pt()<=60) h_beginSel_mu_lowpt->fill(event);
+    else h_beginSel_mu_highpt->fill(event);
+  }
+  else {
+    h_beginSel_ele->fill(event);
+    if(event.electrons->at(0).pt()<=120) h_beginSel_ele_lowpt->fill(event);
+    else h_beginSel_ele_highpt->fill(event);
+  }
+
   // Lepton-2Dcut
+  if(debug) std::cout << "Start 2D cut" << endl;
+  bool pass_2D = true;
   for(auto& muo : *event.muons){
     if(debug) cout<<"AFTER Muon (pt,eta): "<<muo.pt()<<", "<<muo.eta()<<endl;
     float    dRmin, pTrel;
@@ -215,11 +257,22 @@ bool TstarTstarSelectionModule::process(Event & event) {
     ele.set_tag(Electron::twodcut_pTrel, pTrel);
   }
   const bool pass_twodcut = twodcut_sel->passes(event);
-  if(!pass_twodcut) return false;
+  if(event.muons->size()==1){if(event.muons->at(0).pt()>60) pass_2D = pass_twodcut;}
+  else if(event.electrons->size()==1){if(event.electrons->at(0).pt()>120) pass_2D = pass_twodcut;}
+  else std::cout << "How did this happen???" << endl;
+  if(!pass_2D) return false;
   h_2Dcut->fill(event);
   h_2Dcut_gen->fill(event);
-  if(event.get(h_is_muevt)) h_2Dcut_mu->fill(event);
-  else h_2Dcut_ele->fill(event);
+  if(event.get(h_is_muevt)){
+    h_2Dcut_mu->fill(event);
+    if(event.muons->at(0).pt()<=60) h_2Dcut_mu_lowpt->fill(event);
+    else h_2Dcut_mu_highpt->fill(event);
+  }
+  else {
+    h_2Dcut_ele->fill(event);
+    if(event.electrons->at(0).pt()<=120) h_2Dcut_ele_lowpt->fill(event);
+    else h_2Dcut_ele_highpt->fill(event);
+  }
   if(debug) cout << "Passed 2D cut." << endl;
 
   // TopTagEventSelection
@@ -242,17 +295,6 @@ bool TstarTstarSelectionModule::process(Event & event) {
       else h_triggerSingleJet_ele->fill(event);
     }
     if(debug) cout << "done SingleJet" << endl;
-    bool pass_trigger_SingleMu = (triggerSingleLeptonMu1_sel->passes(event) || triggerSingleLeptonMu2_sel->passes(event)
-				  || triggerSingleLeptonMu3_sel->passes(event) || triggerSingleLeptonMu4_sel->passes(event));
-    if(pass_trigger_SingleMu && (event.muons->size() == 1)){
-      h_triggerSingleLeptonMu->fill(event);
-    }
-    if(debug) cout << "done SingleMu" << endl;
-    bool pass_trigger_SingleEle = (triggerSingleLeptonEle1_sel->passes(event) || triggerSingleLeptonEle2_sel->passes(event) || triggerSingleLeptonEle3_sel->passes(event));
-    if(pass_trigger_SingleEle && (event.electrons->size() == 1)){
-      h_triggerSingleLeptonEle->fill(event);
-    }
-    if(debug) cout << "done SingleEle" << endl;
     bool pass_trigegr_HT = triggerHT1_sel->passes(event) || triggerHT2_sel->passes(event) || triggerHT3_sel->passes(event)
       || triggerHT4_sel->passes(event) || triggerHT5_sel->passes(event) || triggerHT6_sel->passes(event);
     if(pass_trigegr_HT){
@@ -272,15 +314,29 @@ bool TstarTstarSelectionModule::process(Event & event) {
 
   // Trigger
   bool pass_trigger = false;
-  bool pass_trigger_SingleMu = (triggerSingleLeptonMu1_sel->passes(event) || triggerSingleLeptonMu2_sel->passes(event) || triggerSingleLeptonMu3_sel->passes(event) || triggerSingleLeptonMu4_sel->passes(event));
-  if(pass_trigger_SingleMu && (event.muons->size() == 1)){ pass_trigger = true; }
-  bool pass_trigger_SingleEle = (triggerSingleLeptonEle1_sel->passes(event) || triggerSingleLeptonEle2_sel->passes(event) || triggerSingleLeptonEle3_sel->passes(event));
-  if(pass_trigger_SingleEle && (event.electrons->size() == 1)){ pass_trigger = true; }
+  bool pass_trigger_SingleMu_lowpt = (triggerSingleLeptonMu1_sel->passes(event) || triggerSingleLeptonMu2_sel->passes(event));
+  bool pass_trigger_SingleMu_highpt = triggerSingleLeptonMu3_sel->passes(event);
+  bool pass_trigger_SingleEle_lowpt = triggerSingleLeptonEle1_sel->passes(event);
+  bool pass_trigger_SingleEle_highpt = (triggerSingleLeptonEle2_sel->passes(event) || triggerSingleLeptonEle3_sel->passes(event));
+  if(pass_trigger_SingleMu_lowpt && (event.muons->size() == 1)){if(event.muons->at(0).pt()<60) pass_trigger = true; }
+  if(pass_trigger_SingleMu_highpt && (event.muons->size() == 1)){if(event.muons->at(0).pt()>=60) pass_trigger = true; }
+  if(pass_trigger_SingleEle_lowpt && (event.electrons->size() == 1)){if(event.electrons->at(0).pt()<120)pass_trigger = true; }
+  if(pass_trigger_SingleEle_highpt && (event.electrons->size() == 1)){if(event.electrons->at(0).pt()>=120)pass_trigger = true; }
   if(!pass_trigger) return false;
   h_trigger->fill(event);
   h_trigger_gen->fill(event);
-  if(event.get(h_is_muevt)) h_trigger_mu->fill(event);
-  else h_trigger_ele->fill(event);
+  if(event.get(h_is_muevt)){
+    h_trigger_mu->fill(event);
+    if(event.muons->at(0).pt()<=60) h_trigger_mu_lowpt->fill(event);
+    else h_trigger_mu_highpt->fill(event);
+    h_triggerSingleLeptonMu->fill(event);
+  }
+  else {
+    h_trigger_ele->fill(event);
+    if(event.electrons->at(0).pt()<=120) h_trigger_ele_lowpt->fill(event);
+    else h_trigger_ele_highpt->fill(event);
+    h_triggerSingleLeptonEle->fill(event);
+  }
   if(debug) cout<<"Filled hists after Trigger"<<endl;
 
   return true;
