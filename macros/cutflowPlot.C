@@ -4,7 +4,7 @@
 // Run it with following command:
 // root -l -b -q cutflowPlots.C
 
-void cutflowPlot(){
+void cutflowPlot(TString suffix = ""){
 
   gStyle->SetOptFit(0);
   gStyle->SetOptStat(0);
@@ -43,17 +43,18 @@ void cutflowPlot(){
   TString pathReco = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/MCStudy/hadded/";
   TString fileprefix = "uhh2.AnalysisModuleRunner.MC.";
   TString histname = "N_jets";
-  TString suffix = "_mu_lowpt";
 
   // Defining Steps
-  std::vector<TString> preselSteps = {"AfterLepSel", "AfterAK8jets", "AfterMET"};
-  std::vector<TString> selSteps = {"beginSel", "After2D", "AfterTrigger"};
+  std::vector<TString> preselSteps = {"AfterCommon", "AfterLepSel", "AfterAK8jets", "AfterMET"};
+  std::vector<TString> selSteps = {"After2D", "AfterTrigger"};
   std::vector<TString> recoSteps = {};
   int stepcount = preselSteps.size() + selSteps.size() + recoSteps.size();
 
   // Adding suffix
+  int is_first = true;
   for (auto & step : preselSteps){
-    step.Append(suffix);
+    if(is_first) is_first = false;
+    else step.Append(suffix);
   }
   for (auto & step : selSteps){
     step.Append(suffix);
@@ -72,7 +73,7 @@ void cutflowPlot(){
   std::vector<int> colors_Signal = {632, 820, 432};
   std::vector<int> colors_BG = {810, 800, 600, 416};
   //std::vector<TString> labels = {"No cuts", "N lepton","N HOTVR jet = 1", "MET", "Trigger", "2D", "N HOTVR jet = 3", "non-overlap AK4"};
-  std::vector<TString> labels = {"N lepton","N HOTVR jet = 1", "MET", "crosscheck", "2D", "Trigger", "should not be visible"};
+  std::vector<TString> labels = {"Initial", "N lepton","N HOTVR jet = 1", "MET", "2D", "Trigger", "should not be visible"};
 
   // ########################
   // ## Finish Definitions ##
@@ -203,6 +204,7 @@ void cutflowPlot(){
       BG_stack->Add(cutflow_BG.at(index_draw_BG));
     }
     BG_stack->Draw("");
+    BG_stack->SetTitle("");
     BG_stack->GetYaxis()->SetTitle("Efficiency");
     canvas->Update();
   }
@@ -214,6 +216,7 @@ void cutflowPlot(){
     int index_label = 1;
     for(const auto & label : labels) {hist->GetXaxis()->SetBinLabel(index_label, label); index_label++;}
     hist->SetLineWidth(3);
+    hist->SetTitle("");
     hist->SetLineColor(colors_Signal.at(index_draw_signal)); // This can be improved by use of iterator
     hist->GetYaxis()->SetTitle("Efficiency");
     hist->Draw("same");

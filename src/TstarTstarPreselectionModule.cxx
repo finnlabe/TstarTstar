@@ -19,6 +19,10 @@
 #include "UHH2/TstarTstar/include/TstarTstarGenHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarGenRecoMatchedHists.h"
 
+#include "UHH2/HOTVR/include/HOTVRJetCorrectionModule.h"
+#include "UHH2/HOTVR/include/HadronicTop.h"
+#include "UHH2/HOTVR/include/HOTVRScaleFactor.h"
+
 
 using namespace std;
 using namespace uhh2;
@@ -40,7 +44,10 @@ private:
 
   // Apply common modules: JetPFid, JEC, JER, MET corrections, etc
   std::unique_ptr<CommonModules> common;
-  unique_ptr<AnalysisModule> LumiWeight_module;
+  std::unique_ptr<AnalysisModule> HOTVRCorr;
+
+  std::unique_ptr<AnalysisModule> HadronicTopFinder;
+  std::unique_ptr<AnalysisModule> HOTVRScale;
 
   // Declare the Selections to use. Use unique_ptr to ensure automatic call of delete in the destructor, to avoid memory leaks.
   unique_ptr<TopJetCleaner> HOTVRcleaner;
@@ -90,17 +97,24 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
 
   }
 
+  if(debug) cout << "trying..." << endl;
+  ctx.get("HOTVRTopTagSFs");
+  if(debug) cout << "done." << endl;
+
   // 0. Reading in whether MC and if so, which channel
   is_MC = ctx.get("dataset_type") == "MC";
-
-  LumiWeight_module.reset(new MCLumiWeight(ctx));
 
   // 1. setup modules. CommonModules
   common.reset(new CommonModules());
   common->switch_metcorrection();
 
+  HOTVRCorr.reset(new HOTVRJetCorrectionModule(ctx));
+  HadronicTopFinder.reset(new HadronicTop(ctx));
+  TopJetId topjetID = AndId<TopJet>(HOTVRTopTag(), Tau32Groomed(0.56)); // Top Tag that is used later
+  HOTVRScale.reset(new HOTVRScaleFactor(ctx, topjetID));
+
   // Electron
-  ElectronId eleID_lowpt = ElectronID_Summer16_tight;
+  ElectronId eleID_lowpt = ElectronID_Summer16_medium;
   ElectronId eleID_highpt = ElectronID_Summer16_medium_noIso;
   double electron_pt_lowpt(30.);
   double electron_pt_highpt(120.);
@@ -197,11 +211,18 @@ bool TstarTstarPreselectionModule::process(Event & event) {
 
   // cleaning & common modules
   if(!(common->process(event))) return false;
+  if(!(HOTVRCorr->process(event))) return false;
   if(!(HOTVRcleaner->process(event))) return false;
-  if(!(LumiWeight_module->process(event))) return false; // apply correct weights
+
+  // Top Tagging scale factors
+  HadronicTopFinder->process(event);
+  HOTVRScale->process(event);
+
   h_common->fill(event);
   h_common_gen->fill(event);
   if(debug) cout<<"Filled hists after cleaning"<<endl;
+
+
 
   //---- Preselection
 

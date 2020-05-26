@@ -138,9 +138,9 @@
 	    <Item Name="JetCollection"           Value="jetsAk4Puppi"/>
 	    <Item Name="TopJetCollection"        Value="hotvrPuppi"/>
 	    <Item Name="METName"                 Value="slimmedMETsPuppi"/>
-	    <Item Name="lumi_file" Value="/nfs/dust/cms/user/karavdia/CMSSW_10_2_10/src/UHH2/common/data/2016/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root"/>
+	    <Item Name="lumi_file" Value="/nfs/dust/cms/user/flabe/CMSSW/CMSSW_10_2_10/src/UHH2/common/data/2016/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root"/>
 	    <Item Name="lumihists_lumi_per_bin" Value="500.0"/>
-	    
+
 	    <Item Name="jersmear_direction" Value="nominal"/>
 	    <Item Name="jecsmear_direction" Value="nominal"/>
 
@@ -156,6 +156,8 @@
             <!-- configuration for MCPileupReweight (run as part of CommonModules): -->
             <Item Name="pileup_directory" Value="common/data/2016/MyMCPileupHistogram.root" />
             <Item Name="pileup_directory_data" Value="common/data/2016/MyDataPileupHistogram.root" />
+
+            <Item Name="HOTVRTopTagSFs" Value="/nfs/dust/cms/user/flabe/CMSSW/CMSSW_10_2_10/src/UHH2/HOTVR/data/2016TopTaggingScaleFactors.root" />
 
             <!-- Some test configuration; see TstarTstarModule.cxx for how to access it: -->
             <Item Name="TestKey" Value="TestKeyValue" />

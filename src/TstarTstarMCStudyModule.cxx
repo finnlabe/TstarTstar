@@ -108,8 +108,6 @@ private:
   std::unique_ptr<TstarTstar_tgtg_TopTag_Reconstruction> TstarTstarHypCreator;
   std::unique_ptr<TstarTstar_Discrimination> TstarTstarHypSelector;
 
-  std::unique_ptr<uhh2::AnalysisModule> MCWeight;
-
   // Handles
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
   uhh2::Event::Handle<int> h_flag_toptagevent;
@@ -119,6 +117,7 @@ private:
 
   uhh2::Event::Handle<int> jets_thrown_away;
 
+  uhh2::Event::Handle<double> h_evt_weight;
 
   // bools for channel and stuff. will be read in later
   bool isTrigger;
@@ -208,8 +207,6 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   TstarTstarHypCreator.reset(new TstarTstar_tgtg_TopTag_Reconstruction(ctx, NeutrinoReconstruction, topjetID));
   TstarTstarHypSelector.reset(new TstarTstar_Discrimination(ctx));
 
-  MCWeight.reset(new MCLumiWeight(ctx));
-
   // 5. Handles for DNN
   if(forDNN){
     h_DNN_ttaggedjet_pt = ctx.declare_event_output<double>("DNN_ttaggedjet_pt");
@@ -248,6 +245,7 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   }
 
   //jets_thrown_away = ctx.declare_event_output<double>("jets_thrown_away");
+  h_evt_weight = ctx.get_handle<double>("evt_weight");
 
 }
 
@@ -256,7 +254,9 @@ bool TstarTstarMCStudyModule::process(Event & event) {
 
   if(debug){cout << endl << "TstarTstarMCStudyModule: Starting to process event (runid, eventid) = (" << event.run << ", " << event.event << "); weight = " << event.weight << endl;}
 
-  MCWeight->process(event);
+  event.weight = event.get(h_evt_weight);
+  if(debug) cout << "weights applied." << endl;
+
   if(is_MC) ttgenprod->process(event);
 
   // check lepton channel

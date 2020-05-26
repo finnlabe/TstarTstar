@@ -138,11 +138,10 @@
             <Item Name="pileup_directory" Value="common/data/2016/MyMCPileupHistogram.root" />
             <Item Name="pileup_directory_data" Value="common/data/2016/MyDataPileupHistogram.root" />
 
+            <Item Name="HOTVRTopTagSFs" Value="/nfs/dust/cms/user/flabe/CMSSW/CMSSW_10_2_10/src/UHH2/HOTVR/data/2016TopTaggingScaleFactors.root" />
+
             <!-- Some test configuration; see TstarTstarModule.cxx for how to access it: -->
             <Item Name="TestKey" Value="TestKeyValue" />
-
-            <Item Name="UseTrigger" Value="false" />
-
 
         </UserConfig>
     </Cycle>

@@ -10,7 +10,7 @@
 
 <!--
 <ConfigParse NEventsBreak="0" LastBreak="0" FileSplit="20" AutoResubmit="100"/>
-<ConfigSGE RAM="2" DISK="2" Mail="finn.labe@desy.de" Notification="as" Workdir="workdir_Selection_SM_HOTVR_2016v3"/>
+<ConfigSGE RAM="2" DISK="2" Mail="finn.labe@desy.de" Notification="as" Workdir="workdir_Selection_SM_2016v3"/>
 -->
 
 <!-- OutputLevel controls which messages are printed; set to VERBOSE or DEBUG for more verbosity, to WARNING or ERROR for less -->
@@ -113,8 +113,10 @@
 	    <Item Name="GenTopJetCollection"     Value="hotvrGen"/>
 	    <Item Name="METName"                 Value="slimmedMETsPuppi"/>
 	    <Item Name="genMETName"              Value="slimmedMETs_GenMET"/>
-	    <Item Name="lumi_file" Value="/nfs/dust/cms/user/karavdia/CMSSW_10_2_10/src/UHH2/common/data/2016/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root"/>
+	    <Item Name="lumi_file" Value="/nfs/dust/cms/user/flabe/CMSSW/CMSSW_10_2_10/src/UHH2/common/data/2016/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root"/>
 	    <Item Name="lumihists_lumi_per_bin" Value="500.0"/>
+
+      <Item Name="additionalBranches" Value="is_muevt evt_weight" />
 
 <!--	    <Item Name="is_puppi" Value="&IS_PUPPI;"/> -->
 

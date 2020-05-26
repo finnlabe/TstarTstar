@@ -318,10 +318,10 @@ bool TstarTstarSelectionModule::process(Event & event) {
   bool pass_trigger_SingleMu_highpt = triggerSingleLeptonMu3_sel->passes(event);
   bool pass_trigger_SingleEle_lowpt = triggerSingleLeptonEle1_sel->passes(event);
   bool pass_trigger_SingleEle_highpt = (triggerSingleLeptonEle2_sel->passes(event) || triggerSingleLeptonEle3_sel->passes(event));
-  if(pass_trigger_SingleMu_lowpt && (event.muons->size() == 1)){if(event.muons->at(0).pt()<60) pass_trigger = true; }
-  if(pass_trigger_SingleMu_highpt && (event.muons->size() == 1)){if(event.muons->at(0).pt()>=60) pass_trigger = true; }
-  if(pass_trigger_SingleEle_lowpt && (event.electrons->size() == 1)){if(event.electrons->at(0).pt()<120)pass_trigger = true; }
-  if(pass_trigger_SingleEle_highpt && (event.electrons->size() == 1)){if(event.electrons->at(0).pt()>=120)pass_trigger = true; }
+  if(pass_trigger_SingleMu_lowpt && (event.muons->size() == 1)){if(event.muons->at(0).pt()<=60) pass_trigger = true; }
+  if(pass_trigger_SingleMu_highpt && (event.muons->size() == 1)){if(event.muons->at(0).pt()>60) pass_trigger = true; }
+  if(pass_trigger_SingleEle_lowpt && (event.electrons->size() == 1)){if(event.electrons->at(0).pt()<=120)pass_trigger = true; }
+  if(pass_trigger_SingleEle_highpt && (event.electrons->size() == 1)){if(event.electrons->at(0).pt()>120)pass_trigger = true; }
   if(!pass_trigger) return false;
   h_trigger->fill(event);
   h_trigger_gen->fill(event);
