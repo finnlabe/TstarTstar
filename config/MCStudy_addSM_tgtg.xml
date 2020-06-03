@@ -4,8 +4,8 @@
 
 <!ENTITY b_Cacheable "False">
 <!ENTITY NEVT "-1">
-<!ENTITY INPUTdir  "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/">
-<!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/">
+<!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/MCStudy/">
+<!ENTITY INPUTdir  "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/">
 
 <!ENTITY DYJetsToLL_M-50_HT-70to100_2016v3   "&INPUTdir;/uhh2.AnalysisModuleRunner.MC.DYJetsToLL_M-50_HT-70to100_2016v3.root">
 <!ENTITY DYJetsToLL_M-50_HT-100to200_2016v3   "&INPUTdir;/uhh2.AnalysisModuleRunner.MC.DYJetsToLL_M-50_HT-100to200_2016v3.root">
@@ -101,11 +101,13 @@
     		    <InputTree Name="AnalysisTree" />
     		    <OutputTree Name="AnalysisTree" />
     </InputData>
+    <!--
     <InputData Lumi="0.5183406841" NEventsMax="&NEVT;" Type="MC" Version="QCDPt50to80_2016v3" Cacheable="&b_Cacheable;">
     		    <In FileName="&QCDPt50to80;" Lumi="0.0"/>
     		    <InputTree Name="AnalysisTree" />
     		    <OutputTree Name="AnalysisTree" />
     </InputData>
+    -->
     <InputData Lumi="5.126349397" NEventsMax="&NEVT;" Type="MC" Version="QCDPt80to120_2016v3" Cacheable="&b_Cacheable;">
     		    <In FileName="&QCDPt80to120;" Lumi="0.0"/>
     		    <InputTree Name="AnalysisTree" />
@@ -184,7 +186,7 @@
 	    <Item Name="GenTopJetCollection"     Value="hotvrGen"/>
 	    <Item Name="METName"                 Value="slimmedMETsPuppi"/>
 	    <Item Name="genMETName"              Value="slimmedMETs_GenMET"/>
-	    <Item Name="lumi_file" Value="/nfs/dust/cms/user/karavdia/CMSSW_10_2_10/src/UHH2/common/data/2016/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root"/>
+	    <Item Name="lumi_file" Value="/nfs/dust/cms/user/flabe/CMSSW/CMSSW_10_2_10/src/UHH2/common/data/2016/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root"/>
 	    <Item Name="lumihists_lumi_per_bin" Value="500.0"/>
 
       <Item Name="additionalBranches" Value="is_muevt evt_weight" />
@@ -196,7 +198,7 @@
 
 
             <!-- the class name of the AnalysisModule subclasses to run: -->
-            <Item Name="AnalysisModule" Value="TstarTstarSelectionModule" />
+            <Item Name="AnalysisModule" Value="TstarTstarMCStudyModule" />
 
             <!-- tell AnalysisModuleRunner NOT to use the MC event weight from SFrame; rather let
                  MCLumiWeight (called via CommonModules) calculate the MC event weight. The MC

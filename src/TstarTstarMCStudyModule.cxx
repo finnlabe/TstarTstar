@@ -24,14 +24,6 @@
 #include "UHH2/TstarTstar/include/TstarTstarGenMatch.h"
 #include "UHH2/HOTVR/include/HOTVRIds.h"
 
-#pragma GCC diagnostic push
-// turn off the specific warning. Can also use "-Wall"
-#pragma GCC diagnostic ignored "-Wignored-qualifiers"
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
-#pragma GCC diagnostic pop
-
-
 using namespace std;
 using namespace uhh2;
 
@@ -90,10 +82,6 @@ private:
   uhh2::Event::Handle<double> h_DNN_gluon2_eta;
   uhh2::Event::Handle<double> h_DNN_gluon2_phi;
 
-  // DNN spplication stuff
-  std::vector<tensorflow::Tensor> lp_tensors_;
-  tensorflow::Session* session_3;
-
   uhh2::Event::Handle<double> h_masspoint;
   uhh2::Event::Handle<double> h_DNN_output;
 
@@ -125,8 +113,6 @@ private:
 };
 
 
-
-
 TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
 
   if(debug) {
@@ -139,9 +125,6 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
         cout << " " << kv.first << " = " << kv.second << endl;
     }
    }
-
-  // Dont save everything!
-  //ctx.undeclare_all_event_output();
 
   // 0. Reading in whether MC and if so, which channel
   is_MC = ctx.get("dataset_type") == "MC";
@@ -230,18 +213,13 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
 
     h_masspoint = ctx.declare_event_output<double>("h_masspoint");
     h_DNN_output = ctx.declare_event_output<double>("h_DNN_output");
-
-    reco_primlep.reset(new PrimaryLepton(ctx));
-    h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
   }
 
-  if(includeDNNmodel){
-    tensorflow::setLogging("3");
-      tensorflow::GraphDef* graphDefFinn = tensorflow::loadGraphDef("/nfs/dust/cms/user/gunnep/HiggsAnalysisUHH_102/CMSSW_10_2_11/src/UHH2/DNNUsageTest/model_Finn.pb");
-      // create a new, empty session
-      session_3 = tensorflow::createSession(graphDefFinn);
+  reco_primlep.reset(new PrimaryLepton(ctx));
+  h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
 
-      std::srand(std::time(nullptr)); // Initialize random
+  if(includeDNNmodel){
+    std::srand(std::time(nullptr)); // Initialize random
   }
 
   //jets_thrown_away = ctx.declare_event_output<double>("jets_thrown_away");
@@ -330,7 +308,6 @@ bool TstarTstarMCStudyModule::process(Event & event) {
 
   // Filling output for DNN
   // TODO put this in extra file that you pass an hypothesis
-  event.set(h_masspoint, 0); // failsafe
   vector<double> DNNInputs;
   if(forDNN && bestHypFound){
     if(debug) cout << "Start filling of DNN stuff" << endl;
@@ -408,11 +385,12 @@ bool TstarTstarMCStudyModule::process(Event & event) {
     event.set(h_masspoint, masspoint);
   }
   // Normalisation of input vector
-  vector<double> DNNInputs_mean = {0.002327, 0.008487, 188.7, 0.006092, -0.002269, 488.3, 0.004281, 0.00198, 411.7, 0.0006802, -0.01058, 153.5, -0.0007065, 0.002809, 96.87, 0.004934, -0.007805, 434.3, 1166};
-  vector<double> DNNInputs_std = {0.8738, 1.831, 154.1, 1.057, 1.808, 307, 0.9522, 1.813, 270.2, 0.9399, 1.82, 133.4, 0.93, 1.816, 99.26, 0.9954, 1.817, 268.4, 277.8};
-  for(uint i = 0; i < DNNInputs.size(); i++){
-    DNNInputs.at(i) = (DNNInputs.at(i)-DNNInputs_mean.at(i))/DNNInputs_std.at(i);
-  }
+  // TODO only do this for model inclusion, with model-dependant normalisations!
+  // vector<double> DNNInputs_mean = {0.002327, 0.008487, 188.7, 0.006092, -0.002269, 488.3, 0.004281, 0.00198, 411.7, 0.0006802, -0.01058, 153.5, -0.0007065, 0.002809, 96.87, 0.004934, -0.007805, 434.3, 1166};
+  // vector<double> DNNInputs_std = {0.8738, 1.831, 154.1, 1.057, 1.808, 307, 0.9522, 1.813, 270.2, 0.9399, 1.82, 133.4, 0.93, 1.816, 99.26, 0.9954, 1.817, 268.4, 277.8};
+  // for(uint i = 0; i < DNNInputs.size(); i++){
+  //   DNNInputs.at(i) = (DNNInputs.at(i)-DNNInputs_mean.at(i))/DNNInputs_std.at(i);
+  // }
 
   if(is_MC && TstarHypsCreated){
     if(debug){ cout << "Doing GEN matching check" << endl;}
@@ -429,39 +407,28 @@ bool TstarTstarMCStudyModule::process(Event & event) {
     {
       ReconstructionTstarHypothesis hyp_tmp = event.get(h_tstartstar_hyp);
       if(genmatcher_onlyttbar->process(event)){
-	if(debug)cout << "GEN MATCHED!" << endl;
-	h_RecoPlots_GEN_onlyttbar->fill(event);
-	h_afterGEN_onlyttbar->fill(event);
-	if(pass_ttag){
-	  h_RecoPlots_GEN_onlyttbar_ttag->fill(event);
-	  h_afterGEN_onlyttbar_ttag->fill(event);
-	}
-	if(pass_ttag){
-	  h_RecoPlots_GEN_onlyttbar_nottag->fill(event);
-	  h_afterGEN_onlyttbar_nottag->fill(event);
-	}
-	event.set(h_tstartstar_hyp, hyp_tmp);
+      	if(debug)cout << "GEN MATCHED!" << endl;
+      	h_RecoPlots_GEN_onlyttbar->fill(event);
+      	h_afterGEN_onlyttbar->fill(event);
+      	if(pass_ttag){
+      	  h_RecoPlots_GEN_onlyttbar_ttag->fill(event);
+      	  h_afterGEN_onlyttbar_ttag->fill(event);
+      	}
+      	if(pass_ttag){
+      	  h_RecoPlots_GEN_onlyttbar_nottag->fill(event);
+      	  h_afterGEN_onlyttbar_nottag->fill(event);
+      	}
+      	event.set(h_tstartstar_hyp, hyp_tmp);
+        }
       }
     }
-  }
 
-  if(forDNN && bestHypFound && includeDNNmodel){
-    std::vector<tensorflow::Tensor> outputs;
-    tensorflow::Tensor input(tensorflow::DT_FLOAT, {1, 19});
-    for (int i = 0; i < 19; i++){
-      input.matrix<float>()(0, i) = DNNInputs.at(i);
-    }
-
-    //DENSE FINN
-    tensorflow::run(session_3, {{"dense_1_input",input}}, {"dense_4/Tanh"}, &outputs);
-
-    for (int i = 0; i<1 ; i++){
-      event.set(h_DNN_output, outputs[0].matrix<float>()(0, i));
-    }
-  }
+    event.set(h_DNN_output, -1);
 
   if(debug){cout << "Done ##################################" << endl;}
   return TstarHypsCreated;
+
+
 }
 
 // as we want to run the ExampleCycleNew directly with AnalysisModuleRunner,

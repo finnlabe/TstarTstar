@@ -13,33 +13,21 @@
 <!ENTITY DYJetsToLL_M-50_HT-1200to2500_2016v3 SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/MC_DYJetsToLL_M-50_HT-1200to2500.xml">
 <!ENTITY DYJetsToLL_M-50_HT-2500toInf_2016v3 SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/MC_DYJetsToLL_M-50_HT-2500toInf.xml">
 
-<!ENTITY QCD_Pt-15to20_MuEnrichedPt5_2016v3  SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt-15to20_MuEnrichedPt5.xml">
-<!ENTITY QCD_Pt-20to30_MuEnrichedPt5_2016v3  SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt-20to30_MuEnrichedPt5.xml">
-<!ENTITY QCD_Pt-30to50_MuEnrichedPt5_2016v3  SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt-30to50_MuEnrichedPt5.xml">
-<!ENTITY QCD_Pt-50to80_MuEnrichedPt5_2016v3  SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt-50to80_MuEnrichedPt5.xml">
-<!ENTITY QCD_Pt-80to120_MuEnrichedPt5_2016v3  SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt-80to120_MuEnrichedPt5.xml">
-<!ENTITY QCD_Pt-120to170_MuEnrichedPt5_2016v3  SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt-120to170_MuEnrichedPt5.xml">
-<!ENTITY QCD_Pt-170to300_MuEnrichedPt5_2016v3  SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt-170to300_MuEnrichedPt5.xml">
-<!ENTITY QCD_Pt-300to470_MuEnrichedPt5_2016v3  SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt-300to470_MuEnrichedPt5.xml">
-<!ENTITY QCD_Pt-470to600_MuEnrichedPt5_2016v3  SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt-470to600_MuEnrichedPt5.xml">
-<!ENTITY QCD_Pt-600to800_MuEnrichedPt5_2016v3  SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt-600to800_MuEnrichedPt5.xml">
-<!ENTITY QCD_Pt-800to1000_MuEnrichedPt5_2016v3  SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt-800to1000_MuEnrichedPt5.xml">
-<!ENTITY QCD_Pt-1000toInf_MuEnrichedPt5_2016v3  SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt-1000toInf_MuEnrichedPt5.xml">
-
-<!ENTITY QCD_Pt_15to20_bcToE_2016v3  SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt_15to20_bcToE.xml">
-<!ENTITY QCD_Pt_20to30_bcToE_2016v3  SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt_20to30_bcToE.xml">
-<!ENTITY QCD_Pt_30to80_bcToE_2016v3  SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt_30to80_bcToE.xml">
-<!ENTITY QCD_Pt_80to170_bcToE_2016v3  SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt_80to170_bcToE_backup.xml">
-<!ENTITY QCD_Pt_170to250_bcToE_2016v3  SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt_170to250_bcToE.xml">
-<!ENTITY QCD_Pt_250toInf_bcToE_2016v3  SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt_250toInf_bcToE.xml">
-
-<!ENTITY QCD_Pt-20to30_EMEnriched_2016v3  SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt-20to30_EMEnriched.xml">
-<!ENTITY QCD_Pt-30to50_EMEnriched_2016v3  SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt-30to50_EMEnriched.xml">
-<!ENTITY QCD_Pt-50to80_EMEnriched_2016v3  SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt-50to80_EMEnriched.xml">
-<!ENTITY QCD_Pt-80to120_EMEnriched_2016v3  SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt-80to120_EMEnriched.xml">
-<!ENTITY QCD_Pt-120to170_EMEnriched_2016v3  SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt-120to170_EMEnriched.xml">
-<!ENTITY QCD_Pt-170to300_EMEnriched_2016v3  SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt-170to300_EMEnriched.xml">
-<!ENTITY QCD_Pt-300toInf_EMEnriched_2016v3  SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt-300toInf_EMEnriched.xml">
+<!ENTITY QCDPt15to30 SYSTEM "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt_15to30.xml">
+<!ENTITY QCDPt30to50 SYSTEM "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt_30to50.xml">
+<!ENTITY QCDPt50to80 SYSTEM "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt_50to80.xml">
+<!ENTITY QCDPt80to120 SYSTEM "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt_80to120.xml">
+<!ENTITY QCDPt120to170 SYSTEM "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt_120to170.xml">
+<!ENTITY QCDPt170to300 SYSTEM "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt_170to300.xml">
+<!ENTITY QCDPt300to470 SYSTEM "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt_300to470.xml">
+<!ENTITY QCDPt470to600 SYSTEM "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt_470to600.xml">
+<!ENTITY QCDPt600to800 SYSTEM "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt_600to800.xml">
+<!ENTITY QCDPt800to1000 SYSTEM "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt_800to1000.xml">
+<!ENTITY QCDPt1000to1400 SYSTEM "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt_1000to1400.xml">
+<!ENTITY QCDPt1400to1800 SYSTEM "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt_1400to1800.xml">
+<!ENTITY QCDPt1800to2400 SYSTEM "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt_1800to2400.xml">
+<!ENTITY QCDPt2400to3200 SYSTEM "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt_2400to3200.xml">
+<!ENTITY QCDPt3200toInf SYSTEM "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt_3200toInf.xml">
 
 <!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/">
 ]>
@@ -100,127 +88,81 @@
                   <OutputTree Name="AnalysisTree"/>
           </InputData>
 
-          <InputData Lumi="0.2132249809" NEventsMax="&NEVT;" Type="MC" Version="QCD_Pt-30to50_MuEnrichedPt5_2016v3" Cacheable="&b_Cacheable;">
-          &QCD_Pt-30to50_MuEnrichedPt5_2016v3;
-          <InputTree Name="AnalysisTree"/>
-          <OutputTree Name="AnalysisTree"/>
-      </InputData>
-      <InputData Lumi="377781.2185" NEventsMax="&NEVT;" Type="MC" Version="QCD_Pt-1000toInf_MuEnrichedPt5_2016v3" Cacheable="&b_Cacheable;">
-          &QCD_Pt-1000toInf_MuEnrichedPt5_2016v3;
-          <InputTree Name="AnalysisTree"/>
-          <OutputTree Name="AnalysisTree"/>
-      </InputData>
-      <InputData Lumi="0.01657370875" NEventsMax="&NEVT;" Type="MC" Version="QCD_Pt-20to30_EMEnriched_2016v3" Cacheable="&b_Cacheable;">
-          &QCD_Pt-20to30_EMEnriched_2016v3;
-          <InputTree Name="AnalysisTree"/>
-          <OutputTree Name="AnalysisTree"/>
-      </InputData>
-      <InputData Lumi="0.08462383824" NEventsMax="&NEVT;" Type="MC" Version="QCD_Pt-30to50_EMEnriched_2016v3" Cacheable="&b_Cacheable;">
-          &QCD_Pt-30to50_EMEnriched_2016v3;
-          <InputTree Name="AnalysisTree"/>
-          <OutputTree Name="AnalysisTree"/>
-      </InputData>
-      <InputData Lumi="1.178447727" NEventsMax="&NEVT;" Type="MC" Version="QCD_Pt-50to80_EMEnriched_2016v3" Cacheable="&b_Cacheable;">
-          &QCD_Pt-50to80_EMEnriched_2016v3;
-          <InputTree Name="AnalysisTree"/>
-          <OutputTree Name="AnalysisTree"/>
-      </InputData>
-      <InputData Lumi="27.78578714" NEventsMax="&NEVT;" Type="MC" Version="QCD_Pt-80to120_EMEnriched_2016v3" Cacheable="&b_Cacheable;">
-          &QCD_Pt-80to120_EMEnriched_2016v3;
-          <InputTree Name="AnalysisTree"/>
-          <OutputTree Name="AnalysisTree"/>
-      </InputData>
-      <InputData Lumi="101.2295" NEventsMax="&NEVT;" Type="MC" Version="QCD_Pt-170to300_EMEnriched_2016v3" Cacheable="&b_Cacheable;">
-          &QCD_Pt-170to300_EMEnriched_2016v3;
-          <InputTree Name="AnalysisTree"/>
-          <OutputTree Name="AnalysisTree"/>
-      </InputData>
-      <InputData Lumi="759.058" NEventsMax="&NEVT;" Type="MC" Version="QCD_Pt-300toInf_EMEnriched_2016v3" Cacheable="&b_Cacheable;">
-          &QCD_Pt-300toInf_EMEnriched_2016v3;
-          <InputTree Name="AnalysisTree"/>
-          <OutputTree Name="AnalysisTree"/>
-      </InputData>
-      <InputData Lumi="0.002109696932" NEventsMax="&NEVT;" Type="MC" Version="QCD_Pt_15to20_bcToE_2016v3" Cacheable="&b_Cacheable;">
-          &QCD_Pt_15to20_bcToE_2016v3;
-          <InputTree Name="AnalysisTree"/>
-          <OutputTree Name="AnalysisTree"/>
-      </InputData>
-      <InputData Lumi="0.01970483316" NEventsMax="&NEVT;" Type="MC" Version="QCD_Pt_20to30_bcToE_2016v3" Cacheable="&b_Cacheable;">
-          &QCD_Pt_20to30_bcToE_2016v3;
-          <InputTree Name="AnalysisTree"/>
-          <OutputTree Name="AnalysisTree"/>
-      </InputData>
-      <InputData Lumi="0.0964542397" NEventsMax="&NEVT;" Type="MC" Version="QCD_Pt_30to80_bcToE_2016v3" Cacheable="&b_Cacheable;">
-          &QCD_Pt_30to80_bcToE_2016v3;
-          <InputTree Name="AnalysisTree"/>
-          <OutputTree Name="AnalysisTree"/>
-      </InputData>
-      <InputData Lumi="4.61098634" NEventsMax="&NEVT;" Type="MC" Version="QCD_Pt_80to170_bcToE_2016v3" Cacheable="&b_Cacheable;">
-          &QCD_Pt_80to170_bcToE_2016v3;
-          <InputTree Name="AnalysisTree"/>
-          <OutputTree Name="AnalysisTree"/>
-      </InputData>
-      <InputData Lumi="92.76636318" NEventsMax="&NEVT;" Type="MC" Version="QCD_Pt_170to250_bcToE_2016v3" Cacheable="&b_Cacheable;">
-          &QCD_Pt_170to250_bcToE_2016v3;
-          <InputTree Name="AnalysisTree"/>
-          <OutputTree Name="AnalysisTree"/>
-      </InputData>
-      <InputData Lumi="250.5327082" NEventsMax="&NEVT;" Type="MC" Version="QCD_Pt_250toInf_bcToE_2016v3" Cacheable="&b_Cacheable;">
-          &QCD_Pt_250toInf_bcToE_2016v3;
-          <InputTree Name="AnalysisTree"/>
-          <OutputTree Name="AnalysisTree"/>
-      </InputData>
-      <InputData Lumi="0.003252657498" NEventsMax="&NEVT;" Type="MC" Version="QCD_Pt-15to20_MuEnrichedPt5_2016v3" Cacheable="&b_Cacheable;">
-          &QCD_Pt-15to20_MuEnrichedPt5_2016v3;
-          <InputTree Name="AnalysisTree"/>
-          <OutputTree Name="AnalysisTree"/>
-      </InputData>
-      <InputData Lumi="0.05707635069" NEventsMax="&NEVT;" Type="MC" Version="QCD_Pt-20to30_MuEnrichedPt5_2016v3" Cacheable="&b_Cacheable;">
-          &QCD_Pt-20to30_MuEnrichedPt5_2016v3;
-          <InputTree Name="AnalysisTree"/>
-          <OutputTree Name="AnalysisTree"/>
-      </InputData>
-      <InputData Lumi="1.022872935" NEventsMax="&NEVT;" Type="MC" Version="QCD_Pt-50to80_MuEnrichedPt5_2016v3" Cacheable="&b_Cacheable;">
-          &QCD_Pt-50to80_MuEnrichedPt5_2016v3;
-          <InputTree Name="AnalysisTree"/>
-          <OutputTree Name="AnalysisTree"/>
-      </InputData>
-      <InputData Lumi="3.556365238" NEventsMax="&NEVT;" Type="MC" Version="QCD_Pt-80to120_MuEnrichedPt5_2016v3" Cacheable="&b_Cacheable;">
-          &QCD_Pt-80to120_MuEnrichedPt5_2016v3;
-          <InputTree Name="AnalysisTree"/>
-          <OutputTree Name="AnalysisTree"/>
-      </InputData>
-      <InputData Lumi="42.1670679" NEventsMax="&NEVT;" Type="MC" Version="QCD_Pt-120to170_MuEnrichedPt5_2016v3" Cacheable="&b_Cacheable;">
-          &QCD_Pt-120to170_MuEnrichedPt5_2016v3;
-          <InputTree Name="AnalysisTree"/>
-          <OutputTree Name="AnalysisTree"/>
-      </InputData>
-      <InputData Lumi="147.0495639" NEventsMax="&NEVT;" Type="MC" Version="QCD_Pt-170to300_MuEnrichedPt5_2016v3" Cacheable="&b_Cacheable;">
-          &QCD_Pt-170to300_MuEnrichedPt5_2016v3;
-          <InputTree Name="AnalysisTree"/>
-          <OutputTree Name="AnalysisTree"/>
-      </InputData>
-      <InputData Lumi="1015.004635" NEventsMax="&NEVT;" Type="MC" Version="QCD_Pt-300to470_MuEnrichedPt5_2016v3" Cacheable="&b_Cacheable;">
-          &QCD_Pt-300to470_MuEnrichedPt5_2016v3;
-          <InputTree Name="AnalysisTree"/>
-          <OutputTree Name="AnalysisTree"/>
-      </InputData>
-      <InputData Lumi="30191.21711" NEventsMax="&NEVT;" Type="MC" Version="QCD_Pt-470to600_MuEnrichedPt5_2016v3" Cacheable="&b_Cacheable;">
-          &QCD_Pt-470to600_MuEnrichedPt5_2016v3;
-          <InputTree Name="AnalysisTree"/>
-          <OutputTree Name="AnalysisTree"/>
-      </InputData>
-
-      <InputData Lumi="106406.0467" NEventsMax="&NEVT;" Type="MC" Version="QCD_Pt-600to800_MuEnrichedPt5_2016v3" Cacheable="&b_Cacheable;">
-          &QCD_Pt-600to800_MuEnrichedPt5_2016v3;
-          <InputTree Name="AnalysisTree"/>
-          <OutputTree Name="AnalysisTree"/>
-      </InputData>
-      <InputData Lumi="616433.0759" NEventsMax="&NEVT;" Type="MC" Version="QCD_Pt-800to1000_MuEnrichedPt5_2016v3" Cacheable="&b_Cacheable;">
-          &QCD_Pt-800to1000_MuEnrichedPt5_2016v3;
-          <InputTree Name="AnalysisTree"/>
-          <OutputTree Name="AnalysisTree"/>
-      </InputData>
+          <InputData Lumi="0.02142397451" NEventsMax="&NEVT;" Type="MC" Version="QCDPt15to30_2016v3" Cacheable="&b_Cacheable;">
+		    &QCDPt15to30;
+		    <InputTree Name="AnalysisTree" />
+		    <OutputTree Name="AnalysisTree" />
+</InputData>
+<InputData Lumi="0.07013914512" NEventsMax="&NEVT;" Type="MC" Version="QCDPt30to50_2016v3" Cacheable="&b_Cacheable;">
+		    &QCDPt30to50;
+		    <InputTree Name="AnalysisTree" />
+		    <OutputTree Name="AnalysisTree" />
+</InputData>
+<InputData Lumi="0.5183406841" NEventsMax="&NEVT;" Type="MC" Version="QCDPt50to80_2016v3" Cacheable="&b_Cacheable;">
+		    &QCDPt50to80;
+		    <InputTree Name="AnalysisTree" />
+		    <OutputTree Name="AnalysisTree" />
+</InputData>
+<InputData Lumi="5.126349397" NEventsMax="&NEVT;" Type="MC" Version="QCDPt80to120_2016v3" Cacheable="&b_Cacheable;">
+		    &QCDPt80to120;
+		    <InputTree Name="AnalysisTree" />
+		    <OutputTree Name="AnalysisTree" />
+</InputData>
+<InputData Lumi="26.78021227" NEventsMax="&NEVT;" Type="MC" Version="QCDPt120to170_2016v3" Cacheable="&b_Cacheable;">
+		    &QCDPt120to170;
+		    <InputTree Name="AnalysisTree" />
+		    <OutputTree Name="AnalysisTree" />
+</InputData>
+<InputData Lumi="126.1705208" NEventsMax="&NEVT;" Type="MC" Version="QCDPt170to300_2016v3" Cacheable="&b_Cacheable;">
+		    &QCDPt170to300;
+		    <InputTree Name="AnalysisTree" />
+		    <OutputTree Name="AnalysisTree" />
+</InputData>
+<InputData Lumi="2872.351272" NEventsMax="&NEVT;" Type="MC" Version="QCDPt300to470_2016v3" Cacheable="&b_Cacheable;">
+		    &QCDPt300to470;
+		    <InputTree Name="AnalysisTree" />
+		    <OutputTree Name="AnalysisTree" />
+</InputData>
+<InputData Lumi="30112.84172" NEventsMax="&NEVT;" Type="MC" Version="QCDPt470to600_2016v3" Cacheable="&b_Cacheable;">
+		    &QCDPt470to600;
+		    <InputTree Name="AnalysisTree" />
+		    <OutputTree Name="AnalysisTree" />
+</InputData>
+<InputData Lumi="171074.4569" NEventsMax="&NEVT;" Type="MC" Version="QCDPt600to800_2016v3" Cacheable="&b_Cacheable;">
+		    &QCDPt600to800;
+		    <InputTree Name="AnalysisTree" />
+		    <OutputTree Name="AnalysisTree" />
+</InputData>
+<InputData Lumi="603977.3016" NEventsMax="&NEVT;" Type="MC" Version="QCDPt800to1000_2016v3" Cacheable="&b_Cacheable;">
+		    &QCDPt800to1000;
+		    <InputTree Name="AnalysisTree" />
+		    <OutputTree Name="AnalysisTree" />
+</InputData>
+<InputData Lumi="1045476.891" NEventsMax="&NEVT;" Type="MC" Version="QCDPt1000to1400_2016v3" Cacheable="&b_Cacheable;">
+		    &QCDPt1000to1400;
+		    <InputTree Name="AnalysisTree" />
+		    <OutputTree Name="AnalysisTree" />
+</InputData>
+<InputData Lumi="3381647.184" NEventsMax="&NEVT;" Type="MC" Version="QCDPt1400to1800_2016v3" Cacheable="&b_Cacheable;">
+		    &QCDPt1400to1800;
+		    <InputTree Name="AnalysisTree" />
+		    <OutputTree Name="AnalysisTree" />
+</InputData>
+<InputData Lumi="17243659.9" NEventsMax="&NEVT;" Type="MC" Version="QCDPt1800to2400_2016v3" Cacheable="&b_Cacheable;">
+		    &QCDPt1800to2400;
+		    <InputTree Name="AnalysisTree" />
+		    <OutputTree Name="AnalysisTree" />
+</InputData>
+<InputData Lumi="145850323.8" NEventsMax="&NEVT;" Type="MC" Version="QCDPt2400to3200_2016v3" Cacheable="&b_Cacheable;">
+		    &QCDPt2400to3200;
+		    <InputTree Name="AnalysisTree" />
+		    <OutputTree Name="AnalysisTree" />
+</InputData>
+<InputData Lumi="2367765723" NEventsMax="&NEVT;" Type="MC" Version="QCDPt3200toInf_2016v3" Cacheable="&b_Cacheable;">
+		    &QCDPt3200toInf;
+		    <InputTree Name="AnalysisTree" />
+		    <OutputTree Name="AnalysisTree" />
+</InputData>
 
 
 
@@ -237,7 +179,7 @@
 	    <Item Name="GenTopJetCollection"     Value="hotvrGen"/> <!-- Check odinary ak8GenJetsFat !--> <!-- new in ntuples! -->
 	    <Item Name="METName"                 Value="slimmedMETsPuppi"/>
 	    <Item Name="genMETName"              Value="slimmedMETs_GenMET"/>
-	    <Item Name="lumi_file" Value="/nfs/dust/cms/user/karavdia/CMSSW_10_2_10/src/UHH2/common/data/2016/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root"/>
+	    <Item Name="lumi_file" Value="/nfs/dust/cms/user/flabe/CMSSW/CMSSW_10_2_10/src/UHH2/common/data/2016/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root"/>
 	    <Item Name="lumihists_lumi_per_bin" Value="500.0"/>
 
       <Item Name="jersmear_direction" Value="nominal"/>
