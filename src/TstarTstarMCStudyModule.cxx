@@ -1,5 +1,9 @@
 #include <iostream>
 #include <memory>
+#include <string>
+
+// For DNN
+#include "UHH2/TstarTstar/include/NeuralNetworkModules.h"
 
 #include "UHH2/core/include/AnalysisModule.h"
 #include "UHH2/core/include/Event.h"
@@ -16,6 +20,8 @@
 #include "UHH2/common/include/MCWeight.h"
 #include "UHH2/TstarTstar/include/TstarTstarSelections.h"
 #include "UHH2/TstarTstar/include/TstarTstarHists.h"
+#include "UHH2/TstarTstar/include/TstarTstarDNNHists.h"
+#include "UHH2/TstarTstar/include/TstarTstarDNNInputHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarRecoTstarHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarGenHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarGenRecoMatchedHists.h"
@@ -30,7 +36,6 @@ using namespace uhh2;
 namespace uhh2 {
 
   float inv_mass(const LorentzVector& p4){ return p4.isTimelike() ? p4.mass() : -sqrt(-p4.mass2()); }
-
 
 /** \brief Module for the T*T*->ttbar gg MC based study
  *
@@ -55,35 +60,28 @@ private:
   std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_Full, h_RecoPlots_ttag, h_RecoPlots_nottag, h_RecoPlots_lowchi2, h_RecoPlots_highchi2;
   std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_GEN, h_RecoPlots_GEN_onlyttbar, h_RecoPlots_GEN_onlyttbar_ttag, h_RecoPlots_GEN_onlyttbar_nottag;
 
+  std::unique_ptr<Hists> h_afterPrimlep_mu, h_afterPrimlep_mu_lowpt, h_afterPrimlep_mu_highpt, h_afterPrimlep_ele, h_afterPrimlep_ele_lowpt, h_afterPrimlep_ele_highpt;
+
+  std::unique_ptr<Hists> h_AfterDNNcut, h_notDNNcut, h_ST_reweighted, h_ST_reweighted_2;
+  std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_AfterDNNcut, h_RecoPlots_notDNNcut;
+
   std::unique_ptr<Hists> h_GEN_Hists, h_GEN_Hists_pre;
+  std::unique_ptr<Hists> h_DNN_Inputs, h_DNN_Inputs_reweighted, h_DNN_Inputs_reweighted_2;
+
+  std::unique_ptr<TstarTstarDNNHists> h_DNN_Hists, h_DNN_Hists_reweighted, h_DNN_Hists_reweighted_2, h_DNN_Hists_AfterDNNCut, h_DNN_Hists_lowpt, h_DNN_Hists_medpt, h_DNN_Hists_highpt;
 
   // Bools for Debugging/Options
   bool debug = false;
 
+  // DNN stuff
+  bool outputDNNvalues = true;
   bool includeDNNmodel = true;
-  // save pt, eta, phi for ttagged jet, leptop, MET, leptopjet, gluon candidates
-  bool forDNN = true;
-  uhh2::Event::Handle<double> h_DNN_ttaggedjet_pt;
-  uhh2::Event::Handle<double> h_DNN_ttaggedjet_eta;
-  uhh2::Event::Handle<double> h_DNN_ttaggedjet_phi;
-  uhh2::Event::Handle<double> h_DNN_lepton_pt;
-  uhh2::Event::Handle<double> h_DNN_lepton_eta;
-  uhh2::Event::Handle<double> h_DNN_lepton_phi;
-  uhh2::Event::Handle<double> h_DNN_MET_pt;
-  uhh2::Event::Handle<double> h_DNN_MET_eta;
-  uhh2::Event::Handle<double> h_DNN_MET_phi;
-  uhh2::Event::Handle<double> h_DNN_leptopjet_pt;
-  uhh2::Event::Handle<double> h_DNN_leptopjet_eta;
-  uhh2::Event::Handle<double> h_DNN_leptopjet_phi;
-  uhh2::Event::Handle<double> h_DNN_gluon1_pt;
-  uhh2::Event::Handle<double> h_DNN_gluon1_eta;
-  uhh2::Event::Handle<double> h_DNN_gluon1_phi;
-  uhh2::Event::Handle<double> h_DNN_gluon2_pt;
-  uhh2::Event::Handle<double> h_DNN_gluon2_eta;
-  uhh2::Event::Handle<double> h_DNN_gluon2_phi;
-
-  uhh2::Event::Handle<double> h_masspoint;
+  bool do_masspoint = false;
+  std::unique_ptr<NeuralNetworkInputWriter> DNN_InputWriter;
+  std::unique_ptr<NeuralNetworkIncluder> DNN_Includer;
   uhh2::Event::Handle<double> h_DNN_output;
+  uhh2::Event::Handle<bool> h_do_masspoint;
+  uhh2::Event::Handle<double> h_ST;
 
   // primlep
   uhh2::Event::Handle<FlavorParticle> h_primlep;
@@ -103,17 +101,26 @@ private:
   uhh2::Event::Handle<std::vector<ReconstructionTstarHypothesis>> h_tstartstar_hyp_vector;
   uhh2::Event::Handle<ReconstructionTstarHypothesis> h_tstartstar_hyp;
 
-  uhh2::Event::Handle<int> jets_thrown_away;
-
   uhh2::Event::Handle<double> h_evt_weight;
+  uhh2::Event::Handle<double> h_ST_weight;
+  uhh2::Event::Handle<double> h_ST_weight_2;
 
   // bools for channel and stuff. will be read in later
   bool isTrigger;
   bool is_MC;
+
+  TH1D* ST_ratio;
+  TH1D* ST_sig;
+  TH1D* ST_bkg;
+  bool is_TTbar;
+  bool is_Signal;
+  bool is_Data;
 };
 
 
 TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
+
+  reco_primlep.reset(new PrimaryLepton(ctx));
 
   if(debug) {
     cout << "Hello World from TstarTstarMCStudyModule!" << endl;
@@ -145,9 +152,7 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   // Check which lepton is present and save in
   h_flag_muonevent = ctx.declare_event_output<int>("flag_muonevent");
 
-
   // 3. Set up Hists classes:
-
   h_beforeReco.reset(new TstarTstarHists(ctx, "beforeReco"));
   h_beforeReco_ttag.reset(new TstarTstarHists(ctx, "beforeReco_ttag"));
   h_beforeReco_nottag.reset(new TstarTstarHists(ctx, "beforeReco_nottag"));
@@ -167,6 +172,16 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   h_notReconstructible_ttag.reset(new TstarTstarHists(ctx, "notReconstructible_ttag"));
   h_notReconstructible_nottag.reset(new TstarTstarHists(ctx, "notReconstructible_nottag"));
 
+  h_ST_reweighted.reset(new TstarTstarHists(ctx, "STreweighted"));
+  h_ST_reweighted_2.reset(new TstarTstarHists(ctx, "STreweighted_2"));
+
+  h_afterPrimlep_mu.reset(new TstarTstarHists(ctx, "afterPrimlep_mu"));
+  h_afterPrimlep_mu_lowpt.reset(new TstarTstarHists(ctx, "afterPrimlep_mu_lowpt"));
+  h_afterPrimlep_mu_highpt.reset(new TstarTstarHists(ctx, "afterPrimlep_mu_highpt"));
+  h_afterPrimlep_ele.reset(new TstarTstarHists(ctx, "afterPrimlep_ele"));
+  h_afterPrimlep_ele_lowpt.reset(new TstarTstarHists(ctx, "afterPrimlep_ele_lowpt"));
+  h_afterPrimlep_ele_highpt.reset(new TstarTstarHists(ctx, "afterPrimlep_ele_highpt"));
+
   h_RecoPlots_Full.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_Full"));
   h_RecoPlots_ttag.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_ttag"));
   h_RecoPlots_nottag.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_nottag"));
@@ -177,13 +192,27 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   h_RecoPlots_GEN_onlyttbar_ttag.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN_onlyttbar_ttag"));
   h_RecoPlots_GEN_onlyttbar_nottag.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN_onlyttbar_nottag"));
 
+  h_AfterDNNcut.reset(new TstarTstarHists(ctx, "AfterDNNcut"));
+  h_notDNNcut.reset(new TstarTstarHists(ctx, "notDNNcut"));
+  h_RecoPlots_AfterDNNcut.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_AfterDNNcut"));
+  h_RecoPlots_notDNNcut.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_notDNNcut"));
+
   h_GEN_Hists_pre.reset(new TstarTstarGenHists(ctx, "GEN_Hists_beforeReco"));
   h_GEN_Hists.reset(new TstarTstarGenHists(ctx, "GEN_Hists_AfterReco"));
 
+  h_DNN_Hists.reset(new TstarTstarDNNHists(ctx, "DNN_Hists"));
+  h_DNN_Hists_reweighted.reset(new TstarTstarDNNHists(ctx, "DNN_Hists_reweighted"));
+  h_DNN_Hists_reweighted_2.reset(new TstarTstarDNNHists(ctx, "DNN_Hists_reweighted_2"));
+  h_DNN_Hists_AfterDNNCut.reset(new TstarTstarDNNHists(ctx, "DNN_Hists_AfterDNNCut"));
+  h_DNN_Hists_lowpt.reset(new TstarTstarDNNHists(ctx, "DNN_Hists_lowpt"));
+  h_DNN_Hists_medpt.reset(new TstarTstarDNNHists(ctx, "DNN_Hists_medpt"));
+  h_DNN_Hists_highpt.reset(new TstarTstarDNNHists(ctx, "DNN_Hists_highpt"));
+
+  h_DNN_Inputs.reset(new TstarTstarDNNInputHists(ctx, "DNN_Inputs"));
+  h_DNN_Inputs_reweighted.reset(new TstarTstarDNNInputHists(ctx, "DNN_Inputs_reweighted"));
+  h_DNN_Inputs_reweighted_2.reset(new TstarTstarDNNInputHists(ctx, "DNN_Inputs_reweighted_2"));
 
   //4. Set up ttbar reconstruction
-  reco_primlep.reset(new PrimaryLepton(ctx));
-
   h_tstartstar_hyp_vector = ctx.get_handle<std::vector<ReconstructionTstarHypothesis>>("TstarTstar_Hyp_Vector");
   h_tstartstar_hyp = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_Hyp");
 
@@ -191,40 +220,29 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   TstarTstarHypSelector.reset(new TstarTstar_Discrimination(ctx));
 
   // 5. Handles for DNN
-  if(forDNN){
-    h_DNN_ttaggedjet_pt = ctx.declare_event_output<double>("DNN_ttaggedjet_pt");
-    h_DNN_ttaggedjet_eta = ctx.declare_event_output<double>("DNN_ttaggedjet_eta");
-    h_DNN_ttaggedjet_phi = ctx.declare_event_output<double>("DNN_ttaggedjet_phi");
-    h_DNN_lepton_pt = ctx.declare_event_output<double>("DNN_lepton_pt");
-    h_DNN_lepton_eta = ctx.declare_event_output<double>("DNN_lepton_eta");
-    h_DNN_lepton_phi = ctx.declare_event_output<double>("DNN_lepton_phi");
-    h_DNN_MET_pt = ctx.declare_event_output<double>("DNN_MET_pt");
-    h_DNN_MET_eta = ctx.declare_event_output<double>("DNN_MET_eta");
-    h_DNN_MET_phi = ctx.declare_event_output<double>("DNN_MET_phi");
-    h_DNN_leptopjet_pt = ctx.declare_event_output<double>("DNN_leptopjet_pt");
-    h_DNN_leptopjet_eta = ctx.declare_event_output<double>("DNN_leptopjet_eta");
-    h_DNN_leptopjet_phi = ctx.declare_event_output<double>("DNN_leptopjet_phi");
-    h_DNN_gluon1_pt = ctx.declare_event_output<double>("DNN_gluon1_pt");
-    h_DNN_gluon1_eta = ctx.declare_event_output<double>("DNN_gluon1_eta");
-    h_DNN_gluon1_phi = ctx.declare_event_output<double>("DNN_gluon1_phi");
-    h_DNN_gluon2_pt = ctx.declare_event_output<double>("DNN_gluon2_pt");
-    h_DNN_gluon2_eta = ctx.declare_event_output<double>("DNN_gluon2_eta");
-    h_DNN_gluon2_phi = ctx.declare_event_output<double>("DNN_gluon2_phi");
-
-    h_masspoint = ctx.declare_event_output<double>("h_masspoint");
-    h_DNN_output = ctx.declare_event_output<double>("h_DNN_output");
+  if(outputDNNvalues){
+    DNN_InputWriter.reset(new NeuralNetworkInputWriter(ctx));
+    h_do_masspoint = ctx.get_handle<bool>("do_masspoint");
+    h_ST = ctx.declare_event_output<double>("ST");
+  }
+  if(includeDNNmodel){
+    DNN_Includer.reset(new NeuralNetworkIncluder(ctx, do_masspoint));
+    h_DNN_output = ctx.get_handle<double>("DNN_output");
   }
 
-  reco_primlep.reset(new PrimaryLepton(ctx));
   h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
 
-  if(includeDNNmodel){
-    std::srand(std::time(nullptr)); // Initialize random
-  }
-
-  //jets_thrown_away = ctx.declare_event_output<double>("jets_thrown_away");
   h_evt_weight = ctx.get_handle<double>("evt_weight");
+  h_ST_weight = ctx.declare_event_output<double>("ST_weight");
+  h_ST_weight_2 = ctx.declare_event_output<double>("ST_weight_flat");
 
+  TFile *f = new TFile("/nfs/dust/cms/user/flabe/CMSSW/CMSSW_10_2_10/src/UHH2/MLCorner/TstarNN/ST_weights.root");
+  ST_ratio = (TH1D*)f->Get("ST_ratio");
+  ST_sig = (TH1D*)f->Get("ST_sig");
+  ST_bkg = (TH1D*)f->Get("ST_bkg");
+
+  is_TTbar = (ctx.get("dataset_version").find("TT") != std::string::npos);
+  is_Signal = (ctx.get("dataset_version").find("Tstar") != std::string::npos);
 }
 
 
@@ -232,8 +250,43 @@ bool TstarTstarMCStudyModule::process(Event & event) {
 
   if(debug){cout << endl << "TstarTstarMCStudyModule: Starting to process event (runid, eventid) = (" << event.run << ", " << event.event << "); weight = " << event.weight << endl;}
 
+  // reapply weights
   event.weight = event.get(h_evt_weight);
   if(debug) cout << "weights applied." << endl;
+
+  // ST reweighting
+  double st_jets = 0;
+  double ST_weight = 0;
+  double ST_weight_2 = 0;
+  for(const auto & jet : *event.topjets) st_jets += jet.pt();
+  if(is_TTbar){
+    if(st_jets < 3000) ST_weight = 1/(ST_ratio->GetBinContent(ST_ratio->GetXaxis()->FindBin(st_jets)));
+    if(st_jets < 3000) ST_weight_2 = 1/(ST_bkg->GetBinContent(ST_bkg->GetXaxis()->FindBin(st_jets)));
+    event.set(h_ST_weight, ST_weight*event.get(h_evt_weight));
+    event.set(h_ST_weight_2, ST_weight_2*event.get(h_evt_weight));
+    event.weight *= ST_weight;
+    h_ST_reweighted->fill(event);
+    event.weight = event.get(h_evt_weight);
+    event.weight *= ST_weight_2;
+    h_ST_reweighted_2->fill(event);
+    event.weight = event.get(h_evt_weight);
+  }
+  else if(is_Signal){
+    double ST_weight_2 = 0;
+    if(st_jets < 3000) ST_weight_2 = 1/(ST_sig->GetBinContent(ST_sig->GetXaxis()->FindBin(st_jets)));
+    event.set(h_ST_weight, event.get(h_evt_weight));
+    event.set(h_ST_weight_2, ST_weight_2*event.get(h_evt_weight));
+    h_ST_reweighted->fill(event);
+    event.weight *= ST_weight_2;
+    h_ST_reweighted_2->fill(event);
+    event.weight = event.get(h_evt_weight);
+  }
+  else {
+    event.set(h_ST_weight, event.get(h_evt_weight));
+    event.set(h_ST_weight_2, event.get(h_evt_weight));
+    h_ST_reweighted->fill(event);
+    h_ST_reweighted_2->fill(event);
+  }
 
   if(is_MC) ttgenprod->process(event);
 
@@ -266,6 +319,16 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   bool bestHypFound = false;
 
   h_afterPrimlep->fill(event);
+  if(event.get(h_flag_muonevent)){
+    h_afterPrimlep_mu->fill(event);
+    if(event.get(h_primlep).pt()<60) h_afterPrimlep_mu_lowpt->fill(event);
+    else h_afterPrimlep_mu_highpt->fill(event);
+  }
+  else {
+    h_afterPrimlep_ele->fill(event);
+    if(event.get(h_primlep).pt()<120) h_afterPrimlep_ele_lowpt->fill(event);
+    else h_afterPrimlep_ele_highpt->fill(event);
+  }
 
   // fat jet selection
   bool pass_fat_njet = (event.topjets->size()>2);
@@ -306,93 +369,11 @@ bool TstarTstarMCStudyModule::process(Event & event) {
     else h_notReconstructible_nottag->fill(event);
   }
 
-  // Filling output for DNN
-  // TODO put this in extra file that you pass an hypothesis
-  vector<double> DNNInputs;
-  if(forDNN && bestHypFound){
-    if(debug) cout << "Start filling of DNN stuff" << endl;
-    ReconstructionTstarHypothesis best_hyp = event.get(h_tstartstar_hyp);
-    ReconstructionHypothesis best_hyp_ttbar = best_hyp.ttbar_hyp();
+  // ####################
+  // ####################
+  // ####################
 
-    // MET
-    event.set(h_DNN_MET_eta, best_hyp_ttbar.neutrino_v4().eta());
-    if(includeDNNmodel) DNNInputs.push_back(best_hyp_ttbar.neutrino_v4().eta());
-    event.set(h_DNN_MET_phi, best_hyp_ttbar.neutrino_v4().phi());
-    if(includeDNNmodel) DNNInputs.push_back(best_hyp_ttbar.neutrino_v4().phi());
-    event.set(h_DNN_MET_pt, best_hyp_ttbar.neutrino_v4().pt());
-    if(includeDNNmodel) DNNInputs.push_back(best_hyp_ttbar.neutrino_v4().pt());
-    if(debug) cout << "Done with neutrino." << endl;
-
-    // gluon 1
-    event.set(h_DNN_gluon1_eta, best_hyp.gluon1_v4().eta());
-    if(includeDNNmodel) DNNInputs.push_back(best_hyp.gluon1_v4().eta());
-    event.set(h_DNN_gluon1_phi, best_hyp.gluon1_v4().phi());
-    if(includeDNNmodel) DNNInputs.push_back(best_hyp.gluon1_v4().phi());
-    event.set(h_DNN_gluon1_pt, best_hyp.gluon1_v4().pt());
-    if(includeDNNmodel) DNNInputs.push_back(best_hyp.gluon1_v4().pt());
-    if(debug) cout << "Done with gluon1." << endl;
-
-    // gluon 2
-    event.set(h_DNN_gluon2_eta, best_hyp.gluon2_v4().eta());
-    if(includeDNNmodel) DNNInputs.push_back(best_hyp.gluon2_v4().eta());
-    event.set(h_DNN_gluon2_phi, best_hyp.gluon2_v4().phi());
-    if(includeDNNmodel) DNNInputs.push_back(best_hyp.gluon2_v4().phi());
-    event.set(h_DNN_gluon2_pt, best_hyp.gluon2_v4().pt());
-    if(includeDNNmodel) DNNInputs.push_back(best_hyp.gluon2_v4().pt());
-    if(debug) cout << "Done with gluon2." << endl;
-
-    // lepton
-    event.set(h_DNN_lepton_eta, best_hyp_ttbar.lepton().eta());
-    if(includeDNNmodel) DNNInputs.push_back(best_hyp_ttbar.lepton().eta());
-    event.set(h_DNN_lepton_phi, best_hyp_ttbar.lepton().phi());
-    if(includeDNNmodel) DNNInputs.push_back(best_hyp_ttbar.lepton().phi());
-    event.set(h_DNN_lepton_pt, best_hyp_ttbar.lepton().pt());
-    if(includeDNNmodel) DNNInputs.push_back(best_hyp_ttbar.lepton().pt());
-    if(debug) cout << "Done with lepton." << endl;
-
-      // leptopjet
-    event.set(h_DNN_leptopjet_eta, best_hyp_ttbar.blep_v4().eta());
-    if(includeDNNmodel) DNNInputs.push_back(best_hyp_ttbar.blep_v4().eta());
-    event.set(h_DNN_leptopjet_phi, best_hyp_ttbar.blep_v4().phi());
-    if(includeDNNmodel) DNNInputs.push_back(best_hyp_ttbar.blep_v4().phi());
-    event.set(h_DNN_leptopjet_pt, best_hyp_ttbar.blep_v4().pt());
-    if(includeDNNmodel) DNNInputs.push_back(best_hyp_ttbar.blep_v4().pt());
-    if(debug) cout << "Done with leptopjet." << endl;
-
-    // hadtopjet
-    event.set(h_DNN_ttaggedjet_eta, best_hyp_ttbar.tophad_v4().eta());
-    if(includeDNNmodel) DNNInputs.push_back(best_hyp_ttbar.tophad_v4().eta());
-    event.set(h_DNN_ttaggedjet_phi, best_hyp_ttbar.tophad_v4().phi());
-    if(includeDNNmodel) DNNInputs.push_back(best_hyp_ttbar.tophad_v4().phi());
-    event.set(h_DNN_ttaggedjet_pt, best_hyp_ttbar.tophad_v4().pt());
-    if(includeDNNmodel) DNNInputs.push_back(best_hyp_ttbar.tophad_v4().pt());
-    if(debug) cout << "Done with ttagjet." << endl;
-
-    // Additional Value for parametrized learning has to be set.
-    double masspoint = -1;
-    if(is_MC){
-      assert(event.genparticles);
-      for(const GenParticle & gp : *event.genparticles){
-        if((gp.pdgId() == 9000005 || gp.pdgId() == -9000005) && (gp.status()==23 || gp.status()==22)){
-          masspoint = inv_mass(gp.v4());
-        }
-      }
-    }
-    if(masspoint == -1){ // if no TstarFound (eg Data or Background) set random between 700 and 1600
-      masspoint = std::rand() % 1801 + 200; // random between 200 and 2000, inclusively!
-    }
-    if(includeDNNmodel) DNNInputs.push_back(masspoint);
-    event.set(h_masspoint, masspoint);
-  }
-  // Normalisation of input vector
-  // TODO only do this for model inclusion, with model-dependant normalisations!
-  // vector<double> DNNInputs_mean = {0.002327, 0.008487, 188.7, 0.006092, -0.002269, 488.3, 0.004281, 0.00198, 411.7, 0.0006802, -0.01058, 153.5, -0.0007065, 0.002809, 96.87, 0.004934, -0.007805, 434.3, 1166};
-  // vector<double> DNNInputs_std = {0.8738, 1.831, 154.1, 1.057, 1.808, 307, 0.9522, 1.813, 270.2, 0.9399, 1.82, 133.4, 0.93, 1.816, 99.26, 0.9954, 1.817, 268.4, 277.8};
-  // for(uint i = 0; i < DNNInputs.size(); i++){
-  //   DNNInputs.at(i) = (DNNInputs.at(i)-DNNInputs_mean.at(i))/DNNInputs_std.at(i);
-  // }
-
-  if(is_MC && TstarHypsCreated){
+  if(is_MC && TstarHypsCreated && false){
     if(debug){ cout << "Doing GEN matching check" << endl;}
     // ##### GEN Matching
     {
@@ -423,11 +404,56 @@ bool TstarTstarMCStudyModule::process(Event & event) {
       }
     }
 
-    event.set(h_DNN_output, -1);
+    // ####################
+    // ####################
+    // ####################
 
-  if(debug){cout << "Done ##################################" << endl;}
-  return TstarHypsCreated;
+    if(debug) cout << "Start DNN stuff" << endl;
+    // Filling output for DNN
+    if(outputDNNvalues){
+      event.set(h_do_masspoint, do_masspoint);
+      double st_jets = 0.;
+      for(const auto & jet : *event.topjets) st_jets += jet.pt();
+      event.set(h_ST, st_jets);
+      DNN_InputWriter->process(event);
+      h_DNN_Inputs->fill(event);
+      if(is_TTbar) event.weight *= ST_weight;
+      h_DNN_Inputs_reweighted->fill(event);
+      event.weight = event.get(h_evt_weight);
+      if(is_TTbar || is_Signal) event.weight *= ST_weight_2;
+      h_DNN_Inputs_reweighted_2->fill(event);
+      event.weight = event.get(h_evt_weight);
+    }
+    if(includeDNNmodel){
+      DNN_Includer->process(event);
+      h_DNN_Hists->fill(event);
+      if(is_TTbar) event.weight *= ST_weight;
+      h_DNN_Hists_reweighted->fill(event);
+      event.weight = event.get(h_evt_weight);
+      if(is_TTbar || is_Signal) event.weight *= ST_weight_2;
+      h_DNN_Hists_reweighted_2->fill(event);
+      event.weight = event.get(h_evt_weight);
 
+      if(event.topjets->at(0).pt() < 500) h_DNN_Hists_lowpt->fill(event);
+      else if (event.topjets->at(0).pt() < 1000) h_DNN_Hists_medpt->fill(event);
+      else h_DNN_Hists_highpt->fill(event);
+
+      if(is_MC) {
+        if(event.get(h_DNN_output) > 0.7) {
+          h_AfterDNNcut->fill(event);
+          h_RecoPlots_AfterDNNcut->fill(event);
+          h_DNN_Hists_AfterDNNCut->fill(event);
+        }
+        else {
+          h_notDNNcut->fill(event);
+          h_RecoPlots_notDNNcut->fill(event);
+        }
+      }
+    }
+
+
+    if(debug){cout << "Done ##################################" << endl;}
+    return true;
 
 }
 

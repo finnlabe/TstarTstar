@@ -114,8 +114,8 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   HOTVRScale.reset(new HOTVRScaleFactor(ctx, topjetID));
 
   // Electron
-  ElectronId eleID_lowpt = ElectronID_Summer16_medium;
-  ElectronId eleID_highpt = ElectronID_Summer16_medium_noIso;
+  ElectronId eleID_lowpt = ElectronID_Summer16_tight;
+  ElectronId eleID_highpt = ElectronID_Summer16_tight_noIso;
   double electron_pt_lowpt(30.);
   double electron_pt_highpt(120.);
   common->set_electron_id(OrId<Electron>( AndId<Electron>(PtEtaSCCut(electron_pt_lowpt, 2.4), eleID_lowpt, EleMaxPtCut(120.)),  AndId<Electron>(PtEtaSCCut(electron_pt_highpt, 2.4), eleID_highpt)));
@@ -247,7 +247,7 @@ bool TstarTstarPreselectionModule::process(Event & event) {
 
   // fat jet selection (and jet selection because of crash otherwise)
   bool pass_fat_njet = (event.topjets->size()>0);
-  bool pass_njet = (event.jets->size()>0);
+  bool pass_njet = (event.jets->size()>3);
   if(!pass_fat_njet) return false;
   if(!pass_njet) return false;
   h_fatjetsel->fill(event);

@@ -21,6 +21,10 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   // book all histograms here
   // jets
   book<TH1F>("N_jets", "N_{AK4 jets}", 20, 0, 20);
+  book<TH1F>("N_jets_btag_loose", "N_{AK4 jets, deepCSV > 0.22}", 20, 0, 20);
+  book<TH1F>("N_jets_btag_medium", "N_{AK4 jets, deepCSV > 0.63}", 20, 0, 20);
+  book<TH1F>("N_jets_btag_tight", "N_{AK4 jets, deepCSV > 0.90}", 20, 0, 20);
+
   book<TH1F>("N_AK8jets", "N_{AK8 jets}", 20, 0, 20);
   book<TH1F>("N_toptagged_AK8jets", "N_{toptagged AK8 jets}", 20, 0, 20);
   book<TH1F>("N_PU", "N_{PU}", 100, 0, 100);
@@ -87,6 +91,7 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   book<TH1F>("pt_ST_jets_oldbins", "S_{T}^{jets}=#sum_{i}|HOTVR p^{i}_{T}| [GeV]", 100, 10, 4000);
 
   // deltaR observables
+  book<TH1F>("dR_lepton_closestJet", "#DeltaR (lepton, closestJet)", 30, 0, 6);
   book<TH1F>("dR_fatjet1_fatjet2", "#DeltaR (hotvrjet 1, hotvrjet 1)", 20, 0, 6);
   book<TH1F>("dR_lepton_fatjet1", "#DeltaR (lepton, hotvrjet 1)", 20, 0, 6);
   book<TH1F>("dR_lepton_fatjet2", "#DeltaR (lepton, hotvrjet 2)", 20, 0, 6);
@@ -119,6 +124,17 @@ void TstarTstarHists::fill(const Event & event){
   std::vector<Jet>* jets = event.jets;
   int Njets = jets->size();
   hist("N_jets")->Fill(Njets, weight);
+  int N_jets_btag_loose = 0;
+  int N_jets_btag_medium = 0;
+  int N_jets_btag_tight = 0;
+  for(const auto & jet : *event.jets) {
+    if(jet.btag_DeepCSV() > 0.2219) N_jets_btag_loose++;
+    if(jet.btag_DeepCSV() > 0.6324) N_jets_btag_medium++;
+    if(jet.btag_DeepCSV() > 0.8958) N_jets_btag_tight++;
+  }
+  hist("N_jets_btag_loose")->Fill(N_jets_btag_loose, weight);
+  hist("N_jets_btag_medium")->Fill(N_jets_btag_medium, weight);
+  hist("N_jets_btag_tight")->Fill(N_jets_btag_tight, weight);
 
   if(!event.isRealData)  hist("N_PU")->Fill(event.genInfo->pileup_TrueNumInteractions(), weight);
 
@@ -236,6 +252,13 @@ void TstarTstarHists::fill(const Event & event){
   try {
     primary_lepton = event.get(h_primlep);
   } catch(...) {return;}
+  double min_deltaR = 999;
+  for(auto &jet : *event.jets){
+    double cur_deltaR = deltaR(jet, primary_lepton);
+    if(cur_deltaR < min_deltaR) min_deltaR = cur_deltaR;
+  }
+  hist("dR_lepton_closestJet")->Fill(min_deltaR, weight);
+
   if(event.topjets->size()>1){
     hist("dR_fatjet1_fatjet2")->Fill(deltaR(event.topjets->at(0), event.topjets->at(1)), weight);
     hist("dphi_fatjet1_fatjet2")->Fill(abs(event.topjets->at(0).phi() - event.topjets->at(1).phi()), weight);

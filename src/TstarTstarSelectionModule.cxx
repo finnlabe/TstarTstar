@@ -60,9 +60,9 @@ private:
   std::unique_ptr<Hists> h_triggerSingleJet, h_triggerSingleLeptonMu, h_triggerSingleLeptonEle, h_triggerHT, h_triggerPFHT;
   std::unique_ptr<Hists> h_triggerSingleJet_mu, h_triggerHT_mu, h_triggerPFHT_mu;
   std::unique_ptr<Hists> h_triggerSingleJet_ele, h_triggerHT_ele, h_triggerPFHT_ele;
-
+  std::unique_ptr<Hists> h_btagcut, h_btagcut_mu, h_btagcut_ele, h_btagcut_mu_lowpt, h_btagcut_ele_lowpt, h_btagcut_mu_highpt, h_btagcut_ele_highpt;
   std::unique_ptr<Hists> h_beginSel, h_beginSel_mu, h_beginSel_mu_lowpt, h_beginSel_mu_highpt, h_beginSel_ele, h_beginSel_ele_lowpt, h_beginSel_ele_highpt;
-  std::unique_ptr<Hists> h_beginSel_gen;
+  std::unique_ptr<Hists> h_beginSel_gen, h_btagcut_gen;
 
   unique_ptr<Selection> met_sel;
   unique_ptr<Selection> st_sel;
@@ -82,13 +82,14 @@ private:
   unique_ptr<JetCleaner> AK4cleaner;
   unique_ptr<TopJetCleaner> AK8cleaner;
 
-  // handes
+  // handles
   std::unique_ptr<uhh2::AnalysisModule> ttgenprod;
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
   uhh2::Event::Handle<bool> h_is_muevt;
 
   uhh2::Event::Handle<double> h_evt_weight;
 
+  uhh2::Event::Handle<double> h_ST;
 
   bool debug = false;
   bool isTrigger = true;
@@ -170,6 +171,13 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   h_2Dcut_mu.reset(new TstarTstarHists(ctx, "After2D_mu"));
   h_2Dcut_mu_lowpt.reset(new TstarTstarHists(ctx, "After2D_mu_lowpt"));
   h_2Dcut_mu_highpt.reset(new TstarTstarHists(ctx, "After2D_mu_highpt"));
+  h_btagcut.reset(new TstarTstarHists(ctx, "AfterBtag"));
+  h_btagcut_ele.reset(new TstarTstarHists(ctx, "AfterBtag_ele"));
+  h_btagcut_ele_lowpt.reset(new TstarTstarHists(ctx, "AfterBtag_ele_lowpt"));
+  h_btagcut_ele_highpt.reset(new TstarTstarHists(ctx, "AfterBtag_ele_highpt"));
+  h_btagcut_mu.reset(new TstarTstarHists(ctx, "AfterBtag_mu"));
+  h_btagcut_mu_lowpt.reset(new TstarTstarHists(ctx, "AfterBtag_mu_lowpt"));
+  h_btagcut_mu_highpt.reset(new TstarTstarHists(ctx, "AfterBtag_mu_highpt"));
   h_trigger.reset(new TstarTstarHists(ctx, "AfterTrigger"));
   h_trigger_mu.reset(new TstarTstarHists(ctx, "AfterTrigger_mu"));
   h_trigger_mu_lowpt.reset(new TstarTstarHists(ctx, "AfterTrigger_mu_lowpt"));
@@ -189,6 +197,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
 
   h_beginSel_gen.reset(new TstarTstarGenHists(ctx, "beginSel_gen"));
   h_2Dcut_gen.reset(new TstarTstarGenHists(ctx, "After2D_gen"));
+  h_btagcut_gen.reset(new TstarTstarGenHists(ctx, "AfterBtag_gen"));
   h_trigger_gen.reset(new TstarTstarGenHists(ctx, "AfterTrigger_gen"));
   //h_ttagsel_gen.reset(new TstarTstarGenHists(ctx, "AfterTtagsel_gen"));
 
@@ -208,6 +217,12 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
 
   h_is_muevt = ctx.get_handle<bool>("is_muevt");
   h_evt_weight = ctx.get_handle<double>("evt_weight");
+
+  h_ST = ctx.declare_event_output<double>("ST");
+
+  h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
+  reco_primlep.reset(new PrimaryLepton(ctx));
+
 }
 
 
@@ -225,6 +240,8 @@ bool TstarTstarSelectionModule::process(Event & event) {
     if(debug) cout << "ttgen produced." << endl;
   }
 
+  reco_primlep->process(event);//set "primary lepton"
+
   if(debug) std::cout << "Fill Crosscheck hists" << endl;
   h_beginSel->fill(event);
   h_beginSel_gen->fill(event);
@@ -238,6 +255,26 @@ bool TstarTstarSelectionModule::process(Event & event) {
     if(event.electrons->at(0).pt()<=120) h_beginSel_ele_lowpt->fill(event);
     else h_beginSel_ele_highpt->fill(event);
   }
+
+  // Btag Selection
+  bool pass_btagcut = false;
+  for (const auto & jet: *event.jets){
+    if(jet.btag_DeepCSV() > 0.2219) pass_btagcut = true;
+  }
+  if(!pass_btagcut) return false;
+  h_btagcut->fill(event);
+  h_btagcut_gen->fill(event);
+  if(event.get(h_is_muevt)){
+    h_btagcut_mu->fill(event);
+    if(event.muons->at(0).pt()<=60) h_btagcut_mu_lowpt->fill(event);
+    else h_btagcut_mu_highpt->fill(event);
+  }
+  else {
+    h_btagcut_ele->fill(event);
+    if(event.electrons->at(0).pt()<=120) h_btagcut_ele_lowpt->fill(event);
+    else h_btagcut_ele_highpt->fill(event);
+  }
+  if(debug) cout << "Passed btag selection cut." << endl;
 
   // Lepton-2Dcut
   if(debug) std::cout << "Start 2D cut" << endl;
@@ -312,6 +349,24 @@ bool TstarTstarSelectionModule::process(Event & event) {
     if(debug) cout << "done PFHT" << endl;
   }
 
+  // deltaR cut to suppress QCD
+  FlavorParticle primary_lepton = event.get(h_primlep);
+  double min_deltaR = 999;
+  for(auto &jet : *event.jets){
+    double cur_deltaR = deltaR(jet, primary_lepton);
+    if(cur_deltaR < min_deltaR) min_deltaR = cur_deltaR;
+  }
+  bool pass_dR = false;
+  if(event.get(h_is_muevt)){
+    if(event.muons->at(0).pt()<=60) pass_dR = min_deltaR > 0.4;
+    else pass_dR = min_deltaR > 0.2;
+  }
+  else {
+    if(event.electrons->at(0).pt()<=120) pass_dR = min_deltaR > 0.4;
+    else pass_dR = min_deltaR > 0.2;
+  }
+  if(!pass_dR) return false;
+
   // Trigger
   bool pass_trigger = false;
   bool pass_trigger_SingleMu_lowpt = (triggerSingleLeptonMu1_sel->passes(event) || triggerSingleLeptonMu2_sel->passes(event));
@@ -338,6 +393,11 @@ bool TstarTstarSelectionModule::process(Event & event) {
     h_triggerSingleLeptonEle->fill(event);
   }
   if(debug) cout<<"Filled hists after Trigger"<<endl;
+
+  // Outputting ST
+  double st_jets = 0.;
+  for(const auto & jet : *event.topjets) st_jets += jet.pt();
+  event.set(h_ST, st_jets);
 
   return true;
 }
