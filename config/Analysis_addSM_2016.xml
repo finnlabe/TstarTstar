@@ -4,8 +4,8 @@
 
 <!ENTITY b_Cacheable "False">
 <!ENTITY NEVT "-1">
-<!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/MCStudy/">
-<!ENTITY INPUTdir  "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/">
+<!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Analysis/2016/">
+<!ENTITY INPUTdir  "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/2016/">
 
 <!ENTITY DYJetsToLL_M-50_HT-70to100_2016v3   "&INPUTdir;/uhh2.AnalysisModuleRunner.MC.DYJetsToLL_M-50_HT-70to100_2016v3.root">
 <!ENTITY DYJetsToLL_M-50_HT-100to200_2016v3   "&INPUTdir;/uhh2.AnalysisModuleRunner.MC.DYJetsToLL_M-50_HT-100to200_2016v3.root">
@@ -35,7 +35,7 @@
 
 <!--
 <ConfigParse NEventsBreak="0" LastBreak="0" FileSplit="20" AutoResubmit="100"/>
-<ConfigSGE RAM="2" DISK="2" Mail="finn.labe@desy.de" Notification="as" Workdir="workdir_MCStudy_addSM_2016v3"/>
+<ConfigSGE RAM="2" DISK="2" Mail="finn.labe@desy.de" Notification="as" Workdir="workdir_Analysis_addSM_2016v3"/>
 -->
 
 <!-- OutputLevel controls which messages are printed; set to VERBOSE or DEBUG for more verbosity, to WARNING or ERROR for less -->

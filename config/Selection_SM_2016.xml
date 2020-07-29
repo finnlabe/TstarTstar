@@ -4,8 +4,8 @@
 
 <!ENTITY b_Cacheable "False">
 <!ENTITY NEVT "-1">
-<!ENTITY INPUTdir  "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/">
-<!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/">
+<!ENTITY INPUTdir  "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/2016/">
+<!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/2016/">
 ]>
 
 <!--

@@ -4,8 +4,8 @@
 
 <!ENTITY b_Cacheable "False">
 <!ENTITY NEVT "-1">
-<!ENTITY INPUTdir  "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/">
-<!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/">
+<!ENTITY INPUTdir  "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/2016/">
+<!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/2016/">
 
 <!ENTITY DYJetsToLL_M-50_HT-70to100_2016v3   "&INPUTdir;/uhh2.AnalysisModuleRunner.MC.DYJetsToLL_M-50_HT-70to100_2016v3.root">
 <!ENTITY DYJetsToLL_M-50_HT-100to200_2016v3   "&INPUTdir;/uhh2.AnalysisModuleRunner.MC.DYJetsToLL_M-50_HT-100to200_2016v3.root">
@@ -184,7 +184,7 @@
 	    <Item Name="GenTopJetCollection"     Value="hotvrGen"/>
 	    <Item Name="METName"                 Value="slimmedMETsPuppi"/>
 	    <Item Name="genMETName"              Value="slimmedMETs_GenMET"/>
-	    <Item Name="lumi_file" Value="/nfs/dust/cms/user/karavdia/CMSSW_10_2_10/src/UHH2/common/data/2016/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root"/>
+	    <Item Name="lumi_file" Value="/nfs/dust/cms/user/flabe/CMSSW_10_2_10/src/UHH2/common/data/2016/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root"/>
 	    <Item Name="lumihists_lumi_per_bin" Value="500.0"/>
 
       <Item Name="additionalBranches" Value="is_muevt evt_weight" />

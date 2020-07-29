@@ -4,7 +4,7 @@
 <!ENTITY b_Cacheable     "False">
 <!ENTITY NEVT            "-1">
 
-<!ENTITY OUTPUTdir           "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/">
+<!ENTITY OUTPUTdir           "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/2016/">
 
 <!ENTITY DATA_SingleMuon2016_RunB   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleMuon2016_RunB.xml">
 <!ENTITY DATA_SingleMuon2016_RunC   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleMuon2016_RunC.xml">

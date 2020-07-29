@@ -29,7 +29,7 @@
 <!ENTITY QCDPt2400to3200 SYSTEM "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt_2400to3200.xml">
 <!ENTITY QCDPt3200toInf SYSTEM "../../common/datasets/RunII_102X_v1/2016v3/MC_QCD_Pt_3200toInf.xml">
 
-<!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/">
+<!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/2016/">
 ]>
 
 <!--

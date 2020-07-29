@@ -2,13 +2,13 @@
 <!DOCTYPE JobConfiguration PUBLIC "" "JobConfig.dtd" [
 
 
-<!ENTITY INPUTdir  "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/">
-<!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/">
+<!ENTITY INPUTdir  "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/2016/">
+<!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/2016/">
 ]>
 
 <!--
 <ConfigParse NEventsBreak="0" LastBreak="0" FileSplit="20" AutoResubmit="100"/>
-<ConfigSGE RAM="2" DISK="2" Mail="finn.labe@desy.de" Notification="as" Workdir="workdir_Selection_TstarTstar_HOTVR_2016v3"/>
+<ConfigSGE RAM="2" DISK="2" Mail="finn.labe@desy.de" Notification="as" Workdir="workdir_Selection_TstarTstar_2016v3"/>
 -->
 
 <!-- OutputLevel controls which messages are printed; set to VERBOSE or DEBUG for more verbosity, to WARNING or ERROR for less -->
