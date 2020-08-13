@@ -83,6 +83,30 @@
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
+        <InputData Lumi="460800" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1700_Run2016v3" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1700_Run2016v3.root" Lumi="0.0"/>
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+        <InputData Lumi="264400" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1800_Run2016v3" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1800_Run2016v3.root" Lumi="0.0"/>
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+        <InputData Lumi="439800" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1900_Run2016v3" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1900_Run2016v3.root" Lumi="0.0"/>
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+        <InputData Lumi="390800" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-2000_Run2016v3" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-2000_Run2016v3.root" Lumi="0.0"/>
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
 
         <UserConfig>
             <!-- define which collections to read from the input. Only specify what you need to save I/O time -->

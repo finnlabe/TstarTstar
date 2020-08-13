@@ -24,42 +24,49 @@ using namespace uhh2;
 namespace uhh2 {
 
 /** bla
- *  
+ *
  * blub
  *
  */
 class TstarTstarGenStudies: public AnalysisModule {
 public:
-    
+
   explicit TstarTstarGenStudies(Context & ctx);
   virtual bool process(Event & event) override;
 
 private:
-    
+
   // ##### Histograms #####
   // Store the Hists collection as member variables. Again, use unique_ptr to avoid memory leaks.
   std::unique_ptr<Hists> h_GenHists;
 
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
-  
+
   std::unique_ptr<uhh2::AnalysisModule> ttgenprod;
+  std::unique_ptr<uhh2::AnalysisModule> MCWeight;
 
 
 };
 
 
 TstarTstarGenStudies::TstarTstarGenStudies(Context & ctx){
-  
-  h_GenHists.reset(new TstarTstarGenHists(ctx, "GenHists"));  
-    
+
+  for(auto & kv : ctx.get_all()){
+    cout << " " << kv.first << " = " << kv.second << endl;
+  }
+
+  h_GenHists.reset(new TstarTstarGenHists(ctx, "GenHists"));
+
+  MCWeight.reset(new MCLumiWeight(ctx));
   ttgenprod.reset(new TTbarGenProducer(ctx, "ttbargen", false));
   h_ttbargen = ctx.get_handle<TTbarGen>("ttbargen");
- 
+
 }
 
 
 bool TstarTstarGenStudies::process(Event & event) {
-   
+
+  MCWeight->process(event);
   ttgenprod->process(event);
 
   h_GenHists->fill(event);

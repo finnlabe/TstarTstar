@@ -23,6 +23,7 @@
 #include "UHH2/TstarTstar/include/TstarTstarDNNHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarDNNInputHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarRecoTstarHists.h"
+#include "UHH2/TstarTstar/include/TstarTstarAllGenHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarGenHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarGenRecoMatchedHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarReconstructionModules.h"
@@ -68,6 +69,7 @@ private:
   std::unique_ptr<Hists> h_GEN_Hists, h_GEN_Hists_pre;
   std::unique_ptr<Hists> h_DNN_Inputs, h_DNN_Inputs_reweighted, h_DNN_Inputs_reweighted_2;
 
+  std::unique_ptr<Hists> h_top_gluon_checks, h_top_gluon_checks_reweighted, h_top_gluon_checks_reweighted_2;
   std::unique_ptr<TstarTstarDNNHists> h_DNN_Hists, h_DNN_Hists_reweighted, h_DNN_Hists_reweighted_2, h_DNN_Hists_AfterDNNCut, h_DNN_Hists_lowpt, h_DNN_Hists_medpt, h_DNN_Hists_highpt;
 
   // Bools for Debugging/Options
@@ -212,6 +214,10 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   h_DNN_Inputs_reweighted.reset(new TstarTstarDNNInputHists(ctx, "DNN_Inputs_reweighted"));
   h_DNN_Inputs_reweighted_2.reset(new TstarTstarDNNInputHists(ctx, "DNN_Inputs_reweighted_2"));
 
+  h_top_gluon_checks.reset(new TstarTstarAllGenHists(ctx, "Top_check"));
+  h_top_gluon_checks_reweighted.reset(new TstarTstarAllGenHists(ctx, "Top_check_reweighted"));
+  h_top_gluon_checks_reweighted_2.reset(new TstarTstarAllGenHists(ctx, "Top_check_reweighted_2"));
+
   //4. Set up ttbar reconstruction
   h_tstartstar_hyp_vector = ctx.get_handle<std::vector<ReconstructionTstarHypothesis>>("TstarTstar_Hyp_Vector");
   h_tstartstar_hyp = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_Hyp");
@@ -254,6 +260,8 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   event.weight = event.get(h_evt_weight);
   if(debug) cout << "weights applied." << endl;
 
+  h_top_gluon_checks->fill(event);
+
   // ST reweighting
   double st_jets = 0;
   double ST_weight = 0;
@@ -263,29 +271,35 @@ bool TstarTstarMCStudyModule::process(Event & event) {
     if(st_jets < 3000) ST_weight = 1/(ST_ratio->GetBinContent(ST_ratio->GetXaxis()->FindBin(st_jets)));
     if(st_jets < 3000) ST_weight_2 = 1/(ST_bkg->GetBinContent(ST_bkg->GetXaxis()->FindBin(st_jets)));
     event.set(h_ST_weight, ST_weight*event.get(h_evt_weight));
-    event.set(h_ST_weight_2, ST_weight_2*event.get(h_evt_weight));
+    event.set(h_ST_weight_2, ST_weight_2);
     event.weight *= ST_weight;
     h_ST_reweighted->fill(event);
+    h_top_gluon_checks_reweighted->fill(event);
     event.weight = event.get(h_evt_weight);
-    event.weight *= ST_weight_2;
+    event.weight = ST_weight_2;
     h_ST_reweighted_2->fill(event);
+    h_top_gluon_checks_reweighted_2->fill(event);
     event.weight = event.get(h_evt_weight);
   }
   else if(is_Signal){
     double ST_weight_2 = 0;
     if(st_jets < 3000) ST_weight_2 = 1/(ST_sig->GetBinContent(ST_sig->GetXaxis()->FindBin(st_jets)));
     event.set(h_ST_weight, event.get(h_evt_weight));
-    event.set(h_ST_weight_2, ST_weight_2*event.get(h_evt_weight));
+    event.set(h_ST_weight_2, ST_weight_2);
     h_ST_reweighted->fill(event);
-    event.weight *= ST_weight_2;
+    h_top_gluon_checks_reweighted->fill(event);
+    event.weight = ST_weight_2;
     h_ST_reweighted_2->fill(event);
+    h_top_gluon_checks_reweighted_2->fill(event);
     event.weight = event.get(h_evt_weight);
   }
   else {
     event.set(h_ST_weight, event.get(h_evt_weight));
     event.set(h_ST_weight_2, event.get(h_evt_weight));
     h_ST_reweighted->fill(event);
+    h_top_gluon_checks_reweighted->fill(event);
     h_ST_reweighted_2->fill(event);
+    h_top_gluon_checks_reweighted_2->fill(event);
   }
 
   if(is_MC) ttgenprod->process(event);
@@ -420,7 +434,7 @@ bool TstarTstarMCStudyModule::process(Event & event) {
       if(is_TTbar) event.weight *= ST_weight;
       h_DNN_Inputs_reweighted->fill(event);
       event.weight = event.get(h_evt_weight);
-      if(is_TTbar || is_Signal) event.weight *= ST_weight_2;
+      if(is_TTbar || is_Signal) event.weight = ST_weight_2;
       h_DNN_Inputs_reweighted_2->fill(event);
       event.weight = event.get(h_evt_weight);
     }
@@ -430,7 +444,7 @@ bool TstarTstarMCStudyModule::process(Event & event) {
       if(is_TTbar) event.weight *= ST_weight;
       h_DNN_Hists_reweighted->fill(event);
       event.weight = event.get(h_evt_weight);
-      if(is_TTbar || is_Signal) event.weight *= ST_weight_2;
+      if(is_TTbar || is_Signal) event.weight = ST_weight_2;
       h_DNN_Hists_reweighted_2->fill(event);
       event.weight = event.get(h_evt_weight);
 
@@ -439,7 +453,7 @@ bool TstarTstarMCStudyModule::process(Event & event) {
       else h_DNN_Hists_highpt->fill(event);
 
       if(is_MC) {
-        if(event.get(h_DNN_output) > 0.7) {
+        if(event.get(h_DNN_output) > 0.4) {
           h_AfterDNNcut->fill(event);
           h_RecoPlots_AfterDNNcut->fill(event);
           h_DNN_Hists_AfterDNNCut->fill(event);

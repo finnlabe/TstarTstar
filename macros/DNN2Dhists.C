@@ -4,7 +4,7 @@
 // Run it with following command:
 // root -l -b -q general2Dplotter.C
 
-void DNN2Dhists(TString filename="MC.TstarTstar_Combined.root", TString filename2="MC.TTbar.root", TString subpath="DNN_Hists"){
+void DNN2Dhists(TString filename="MC.TstarTstar_M-1200.root", TString filename2="MC.TTbar.root", TString subpath="DNN_Hists"){
   // gStyle->SetOptStat(0);
   // gStyle->SetTitleSize(0.045,"x");  
   // gStyle->SetTitleSize(0.045,"y");
@@ -32,16 +32,16 @@ void DNN2Dhists(TString filename="MC.TstarTstar_Combined.root", TString filename
   
 
  //Files after selection
- TString path = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/MCStudy/hadded/";
+ TString path = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Analysis/2016/hadded/";
  TString fileprefix = "uhh2.AnalysisModuleRunner.";
  TString histname="2D_DNN_";
 
  std::cout << "Plotting against ST." << endl;
  TFile *input = TFile::Open(path+fileprefix+filename);
  TH2D *hist = (TH2D*)input->Get(subpath+"/"+histname+"ST");
- TFile *input2 = TFile::Open(path+fileprefix+filename2);
- TH2D *hist2 = (TH2D*)input2->Get(subpath+"/"+histname+"ST");
- hist->Add(hist2);
+ //TFile *input2 = TFile::Open(path+fileprefix+filename2);
+ //TH2D *hist2 = (TH2D*)input2->Get(subpath+"/"+histname+"ST");
+ //hist->Add(hist2);
 
  TCanvas *c1_hist = new TCanvas("chist", "c", w, h);
  hist->GetZaxis()->SetRangeUser(0,1e6);
@@ -54,9 +54,9 @@ void DNN2Dhists(TString filename="MC.TstarTstar_Combined.root", TString filename
    std::cout << "Plotting feat " << i << endl;
    TFile *input = TFile::Open(path+fileprefix+filename);
    TH2D *hist = (TH2D*)input->Get(subpath+"/"+histname+std::to_string(i));
-   TFile *input2 = TFile::Open(path+fileprefix+filename2);
-   TH2D *hist2 = (TH2D*)input2->Get(subpath+"/"+histname+std::to_string(i));
-   hist->Add(hist2);
+   //TFile *input2 = TFile::Open(path+fileprefix+filename2);
+   //TH2D *hist2 = (TH2D*)input2->Get(subpath+"/"+histname+std::to_string(i));
+   //hist->Add(hist2);
 
    TCanvas *c1_hist = new TCanvas("chist", "c", w, h);
    hist->GetZaxis()->SetRangeUser(0,1e6);

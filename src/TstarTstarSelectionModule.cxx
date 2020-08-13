@@ -88,7 +88,6 @@ private:
   uhh2::Event::Handle<bool> h_is_muevt;
 
   uhh2::Event::Handle<double> h_evt_weight;
-
   uhh2::Event::Handle<double> h_ST;
 
   bool debug = false;
@@ -96,6 +95,7 @@ private:
 
   // bools for channel and stuff. will be read in later
   bool is_MC;
+  TString year;
 
   TopJetId topjetID;
 
@@ -105,6 +105,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
 
   // 0. Reading in whether MC and if so, which channel
   is_MC = ctx.get("dataset_type") == "MC";
+  TString year = ctx.get("year", "<not set>");
 
   if(debug) {
     cout << "Hello World from TstarTstarSelectionModule!" << endl;
