@@ -63,7 +63,10 @@ private:
 
   std::unique_ptr<Hists> h_afterPrimlep_mu, h_afterPrimlep_mu_lowpt, h_afterPrimlep_mu_highpt, h_afterPrimlep_ele, h_afterPrimlep_ele_lowpt, h_afterPrimlep_ele_highpt;
 
-  std::unique_ptr<Hists> h_AfterDNNcut, h_notDNNcut, h_ST_reweighted, h_ST_reweighted_2;
+  std::unique_ptr<Hists> h_AfterDNNcut_02, h_AfterDNNcut_03, h_AfterDNNcut_04, h_AfterDNNcut_05, h_AfterDNNcut_06, h_AfterDNNcut_07, h_AfterDNNcut_08;
+  std::unique_ptr<Hists> h_notDNNcut_02, h_notDNNcut_03, h_notDNNcut_04, h_notDNNcut_05, h_notDNNcut_06, h_notDNNcut_07, h_notDNNcut_08;
+
+  std::unique_ptr<Hists> h_ST_reweighted, h_ST_reweighted_2;
   std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_AfterDNNcut, h_RecoPlots_notDNNcut;
 
   std::unique_ptr<Hists> h_GEN_Hists, h_GEN_Hists_pre;
@@ -77,11 +80,8 @@ private:
 
   // DNN stuff
   bool outputDNNvalues = true;
-  bool includeDNNmodel = true;
   bool do_masspoint = false;
   std::unique_ptr<NeuralNetworkInputWriter> DNN_InputWriter;
-  std::unique_ptr<NeuralNetworkIncluder> DNN_Includer;
-  uhh2::Event::Handle<double> h_DNN_output;
   uhh2::Event::Handle<bool> h_do_masspoint;
   uhh2::Event::Handle<double> h_ST;
 
@@ -114,6 +114,8 @@ private:
   TH1D* ST_ratio;
   TH1D* ST_sig;
   TH1D* ST_bkg;
+  TH1D* ST_sig_2;
+  TH1D* ST_bkg_2;
   bool is_TTbar;
   bool is_Signal;
   bool is_Data;
@@ -194,21 +196,8 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   h_RecoPlots_GEN_onlyttbar_ttag.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN_onlyttbar_ttag"));
   h_RecoPlots_GEN_onlyttbar_nottag.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN_onlyttbar_nottag"));
 
-  h_AfterDNNcut.reset(new TstarTstarHists(ctx, "AfterDNNcut"));
-  h_notDNNcut.reset(new TstarTstarHists(ctx, "notDNNcut"));
-  h_RecoPlots_AfterDNNcut.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_AfterDNNcut"));
-  h_RecoPlots_notDNNcut.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_notDNNcut"));
-
   h_GEN_Hists_pre.reset(new TstarTstarGenHists(ctx, "GEN_Hists_beforeReco"));
   h_GEN_Hists.reset(new TstarTstarGenHists(ctx, "GEN_Hists_AfterReco"));
-
-  h_DNN_Hists.reset(new TstarTstarDNNHists(ctx, "DNN_Hists"));
-  h_DNN_Hists_reweighted.reset(new TstarTstarDNNHists(ctx, "DNN_Hists_reweighted"));
-  h_DNN_Hists_reweighted_2.reset(new TstarTstarDNNHists(ctx, "DNN_Hists_reweighted_2"));
-  h_DNN_Hists_AfterDNNCut.reset(new TstarTstarDNNHists(ctx, "DNN_Hists_AfterDNNCut"));
-  h_DNN_Hists_lowpt.reset(new TstarTstarDNNHists(ctx, "DNN_Hists_lowpt"));
-  h_DNN_Hists_medpt.reset(new TstarTstarDNNHists(ctx, "DNN_Hists_medpt"));
-  h_DNN_Hists_highpt.reset(new TstarTstarDNNHists(ctx, "DNN_Hists_highpt"));
 
   h_DNN_Inputs.reset(new TstarTstarDNNInputHists(ctx, "DNN_Inputs"));
   h_DNN_Inputs_reweighted.reset(new TstarTstarDNNInputHists(ctx, "DNN_Inputs_reweighted"));
@@ -231,10 +220,6 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
     h_do_masspoint = ctx.get_handle<bool>("do_masspoint");
     h_ST = ctx.declare_event_output<double>("ST");
   }
-  if(includeDNNmodel){
-    DNN_Includer.reset(new NeuralNetworkIncluder(ctx, do_masspoint));
-    h_DNN_output = ctx.get_handle<double>("DNN_output");
-  }
 
   h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
 
@@ -244,8 +229,10 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
 
   TFile *f = new TFile("/nfs/dust/cms/user/flabe/CMSSW/CMSSW_10_2_10/src/UHH2/MLCorner/TstarNN/ST_weights.root");
   ST_ratio = (TH1D*)f->Get("ST_ratio");
-  ST_sig = (TH1D*)f->Get("ST_sig");
-  ST_bkg = (TH1D*)f->Get("ST_bkg");
+  ST_sig = (TH1D*)f->Get("ST_sig_split");
+  ST_bkg = (TH1D*)f->Get("ST_bkg_split");
+  ST_sig_2 = (TH1D*)f->Get("ST_sig_rebinned");
+  ST_bkg_2 = (TH1D*)f->Get("ST_bkg_rebinned");
 
   is_TTbar = (ctx.get("dataset_version").find("TT") != std::string::npos);
   is_Signal = (ctx.get("dataset_version").find("Tstar") != std::string::npos);
@@ -261,34 +248,40 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   if(debug) cout << "weights applied." << endl;
 
   h_top_gluon_checks->fill(event);
-
   // ST reweighting
   double st_jets = 0;
   double ST_weight = 0;
   double ST_weight_2 = 0;
   for(const auto & jet : *event.topjets) st_jets += jet.pt();
   if(is_TTbar){
-    if(st_jets < 3000) ST_weight = 1/(ST_ratio->GetBinContent(ST_ratio->GetXaxis()->FindBin(st_jets)));
-    if(st_jets < 3000) ST_weight_2 = 1/(ST_bkg->GetBinContent(ST_bkg->GetXaxis()->FindBin(st_jets)));
+    if(st_jets < 3000){
+      ST_weight = 1/(ST_ratio->GetBinContent(ST_ratio->GetXaxis()->FindBin(st_jets)));
+      ST_weight_2 = 1/(500*ST_bkg->GetBinContent(ST_bkg->GetXaxis()->FindBin(st_jets)));
+      //ST_weight_2 *= 1/(ST_bkg_2->GetBinContent(ST_bkg_2->GetXaxis()->FindBin(st_jets)));
+    }
+
     event.set(h_ST_weight, ST_weight*event.get(h_evt_weight));
-    event.set(h_ST_weight_2, ST_weight_2);
+    event.set(h_ST_weight_2, ST_weight_2*event.get(h_evt_weight));
     event.weight *= ST_weight;
     h_ST_reweighted->fill(event);
     h_top_gluon_checks_reweighted->fill(event);
     event.weight = event.get(h_evt_weight);
-    event.weight = ST_weight_2;
+    event.weight = ST_weight_2*event.get(h_evt_weight);
     h_ST_reweighted_2->fill(event);
     h_top_gluon_checks_reweighted_2->fill(event);
     event.weight = event.get(h_evt_weight);
   }
   else if(is_Signal){
     double ST_weight_2 = 0;
-    if(st_jets < 3000) ST_weight_2 = 1/(ST_sig->GetBinContent(ST_sig->GetXaxis()->FindBin(st_jets)));
+    if(st_jets < 3000){
+      ST_weight_2 = 1/(ST_sig->GetBinContent(ST_sig->GetXaxis()->FindBin(st_jets)));
+      //ST_weight_2 *= 1/(ST_sig_2->GetBinContent(ST_sig_2->GetXaxis()->FindBin(st_jets)));
+    }
     event.set(h_ST_weight, event.get(h_evt_weight));
-    event.set(h_ST_weight_2, ST_weight_2);
+    event.set(h_ST_weight_2, ST_weight_2*event.get(h_evt_weight));
     h_ST_reweighted->fill(event);
     h_top_gluon_checks_reweighted->fill(event);
-    event.weight = ST_weight_2;
+    event.weight = ST_weight_2*event.get(h_evt_weight);
     h_ST_reweighted_2->fill(event);
     h_top_gluon_checks_reweighted_2->fill(event);
     event.weight = event.get(h_evt_weight);
@@ -429,42 +422,18 @@ bool TstarTstarMCStudyModule::process(Event & event) {
       double st_jets = 0.;
       for(const auto & jet : *event.topjets) st_jets += jet.pt();
       event.set(h_ST, st_jets);
+      if(debug) cout << "Write inputs" << endl;
       DNN_InputWriter->process(event);
+      if(debug) cout << "plot inputs" << endl;
       h_DNN_Inputs->fill(event);
+      if(debug) cout << "plot inputs for reweighted" << endl;
       if(is_TTbar) event.weight *= ST_weight;
       h_DNN_Inputs_reweighted->fill(event);
       event.weight = event.get(h_evt_weight);
-      if(is_TTbar || is_Signal) event.weight = ST_weight_2;
+      if(is_TTbar || is_Signal) event.weight = ST_weight_2*event.get(h_evt_weight);
       h_DNN_Inputs_reweighted_2->fill(event);
       event.weight = event.get(h_evt_weight);
     }
-    if(includeDNNmodel){
-      DNN_Includer->process(event);
-      h_DNN_Hists->fill(event);
-      if(is_TTbar) event.weight *= ST_weight;
-      h_DNN_Hists_reweighted->fill(event);
-      event.weight = event.get(h_evt_weight);
-      if(is_TTbar || is_Signal) event.weight = ST_weight_2;
-      h_DNN_Hists_reweighted_2->fill(event);
-      event.weight = event.get(h_evt_weight);
-
-      if(event.topjets->at(0).pt() < 500) h_DNN_Hists_lowpt->fill(event);
-      else if (event.topjets->at(0).pt() < 1000) h_DNN_Hists_medpt->fill(event);
-      else h_DNN_Hists_highpt->fill(event);
-
-      if(is_MC) {
-        if(event.get(h_DNN_output) > 0.4) {
-          h_AfterDNNcut->fill(event);
-          h_RecoPlots_AfterDNNcut->fill(event);
-          h_DNN_Hists_AfterDNNCut->fill(event);
-        }
-        else {
-          h_notDNNcut->fill(event);
-          h_RecoPlots_notDNNcut->fill(event);
-        }
-      }
-    }
-
 
     if(debug){cout << "Done ##################################" << endl;}
     return true;

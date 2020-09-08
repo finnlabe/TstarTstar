@@ -45,6 +45,7 @@ private:
   // to avoid memory leaks.
 
   unique_ptr<AnalysisModule> LumiWeight_module;
+  unique_ptr<AnalysisModule> sf_muon_ID, sf_muon_trig_lowpt, sf_muon_trig_highpt, sf_muon_iso, sf_ele_ID, sf_ele_trig, sf_ele_iso, sf_toptag;
   unique_ptr<uhh2::AnalysisModule> reco_primlep;
   uhh2::Event::Handle<FlavorParticle> h_primlep;
 
@@ -91,10 +92,13 @@ private:
   uhh2::Event::Handle<double> h_ST;
 
   bool debug = false;
-  bool isTrigger = true;
+  bool isTrigger = false;
 
   // bools for channel and stuff. will be read in later
   bool is_MC;
+  bool data_isMu = false;
+  bool data_is2017B = false;
+
   TString year;
 
   TopJetId topjetID;
@@ -106,6 +110,10 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   // 0. Reading in whether MC and if so, which channel
   is_MC = ctx.get("dataset_type") == "MC";
   TString year = ctx.get("year", "<not set>");
+  if(debug) cout << "Year is " << year << "." << endl;
+
+  if(!is_MC) data_isMu = (ctx.get("dataset_version").find("SingleMuon") != std::string::npos);
+  if(!is_MC) data_is2017B = (ctx.get("dataset_version").find("SingleElectron2017_RunB") != std::string::npos);
 
   if(debug) {
     cout << "Hello World from TstarTstarSelectionModule!" << endl;
@@ -139,29 +147,21 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   **/
 
   //trigger studies
-  triggerSingleJet450_sel.reset(new TriggerSelection("HLT_PFJet450_v*"));
-
-  // TODO check 2017 2018 threshholds
-  // until 120 GeV
-  triggerSingleLeptonEle1_sel.reset(new TriggerSelection("HLT_Ele27_WPTight_Gsf_v*"));
-  // above 120 GeV
-  triggerSingleLeptonEle2_sel.reset(new TriggerSelection("HLT_Photon175_v*"));
-  triggerSingleLeptonEle3_sel.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
-
-  // until 27 GeV
-  triggerSingleLeptonMu1_sel.reset(new TriggerSelection("HLT_IsoMu24_v*"));
-  triggerSingleLeptonMu2_sel.reset(new TriggerSelection("HLT_IsoTkMu24_v*"));
-  // above 60 GeV
-  triggerSingleLeptonMu3_sel.reset(new TriggerSelection("HLT_Mu50_v*"));
-
-  triggerHT1_sel.reset(new TriggerSelection("HLT_HT430to450_v*"));
-  triggerHT2_sel.reset(new TriggerSelection("HLT_HT450to470_v*"));
-  triggerHT3_sel.reset(new TriggerSelection("HLT_HT470to500_v*"));
-  triggerHT4_sel.reset(new TriggerSelection("HLT_HT500to550_v*"));
-  triggerHT5_sel.reset(new TriggerSelection("HLT_HT550to650_v*"));
-  triggerHT6_sel.reset(new TriggerSelection("HLT_HT650_v*"));
-
-  triggerPFHT_sel.reset(new TriggerSelection("HLT_PFHT900_v*"));
+  if(is_MC || !data_isMu) {
+    // The following exist for both 2016 and 2017
+    // until 120 GeV, except for 2017B, there for whole range
+    triggerSingleLeptonEle1_sel.reset(new TriggerSelection("HLT_Ele27_WPTight_Gsf_v*"));
+    // above 120 GeV
+    triggerSingleLeptonEle2_sel.reset(new TriggerSelection("HLT_Photon175_v*"));
+    if(!data_is2017B) triggerSingleLeptonEle3_sel.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
+  }
+  if(is_MC || data_isMu){
+    // until 27 GeV
+    triggerSingleLeptonMu1_sel.reset(new TriggerSelection("HLT_IsoMu24_v*"));
+    if(year == "2016") triggerSingleLeptonMu2_sel.reset(new TriggerSelection("HLT_IsoTkMu24_v*"));
+    // above 60 GeV
+    triggerSingleLeptonMu3_sel.reset(new TriggerSelection("HLT_Mu50_v*"));
+  }
 
   // 4. Set up Hists
   if(debug) cout << "Setting up Hists." << endl;
@@ -224,6 +224,17 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
   reco_primlep.reset(new PrimaryLepton(ctx));
 
+  // Scale factor stuff
+  // Muon
+  //sf_muon_trig_lowpt.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/flabe/CMSSW/CMSSW_10_2_10/src/UHH2/common/data/2016/MuonTrigger_EfficienciesAndSF_average_RunBtoH.root", "IsoMu24_OR_IsoTkMu24_PtEtaBins", 0.5, "muon_trigger_lowpt", true, "nominal"));
+  //sf_muon_trig_highpt.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/flabe/CMSSW/CMSSW_10_2_10/src/UHH2/common/data/2016/MuonTrigger_EfficienciesAndSF_average_RunBtoH.root", "IsoMu50_OR_IsoTkMu_50_PtEtaBins", 0.5, "muon_trigger_highpt", true, "nominal"));
+  //sf_muon_ID.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/flabe/CMSSW/CMSSW_10_2_10/src/UHH2/common/data/2016/MuonID_EfficienciesAndSF_average_RunBtoH.root", "NUM_TightID_DEN_genTracks_eta_pt", 1, "muon_tightID", true, "nominal"));
+  //sf_muon_iso.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/flabe/CMSSW/CMSSW_10_2_10/src/UHH2/common/data/2016/MuonIso_EfficienciesAndSF_average_RunBtoH.root", "NUM_TightRelIso_DEN_TightIDandIPCut_eta_pt", 1, "muon_iso", true, "nominal"));
+
+  // Electron
+  //sf_ele_trig.reset();
+  //sf_ele_ID.reset();
+  //sf_ele_iso.reset();
 }
 
 
@@ -323,32 +334,32 @@ bool TstarTstarSelectionModule::process(Event & event) {
   **/
 
   // Trigger studies
-  if(isTrigger){
-    if(debug) cout << "is Trigger" << endl;
-    // SingleJet
-    bool pass_trigger_SingleJet = (triggerSingleJet450_sel->passes(event) && event.jets->at(0).pt()>450);
-    if(pass_trigger_SingleJet){
-      h_triggerSingleJet->fill(event);
-      if(event.get(h_is_muevt)) h_triggerSingleJet_mu->fill(event);
-      else h_triggerSingleJet_ele->fill(event);
-    }
-    if(debug) cout << "done SingleJet" << endl;
-    bool pass_trigegr_HT = triggerHT1_sel->passes(event) || triggerHT2_sel->passes(event) || triggerHT3_sel->passes(event)
-      || triggerHT4_sel->passes(event) || triggerHT5_sel->passes(event) || triggerHT6_sel->passes(event);
-    if(pass_trigegr_HT){
-      h_triggerHT->fill(event);
-      if(event.get(h_is_muevt)) h_triggerHT_mu->fill(event);
-      else h_triggerHT_ele->fill(event);
-    }
-    if(debug) cout << "done HT" << endl;
-    bool pass_trigegr_PFHT = triggerPFHT_sel->passes(event);
-    if(pass_trigegr_PFHT){
-      h_triggerPFHT->fill(event);
-      if(event.get(h_is_muevt)) h_triggerPFHT_mu->fill(event);
-      else h_triggerPFHT_ele->fill(event);
-    }
-    if(debug) cout << "done PFHT" << endl;
-  }
+  // if(isTrigger){
+  //   if(debug) cout << "is Trigger" << endl;
+  //   // SingleJet
+  //   bool pass_trigger_SingleJet = (triggerSingleJet450_sel->passes(event) && event.jets->at(0).pt()>450);
+  //   if(pass_trigger_SingleJet){
+  //     h_triggerSingleJet->fill(event);
+  //     if(event.get(h_is_muevt)) h_triggerSingleJet_mu->fill(event);
+  //     else h_triggerSingleJet_ele->fill(event);
+  //   }
+  //   if(debug) cout << "done SingleJet" << endl;
+  //   bool pass_trigegr_HT = triggerHT1_sel->passes(event) || triggerHT2_sel->passes(event) || triggerHT3_sel->passes(event)
+  //     || triggerHT4_sel->passes(event) || triggerHT5_sel->passes(event) || triggerHT6_sel->passes(event);
+  //   if(pass_trigegr_HT){
+  //     h_triggerHT->fill(event);
+  //     if(event.get(h_is_muevt)) h_triggerHT_mu->fill(event);
+  //     else h_triggerHT_ele->fill(event);
+  //   }
+  //   if(debug) cout << "done HT" << endl;
+  //   bool pass_trigegr_PFHT = triggerPFHT_sel->passes(event);
+  //   if(pass_trigegr_PFHT){
+  //     h_triggerPFHT->fill(event);
+  //     if(event.get(h_is_muevt)) h_triggerPFHT_mu->fill(event);
+  //     else h_triggerPFHT_ele->fill(event);
+  //   }
+  //   if(debug) cout << "done PFHT" << endl;
+  // }
 
   // deltaR cut to suppress QCD
   FlavorParticle primary_lepton = event.get(h_primlep);
@@ -367,13 +378,26 @@ bool TstarTstarSelectionModule::process(Event & event) {
     else pass_dR = min_deltaR > 0.2;
   }
   if(!pass_dR) return false;
+  if(debug) cout << "Passed dR cut." << endl;
 
   // Trigger
   bool pass_trigger = false;
-  bool pass_trigger_SingleMu_lowpt = (triggerSingleLeptonMu1_sel->passes(event) || triggerSingleLeptonMu2_sel->passes(event));
-  bool pass_trigger_SingleMu_highpt = triggerSingleLeptonMu3_sel->passes(event);
-  bool pass_trigger_SingleEle_lowpt = triggerSingleLeptonEle1_sel->passes(event);
-  bool pass_trigger_SingleEle_highpt = (triggerSingleLeptonEle2_sel->passes(event) || triggerSingleLeptonEle3_sel->passes(event));
+  bool pass_trigger_SingleMu_lowpt = false;
+  bool pass_trigger_SingleMu_highpt = false;
+  if(is_MC || data_isMu){
+    if(year == "2016") {
+      pass_trigger_SingleMu_lowpt = (triggerSingleLeptonMu1_sel->passes(event) || triggerSingleLeptonMu2_sel->passes(event));
+    }
+    else pass_trigger_SingleMu_lowpt = triggerSingleLeptonMu1_sel->passes(event);
+    pass_trigger_SingleMu_highpt = triggerSingleLeptonMu3_sel->passes(event);
+  }
+  bool pass_trigger_SingleEle_lowpt = false;
+  bool pass_trigger_SingleEle_highpt = false;
+  if(is_MC || !data_isMu){
+    pass_trigger_SingleEle_lowpt = triggerSingleLeptonEle1_sel->passes(event);
+    if(data_is2017B) pass_trigger_SingleEle_highpt = (triggerSingleLeptonEle2_sel->passes(event) || triggerSingleLeptonEle1_sel->passes(event));
+    else pass_trigger_SingleEle_highpt = (triggerSingleLeptonEle2_sel->passes(event) || triggerSingleLeptonEle3_sel->passes(event));
+  }
   if(pass_trigger_SingleMu_lowpt && (event.muons->size() == 1)){if(event.muons->at(0).pt()<=60) pass_trigger = true; }
   if(pass_trigger_SingleMu_highpt && (event.muons->size() == 1)){if(event.muons->at(0).pt()>60) pass_trigger = true; }
   if(pass_trigger_SingleEle_lowpt && (event.electrons->size() == 1)){if(event.electrons->at(0).pt()<=120)pass_trigger = true; }
@@ -394,6 +418,10 @@ bool TstarTstarSelectionModule::process(Event & event) {
     h_triggerSingleLeptonEle->fill(event);
   }
   if(debug) cout<<"Filled hists after Trigger"<<endl;
+
+  // Scale factors.
+  // A lot of stuff will happen here. hopefully.
+
 
   // Outputting ST
   double st_jets = 0.;

@@ -110,81 +110,44 @@ bool NeuralNetworkInputCreator::createInputs(Event& event) {
   values.push_back(lepton.pt());
   values.push_back(lepton.eta());
   values.push_back(lepton.phi());
-  values.push_back(lepton.energy());
   if(event.get(h_is_muevt)) values.push_back(event.muons->at(0).relIso());
   else values.push_back(event.electrons->at(0).relIso());
-  double min_deltaR = 999;
-  double pt_rel = -1;
-  for(auto &jet : *event.jets){
-    double cur_deltaR = deltaR(jet, lepton);
-    if(cur_deltaR < min_deltaR) {
-      min_deltaR = cur_deltaR;
-      pt_rel = lepton.pt()/jet.pt();
+
+  // HOTVR jet 1
+  uint i = 0;
+  for (const auto & topjet : *event.topjets){
+    if(i == 3) break;
+    values.push_back(topjet.pt());
+    values.push_back(topjet.eta());
+    values.push_back(topjet.phi());
+    values.push_back(topjet.tau1_groomed());
+    values.push_back(topjet.tau2_groomed());
+    values.push_back(topjet.tau3_groomed());
+    values.push_back(topjet.subjets().size());
+    // matching AK4 jets
+    double radius = 600/topjet.pt();
+    if(radius > 1.5) radius = 1.5;
+    else if (radius < 0.1) radius = 0.1;
+    //std::vector<jet> matched_jets; //unused atm, but may be useful at some point?
+    double maxbtag = 0;
+    for (const auto & jet : *event.jets) {
+      if(deltaR(jet, topjet) < radius){
+        //matched_jets.push_back(jet);
+        if(jet.btag_DeepCSV() > maxbtag) maxbtag = jet.btag_DeepCSV();
+      }
     }
+    values.push_back(maxbtag);
+    i++;
   }
-  values.push_back(min_deltaR);
-  values.push_back(pt_rel);
-
-  // AK4 jet 1
-  auto jet1 = event.jets->at(0);
-  values.push_back(jet1.pt());
-  values.push_back(jet1.eta());
-  values.push_back(jet1.phi());
-  values.push_back(inv_mass(jet1.v4()));
-  values.push_back(jet1.btag_DeepCSV());
-  // AK4 jet 2
-  auto jet2 = event.jets->at(1);
-  values.push_back(jet2.pt());
-  values.push_back(jet2.eta());
-  values.push_back(jet2.phi());
-  values.push_back(inv_mass(jet2.v4()));
-  values.push_back(jet2.btag_DeepCSV());
-  // AK4 jet 3
-  auto jet3 = event.jets->at(2);
-  values.push_back(jet3.pt());
-  values.push_back(jet3.eta());
-  values.push_back(jet3.phi());
-  values.push_back(inv_mass(jet3.v4()));
-  values.push_back(jet3.btag_DeepCSV());
-  // AK4 jet 4
-  auto jet4 = event.jets->at(3);
-  values.push_back(jet4.pt());
-  values.push_back(jet4.eta());
-  values.push_back(jet4.phi());
-  values.push_back(inv_mass(jet4.v4()));
-  values.push_back(jet4.btag_DeepCSV());
-
-  // HOTVR jet 1
-  TopJet topjet1 = event.topjets->at(0);
-  values.push_back(topjet1.pt());
-  values.push_back(topjet1.eta());
-  values.push_back(topjet1.phi());
-  values.push_back(inv_mass(topjet1.v4()));
-  values.push_back(topjet1.tau1_groomed());
-  values.push_back(topjet1.tau2_groomed());
-  values.push_back(topjet1.tau3_groomed());
-  values.push_back(topjet1.subjets().size());
-  // HOTVR jet 1
-  if(event.topjets->size() > 1){ // may not be guaranteed
-    TopJet topjet2 = event.topjets->at(1);
-    values.push_back(topjet2.pt());
-    values.push_back(topjet2.eta());
-    values.push_back(topjet2.phi());
-    values.push_back(inv_mass(topjet2.v4()));
-    values.push_back(topjet2.tau1_groomed());
-    values.push_back(topjet2.tau2_groomed());
-    values.push_back(topjet2.tau3_groomed());
-    values.push_back(topjet2.subjets().size());
-  }
-  else { // fill dummy values
+  for(;i < 3;i++){
     values.push_back(0); // pt
     values.push_back(3.5); // eta
     values.push_back(4); // phi
-    values.push_back(0); // inv mass
     values.push_back(0); // tau1
     values.push_back(0); // tau2
-    values.push_back(0); // tau2
+    values.push_back(0); // tau3
     values.push_back(0); // subjets
+    values.push_back(0); // max btag
   }
 
   // Neutrino
@@ -196,42 +159,11 @@ bool NeuralNetworkInputCreator::createInputs(Event& event) {
   // Event variables
   values.push_back(event.jets->size());
   values.push_back(event.topjets->size());
-  // sphericity
-  double bottom_sum = 0;
-  for (const auto & jet : *event.jets){
-    bottom_sum += jet.v4().P2();
+
+  if(values.size() != 33) {
+    std::cout << "You are an idiot that can not count! " << values.size() << endl;
+    throw "You are an idiot that can not count!";
   }
-  double upper_sum;
-  upper_sum = 0;
-  for (const auto & jet : *event.jets){ // px px
-    upper_sum += jet.v4().px()*jet.v4().px();
-  }
-  values.push_back(upper_sum/bottom_sum);
-  upper_sum = 0;
-  for (const auto & jet : *event.jets){ // px py
-    upper_sum += jet.v4().px()*jet.v4().py();
-  }
-  values.push_back(upper_sum/bottom_sum);
-  upper_sum = 0;
-  for (const auto & jet : *event.jets){ // px pz
-    upper_sum += jet.v4().px()*jet.v4().pz();
-  }
-  values.push_back(upper_sum/bottom_sum);
-  upper_sum = 0;
-  for (const auto & jet : *event.jets){ // py py
-    upper_sum += jet.v4().py()*jet.v4().py();
-  }
-  values.push_back(upper_sum/bottom_sum);
-  upper_sum = 0;
-  for (const auto & jet : *event.jets){ // py pz
-    upper_sum += jet.v4().py()*jet.v4().pz();
-  }
-  values.push_back(upper_sum/bottom_sum);
-  upper_sum = 0;
-  for (const auto & jet : *event.jets){ // pz pz
-    upper_sum += jet.v4().pz()*jet.v4().pz();
-  }
-  values.push_back(upper_sum/bottom_sum);
 
   DNNInputs = values;
 
@@ -305,7 +237,7 @@ bool NeuralNetworkIncluder::process(Event& event) {
 NeuralNetworkInputWriter::NeuralNetworkInputWriter(Context& ctx) {
   NNInputCreator.reset(new NeuralNetworkInputCreator(ctx));
 
-  for(uint i = 0; i < 54; i++){
+  for(uint i = 0; i < 33; i++){
     handles.push_back(ctx.declare_event_output<double>("DNN_Input_"+std::to_string(i)));
   }
 

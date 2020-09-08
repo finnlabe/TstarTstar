@@ -19,6 +19,12 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
 
   // book all histograms here
+  book<TH1F>("weight", "weight", 55, -1, 10);
+  book<TH1F>("weight_2", "weight_2", 55, -10, 100);
+  book<TH1F>("weight_3", "weight_3", 55, -100, 1000);
+  book<TH1F>("weight_4", "weight_4", 55, -1000, 10000);
+  book<TH1F>("weight_5", "weight_5", 55, -10000, 100000);
+
   // jets
   book<TH1F>("N_jets", "N_{AK4 jets}", 20, 0, 20);
   book<TH1F>("N_jets_btag_loose", "N_{AK4 jets, deepCSV > 0.22}", 20, 0, 20);
@@ -87,7 +93,7 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
 
   //MET and HT
   book<TH1F>("pt_MET", "missing E_{T} [GeV]", 100, 0, 2000);
-  book<TH1F>("pt_ST_jets", "S_{T} [GeV]", 20, 0, 3000);
+  book<TH1F>("pt_ST_jets", "S_{T} [GeV]", 30, 0, 3000);
   book<TH1F>("pt_ST_jets_oldbins", "S_{T}^{jets}=#sum_{i}|HOTVR p^{i}_{T}| [GeV]", 100, 10, 4000);
 
   // deltaR observables
@@ -120,6 +126,12 @@ void TstarTstarHists::fill(const Event & event){
   double weight = event.weight;
 
   if(debug) cout << "Starting Tstar Hists." << endl;
+
+  hist("weight")->Fill(weight);
+  hist("weight_2")->Fill(weight);
+  hist("weight_3")->Fill(weight);
+  hist("weight_4")->Fill(weight);
+  hist("weight_5")->Fill(weight);
 
   std::vector<Jet>* jets = event.jets;
   int Njets = jets->size();
