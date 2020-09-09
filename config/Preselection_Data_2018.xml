@@ -6,15 +6,15 @@
 
 <!ENTITY OUTPUTdir           "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/2018/">
 
-<!ENTITY DATA_SingleMuon2018_RunA   SYSTEM  "../../common/datasets/RunII_102X_v1/2018/DATA_SingleMuon2018_RunA.xml">
-<!ENTITY DATA_SingleMuon2018_RunB   SYSTEM  "../../common/datasets/RunII_102X_v1/2018/DATA_SingleMuon2018_RunB.xml">
-<!ENTITY DATA_SingleMuon2018_RunC   SYSTEM  "../../common/datasets/RunII_102X_v1/2018/DATA_SingleMuon2018_RunC.xml">
-<!ENTITY DATA_SingleMuon2018_RunD   SYSTEM  "../../common/datasets/RunII_102X_v1/2018/DATA_SingleMuon2018_RunD.xml">
+<!ENTITY SingleMuon2018_RunA   SYSTEM  "../../common/datasets/RunII_102X_v1/2018/DATA_SingleMuon2018_RunA.xml">
+<!ENTITY SingleMuon2018_RunB   SYSTEM  "../../common/datasets/RunII_102X_v1/2018/DATA_SingleMuon2018_RunB.xml">
+<!ENTITY SingleMuon2018_RunC   SYSTEM  "../../common/datasets/RunII_102X_v1/2018/DATA_SingleMuon2018_RunC.xml">
+<!ENTITY SingleMuon2018_RunD   SYSTEM  "../../common/datasets/RunII_102X_v1/2018/DATA_SingleMuon2018_RunD.xml">
 
-<!ENTITY DATA_EGamma2018_RunA   SYSTEM  "../../common/datasets/RunII_102X_v1/2018/DATA_EGamma2018_RunA.xml">
-<!ENTITY DATA_EGamma2018_RunB   SYSTEM  "../../common/datasets/RunII_102X_v1/2018/DATA_EGamma2018_RunB.xml">
-<!ENTITY DATA_EGamma2018_RunC   SYSTEM  "../../common/datasets/RunII_102X_v1/2018/DATA_EGamma2018_RunC.xml">
-<!ENTITY DATA_EGamma2018_RunD   SYSTEM  "../../common/datasets/RunII_102X_v1/2018/DATA_EGamma2018_RunD.xml">
+<!ENTITY EGamma2018_RunA   SYSTEM  "../../common/datasets/RunII_102X_v1/2018/DATA_EGamma2018_RunA.xml">
+<!ENTITY EGamma2018_RunB   SYSTEM  "../../common/datasets/RunII_102X_v1/2018/DATA_EGamma2018_RunB.xml">
+<!ENTITY EGamma2018_RunC   SYSTEM  "../../common/datasets/RunII_102X_v1/2018/DATA_EGamma2018_RunC.xml">
+<!ENTITY EGamma2018_RunD   SYSTEM  "../../common/datasets/RunII_102X_v1/2018/DATA_EGamma2018_RunD.xml">
 
 ]>
 
@@ -32,52 +32,52 @@
    <!-- <Cycle Name="uhh2::AnalysisModuleRunner"  RunMode="PROOF" ProofServer="lite://"  ProofWorkDir="/nfs/dust/cms/user/ottjoc/proof-wd/" ProofNodes="2" OutputDirectory="./" PostFix="" TargetLumi="1" >  -->
         <!-- Verion attribute must have year in it, same as used in ntuple config, e.g. 2018, 2016v3, etc -->
 
-        <InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="DATA_SingleMuon2018_RunA_2018" Cacheable="False">
-	  &DATA_SingleMuon2018_RunA;
+        <InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleMuon2018_RunA_2018" Cacheable="False">
+	  &SingleMuon2018_RunA;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="DATA_SingleMuon2018_RunB_2018" Cacheable="False">
-	  &DATA_SingleMuon2018_RunB;
+        <InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleMuon2018_RunB_2018" Cacheable="False">
+	  &SingleMuon2018_RunB;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="DATA_SingleMuon2018_RunC_2018" Cacheable="False">
-	  &DATA_SingleMuon2018_RunC;
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleMuon2018_RunC_2018" Cacheable="False">
+	  &SingleMuon2018_RunC;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="DATA_SingleMuon2018_RunD_2018" Cacheable="False">
-	  &DATA_SingleMuon2018_RunD;
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleMuon2018_RunD_2018" Cacheable="False">
+	  &SingleMuon2018_RunD;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
 	<!--     ##### Electron #####     -->
 
-	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="DATA_EGamma2018_RunA_2018" Cacheable="False">
-	  &DATA_EGamma2018_RunA;
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="EGamma2018_RunA_2018" Cacheable="False">
+	  &EGamma2018_RunA;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="DATA_EGamma2018_RunB_2018" Cacheable="False">
-	  &DATA_EGamma2018_RunB;
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="EGamma2018_RunB_2018" Cacheable="False">
+	  &EGamma2018_RunB;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="DATA_EGamma2018_RunC_2018" Cacheable="False">
-	  &DATA_EGamma2018_RunC;
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="EGamma2018_RunC_2018" Cacheable="False">
+	  &EGamma2018_RunC;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="DATA_EGamma2018_RunD_2018" Cacheable="False">
-	  &DATA_EGamma2018_RunD;
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="EGamma2018_RunD_2018" Cacheable="False">
+	  &EGamma2018_RunD;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>

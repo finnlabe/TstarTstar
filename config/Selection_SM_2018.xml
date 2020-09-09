@@ -22,38 +22,38 @@
         <!-- Verion attribute must have year in it, same as used in ntuple config, e.g. 2018, 2017, etc -->
 
 
-	<InputData Lumi="83703610.93" NEventsMax="-1" Type="MC" Version="MC_TTToSemiLeptonic_2018" Cacheable="False">
-    <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TTToSemiLeptonic_2018.root" Lumi="0.0"/>
+	<InputData Lumi="83703610.93" NEventsMax="-1" Type="MC" Version="TTToSemiLeptonic_2018" Cacheable="False">
+    <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.TTToSemiLeptonic_2018.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="15548592.94" NEventsMax="-1" Type="MC" Version="MC_ST_tW_top_5f_NoFullyHadronicDecays_2018" Cacheable="False">
-    <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_ST_tW_top_5f_NoFullyHadronicDecays_2018.root" Lumi="0.0"/>
+	<InputData Lumi="15548592.94" NEventsMax="-1" Type="MC" Version="ST_tW_top_5f_NoFullyHadronicDecays_2018" Cacheable="False">
+    <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.ST_tW_top_5f_NoFullyHadronicDecays_2018.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="12339449.8" NEventsMax="-1" Type="MC" Version="MC_ST_tW_antitop_5f_NoFullyHadronicDecays_2018" Cacheable="False">
-    <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_ST_tW_antitop_5f_NoFullyHadronicDecays_2018.root" Lumi="0.0"/>
+	<InputData Lumi="12339449.8" NEventsMax="-1" Type="MC" Version="ST_tW_antitop_5f_NoFullyHadronicDecays_2018" Cacheable="False">
+    <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.ST_tW_antitop_5f_NoFullyHadronicDecays_2018.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="5891712.126" NEventsMax="-1" Type="MC" Version="MC_ST_s-channel_4f_leptonDecays_2018" Cacheable="False">
-    <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_ST_s-channel_4f_leptonDecays_2018.root" Lumi="0.0"/>
+	<InputData Lumi="5891712.126" NEventsMax="-1" Type="MC" Version="ST_s-channel_4f_leptonDecays_2018" Cacheable="False">
+    <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.ST_s-channel_4f_leptonDecays_2018.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="5992141.808" NEventsMax="-1" Type="MC" Version="MC_ST_t-channel_top_2018" Cacheable="False">
-    <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_ST_t-channel_top_2018.root" Lumi="0.0"/>
+	<InputData Lumi="5992141.808" NEventsMax="-1" Type="MC" Version="ST_t-channel_top_2018" Cacheable="False">
+    <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.ST_t-channel_top_2018.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="4029309.273" NEventsMax="-1" Type="MC" Version="MC_ST_t-channel_antitop_2018" Cacheable="False">
-    <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_ST_t-channel_antitop_2018.root" Lumi="0.0"/>
+	<InputData Lumi="4029309.273" NEventsMax="-1" Type="MC" Version="ST_t-channel_antitop_2018" Cacheable="False">
+    <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.ST_t-channel_antitop_2018.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>

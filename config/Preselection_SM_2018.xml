@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE JobConfiguration PUBLIC "" "JobConfig.dtd" [
 
-<!ENTITY MC_TTToSemiLeptonic                                       SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_TTToSemiLeptonic.xml">
-<!ENTITY MC_ST_tW_top_5f_NoFullyHadronicDecays                     SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_ST_tW_top_5f_NoFullyHadronicDecays.xml">
-<!ENTITY MC_ST_tW_antitop_5f_NoFullyHadronicDecays                 SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_ST_tW_antitop_5f_NoFullyHadronicDecays.xml">
-<!ENTITY MC_ST_s-channel_4f_leptonDecays                           SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_ST_s-channel_4f_leptonDecays.xml">
-<!ENTITY MC_SingleTop_t-channel_top                                SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_SingleTop_t-channel_top.xml">
-<!ENTITY MC_SingleTop_t-channel_antitop                            SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_SingleTop_t-channel_antitop.xml">
-<!ENTITY MC_WJetsToLNu_HT-70To100                                  SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-70To100.xml">
-<!ENTITY MC_WJetsToLNu_HT-100To200                                 SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-100To200.xml">
-<!ENTITY MC_WJetsToLNu_HT-200To400                                 SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-200To400.xml">
-<!ENTITY MC_WJetsToLNu_HT-400To600                                 SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-400To600.xml">
-<!ENTITY MC_WJetsToLNu_HT-600To800                                 SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-600To800.xml">
-<!ENTITY MC_WJetsToLNu_HT-800To1200                                SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-800To1200.xml">
-<!ENTITY MC_WJetsToLNu_HT-1200To2500                               SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-1200To2500.xml">
-<!ENTITY MC_WJetsToLNu_HT-2500ToInf                                SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-2500ToInf.xml">
+<!ENTITY TTToSemiLeptonic                                       SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_TTToSemiLeptonic.xml">
+<!ENTITY ST_tW_top_5f_NoFullyHadronicDecays                     SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_ST_tW_top_5f_NoFullyHadronicDecays.xml">
+<!ENTITY ST_tW_antitop_5f_NoFullyHadronicDecays                 SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_ST_tW_antitop_5f_NoFullyHadronicDecays.xml">
+<!ENTITY ST_s-channel_4f_leptonDecays                           SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_ST_s-channel_4f_leptonDecays.xml">
+<!ENTITY SingleTop_t-channel_top                                SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_SingleTop_t-channel_top.xml">
+<!ENTITY SingleTop_t-channel_antitop                            SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_SingleTop_t-channel_antitop.xml">
+<!ENTITY WJetsToLNu_HT-70To100                                  SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-70To100.xml">
+<!ENTITY WJetsToLNu_HT-100To200                                 SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-100To200.xml">
+<!ENTITY WJetsToLNu_HT-200To400                                 SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-200To400.xml">
+<!ENTITY WJetsToLNu_HT-400To600                                 SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-400To600.xml">
+<!ENTITY WJetsToLNu_HT-600To800                                 SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-600To800.xml">
+<!ENTITY WJetsToLNu_HT-800To1200                                SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-800To1200.xml">
+<!ENTITY WJetsToLNu_HT-1200To2500                               SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-1200To2500.xml">
+<!ENTITY WJetsToLNu_HT-2500ToInf                                SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-2500ToInf.xml">
 
-<!ENTITY MC_WWToLNuQQ                                              SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WW_TuneCP5_13TeV-pythia8.xml">
-<!ENTITY MC_WZToLNu2Q                                              SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WZ_TuneCP5_13TeV-pythia8.xml">
+<!ENTITY WWToLNuQQ                                              SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WW_TuneCP5_13TeV-pythia8.xml">
+<!ENTITY WZToLNu2Q                                              SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WZ_TuneCP5_13TeV-pythia8.xml">
 
 <!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/2018/">
 ]>
@@ -38,98 +38,98 @@
         <!-- Verion attribute must have year in it, same as used in ntuple config, e.g. 2018, 2017, etc -->
 
 
-	<InputData Lumi="83703610.93" NEventsMax="-1" Type="MC" Version="MC_TTToSemiLeptonic_2018" Cacheable="False">
-	  &MC_TTToSemiLeptonic;
+	<InputData Lumi="83703610.93" NEventsMax="-1" Type="MC" Version="TTToSemiLeptonic_2018" Cacheable="False">
+	  &TTToSemiLeptonic;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="15548592.94" NEventsMax="-1" Type="MC" Version="MC_ST_tW_top_5f_NoFullyHadronicDecays_2018" Cacheable="False">
-	  &MC_ST_tW_top_5f_NoFullyHadronicDecays;
+	<InputData Lumi="15548592.94" NEventsMax="-1" Type="MC" Version="ST_tW_top_5f_NoFullyHadronicDecays_2018" Cacheable="False">
+	  &ST_tW_top_5f_NoFullyHadronicDecays;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="12339449.8" NEventsMax="-1" Type="MC" Version="MC_ST_tW_antitop_5f_NoFullyHadronicDecays_2018" Cacheable="False">
-	  &MC_ST_tW_antitop_5f_NoFullyHadronicDecays;
+	<InputData Lumi="12339449.8" NEventsMax="-1" Type="MC" Version="ST_tW_antitop_5f_NoFullyHadronicDecays_2018" Cacheable="False">
+	  &ST_tW_antitop_5f_NoFullyHadronicDecays;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="5891712.126" NEventsMax="-1" Type="MC" Version="MC_ST_s-channel_4f_leptonDecays_2018" Cacheable="False">
-	  &MC_ST_s-channel_4f_leptonDecays;
+	<InputData Lumi="5891712.126" NEventsMax="-1" Type="MC" Version="ST_s-channel_4f_leptonDecays_2018" Cacheable="False">
+	  &ST_s-channel_4f_leptonDecays;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="5992141.808" NEventsMax="-1" Type="MC" Version="MC_ST_t-channel_top_2018" Cacheable="False">
-	  &MC_SingleTop_t-channel_top;
+	<InputData Lumi="5992141.808" NEventsMax="-1" Type="MC" Version="ST_t-channel_top_2018" Cacheable="False">
+	  &SingleTop_t-channel_top;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="4029309.273" NEventsMax="-1" Type="MC" Version="MC_ST_t-channel_antitop_2018" Cacheable="False">
-	  &MC_SingleTop_t-channel_antitop;
+	<InputData Lumi="4029309.273" NEventsMax="-1" Type="MC" Version="ST_t-channel_antitop_2018" Cacheable="False">
+	  &SingleTop_t-channel_antitop;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
 	<InputData Lumi="21906.58658" NEventsMax="-1" Type="MC" Version="WJetsToLNu_HT-70To100_2018" Cacheable="False">
-	  &MC_WJetsToLNu_HT-70To100;
+	  &WJetsToLNu_HT-70To100;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
 	<InputData Lumi="21641.31034" NEventsMax="-1" Type="MC" Version="WJetsToLNu_HT-100To200_2018" Cacheable="False">
-	  &MC_WJetsToLNu_HT-100To200;
+	  &WJetsToLNu_HT-100To200;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
 	<InputData Lumi="61166.28365" NEventsMax="-1" Type="MC" Version="WJetsToLNu_HT-200To400_2018" Cacheable="False">
-	  &MC_WJetsToLNu_HT-200To400;
+	  &WJetsToLNu_HT-200To400;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
 	<InputData Lumi="100759.1882" NEventsMax="-1" Type="MC" Version="WJetsToLNu_HT-400To600_2018" Cacheable="False">
-	  &MC_WJetsToLNu_HT-400To600;
+	  &WJetsToLNu_HT-400To600;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
   <InputData Lumi="1522039.569" NEventsMax="-1" Type="MC" Version="WJetsToLNu_HT-600To800_2018" Cacheable="False">
-	  &MC_WJetsToLNu_HT-600To800;
+	  &WJetsToLNu_HT-600To800;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
   </InputData>
 
   <InputData Lumi="1506237.607" NEventsMax="-1" Type="MC" Version="WJetsToLNu_HT-800To1200_2018" Cacheable="False">
-    &MC_WJetsToLNu_HT-800To1200;
+    &WJetsToLNu_HT-800To1200;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
   </InputData>
 
   <InputData Lumi="6874435.411" NEventsMax="-1" Type="MC" Version="WJetsToLNu_HT-1200To2500_2018" Cacheable="False">
-    &MC_WJetsToLNu_HT-1200To2500;
+    &WJetsToLNu_HT-1200To2500;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
   </InputData>
 
   <InputData Lumi="411111168.2" NEventsMax="-1" Type="MC" Version="WJetsToLNu_HT-2500ToInf_2018" Cacheable="False">
-    &MC_WJetsToLNu_HT-2500ToInf;
+    &WJetsToLNu_HT-2500ToInf;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
   </InputData>
 
 	<InputData Lumi="103452.8202" NEventsMax="-1" Type="MC" Version="WWToLNuQQ_2018" Cacheable="False">
-	  &MC_WWToLNuQQ;
+	  &WWToLNuQQ;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
 	<InputData Lumi="141067.5381" NEventsMax="-1" Type="MC" Version="WZToLNu2Q_2018" Cacheable="False">
-	  &MC_WZToLNu2Q;
+	  &WZToLNu2Q;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
