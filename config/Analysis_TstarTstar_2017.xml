@@ -23,80 +23,80 @@
 
 	<!-- ##### gluon gluon ##### -->
 
-	<InputData Lumi="192800" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-700_207v2" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-700_2017v2.root" Lumi="0.0"/>
+	<InputData Lumi="192800" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-700_207v2" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.TstarTstarToTgluonTgluon_M-700_2017v2.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-800_2017v2" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-800_2017v2.root" Lumi="0.0"/>
+        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-800_2017v2" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.TstarTstarToTgluonTgluon_M-800_2017v2.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-900_2017v2" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-900_2017v2.root" Lumi="0.0"/>
+        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-900_2017v2" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.TstarTstarToTgluonTgluon_M-900_2017v2.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="199013" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1000_2017v2" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1000_2017v2.root" Lumi="0.0"/>
+        <InputData Lumi="199013" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1000_2017v2" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.TstarTstarToTgluonTgluon_M-1000_2017v2.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1200_2017v2" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1200_2017v2.root" Lumi="0.0"/>
+        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1200_2017v2" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.TstarTstarToTgluonTgluon_M-1200_2017v2.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1300_2017v2" Cacheable="False">
-          <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1300_2017v2.root" Lumi="0.0"/>
+        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1300_2017v2" Cacheable="False">
+          <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.TstarTstarToTgluonTgluon_M-1300_2017v2.root" Lumi="0.0"/>
 	  <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1400_2017v2" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1400_2017v2.root" Lumi="0.0"/>
+        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1400_2017v2" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.TstarTstarToTgluonTgluon_M-1400_2017v2.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1500_2017v2" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1500_2017v2.root" Lumi="0.0"/>
+        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1500_2017v2" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.TstarTstarToTgluonTgluon_M-1500_2017v2.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="192870" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1600_2017v2" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1600_2017v2.root" Lumi="0.0"/>
+        <InputData Lumi="192870" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1600_2017v2" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.TstarTstarToTgluonTgluon_M-1600_2017v2.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1700_2017v2" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1700_2017v2.root" Lumi="0.0"/>
+        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1700_2017v2" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.TstarTstarToTgluonTgluon_M-1700_2017v2.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1800_2017v2" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1800_2017v2.root" Lumi="0.0"/>
+        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1800_2017v2" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.TstarTstarToTgluonTgluon_M-1800_2017v2.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1900_2017v2" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1900_2017v2.root" Lumi="0.0"/>
+        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1900_2017v2" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.TstarTstarToTgluonTgluon_M-1900_2017v2.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-2000_2017v2" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-2000_2017v2.root" Lumi="0.0"/>
+        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-2000_2017v2" Cacheable="False">
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.TstarTstarToTgluonTgluon_M-2000_2017v2.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>

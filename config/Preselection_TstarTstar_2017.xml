@@ -6,20 +6,20 @@
 
 <!ENTITY OUTPUTdir           "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/2017/">
 
-<!ENTITY MC_TstarTstarToTgluonTgluon_M-700_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-700_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
-<!ENTITY MC_TstarTstarToTgluonTgluon_M-800_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-800_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
-<!ENTITY MC_TstarTstarToTgluonTgluon_M-900_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-900_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
-<!ENTITY MC_TstarTstarToTgluonTgluon_M-1000_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-1000_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
-<!ENTITY MC_TstarTstarToTgluonTgluon_M-1100_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-1100_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
-<!ENTITY MC_TstarTstarToTgluonTgluon_M-1200_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-1200_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
-<!ENTITY MC_TstarTstarToTgluonTgluon_M-1300_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-1300_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
-<!ENTITY MC_TstarTstarToTgluonTgluon_M-1400_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-1400_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
-<!ENTITY MC_TstarTstarToTgluonTgluon_M-1500_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-1500_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
-<!ENTITY MC_TstarTstarToTgluonTgluon_M-1600_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-1600_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
-<!ENTITY MC_TstarTstarToTgluonTgluon_M-1700_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-1700_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
-<!ENTITY MC_TstarTstarToTgluonTgluon_M-1800_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-1800_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
-<!ENTITY MC_TstarTstarToTgluonTgluon_M-1900_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-1900_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
-<!ENTITY MC_TstarTstarToTgluonTgluon_M-2000_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-2000_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-700_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-700_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-800_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-800_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-900_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-900_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-1000_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-1000_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-1100_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-1100_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-1200_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-1200_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-1300_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-1300_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-1400_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-1400_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-1500_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-1500_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-1600_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-1600_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-1700_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-1700_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-1800_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-1800_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-1900_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-1900_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-2000_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-2000_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
 
 ]>
 
@@ -43,79 +43,79 @@
 
          <!-- tgtg -->
 
-        <InputData Lumi="192800" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-700_2017v2" Cacheable="False">
-	  &MC_TstarTstarToTgluonTgluon_M-700_Run2017;
+        <InputData Lumi="192800" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-700_2017v2" Cacheable="False">
+	  &TstarTstarToTgluonTgluon_M-700_Run2017;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-800_2017v2" Cacheable="False">
-	  &MC_TstarTstarToTgluonTgluon_M-800_Run2017;
+        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-800_2017v2" Cacheable="False">
+	  &TstarTstarToTgluonTgluon_M-800_Run2017;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-900_2017v2" Cacheable="False">
-	  &MC_TstarTstarToTgluonTgluon_M-900_Run2017;
+        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-900_2017v2" Cacheable="False">
+	  &TstarTstarToTgluonTgluon_M-900_Run2017;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
-        <InputData Lumi="199013" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1000_2017v2" Cacheable="False">
-	  &MC_TstarTstarToTgluonTgluon_M-1000_Run2017;
-          <InputTree Name="AnalysisTree" />
-          <OutputTree Name="AnalysisTree" />
-        </InputData>
-
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1200_2017v2" Cacheable="False">
-	  &MC_TstarTstarToTgluonTgluon_M-1200_Run2017;
+        <InputData Lumi="199013" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1000_2017v2" Cacheable="False">
+	  &TstarTstarToTgluonTgluon_M-1000_Run2017;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1300_2017v2" Cacheable="False">
-	  &MC_TstarTstarToTgluonTgluon_M-1300_Run2017;
+        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1200_2017v2" Cacheable="False">
+	  &TstarTstarToTgluonTgluon_M-1200_Run2017;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1400_2017v2" Cacheable="False">
-	  &MC_TstarTstarToTgluonTgluon_M-1400_Run2017;
+        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1300_2017v2" Cacheable="False">
+	  &TstarTstarToTgluonTgluon_M-1300_Run2017;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1500_2017v2" Cacheable="False">
-	  &MC_TstarTstarToTgluonTgluon_M-1500_Run2017;
+        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1400_2017v2" Cacheable="False">
+	  &TstarTstarToTgluonTgluon_M-1400_Run2017;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="192870" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1600_2017v2" Cacheable="False">
-	  &MC_TstarTstarToTgluonTgluon_M-1600_Run2017;
-          <InputTree Name="AnalysisTree" />
-          <OutputTree Name="AnalysisTree" />
-
-        </InputData>
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1700_2017v2" Cacheable="False">
-    &MC_TstarTstarToTgluonTgluon_M-1700_Run2017;
+        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1500_2017v2" Cacheable="False">
+	  &TstarTstarToTgluonTgluon_M-1500_Run2017;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1800_2017v2" Cacheable="False">
-    &MC_TstarTstarToTgluonTgluon_M-1800_Run2017;
+        <InputData Lumi="192870" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1600_2017v2" Cacheable="False">
+	  &TstarTstarToTgluonTgluon_M-1600_Run2017;
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+
+        </InputData>
+        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1700_2017v2" Cacheable="False">
+    &TstarTstarToTgluonTgluon_M-1700_Run2017;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1900_2017v2" Cacheable="False">
-    &MC_TstarTstarToTgluonTgluon_M-1900_Run2017;
+        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1800_2017v2" Cacheable="False">
+    &TstarTstarToTgluonTgluon_M-1800_Run2017;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-2000_2017v2" Cacheable="False">
-    &MC_TstarTstarToTgluonTgluon_M-2000_Run2017;
+        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1900_2017v2" Cacheable="False">
+    &TstarTstarToTgluonTgluon_M-1900_Run2017;
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-2000_2017v2" Cacheable="False">
+    &TstarTstarToTgluonTgluon_M-2000_Run2017;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
