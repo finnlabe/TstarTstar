@@ -22,43 +22,43 @@
 
 
 	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleElectron2016_RunB_2016v3" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.DATA_SingleElectron2016_RunB_2016v3.root" Lumi="0.0"/>
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.SingleElectron2016_RunB_2016v3.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
 	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleElectron2016_RunC_2016v3" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.DATA_SingleElectron2016_RunC_2016v3.root" Lumi="0.0"/>
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.SingleElectron2016_RunC_2016v3.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
 	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleElectron2016_RunD_2016v3" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.DATA_SingleElectron2016_RunD_2016v3.root" Lumi="0.0"/>
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.SingleElectron2016_RunD_2016v3.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
 	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleElectron2016_RunE_2016v3" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.DATA_SingleElectron2016_RunE_2016v3.root" Lumi="0.0"/>
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.SingleElectron2016_RunE_2016v3.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
 	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleElectron2016_RunF_2016v3" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.DATA_SingleElectron2016_RunF_2016v3.root" Lumi="0.0"/>
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.SingleElectron2016_RunF_2016v3.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
 	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleElectron2016_RunG_2016v3" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.DATA_SingleElectron2016_RunG_2016v3.root" Lumi="0.0"/>
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.SingleElectron2016_RunG_2016v3.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
 	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleElectron2016_RunH_2016v3" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.DATA_SingleElectron2016_RunH_2016v3.root" Lumi="0.0"/>
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.SingleElectron2016_RunH_2016v3.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
@@ -66,43 +66,43 @@
 	<!-- ##### muon ##### -->
 
 	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleMuon2016_RunB_2016v3" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.DATA_SingleMuon2016_RunB_2016v3.root" Lumi="0.0"/>
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.SingleMuon2016_RunB_2016v3.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
 	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleMuon2016_RunC_2016v3" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.DATA_SingleMuon2016_RunC_2016v3.root" Lumi="0.0"/>
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.SingleMuon2016_RunC_2016v3.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
 	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleMuon2016_RunD_2016v3" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.DATA_SingleMuon2016_RunD_2016v3.root" Lumi="0.0"/>
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.SingleMuon2016_RunD_2016v3.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
 	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleMuon2016_RunE_2016v3" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.DATA_SingleMuon2016_RunE_2016v3.root" Lumi="0.0"/>
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.SingleMuon2016_RunE_2016v3.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
 	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleMuon2016_RunF_2016v3" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.DATA_SingleMuon2016_RunF_2016v3.root" Lumi="0.0"/>
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.SingleMuon2016_RunF_2016v3.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
 	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleMuon2016_RunG_2016v3" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.DATA_SingleMuon2016_RunG_2016v3.root" Lumi="0.0"/>
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.SingleMuon2016_RunG_2016v3.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
 	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleMuon2016_RunH_2016v3" Cacheable="False">
-	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.DATA_SingleMuon2016_RunH_2016v3.root" Lumi="0.0"/>
+	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.DATA.SingleMuon2016_RunH_2016v3.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>

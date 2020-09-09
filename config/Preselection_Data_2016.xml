@@ -6,21 +6,21 @@
 
 <!ENTITY OUTPUTdir           "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/2016/">
 
-<!ENTITY DATA_SingleMuon2016_RunB   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleMuon2016_RunB.xml">
-<!ENTITY DATA_SingleMuon2016_RunC   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleMuon2016_RunC.xml">
-<!ENTITY DATA_SingleMuon2016_RunD   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleMuon2016_RunD.xml">
-<!ENTITY DATA_SingleMuon2016_RunE   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleMuon2016_RunE.xml">
-<!ENTITY DATA_SingleMuon2016_RunF   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleMuon2016_RunF.xml">
-<!ENTITY DATA_SingleMuon2016_RunG   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleMuon2016_RunG.xml">
-<!ENTITY DATA_SingleMuon2016_RunH   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleMuon2016_RunH.xml">
+<!ENTITY SingleMuon2016_RunB   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleMuon2016_RunB.xml">
+<!ENTITY SingleMuon2016_RunC   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleMuon2016_RunC.xml">
+<!ENTITY SingleMuon2016_RunD   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleMuon2016_RunD.xml">
+<!ENTITY SingleMuon2016_RunE   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleMuon2016_RunE.xml">
+<!ENTITY SingleMuon2016_RunF   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleMuon2016_RunF.xml">
+<!ENTITY SingleMuon2016_RunG   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleMuon2016_RunG.xml">
+<!ENTITY SingleMuon2016_RunH   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleMuon2016_RunH.xml">
 
-<!ENTITY DATA_SingleElectron2016_RunB   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleElectron2016_RunB.xml">
-<!ENTITY DATA_SingleElectron2016_RunC   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleElectron2016_RunC.xml">
-<!ENTITY DATA_SingleElectron2016_RunD   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleElectron2016_RunD.xml">
-<!ENTITY DATA_SingleElectron2016_RunE   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleElectron2016_RunE.xml">
-<!ENTITY DATA_SingleElectron2016_RunF   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleElectron2016_RunF.xml">
-<!ENTITY DATA_SingleElectron2016_RunG   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleElectron2016_RunG.xml">
-<!ENTITY DATA_SingleElectron2016_RunH   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleElectron2016_RunH.xml">
+<!ENTITY SingleElectron2016_RunB   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleElectron2016_RunB.xml">
+<!ENTITY SingleElectron2016_RunC   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleElectron2016_RunC.xml">
+<!ENTITY SingleElectron2016_RunD   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleElectron2016_RunD.xml">
+<!ENTITY SingleElectron2016_RunE   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleElectron2016_RunE.xml">
+<!ENTITY SingleElectron2016_RunF   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleElectron2016_RunF.xml">
+<!ENTITY SingleElectron2016_RunG   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleElectron2016_RunG.xml">
+<!ENTITY SingleElectron2016_RunH   SYSTEM  "../../common/datasets/RunII_102X_v1/2016v3/DATA_SingleElectron2016_RunH.xml">
 
 
 ]>
@@ -40,88 +40,88 @@
         <!-- Verion attribute must have year in it, same as used in ntuple config, e.g. 2018, 2016v3, etc -->
 
 
-        <InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="DATA_SingleMuon2016_RunB_2016v3" Cacheable="False">
-	  &DATA_SingleMuon2016_RunB;
+        <InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleMuon2016_RunB_2016v3" Cacheable="False">
+	  &SingleMuon2016_RunB;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="DATA_SingleMuon2016_RunC_2016v3" Cacheable="False">
-	  &DATA_SingleMuon2016_RunC;
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleMuon2016_RunC_2016v3" Cacheable="False">
+	  &SingleMuon2016_RunC;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="DATA_SingleMuon2016_RunD_2016v3" Cacheable="False">
-	  &DATA_SingleMuon2016_RunD;
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleMuon2016_RunD_2016v3" Cacheable="False">
+	  &SingleMuon2016_RunD;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="DATA_SingleMuon2016_RunE_2016v3" Cacheable="False">
-	  &DATA_SingleMuon2016_RunE;
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleMuon2016_RunE_2016v3" Cacheable="False">
+	  &SingleMuon2016_RunE;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="DATA_SingleMuon2016_RunF_2016v3" Cacheable="False">
-	  &DATA_SingleMuon2016_RunF;
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleMuon2016_RunF_2016v3" Cacheable="False">
+	  &SingleMuon2016_RunF;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="DATA_SingleMuon2016_RunG_2016v3" Cacheable="False">
-	  &DATA_SingleMuon2016_RunG;
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleMuon2016_RunG_2016v3" Cacheable="False">
+	  &SingleMuon2016_RunG;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="DATA_SingleMuon2016_RunH_2016v3" Cacheable="False">
-	  &DATA_SingleMuon2016_RunH;
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleMuon2016_RunH_2016v3" Cacheable="False">
+	  &SingleMuon2016_RunH;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
 	<!--     ##### Electron #####     -->
 
-	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="DATA_SingleElectron2016_RunB_2016v3" Cacheable="False">
-	  &DATA_SingleElectron2016_RunB;
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleElectron2016_RunB_2016v3" Cacheable="False">
+	  &SingleElectron2016_RunB;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="DATA_SingleElectron2016_RunC_2016v3" Cacheable="False">
-	  &DATA_SingleElectron2016_RunC;
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleElectron2016_RunC_2016v3" Cacheable="False">
+	  &SingleElectron2016_RunC;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="DATA_SingleElectron2016_RunD_2016v3" Cacheable="False">
-	  &DATA_SingleElectron2016_RunD;
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleElectron2016_RunD_2016v3" Cacheable="False">
+	  &SingleElectron2016_RunD;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="DATA_SingleElectron2016_RunE_2016v3" Cacheable="False">
-	  &DATA_SingleElectron2016_RunE;
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleElectron2016_RunE_2016v3" Cacheable="False">
+	  &SingleElectron2016_RunE;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="DATA_SingleElectron2016_RunF_2016v3" Cacheable="False">
-	  &DATA_SingleElectron2016_RunF;
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleElectron2016_RunF_2016v3" Cacheable="False">
+	  &SingleElectron2016_RunF;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="DATA_SingleElectron2016_RunG_2016v3" Cacheable="False">
-	  &DATA_SingleElectron2016_RunG;
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleElectron2016_RunG_2016v3" Cacheable="False">
+	  &SingleElectron2016_RunG;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="DATA_SingleElectron2016_RunH_2016v3" Cacheable="False">
-	  &DATA_SingleElectron2016_RunH;
+	<InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="SingleElectron2016_RunH_2016v3" Cacheable="False">
+	  &SingleElectron2016_RunH;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
