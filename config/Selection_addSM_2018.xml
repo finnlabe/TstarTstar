@@ -93,6 +93,8 @@
       <Item Name="lumi_file" Value="/nfs/dust/cms/user/flabe/CMSSW/CMSSW_10_2_10/src/UHH2/common/data/2018/Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.root"/>
 	    <Item Name="lumihists_lumi_per_bin" Value="500.0"/>
 
+      <Item Name="additionalBranches" Value="is_muevt evt_weight" />
+
       <Item Name="jersmear_direction" Value="nominal"/>
 	    <Item Name="jecsmear_direction" Value="nominal"/>
 
