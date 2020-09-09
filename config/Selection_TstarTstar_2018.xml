@@ -4,28 +4,14 @@
 <!ENTITY b_Cacheable     "False">
 <!ENTITY NEVT            "-1">
 
-<!ENTITY OUTPUTdir           "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/2018/">
-
-<!ENTITY MC_TstarTstarToTgluonTgluon_M-700_Run2018   SYSTEM  "/nfs/dust/cms/user/flabe/NtupleGeneration/CMSSW_10_2_16/src/UHH2/scripts/crab/XML/TstarTstarToTgluonTgluon_M-700_TuneCP5_13TeV-madgraph-pythia8_Autumn18_v2.xml">
-<!ENTITY MC_TstarTstarToTgluonTgluon_M-800_Run2018   SYSTEM  "/nfs/dust/cms/user/flabe/NtupleGeneration/CMSSW_10_2_16/src/UHH2/scripts/crab/XML/TstarTstarToTgluonTgluon_M-800_TuneCP5_13TeV-madgraph-pythia8_Autumn18_v1.xml">
-<!ENTITY MC_TstarTstarToTgluonTgluon_M-900_Run2018   SYSTEM  "/nfs/dust/cms/user/flabe/NtupleGeneration/CMSSW_10_2_16/src/UHH2/scripts/crab/XML/TstarTstarToTgluonTgluon_M-900_TuneCP5_13TeV-madgraph-pythia8_Autumn18_v1.xml">
-<!ENTITY MC_TstarTstarToTgluonTgluon_M-1000_Run2018   SYSTEM  "/nfs/dust/cms/user/flabe/NtupleGeneration/CMSSW_10_2_16/src/UHH2/scripts/crab/XML/TstarTstarToTgluonTgluon_M-1000_TuneCP5_13TeV-madgraph-pythia8_Autumn18_v2.xml">
-
-<!ENTITY MC_TstarTstarToTgluonTgluon_M-1200_Run2018   SYSTEM  "/nfs/dust/cms/user/flabe/NtupleGeneration/CMSSW_10_2_16/src/UHH2/scripts/crab/XML/TstarTstarToTgluonTgluon_M-1200_TuneCP5_13TeV-madgraph-pythia8_Autumn18_v1.xml">
-<!ENTITY MC_TstarTstarToTgluonTgluon_M-1300_Run2018   SYSTEM  "/nfs/dust/cms/user/flabe/NtupleGeneration/CMSSW_10_2_16/src/UHH2/scripts/crab/XML/TstarTstarToTgluonTgluon_M-1300_TuneCP5_13TeV-madgraph-pythia8_Autumn18_v1.xml">
-<!ENTITY MC_TstarTstarToTgluonTgluon_M-1400_Run2018   SYSTEM  "/nfs/dust/cms/user/flabe/NtupleGeneration/CMSSW_10_2_16/src/UHH2/scripts/crab/XML/TstarTstarToTgluonTgluon_M-1400_TuneCP5_13TeV-madgraph-pythia8_Autumn18_v2.xml">
-<!ENTITY MC_TstarTstarToTgluonTgluon_M-1500_Run2018   SYSTEM  "/nfs/dust/cms/user/flabe/NtupleGeneration/CMSSW_10_2_16/src/UHH2/scripts/crab/XML/TstarTstarToTgluonTgluon_M-1500_TuneCP5_13TeV-madgraph-pythia8_Autumn18_v1.xml">
-<!ENTITY MC_TstarTstarToTgluonTgluon_M-1600_Run2018   SYSTEM  "/nfs/dust/cms/user/flabe/NtupleGeneration/CMSSW_10_2_16/src/UHH2/scripts/crab/XML/TstarTstarToTgluonTgluon_M-1600_TuneCP5_13TeV-madgraph-pythia8_Autumn18_v2.xml">
-<!ENTITY MC_TstarTstarToTgluonTgluon_M-1700_Run2018   SYSTEM  "/nfs/dust/cms/user/flabe/NtupleGeneration/CMSSW_10_2_16/src/UHH2/scripts/crab/XML/TstarTstarToTgluonTgluon_M-1700_TuneCP5_13TeV-madgraph-pythia8_Autumn18_v1.xml">
-<!ENTITY MC_TstarTstarToTgluonTgluon_M-1800_Run2018   SYSTEM  "/nfs/dust/cms/user/flabe/NtupleGeneration/CMSSW_10_2_16/src/UHH2/scripts/crab/XML/TstarTstarToTgluonTgluon_M-1800_TuneCP5_13TeV-madgraph-pythia8_Autumn18_v1.xml">
-<!ENTITY MC_TstarTstarToTgluonTgluon_M-1900_Run2018   SYSTEM  "/nfs/dust/cms/user/flabe/NtupleGeneration/CMSSW_10_2_16/src/UHH2/scripts/crab/XML/TstarTstarToTgluonTgluon_M-1900_TuneCP5_13TeV-madgraph-pythia8_Autumn18_v1.xml">
-<!ENTITY MC_TstarTstarToTgluonTgluon_M-2000_Run2018   SYSTEM  "/nfs/dust/cms/user/flabe/NtupleGeneration/CMSSW_10_2_16/src/UHH2/scripts/crab/XML/TstarTstarToTgluonTgluon_M-2000_TuneCP5_13TeV-madgraph-pythia8_Autumn18_v2.xml">
+<!ENTITY INPUTdir           "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/2018/">
+<!ENTITY OUTPUTdir           "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/2018/">
 
 ]>
 
 <!--
 <ConfigParse NEventsBreak="0" LastBreak="0" FileSplit="35" AutoResubmit="100"/>
-<ConfigSGE RAM="2" DISK="2" Mail="finn.labe@desy.de" Notification="as" Workdir="workdir_Preselection_TstarTstar_2018"/>
+<ConfigSGE RAM="2" DISK="2" Mail="finn.labe@desy.de" Notification="as" Workdir="workdir_Selection_TstarTstar_2018"/>
 -->
 
 <!-- OutputLevel controls which messages are printed; set to VERBOSE or DEBUG for more verbosity, to WARNING or ERROR for less -->
@@ -45,78 +31,78 @@
 
 
                  <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-700_2018" Cacheable="False">
-         	  &MC_TstarTstarToTgluonTgluon_M-700_Run2018;
+                   <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-700_2018.root" Lumi="0.0"/>
                    <InputTree Name="AnalysisTree" />
                    <OutputTree Name="AnalysisTree" />
                  </InputData>
 
                  <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-800_2018" Cacheable="False">
-         	  &MC_TstarTstarToTgluonTgluon_M-800_Run2018;
+                   <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-800_2018.root" Lumi="0.0"/>
                    <InputTree Name="AnalysisTree" />
                    <OutputTree Name="AnalysisTree" />
                  </InputData>
 
                  <InputData Lumi="188258" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-900_2018" Cacheable="False">
-         	  &MC_TstarTstarToTgluonTgluon_M-900_Run2018;
+                   <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-900_2018.root" Lumi="0.0"/>
                    <InputTree Name="AnalysisTree" />
                    <OutputTree Name="AnalysisTree" />
                  </InputData>
                  <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1000_2018" Cacheable="False">
-         	  &MC_TstarTstarToTgluonTgluon_M-1000_Run2018;
+                   <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1000_2018.root" Lumi="0.0"/>
                    <InputTree Name="AnalysisTree" />
                    <OutputTree Name="AnalysisTree" />
                  </InputData>
 
                  <InputData Lumi="178776" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1200_2018" Cacheable="False">
-         	  &MC_TstarTstarToTgluonTgluon_M-1200_Run2018;
+                   <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1200_2018.root" Lumi="0.0"/>
                    <InputTree Name="AnalysisTree" />
                    <OutputTree Name="AnalysisTree" />
                  </InputData>
 
                  <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1300_2018" Cacheable="False">
-         	  &MC_TstarTstarToTgluonTgluon_M-1300_Run2018;
+                   <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1300_2018.root" Lumi="0.0"/>
                    <InputTree Name="AnalysisTree" />
                    <OutputTree Name="AnalysisTree" />
                  </InputData>
 
                  <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1400_2018" Cacheable="False">
-         	  &MC_TstarTstarToTgluonTgluon_M-1400_Run2018;
+                   <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1400_2018.root" Lumi="0.0"/>
                    <InputTree Name="AnalysisTree" />
                    <OutputTree Name="AnalysisTree" />
                  </InputData>
 
                  <InputData Lumi="198000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1500_2018" Cacheable="False">
-         	  &MC_TstarTstarToTgluonTgluon_M-1500_Run2018;
+                   <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1500_2018.root" Lumi="0.0"/>
                    <InputTree Name="AnalysisTree" />
                    <OutputTree Name="AnalysisTree" />
                  </InputData>
 
                  <InputData Lumi="199082" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1600_2018" Cacheable="False">
-         	  &MC_TstarTstarToTgluonTgluon_M-1600_Run2018;
+                   <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1600_2018.root" Lumi="0.0"/>
                    <InputTree Name="AnalysisTree" />
                    <OutputTree Name="AnalysisTree" />
 
                  </InputData>
                  <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1700_2018" Cacheable="False">
-             &MC_TstarTstarToTgluonTgluon_M-1700_Run2018;
+                   <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1700_2018.root" Lumi="0.0"/>
                    <InputTree Name="AnalysisTree" />
                    <OutputTree Name="AnalysisTree" />
                  </InputData>
 
                  <InputData Lumi="188282" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1800_2018" Cacheable="False">
-             &MC_TstarTstarToTgluonTgluon_M-1800_Run2018;
+                   <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1800_2018.root" Lumi="0.0"/>
                    <InputTree Name="AnalysisTree" />
                    <OutputTree Name="AnalysisTree" />
                  </InputData>
 
                  <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-1900_2018" Cacheable="False">
-             &MC_TstarTstarToTgluonTgluon_M-1900_Run2018;
+                   <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-1900_2018.root" Lumi="0.0"/>
                    <InputTree Name="AnalysisTree" />
                    <OutputTree Name="AnalysisTree" />
                  </InputData>
 
                  <InputData Lumi="199407" NEventsMax="-1" Type="MC" Version="MC_TstarTstarToTgluonTgluon_M-2000_2018" Cacheable="False">
-             &MC_TstarTstarToTgluonTgluon_M-2000_Run2018;
+                   <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.MC_TstarTstarToTgluonTgluon_M-2000_2018.root" Lumi="0.0"/>
                    <InputTree Name="AnalysisTree" />
                    <OutputTree Name="AnalysisTree" />
                  </InputData>
@@ -144,7 +130,7 @@
 
 
             <!-- the class name of the AnalysisModule subclasses to run: -->
-            <Item Name="AnalysisModule" Value="TstarTstarPreselectionModule" />
+            <Item Name="AnalysisModule" Value="TstarTstarSelectionModule" />
 
             <!-- tell AnalysisModuleRunner NOT to use the MC event weight from SFrame; rather let
                  MCLumiWeight (called via CommonModules) calculate the MC event weight. The MC
