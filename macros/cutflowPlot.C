@@ -38,15 +38,15 @@ void cutflowPlot(TString suffix = ""){
   leg->SetNColumns(2);
 
   // Defining paths
-  TString pathPresel = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/hadded/";
-  TString pathSel = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/hadded/";
-  TString pathReco = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/MCStudy/hadded/";
+  TString pathPresel = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/2016/hadded/";
+  TString pathSel = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/2016/hadded/";
+  TString pathReco = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Analysis/2016/hadded/";
   TString fileprefix = "uhh2.AnalysisModuleRunner.MC.";
   TString histname = "N_jets";
 
   // Defining Steps
   std::vector<TString> preselSteps = {"AfterCommon", "AfterLepSel", "AfterAK8jets", "AfterMET"};
-  std::vector<TString> selSteps = {"After2D", "AfterTrigger"};
+  std::vector<TString> selSteps = {"AfterBtag", "After2D", "AfterdR", "AfterTrigger"};
   std::vector<TString> recoSteps = {};
   int stepcount = preselSteps.size() + selSteps.size() + recoSteps.size();
 
@@ -66,14 +66,14 @@ void cutflowPlot(TString suffix = ""){
 
   // Defining Samples
   std::vector<TString> signalSamples = {"TstarTstar_M-700.root", "TstarTstar_M-1000.root", "TstarTstar_M-1600.root"};
-  //std::vector<TString> BGSamples = {"TTbar.root", "WJets.root", "ST.root", "VV.root"};
-  std::vector<TString> BGSamples = {};
+  std::vector<TString> BGSamples = {"TTbar.root", "WJets.root", "ST.root", "VV.root"};
+  //std::vector<TString> BGSamples = {};
 
   // Defining Drawing options
   std::vector<int> colors_Signal = {632, 820, 432};
   std::vector<int> colors_BG = {810, 800, 600, 416};
   //std::vector<TString> labels = {"No cuts", "N lepton","N HOTVR jet = 1", "MET", "Trigger", "2D", "N HOTVR jet = 3", "non-overlap AK4"};
-  std::vector<TString> labels = {"Initial", "N lepton","N HOTVR jet = 1", "MET", "2D", "Trigger", "should not be visible"};
+  std::vector<TString> labels = {"Initial", "N_{lep}","N_{jet}", "MET","b-tag", "2D","dR", "Trigger", "should not be visible"};
 
   // ########################
   // ## Finish Definitions ##
@@ -200,11 +200,14 @@ void cutflowPlot(TString suffix = ""){
       int index_label = 1;
       for(const auto & label : labels) {cutflow_BG.at(index_draw_BG)->GetXaxis()->SetBinLabel(index_label, label); index_label++;}
       cutflow_BG.at(index_draw_BG)->SetFillColor(colors_BG.at(index_draw_BG));
+      cutflow_BG.at(index_draw_BG)->SetLineColor(colors_BG.at(index_draw_BG));
       leg->AddEntry(cutflow_BG.at(index_draw_BG), BG_labels.at(index_draw_BG), "f");
       BG_stack->Add(cutflow_BG.at(index_draw_BG));
     }
+    BG_stack->SetMinimum(5e-4);
     BG_stack->Draw("");
     BG_stack->SetTitle("");
+    BG_stack->GetYaxis()->SetTitleSize(0.05);
     BG_stack->GetYaxis()->SetTitle("Efficiency");
     canvas->Update();
   }
@@ -225,7 +228,19 @@ void cutflowPlot(TString suffix = ""){
   }
 
   // Draw legend
+  leg->SetBorderSize(0);
   leg->Draw("same");
+
+  // draw Lumi text
+  TString infotext = TString::Format("35.9 fb^{-1} (13 TeV)");
+  TLatex *text = new TLatex(3.5, 24, infotext);
+  text->SetNDC();
+  text->SetTextAlign(33);
+  text->SetX(0.83);
+  text->SetTextFont(42);
+  text->SetY(0.93);
+  text->SetTextSize(0.025);
+  text->Draw();
 
   // Draw line after certain bin to split presel, sel,
   bool doLine = false;

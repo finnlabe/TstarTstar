@@ -58,6 +58,10 @@ private:
   std::unique_ptr<Hists> h_2Dcut_mu, h_trigger_mu;
   std::unique_ptr<Hists> h_2Dcut_mu_lowpt, h_trigger_mu_lowpt;
   std::unique_ptr<Hists> h_2Dcut_mu_highpt, h_trigger_mu_highpt;
+  std::unique_ptr<Hists> h_dRcut, h_dRcut_gen;
+  std::unique_ptr<Hists> h_dRcut_mu, h_dRcut_ele;
+  std::unique_ptr<Hists> h_dRcut_mu_lowpt, h_dRcut_ele_lowpt;
+  std::unique_ptr<Hists> h_dRcut_mu_highpt, h_dRcut_ele_highpt;
   std::unique_ptr<Hists> h_triggerSingleJet, h_triggerSingleLeptonMu, h_triggerSingleLeptonEle, h_triggerHT, h_triggerPFHT;
   std::unique_ptr<Hists> h_triggerSingleJet_mu, h_triggerHT_mu, h_triggerPFHT_mu;
   std::unique_ptr<Hists> h_triggerSingleJet_ele, h_triggerHT_ele, h_triggerPFHT_ele;
@@ -110,7 +114,13 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   // 0. Reading in whether MC and if so, which channel
   is_MC = ctx.get("dataset_type") == "MC";
   TString year = ctx.get("year", "<not set>");
-  if(debug) cout << "Year is " << year << "." << endl;
+  if(year == "<not set>"){
+    if(ctx.get("dataset_version").find("2016") != std::string::npos) year = "2016";
+    else if(ctx.get("dataset_version").find("2017") != std::string::npos) year = "2017";
+    else if(ctx.get("dataset_version").find("2018") != std::string::npos) year = "2018";
+    else throw "No year found in dataset name!";
+  }
+  if(true) cout << "Year is " << year << "." << endl;
 
   if(!is_MC) data_isMu = (ctx.get("dataset_version").find("SingleMuon") != std::string::npos);
   if(!is_MC) data_is2017B = (ctx.get("dataset_version").find("SingleElectron2017_RunB") != std::string::npos);
@@ -150,7 +160,8 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   if(is_MC || !data_isMu) {
     // The following exist for both 2016 and 2017
     // until 120 GeV, except for 2017B, there for whole range
-    triggerSingleLeptonEle1_sel.reset(new TriggerSelection("HLT_Ele27_WPTight_Gsf_v*"));
+    if(year == "2018") triggerSingleLeptonEle1_sel.reset(new TriggerSelection("HLT_Ele32_WPTight_Gsf_v*"));
+    else triggerSingleLeptonEle1_sel.reset(new TriggerSelection("HLT_Ele27_WPTight_Gsf_v*"));
     // above 120 GeV
     triggerSingleLeptonEle2_sel.reset(new TriggerSelection("HLT_Photon175_v*"));
     if(!data_is2017B) triggerSingleLeptonEle3_sel.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
@@ -179,6 +190,13 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   h_btagcut_mu.reset(new TstarTstarHists(ctx, "AfterBtag_mu"));
   h_btagcut_mu_lowpt.reset(new TstarTstarHists(ctx, "AfterBtag_mu_lowpt"));
   h_btagcut_mu_highpt.reset(new TstarTstarHists(ctx, "AfterBtag_mu_highpt"));
+  h_dRcut.reset(new TstarTstarHists(ctx, "AfterdR"));
+  h_dRcut_ele.reset(new TstarTstarHists(ctx, "AfterdR_ele"));
+  h_dRcut_ele_lowpt.reset(new TstarTstarHists(ctx, "AfterdR_ele_lowpt"));
+  h_dRcut_ele_highpt.reset(new TstarTstarHists(ctx, "AfterdR_ele_highpt"));
+  h_dRcut_mu.reset(new TstarTstarHists(ctx, "AfterdR_mu"));
+  h_dRcut_mu_lowpt.reset(new TstarTstarHists(ctx, "AfterdR_mu_lowpt"));
+  h_dRcut_mu_highpt.reset(new TstarTstarHists(ctx, "AfterdR_mu_highpt"));
   h_trigger.reset(new TstarTstarHists(ctx, "AfterTrigger"));
   h_trigger_mu.reset(new TstarTstarHists(ctx, "AfterTrigger_mu"));
   h_trigger_mu_lowpt.reset(new TstarTstarHists(ctx, "AfterTrigger_mu_lowpt"));
@@ -198,6 +216,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
 
   h_beginSel_gen.reset(new TstarTstarGenHists(ctx, "beginSel_gen"));
   h_2Dcut_gen.reset(new TstarTstarGenHists(ctx, "After2D_gen"));
+  h_dRcut_gen.reset(new TstarTstarGenHists(ctx, "AfterdR_gen"));
   h_btagcut_gen.reset(new TstarTstarGenHists(ctx, "AfterBtag_gen"));
   h_trigger_gen.reset(new TstarTstarGenHists(ctx, "AfterTrigger_gen"));
   //h_ttagsel_gen.reset(new TstarTstarGenHists(ctx, "AfterTtagsel_gen"));
@@ -378,6 +397,18 @@ bool TstarTstarSelectionModule::process(Event & event) {
     else pass_dR = min_deltaR > 0.2;
   }
   if(!pass_dR) return false;
+  h_dRcut->fill(event);
+  h_dRcut_gen->fill(event);
+  if(event.get(h_is_muevt)){
+    h_dRcut_mu->fill(event);
+    if(event.muons->at(0).pt()<=60) h_dRcut_mu_lowpt->fill(event);
+    else h_dRcut_mu_highpt->fill(event);
+  }
+  else {
+    h_dRcut_ele->fill(event);
+    if(event.electrons->at(0).pt()<=120) h_dRcut_ele_lowpt->fill(event);
+    else h_dRcut_ele_highpt->fill(event);
+  }
   if(debug) cout << "Passed dR cut." << endl;
 
   // Trigger

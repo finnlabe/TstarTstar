@@ -6,17 +6,23 @@
 
 void FitModelLine(){
   
-  Double_t x[] = {700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600};
-  Double_t x_2[] = {700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000};
-  Double_t y_theory[] = {4.92, 1.682, 6.36e-01, 2.62e-1, 1.16e-01, 5.37e-02, 2.61e-02, 1.31e-02, 6.77e-03, 3.59e-03};  
+  // define masspoints
+  std::vector<int> masspoints;
   
-  Double_t y_samples[] = {1.823e-01, 6.081e-02, 2.207e-02, 8.542e-03, 3.487e-03, 1.499e-03, 6.745e-04, 3.162e-04, 1.532e-04, 7.687e-05};
-  Double_t y_samples_more[] = {1.823e-01, 6.081e-02, 2.207e-02, 8.542e-03, 3.487e-03, 1.499e-03, 6.745e-04, 3.162e-04, 1.532e-04, 7.687e-05, 2.136e-05, 9.716e-06, 4.439e-06, 2.052e-06};
+  // TODO get input values from some file
+  std::vector<std::vector<double>> limitValues;
+  std::vector<TString> limitLabels;
+  
+  assert(limitLabels.size() == limitValues.size());
 
-  // calculate ratio
-  Double_t y_ratio[10] = {0};
-  for(uint i = 0; i < 10; i++){
-    y_ratio[i] = y_samples[i]/y_theory[i];
+  for(uint i = 0; i < limitValues.size(); i++) {
+    // create graph from values
+
+    // plot graph
+    // 1st is theory line
+    // 2nd is "main" limit
+
+
   }
 
   TCanvas *c1 = new TCanvas("chist", "c", 800, 600);
@@ -77,11 +83,11 @@ void FitModelLine(){
   graph_samples->Draw("P SAME");
   //hist->Draw("same");
   f2->SetLineColor(1);
-  //f2->Draw("same");
+  f2->Draw("same");
   
-  legend->AddEntry(graph_theory, "theory", "P");
-  legend->AddEntry(graph_samples, "samples", "P");
-  legend->AddEntry(graph_theory_new, "theory fit", "P");
+  legend->AddEntry(graph_theory, "theory");
+  legend->AddEntry(graph_samples, "samples");
+  legend->AddEntry(graph_theory_new, "theory fit");
   legend->Draw();  
 
   c->SaveAs("Plot_Fit_Models.pdf");

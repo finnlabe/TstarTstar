@@ -23,7 +23,7 @@
 
 	<!-- ##### gluon gluon ##### -->
 
-	<InputData Lumi="192800" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-700_207v2" Cacheable="False">
+	<InputData Lumi="192800" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-700_2017v2" Cacheable="False">
 	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.TstarTstarToTgluonTgluon_M-700_2017v2.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />

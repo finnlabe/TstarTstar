@@ -1,5 +1,5 @@
 // Efficiency histograms for trigger related studies
-// author: A.Karavdina
+// author: A.Karavdina, changes F.Labe
 // date: 24.09.2019
 // Run it with following command:
 // root -l -b -q TriggerEffPlots.C

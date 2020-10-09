@@ -73,12 +73,12 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
 
   // leptons
   book<TH1F>("N_mu", "N^{#mu}", 10, 0, 10);
-  book<TH1F>("pt_mu", "p_{T}^{#mu} [GeV/c]", 50, 10, 1000);
+  book<TH1F>("pt_mu", "p_{T}^{#mu} [GeV/c]", 50, 0, 1000);
   book<TH1F>("eta_mu", "#eta^{#mu}", 50, -2.5, 2.5);
   book<TH1F>("reliso_mu", "#mu rel. Iso", 40, 0, 0.5);
 
   book<TH1F>("N_ele", "N^{e}", 10, 0, 10);
-  book<TH1F>("pt_ele", "p_{T}^{ele} [GeV/c]", 50, 10, 1000);
+  book<TH1F>("pt_ele", "p_{T}^{ele} [GeV/c]", 50, 0, 1000);
   book<TH1F>("eta_ele", "#eta^{ele}", 50, -2.5, 2.5);
 
   book<TH1F>("N_photon", "N^{#gamma}", 10, 0, 10);

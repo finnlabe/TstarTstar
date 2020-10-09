@@ -69,6 +69,21 @@ class TstarTstar_tgtg_TopTag_Reconstruction : uhh2::AnalysisModule{
   TopJetId topjetID_;
 };
 
+class TstarTstar_tgtg_AK4_Reconstruction : uhh2::AnalysisModule{
+
+ public:
+  explicit TstarTstar_tgtg_AK4_Reconstruction(uhh2::Context&, const NeutrinoReconstructionMethod&, TopJetId id=CMSTopTag());
+  virtual bool process(uhh2::Event&) override;
+
+ private:
+  NeutrinoReconstructionMethod m_neutrinofunction;
+  uhh2::Event::Handle<FlavorParticle> h_primlep;
+  uhh2::Event::Handle<std::vector<ReconstructionTstarHypothesis>> h_tstartstar_hyp_vector;
+  uhh2::Event::Handle<int> h_flag_toptagevent;
+
+  TopJetId topjetID_;
+};
+
 
 class TstarTstar_Discrimination : uhh2::AnalysisModule{
 

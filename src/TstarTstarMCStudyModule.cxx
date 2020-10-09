@@ -58,8 +58,11 @@ private:
   // Store the Hists collection as member variables. Again, use unique_ptr to avoid memory leaks.
 
   std::unique_ptr<Hists> h_beforeReco, h_beforeReco_ttag, h_beforeReco_nottag, h_afterPrimlep, h_afterHypCreation, h_afterReco_Full, h_afterReco_ttag, h_afterReco_nottag, h_lowchi2, h_highchi2, h_afterGEN, h_afterGEN_onlyttbar, h_afterGEN_onlyttbar_ttag, h_afterGEN_onlyttbar_nottag, h_notReconstructible, h_notReconstructible_ttag, h_notReconstructible_nottag, h_passFatJetSel;
+  std::unique_ptr<Hists> h_afterHypCreation_AK4, h_afterReco_Full_AK4, h_afterReco_ttag_AK4, h_afterReco_nottag_AK4, h_lowchi2_AK4, h_highchi2_AK4, h_notReconstructible_AK4, h_notReconstructible_ttag_AK4, h_notReconstructible_nottag_AK4;
   std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_Full, h_RecoPlots_ttag, h_RecoPlots_nottag, h_RecoPlots_lowchi2, h_RecoPlots_highchi2;
   std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_GEN, h_RecoPlots_GEN_onlyttbar, h_RecoPlots_GEN_onlyttbar_ttag, h_RecoPlots_GEN_onlyttbar_nottag;
+  std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_Full_AK4, h_RecoPlots_ttag_AK4, h_RecoPlots_nottag_AK4, h_RecoPlots_lowchi2_AK4, h_RecoPlots_highchi2_AK4;
+  std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_GEN_AK4, h_RecoPlots_GEN_onlyttbar_AK4, h_RecoPlots_GEN_onlyttbar_ttag_AK4, h_RecoPlots_GEN_onlyttbar_nottag_AK4;
 
   std::unique_ptr<Hists> h_afterPrimlep_mu, h_afterPrimlep_mu_lowpt, h_afterPrimlep_mu_highpt, h_afterPrimlep_ele, h_afterPrimlep_ele_lowpt, h_afterPrimlep_ele_highpt;
 
@@ -94,7 +97,9 @@ private:
   std::unique_ptr<TstarTstarGenDiscriminator> genmatcher;
   std::unique_ptr<TstarTstarGenDiscriminator> genmatcher_onlyttbar;
   std::unique_ptr<TstarTstar_tgtg_TopTag_Reconstruction> TstarTstarHypCreator;
+  std::unique_ptr<TstarTstar_tgtg_AK4_Reconstruction> TstarTstarHypCreatorAK4;
   std::unique_ptr<TstarTstar_Discrimination> TstarTstarHypSelector;
+  std::unique_ptr<TstarTstar_Discrimination> TstarTstarHypSelectorAK4;
 
   // Handles
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
@@ -176,6 +181,16 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   h_notReconstructible_ttag.reset(new TstarTstarHists(ctx, "notReconstructible_ttag"));
   h_notReconstructible_nottag.reset(new TstarTstarHists(ctx, "notReconstructible_nottag"));
 
+  h_afterHypCreation_AK4.reset(new TstarTstarHists(ctx, "afterHypCreation_AK4"));
+  h_afterReco_Full_AK4.reset(new TstarTstarHists(ctx, "AfterReco_Full_AK4"));
+  h_afterReco_ttag_AK4.reset(new TstarTstarHists(ctx, "AfterReco_ttag_AK4"));
+  h_afterReco_nottag_AK4.reset(new TstarTstarHists(ctx, "AfterReco_nottag_AK4"));
+  h_lowchi2_AK4.reset(new TstarTstarHists(ctx, "Lowchi2_AK4"));
+  h_highchi2_AK4.reset(new TstarTstarHists(ctx, "Highchi2_AK4"));
+  h_notReconstructible_AK4.reset(new TstarTstarHists(ctx, "notReconstructible_AK4"));
+  h_notReconstructible_ttag_AK4.reset(new TstarTstarHists(ctx, "notReconstructible_ttag_AK4"));
+  h_notReconstructible_nottag_AK4.reset(new TstarTstarHists(ctx, "notReconstructible_nottag_AK4"));
+
   h_ST_reweighted.reset(new TstarTstarHists(ctx, "STreweighted"));
   h_ST_reweighted_2.reset(new TstarTstarHists(ctx, "STreweighted_2"));
 
@@ -196,6 +211,16 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   h_RecoPlots_GEN_onlyttbar_ttag.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN_onlyttbar_ttag"));
   h_RecoPlots_GEN_onlyttbar_nottag.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN_onlyttbar_nottag"));
 
+  h_RecoPlots_Full_AK4.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_Full_AK4"));
+  h_RecoPlots_ttag_AK4.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_ttag_AK4"));
+  h_RecoPlots_nottag_AK4.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_nottag_AK4"));
+  h_RecoPlots_lowchi2_AK4.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_lowchi2_AK4"));
+  h_RecoPlots_highchi2_AK4.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_highchi2_AK4"));
+  h_RecoPlots_GEN_AK4.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN_AK4"));
+  h_RecoPlots_GEN_onlyttbar_AK4.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN_onlyttbar_AK4"));
+  h_RecoPlots_GEN_onlyttbar_ttag_AK4.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN_onlyttbar_ttag_AK4"));
+  h_RecoPlots_GEN_onlyttbar_nottag_AK4.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN_onlyttbar_nottag_AK4"));
+
   h_GEN_Hists_pre.reset(new TstarTstarGenHists(ctx, "GEN_Hists_beforeReco"));
   h_GEN_Hists.reset(new TstarTstarGenHists(ctx, "GEN_Hists_AfterReco"));
 
@@ -212,7 +237,9 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   h_tstartstar_hyp = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_Hyp");
 
   TstarTstarHypCreator.reset(new TstarTstar_tgtg_TopTag_Reconstruction(ctx, NeutrinoReconstruction, topjetID));
+  TstarTstarHypCreatorAK4.reset(new TstarTstar_tgtg_AK4_Reconstruction(ctx, NeutrinoReconstruction, topjetID));
   TstarTstarHypSelector.reset(new TstarTstar_Discrimination(ctx));
+  TstarTstarHypSelectorAK4.reset(new TstarTstar_Discrimination(ctx));
 
   // 5. Handles for DNN
   if(outputDNNvalues){
@@ -337,6 +364,8 @@ bool TstarTstarMCStudyModule::process(Event & event) {
     else h_afterPrimlep_ele_highpt->fill(event);
   }
 
+
+  // ########### with gluons as HOTVR jets #############
   // fat jet selection
   bool pass_fat_njet = (event.topjets->size()>2);
 
@@ -345,6 +374,7 @@ bool TstarTstarMCStudyModule::process(Event & event) {
     h_passFatJetSel->fill(event);
     TstarHypsCreated = TstarTstarHypCreator->process(event);
   }
+  if(debug){cout << "Starting to find best TstarTstar Hypothesis" << endl;}
   if(TstarHypsCreated){
     h_afterHypCreation->fill(event);
     bestHypFound = TstarTstarHypSelector->process(event);
@@ -374,6 +404,41 @@ bool TstarTstarMCStudyModule::process(Event & event) {
     h_notReconstructible->fill(event);
     if(pass_ttag) h_notReconstructible_ttag->fill(event);
     else h_notReconstructible_nottag->fill(event);
+  }
+
+  // ########### with gluons as AK4 jets #############
+  if(debug){cout << "Starting to construct all TstarTstar Hypothesiseseses for AK4 mode" << endl;}
+  bool bestHypFoundAK4 = false;
+  bool TstarHypsCreatedAK4 = TstarTstarHypCreatorAK4->process(event);
+  if(debug){cout << "Starting to find best TstarTstar Hypothesis for AK4 mode" << endl;}
+  if(TstarHypsCreatedAK4){
+    h_afterHypCreation_AK4->fill(event);
+    bestHypFoundAK4 = TstarTstarHypSelector->process(event);
+    if(bestHypFoundAK4){
+      h_RecoPlots_Full_AK4->fill(event);
+      h_afterReco_Full_AK4->fill(event);
+      if(pass_ttag){
+         h_RecoPlots_ttag_AK4->fill(event);
+         h_afterReco_ttag_AK4->fill(event);
+      }
+      else{
+         h_RecoPlots_nottag_AK4->fill(event);
+         h_afterReco_nottag_AK4->fill(event);
+      }
+      if(event.get(h_tstartstar_hyp).chi2()<50){
+        h_RecoPlots_lowchi2_AK4->fill(event);
+        h_lowchi2_AK4->fill(event);
+      }
+      else {
+        h_RecoPlots_highchi2_AK4->fill(event);
+        h_highchi2_AK4->fill(event);
+      }
+    }
+  }
+  if(!TstarHypsCreated || !bestHypFound){
+    h_notReconstructible_AK4->fill(event);
+    if(pass_ttag) h_notReconstructible_ttag_AK4->fill(event);
+    else h_notReconstructible_nottag_AK4->fill(event);
   }
 
   // ####################
