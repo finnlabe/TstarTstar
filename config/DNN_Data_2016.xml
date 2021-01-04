@@ -2,8 +2,8 @@
 <!DOCTYPE JobConfiguration PUBLIC "" "JobConfig.dtd" [
 
 
-<!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/DNN/2016/">
-<!ENTITY INPUTdir  "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Analysis/2016/">
+<!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/2016/">
+<!ENTITY INPUTdir  "/nfs/dust/cms/user/flabe/TstarTstar/data/Analysis/2016/">
 ]>
 
 <!--

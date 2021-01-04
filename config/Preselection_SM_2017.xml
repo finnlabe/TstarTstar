@@ -19,7 +19,7 @@
 <!ENTITY MC_WWToLNuQQ                                              SYSTEM  "../../common/datasets/RunII_102X_v1/2017/WWToLNuQQ_NNPDF31_TuneCP5_13TeV-powheg-pythia8.xml">
 <!ENTITY MC_WZToLNu2Q                                              SYSTEM  "../../common/datasets/RunII_102X_v1/2017/WZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8.xml">
 
-<!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/2017/">
+<!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/TstarTstar/data/Preselection/2017/">
 ]>
 
 <!--

@@ -4,8 +4,8 @@
 
 <!ENTITY b_Cacheable "False">
 <!ENTITY NEVT "-1">
-<!ENTITY INPUTdir  "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/2016/">
-<!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/2016/">
+<!ENTITY INPUTdir  "/nfs/dust/cms/user/flabe/TstarTstar/data/Preselection/2016/">
+<!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/2016/">
 
 <!ENTITY DYJetsToLL_M-50_HT-70to100_2016v3   "&INPUTdir;/uhh2.AnalysisModuleRunner.MC.DYJetsToLL_M-50_HT-70to100_2016v3.root">
 <!ENTITY DYJetsToLL_M-50_HT-100to200_2016v3   "&INPUTdir;/uhh2.AnalysisModuleRunner.MC.DYJetsToLL_M-50_HT-100to200_2016v3.root">

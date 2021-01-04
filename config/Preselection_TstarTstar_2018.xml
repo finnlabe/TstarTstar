@@ -4,7 +4,7 @@
 <!ENTITY b_Cacheable     "False">
 <!ENTITY NEVT            "-1">
 
-<!ENTITY OUTPUTdir           "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/2018/">
+<!ENTITY OUTPUTdir           "/nfs/dust/cms/user/flabe/TstarTstar/data/Preselection/2018/">
 
 <!ENTITY TstarTstarToTgluonTgluon_M-700_Run2018   SYSTEM  "/nfs/dust/cms/user/flabe/NtupleGeneration/CMSSW_10_2_16/src/UHH2/scripts/crab/XML/TstarTstarToTgluonTgluon_M-700_TuneCP5_13TeV-madgraph-pythia8_Autumn18_v2.xml">
 <!ENTITY TstarTstarToTgluonTgluon_M-800_Run2018   SYSTEM  "/nfs/dust/cms/user/flabe/NtupleGeneration/CMSSW_10_2_16/src/UHH2/scripts/crab/XML/TstarTstarToTgluonTgluon_M-800_TuneCP5_13TeV-madgraph-pythia8_Autumn18_v1.xml">

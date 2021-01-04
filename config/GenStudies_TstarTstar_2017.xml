@@ -4,7 +4,7 @@
 <!ENTITY b_Cacheable     "False">
 <!ENTITY NEVT            "-1">
 
-<!ENTITY OUTPUTdir           "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/GenInfo/2017/">
+<!ENTITY OUTPUTdir           "/nfs/dust/cms/user/flabe/TstarTstar/data/GenInfo/2017/">
 
 <!ENTITY TstarTstarToTgluonTgluon_M-700_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-700_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
 <!ENTITY TstarTstarToTgluonTgluon_M-800_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-800_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
