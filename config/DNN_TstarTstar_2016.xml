@@ -121,7 +121,7 @@
 	    <Item Name="GenTopJetCollection"     Value="hotvrGen"/>
 	    <Item Name="METName"                 Value="slimmedMETsPuppi"/>
 	    <Item Name="genMETName"              Value="slimmedMETs_GenMET"/>
-	    <Item Name="lumi_file" Value="/nfs/dust/cms/user/flabe/CMSSW/CMSSW_10_2_10/src/UHH2/common/data/2016/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root"/>
+	    <Item Name="lumi_file" Value="common/data/2016/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root"/>
 	    <Item Name="lumihists_lumi_per_bin" Value="500.0"/>
 
       <Item Name="additionalBranches" Value="is_muevt evt_weight ST_weight ST_weight_flat DNN_Inputs" />
