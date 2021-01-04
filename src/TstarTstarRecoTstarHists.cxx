@@ -20,8 +20,12 @@ TstarTstarRecoTstarHists::TstarTstarRecoTstarHists(Context & ctx, const string &
 
   // ###### Handles ######
   h_tstartstar_hyp = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_Hyp");
+  h_tstartstar_hyp_vector = ctx.get_handle<std::vector<ReconstructionTstarHypothesis>>("TstarTstar_Hyp_Vector");
 
   // ###### Histograms ######
+
+  book<TH1F>("N_hyps","N_{hypotheses}", 25, 0, 50);
+  book<TH1F>("N_hyps_2","N_{hypotheses}", 25, 0, 250);
 
   // #### M_Tstar
   book<TH1F>("M_Tstar", "m_{T*} [GeV]", 30, 0, 3000);
@@ -93,12 +97,16 @@ void TstarTstarRecoTstarHists::fill(const Event & event){
   double weight = event.weight;
 
   // ###### Handles ######
+  std::vector<ReconstructionTstarHypothesis> hyps = event.get(h_tstartstar_hyp_vector);
   ReconstructionHypothesis hyp = event.get(h_tstartstar_hyp).ttbar_hyp();
   ReconstructionTstarHypothesis tstar_hyp_best = event.get(h_tstartstar_hyp);
 
   if(debug){cout << "Starting filling histograms..." << endl;}
 
   // ###### Histgram Filling ######
+
+  hist("N_hyps")->Fill(hyps.size(), weight);
+  hist("N_hyps_2")->Fill(hyps.size(), weight);
 
   // #### M_Tstar
   // tgtg

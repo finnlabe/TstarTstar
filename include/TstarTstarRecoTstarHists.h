@@ -27,6 +27,7 @@ namespace uhh2{
   private:
     
     uhh2::Event::Handle<ReconstructionTstarHypothesis> h_tstartstar_hyp;
+    uhh2::Event::Handle<std::vector<ReconstructionTstarHypothesis>> h_tstartstar_hyp_vector;
     
     bool is_tgtg;
     bool is_tgtgamma;

@@ -191,13 +191,13 @@ bool TstarTstarDNNModule::process(Event & event) {
     else h_notDNNcut_03->fill(event);
     if(event.get(h_DNN_output) > 0.4) h_AfterDNNcut_04->fill(event);
     else h_notDNNcut_04->fill(event);
-    if(event.get(h_DNN_output) > 0.5) h_AfterDNNcut_04->fill(event);
+    if(event.get(h_DNN_output) > 0.5) h_AfterDNNcut_05->fill(event);
     else h_notDNNcut_05->fill(event);
-    if(event.get(h_DNN_output) > 0.6) h_AfterDNNcut_05->fill(event);
+    if(event.get(h_DNN_output) > 0.6) h_AfterDNNcut_06->fill(event);
     else h_notDNNcut_06->fill(event);
-    if(event.get(h_DNN_output) > 0.7) h_AfterDNNcut_06->fill(event);
+    if(event.get(h_DNN_output) > 0.7) h_AfterDNNcut_07->fill(event);
     else h_notDNNcut_07->fill(event);
-    if(event.get(h_DNN_output) > 0.8) h_AfterDNNcut_07->fill(event);
+    if(event.get(h_DNN_output) > 0.8) h_AfterDNNcut_08->fill(event);
     else h_notDNNcut_08->fill(event);
   }
 

@@ -35,7 +35,7 @@ TstarTstarGenHists::TstarTstarGenHists(Context & ctx, const string & dirname): H
   book<TH1F>("dR_top_gluon", "dR_top_gluon", 24, 0, 6);
 
   book<TH1F>("gluon_Efrac_AK4", "gluon_Efrac_AK4", 20, 0, 2);
-  book<TH1F>("gluon_Efrac_AK8", "gluon_Efrac_AK8", 20, 0, 2);
+  book<TH1F>("gluon_Efrac_HOTVR", "gluon_Efrac_HOTVR", 20, 0, 2);
 
   book<TH1F>("dR_hadtop_jet1", "dR_{t_{had} jet 1}", 30, 0, 3);
   book<TH1F>("dR_hadtop_jet2", "dR_{t_{had} jet 2}", 30, 0, 3);
@@ -48,7 +48,8 @@ TstarTstarGenHists::TstarTstarGenHists(Context & ctx, const string & dirname): H
   book<TH1F>("M_tstartstar_gen", "M_{TstarTstar} gen", 200, 0, 10000);
   book<TH1F>("M_ttbar_gen", "M_{ttbar} gen", 100, 0, 5000);
   book<TH1F>("M_top_gen", "M_{top} gen", 50, 0, 500);
-  book<TH1F>("Pt_top_gen", "p^{t}_{T}", 100, 0, 3000);
+  book<TH1F>("Pt_top_gen", "p^{t}_{T} [GeV/c]", 50, 0, 2500);
+  book<TH1F>("Pt_top_gen_oldbins", "p^{t}_{T} [GeV/c]", 100, 0, 2500);
   book<TH1F>("dR_tstartstar_gen", "dR(Tstar,Tstar)", 30, 0, 6);
   book<TH1F>("dR_ttbar_gen", "dR(top,top)", 30, 0, 6);
 
@@ -183,8 +184,10 @@ void TstarTstarGenHists::fill(const Event & event){
   }
   float m_ttbar = inv_mass(top.v4() + antitop.v4());
   hist("M_ttbar_gen")->Fill(m_ttbar, weight);
-  hist("Pt_top_gen")->Fill(top.pt(), weight);
-  hist("Pt_top_gen")->Fill(antitop.pt(), weight);
+  hist("Pt_top_gen")->Fill(top.pt(), weight/2);
+  hist("Pt_top_gen")->Fill(antitop.pt(), weight/2);
+  hist("Pt_top_gen_oldbins")->Fill(top.pt(), weight/2);
+  hist("Pt_top_gen_oldbins")->Fill(antitop.pt(), weight/2);
   hist("M_top_gen")->Fill(inv_mass(top.v4()), weight);
   hist("M_top_gen")->Fill(inv_mass(antitop.v4()), weight);
 
@@ -332,9 +335,9 @@ void TstarTstarGenHists::fill(const Event & event){
     for(const auto & jet : *event.jets){
       double dR = deltaR(gluon, jet);
       if(dR < 0.4 && dR < bestmatchAK4){
-	matchedAK4 = true;
-	bestmatchAK4 = dR;
-	matchedAK4jet = jet;
+      	matchedAK4 = true;
+      	bestmatchAK4 = dR;
+      	matchedAK4jet = jet;
       }
     } // found (best) matched AK4 jet
 
@@ -342,18 +345,21 @@ void TstarTstarGenHists::fill(const Event & event){
     double bestmatchAK8 = 999;
     Jet matchedAK8jet;
     for(const auto & jet : *event.topjets){
+      double R_jet = (jet.pt() > 0) ? 600/(jet.pt()) : 1.5;
+      if(R_jet > 1.5) R_jet = 1.5;
+      if(R_jet < 0.1) R_jet = 0.1;
       double dR = deltaR(gluon, jet);
-      if(dR < 0.8 && dR < bestmatchAK8){
-	matchedAK8 = true;
-	bestmatchAK8 = dR;
-	matchedAK8jet = jet;
+      if(dR < R_jet && dR < bestmatchAK8){
+      	matchedAK8 = true;
+      	bestmatchAK8 = dR;
+      	matchedAK8jet = jet;
       }
     } // found (best) matched AK4 jet
 
     double gluon_E = gluon.energy();
     if(matchedAK4 && matchedAK8){
       hist("gluon_Efrac_AK4")->Fill(matchedAK4jet.energy()/gluon_E, weight);
-      hist("gluon_Efrac_AK8")->Fill(matchedAK8jet.energy()/gluon_E, weight);
+      hist("gluon_Efrac_HOTVR")->Fill(matchedAK8jet.energy()/gluon_E, weight);
     }
 
     hist("dR_gluon_jets")->Fill(deltaR(matchedAK4jet, matchedAK8jet), weight);

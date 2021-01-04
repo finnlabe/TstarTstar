@@ -8,6 +8,7 @@
 #include "UHH2/core/include/AnalysisModule.h"
 #include "UHH2/core/include/Event.h"
 #include "UHH2/common/include/CommonModules.h"
+#include "UHH2/common/include/LuminosityHists.h"
 #include "UHH2/common/include/CleaningModules.h"
 #include "UHH2/common/include/ElectronHists.h"
 #include "UHH2/common/include/NSelections.h"
@@ -77,6 +78,11 @@ private:
 
   std::unique_ptr<Hists> h_top_gluon_checks, h_top_gluon_checks_reweighted, h_top_gluon_checks_reweighted_2;
   std::unique_ptr<TstarTstarDNNHists> h_DNN_Hists, h_DNN_Hists_reweighted, h_DNN_Hists_reweighted_2, h_DNN_Hists_AfterDNNCut, h_DNN_Hists_lowpt, h_DNN_Hists_medpt, h_DNN_Hists_highpt;
+
+  std::unique_ptr<LuminosityHists> lumihist_ele_lowpt;
+  std::unique_ptr<LuminosityHists> lumihist_ele_highpt;
+  std::unique_ptr<LuminosityHists> lumihist_mu_lowpt;
+  std::unique_ptr<LuminosityHists> lumihist_mu_highpt;
 
   // Bools for Debugging/Options
   bool debug = false;
@@ -241,6 +247,11 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   TstarTstarHypSelector.reset(new TstarTstar_Discrimination(ctx));
   TstarTstarHypSelectorAK4.reset(new TstarTstar_Discrimination(ctx));
 
+  lumihist_ele_lowpt.reset(new LuminosityHists(ctx, "lumihists_ele_lowpt"));
+  lumihist_ele_highpt.reset(new LuminosityHists(ctx, "lumihists_ele_highpt"));
+  lumihist_mu_lowpt.reset(new LuminosityHists(ctx, "lumihists_mu_lowpt"));
+  lumihist_mu_highpt.reset(new LuminosityHists(ctx, "lumihists_mu_highpt"));
+
   // 5. Handles for DNN
   if(outputDNNvalues){
     DNN_InputWriter.reset(new NeuralNetworkInputWriter(ctx));
@@ -273,6 +284,19 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   // reapply weights
   event.weight = event.get(h_evt_weight);
   if(debug) cout << "weights applied." << endl;
+
+  // check lepton channel
+  const bool muon_evt = (event.muons->size() == 1);
+  event.set(h_flag_muonevent, int(muon_evt));
+
+  if(muon_evt){
+    if(event.muons->at(0).pt() > 60) lumihist_mu_highpt->fill(event);
+    else lumihist_mu_lowpt->fill(event);
+  }
+  else {
+    if(event.electrons->at(0).pt() > 120) lumihist_ele_highpt->fill(event);
+    else lumihist_ele_lowpt->fill(event);
+  }
 
   h_top_gluon_checks->fill(event);
   // ST reweighting
@@ -320,14 +344,12 @@ bool TstarTstarMCStudyModule::process(Event & event) {
     h_top_gluon_checks_reweighted->fill(event);
     h_ST_reweighted_2->fill(event);
     h_top_gluon_checks_reweighted_2->fill(event);
+    event.weight = event.get(h_evt_weight);
   }
 
   if(is_MC) ttgenprod->process(event);
 
-  // check lepton channel
-  const bool muon_evt = (event.muons->size() == 1);
-  event.set(h_flag_muonevent, int(muon_evt));
-
+  event.weight = event.get(h_evt_weight);
   h_beforeReco->fill(event);
   h_GEN_Hists_pre->fill(event);
 
@@ -445,7 +467,7 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   // ####################
   // ####################
 
-  if(is_MC && TstarHypsCreated && false){
+  if(is_MC && TstarHypsCreated){
     if(debug){ cout << "Doing GEN matching check" << endl;}
     // ##### GEN Matching
     {
@@ -499,6 +521,9 @@ bool TstarTstarMCStudyModule::process(Event & event) {
       h_DNN_Inputs_reweighted_2->fill(event);
       event.weight = event.get(h_evt_weight);
     }
+
+    // safety
+    event.weight = event.get(h_evt_weight);
 
     if(debug){cout << "Done ##################################" << endl;}
     return true;

@@ -45,8 +45,8 @@ void cutflowPlot(TString suffix = ""){
   TString histname = "N_jets";
 
   // Defining Steps
-  std::vector<TString> preselSteps = {"AfterCommon", "AfterLepSel", "AfterAK8jets", "AfterMET"};
-  std::vector<TString> selSteps = {"AfterBtag", "After2D", "AfterdR", "AfterTrigger"};
+  std::vector<TString> preselSteps = {"AfterTrigger", "AfterLepSel", "AfterAK8jets", "AfterMET"};
+  std::vector<TString> selSteps = {"AfterBtag", "After2D", "AfterdR"};
   std::vector<TString> recoSteps = {};
   int stepcount = preselSteps.size() + selSteps.size() + recoSteps.size();
 
@@ -73,7 +73,7 @@ void cutflowPlot(TString suffix = ""){
   std::vector<int> colors_Signal = {632, 820, 432};
   std::vector<int> colors_BG = {810, 800, 600, 416};
   //std::vector<TString> labels = {"No cuts", "N lepton","N HOTVR jet = 1", "MET", "Trigger", "2D", "N HOTVR jet = 3", "non-overlap AK4"};
-  std::vector<TString> labels = {"Initial", "N_{lep}","N_{jet}", "MET","b-tag", "2D","dR", "Trigger", "should not be visible"};
+  std::vector<TString> labels = {"Trigger", "N_{lep}","N_{jet}", "MET","b-tag", "2D","dR", "should not be visible"};
 
   // ########################
   // ## Finish Definitions ##

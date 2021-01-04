@@ -48,18 +48,18 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   book<TH1F>("HADcharged_jet1", "HADcharged_jet1", 100,0.0,1.0);
   book<TH1F>("HADneutral_jet1", "HADneutral_jet1", 100,0.0,1.0);
 
-  book<TH1F>("eta_ak8jet1", "#eta^{ak8jet 1}", 50, -5.2, 5.2);
-  book<TH1F>("pt_ak8jet1", "p_{T}^{ak8jet 1}", 100, 10, 2000);
-  book<TH1F>("eta_ak8jet2", "#eta^{ak8jet 2}", 50, -5.2, 5.2);
-  book<TH1F>("pt_ak8jet2", "p_{T}^{ak8jet 2}", 100, 10, 2000);
-  book<TH1F>("eta_ak8jet3", "#eta^{ak8jet 3}", 50, -5.2, 5.2);
-  book<TH1F>("pt_ak8jet3", "p_{T}^{ak8jet 3}", 100, 10, 2000);
+  book<TH1F>("eta_HOTVR1", "#eta^{HOTVR 1}", 50, -5.2, 5.2);
+  book<TH1F>("pt_HOTVR1", "p_{T}^{HOTVR 1}", 100, 10, 2000);
+  book<TH1F>("eta_HOTVR2", "#eta^{HOTVR 2}", 50, -5.2, 5.2);
+  book<TH1F>("pt_HOTVR2", "p_{T}^{HOTVR 2}", 100, 10, 2000);
+  book<TH1F>("eta_HOTVR3", "#eta^{HOTVR 3}", 50, -5.2, 5.2);
+  book<TH1F>("pt_HOTVR3", "p_{T}^{HOTVR 3}", 100, 10, 2000);
   book<TH1F>("R_fat_jet", "R_{fat jet} (only valid for HOTVR)", 30, 0, 6);
 
   book<TH2D>("pt_mu_pt_ak4jet1", ";p_{T}^{#mu}; p_{T}^{AK4 jet 1}", 60, 10, 1100, 70, 10, 2500);
   book<TH2D>("pt_ele_pt_ak4jet1", ";p_{T}^{ele}; p_{T}^{AK4 jet 1}", 60, 10, 1100, 70, 10, 2500);
-  book<TH2D>("pt_mu_pt_ak8jet1", ";p_{T}^{#mu}; p_{T}^{AK8 jet 1}", 60, 10, 1100, 70, 10, 2500);
-  book<TH2D>("pt_ele_pt_ak8jet1", ";p_{T}^{ele}; p_{T}^{AK8 jet 1}", 60, 10, 1100, 70, 10, 2500);
+  book<TH2D>("pt_mu_pt_HOTVR1", ";p_{T}^{#mu}; p_{T}^{AK8 jet 1}", 60, 10, 1100, 70, 10, 2500);
+  book<TH2D>("pt_ele_pt_HOTVR1", ";p_{T}^{ele}; p_{T}^{AK8 jet 1}", 60, 10, 1100, 70, 10, 2500);
 
   // book<TH2D>("EMcharged_vs_eta_jet1","EMcharged vs #eta; #eta; EMcharged",100,-6,6,100,0.0,1.0);
   // book<TH2D>("EMneutral_vs_eta_jet1","EMneutral vs #eta; #eta; EMneutral",100,-6,6,100,0.0,1.0);
@@ -74,12 +74,12 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   // leptons
   book<TH1F>("N_mu", "N^{#mu}", 10, 0, 10);
   book<TH1F>("pt_mu", "p_{T}^{#mu} [GeV/c]", 50, 0, 1000);
-  book<TH1F>("eta_mu", "#eta^{#mu}", 50, -2.5, 2.5);
+  book<TH1F>("eta_mu", "#eta^{#mu}", 50, -5.2, 5.2);
   book<TH1F>("reliso_mu", "#mu rel. Iso", 40, 0, 0.5);
 
   book<TH1F>("N_ele", "N^{e}", 10, 0, 10);
   book<TH1F>("pt_ele", "p_{T}^{ele} [GeV/c]", 50, 0, 1000);
-  book<TH1F>("eta_ele", "#eta^{ele}", 50, -2.5, 2.5);
+  book<TH1F>("eta_ele", "#eta^{ele}", 50, -5.2, 5.2);
 
   book<TH1F>("N_photon", "N^{#gamma}", 10, 0, 10);
   book<TH1F>("pt_photon", "p_{T}^{#gamma} [GeV/c]", 50, 10, 2000);
@@ -232,23 +232,23 @@ void TstarTstarHists::fill(const Event & event){
   if(debug) cout << "Finished filling ttag observables." << endl;
 
   if(event.topjets->size()>0){
-    hist("eta_ak8jet1")->Fill(event.topjets->at(0).eta(), weight);
-    hist("pt_ak8jet1")->Fill(event.topjets->at(0).pt(), weight);
+    hist("eta_HOTVR1")->Fill(event.topjets->at(0).eta(), weight);
+    hist("pt_HOTVR1")->Fill(event.topjets->at(0).pt(), weight);
   }
   if(event.topjets->size()>1){
-    hist("eta_ak8jet2")->Fill(event.topjets->at(1).eta(), weight);
-    hist("pt_ak8jet2")->Fill(event.topjets->at(1).pt(), weight);
+    hist("eta_HOTVR2")->Fill(event.topjets->at(1).eta(), weight);
+    hist("pt_HOTVR2")->Fill(event.topjets->at(1).pt(), weight);
   }
   if(event.topjets->size()>2){
-    hist("eta_ak8jet3")->Fill(event.topjets->at(2).eta(), weight);
-    hist("pt_ak8jet3")->Fill(event.topjets->at(2).pt(), weight);
+    hist("eta_HOTVR3")->Fill(event.topjets->at(2).eta(), weight);
+    hist("pt_HOTVR3")->Fill(event.topjets->at(2).pt(), weight);
   }
   if(debug) cout << "Finished filling AK8 jet observables." << endl;
 
   if(Nele>0 && Njets>0) ((TH2D*)hist("pt_ele_pt_ak4jet1"))->Fill(event.electrons->at(0).pt(),jets->at(0).pt(), weight);
   if(Nmuons>0 && Njets>0) ((TH2D*)hist("pt_mu_pt_ak4jet1"))->Fill(event.muons->at(0).pt(),jets->at(0).pt(), weight);
-  if(Nele>0 && event.topjets->size()>0) ((TH2D*)hist("pt_ele_pt_ak8jet1"))->Fill(event.electrons->at(0).pt(),event.topjets->at(0).pt(), weight);
-  if(Nmuons>0 && event.topjets->size()>0) ((TH2D*)hist("pt_mu_pt_ak8jet1"))->Fill(event.muons->at(0).pt(),event.topjets->at(0).pt(), weight);
+  if(Nele>0 && event.topjets->size()>0) ((TH2D*)hist("pt_ele_pt_HOTVR1"))->Fill(event.electrons->at(0).pt(),event.topjets->at(0).pt(), weight);
+  if(Nmuons>0 && event.topjets->size()>0) ((TH2D*)hist("pt_mu_pt_HOTVR1"))->Fill(event.muons->at(0).pt(),event.topjets->at(0).pt(), weight);
   if(debug) cout << "Finished filling pt observables." << endl;
 
   hist("pt_MET")->Fill(event.met->pt(), weight);

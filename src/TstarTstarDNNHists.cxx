@@ -18,41 +18,41 @@ TstarTstarDNNHists::TstarTstarDNNHists(Context & ctx, const string & dirname): H
 
   // book all histograms here
   book<TH1F>("DNN_output", "DNN output", 20, 0, 1);
-  DNN_2D_ST = book<TH2D>("2D_DNN_ST", "DNN output against ST", 20, 0, 3000, 20, 0, 1);
+  DNN_2D_ST = book<TH2D>("2D_DNN_ST", "DNN output against ST", 50, 0, 3000, 50, 0, 1);
 
-  DNN_2D_1 = book<TH2D>("2D_DNN_1", "DNN output against lepton pt", 20, -1, 1, 20, 0, 1);
-  DNN_2D_2 = book<TH2D>("2D_DNN_2", "DNN output against lepton eta", 20, -1, 1, 20, 0, 1);
-  DNN_2D_3 = book<TH2D>("2D_DNN_3", "DNN output against lepton phi", 20, -1, 1, 20, 0, 1);
-  DNN_2D_4 = book<TH2D>("2D_DNN_4", "DNN output against lepton relIso", 20, -1, 1, 20, 0, 1);
-  DNN_2D_5 = book<TH2D>("2D_DNN_5", "DNN output against HOTVR-1 pt", 20, -1, 1, 20, 0, 1);
-  DNN_2D_6 = book<TH2D>("2D_DNN_6", "DNN output against HOTVR-1 eta", 20, -1, 1, 20, 0, 1);
-  DNN_2D_7 = book<TH2D>("2D_DNN_7", "DNN output against HOTVR-1 phi", 20, -1, 1, 20, 0, 1);
-  DNN_2D_8 = book<TH2D>("2D_DNN_8", "DNN output against HOTVR-1 tau1", 20, -1, 1, 20, 0, 1);
-  DNN_2D_9 = book<TH2D>("2D_DNN_9", "DNN output against HOTVR-1 tau2", 20, -1, 1, 20, 0, 1);
-  DNN_2D_10 = book<TH2D>("2D_DNN_10", "DNN output against HOTVR-1 tau3", 20, -1, 1, 20, 0, 1);
-  DNN_2D_11 = book<TH2D>("2D_DNN_11", "DNN output against HOTVR-1 subjets", 20, -1, 1, 20, 0, 1);
-  DNN_2D_12 = book<TH2D>("2D_DNN_12", "DNN output against HOTVR-1 max sub btag", 20, -1, 1, 20, 0, 1);
-  DNN_2D_13 = book<TH2D>("2D_DNN_13", "DNN output against HOTVR-2 pt", 20, -1, 1, 20, 0, 1);
-  DNN_2D_14 = book<TH2D>("2D_DNN_14", "DNN output against HOTVR-2 eta", 20, -1, 1, 20, 0, 1);
-  DNN_2D_15 = book<TH2D>("2D_DNN_15", "DNN output against HOTVR-2 phi", 20, -1, 1, 20, 0, 1);
-  DNN_2D_16 = book<TH2D>("2D_DNN_16", "DNN output against HOTVR-2 tau1", 20, -1, 1, 20, 0, 1);
-  DNN_2D_17 = book<TH2D>("2D_DNN_17", "DNN output against HOTVR-2 tau2", 20, -1, 1, 20, 0, 1);
-  DNN_2D_18 = book<TH2D>("2D_DNN_18", "DNN output against HOTVR-2 tau3", 20, -1, 1, 20, 0, 1);
-  DNN_2D_19 = book<TH2D>("2D_DNN_19", "DNN output against HOTVR-2 subjets", 20, -1, 1, 20, 0, 1);
-  DNN_2D_20 = book<TH2D>("2D_DNN_20", "DNN output against HOTVR-2 max sub btag", 20, -1, 1, 20, 0, 1);
-  DNN_2D_21 = book<TH2D>("2D_DNN_21", "DNN output against HOTVR-3 pt", 20, -1, 1, 20, 0, 1);
-  DNN_2D_22 = book<TH2D>("2D_DNN_22", "DNN output against HOTVR-3 eta", 20, -1, 1, 20, 0, 1);
-  DNN_2D_23 = book<TH2D>("2D_DNN_23", "DNN output against HOTVR-3 phi", 20, -1, 1, 20, 0, 1);
-  DNN_2D_24 = book<TH2D>("2D_DNN_24", "DNN output against HOTVR-3 tau1", 20, -1, 1, 20, 0, 1);
-  DNN_2D_25 = book<TH2D>("2D_DNN_25", "DNN output against HOTVR-3 tau2", 20, -1, 1, 20, 0, 1);
-  DNN_2D_26 = book<TH2D>("2D_DNN_26", "DNN output against HOTVR-3 tau3", 20, -1, 1, 20, 0, 1);
-  DNN_2D_27 = book<TH2D>("2D_DNN_27", "DNN output against HOTVR-3 subjets", 20, -1, 1, 20, 0, 1);
-  DNN_2D_28 = book<TH2D>("2D_DNN_28", "DNN output against HOTVR-3 max sub btag", 20, -1, 1, 20, 0, 1);
-  DNN_2D_29 = book<TH2D>("2D_DNN_29", "DNN output against neutrino pt", 20, -1, 1, 20, 0, 1);
-  DNN_2D_30 = book<TH2D>("2D_DNN_30", "DNN output against neutrino eta", 20, -1, 1, 20, 0, 1);
-  DNN_2D_31 = book<TH2D>("2D_DNN_31", "DNN output against neutrino phi", 20, -1, 1, 20, 0, 1);
-  DNN_2D_32 = book<TH2D>("2D_DNN_32", "DNN output against N AK4", 20, -1, 1, 20, 0, 1);
-  DNN_2D_33 = book<TH2D>("2D_DNN_33", "DNN output against N HOTVR", 20, -1, 1, 20, 0, 1);
+  DNN_2D_1 = book<TH2D>("2D_DNN_1", "DNN output against lepton pt", 50, -1, 1, 50, 0, 1);
+  DNN_2D_2 = book<TH2D>("2D_DNN_2", "DNN output against lepton eta", 50, -1, 1, 50, 0, 1);
+  DNN_2D_3 = book<TH2D>("2D_DNN_3", "DNN output against lepton phi", 50, -1, 1, 50, 0, 1);
+  DNN_2D_4 = book<TH2D>("2D_DNN_4", "DNN output against lepton relIso", 50, -1, 1, 50, 0, 1);
+  DNN_2D_5 = book<TH2D>("2D_DNN_5", "DNN output against HOTVR-1 pt", 50, -1, 1, 50, 0, 1);
+  DNN_2D_6 = book<TH2D>("2D_DNN_6", "DNN output against HOTVR-1 eta", 50, -1, 1, 50, 0, 1);
+  DNN_2D_7 = book<TH2D>("2D_DNN_7", "DNN output against HOTVR-1 phi", 50, -1, 1, 50, 0, 1);
+  DNN_2D_8 = book<TH2D>("2D_DNN_8", "DNN output against HOTVR-1 tau1", 50, -1, 1, 50, 0, 1);
+  DNN_2D_9 = book<TH2D>("2D_DNN_9", "DNN output against HOTVR-1 tau2", 50, -1, 1, 50, 0, 1);
+  DNN_2D_10 = book<TH2D>("2D_DNN_10", "DNN output against HOTVR-1 tau3", 50, -1, 1, 50, 0, 1);
+  DNN_2D_11 = book<TH2D>("2D_DNN_11", "DNN output against HOTVR-1 subjets", 50, -1, 1, 50, 0, 1);
+  DNN_2D_12 = book<TH2D>("2D_DNN_12", "DNN output against HOTVR-1 max sub btag", 50, -1, 1, 50, 0, 1);
+  DNN_2D_13 = book<TH2D>("2D_DNN_13", "DNN output against HOTVR-2 pt", 50, -1, 1, 50, 0, 1);
+  DNN_2D_14 = book<TH2D>("2D_DNN_14", "DNN output against HOTVR-2 eta", 50, -1, 1, 50, 0, 1);
+  DNN_2D_15 = book<TH2D>("2D_DNN_15", "DNN output against HOTVR-2 phi", 50, -1, 1, 50, 0, 1);
+  DNN_2D_16 = book<TH2D>("2D_DNN_16", "DNN output against HOTVR-2 tau1", 50, -1, 1, 50, 0, 1);
+  DNN_2D_17 = book<TH2D>("2D_DNN_17", "DNN output against HOTVR-2 tau2", 50, -1, 1, 50, 0, 1);
+  DNN_2D_18 = book<TH2D>("2D_DNN_18", "DNN output against HOTVR-2 tau3", 50, -1, 1, 50, 0, 1);
+  DNN_2D_19 = book<TH2D>("2D_DNN_19", "DNN output against HOTVR-2 subjets", 50, -1, 1, 50, 0, 1);
+  DNN_2D_20 = book<TH2D>("2D_DNN_20", "DNN output against HOTVR-2 max sub btag", 50, -1, 1, 50, 0, 1);
+  DNN_2D_21 = book<TH2D>("2D_DNN_21", "DNN output against HOTVR-3 pt", 50, -1, 1, 50, 0, 1);
+  DNN_2D_22 = book<TH2D>("2D_DNN_22", "DNN output against HOTVR-3 eta", 50, -1, 1, 50, 0, 1);
+  DNN_2D_23 = book<TH2D>("2D_DNN_23", "DNN output against HOTVR-3 phi", 50, -1, 1, 50, 0, 1);
+  DNN_2D_24 = book<TH2D>("2D_DNN_24", "DNN output against HOTVR-3 tau1", 50, -1, 1, 50, 0, 1);
+  DNN_2D_25 = book<TH2D>("2D_DNN_25", "DNN output against HOTVR-3 tau2", 50, -1, 1, 50, 0, 1);
+  DNN_2D_26 = book<TH2D>("2D_DNN_26", "DNN output against HOTVR-3 tau3", 50, -1, 1, 50, 0, 1);
+  DNN_2D_27 = book<TH2D>("2D_DNN_27", "DNN output against HOTVR-3 subjets", 50, -1, 1, 50, 0, 1);
+  DNN_2D_28 = book<TH2D>("2D_DNN_28", "DNN output against HOTVR-3 max sub btag", 50, -1, 1, 50, 0, 1);
+  DNN_2D_29 = book<TH2D>("2D_DNN_29", "DNN output against neutrino pt", 50, -1, 1, 50, 0, 1);
+  DNN_2D_30 = book<TH2D>("2D_DNN_30", "DNN output against neutrino eta", 50, -1, 1, 50, 0, 1);
+  DNN_2D_31 = book<TH2D>("2D_DNN_31", "DNN output against neutrino phi", 50, -1, 1, 50, 0, 1);
+  DNN_2D_32 = book<TH2D>("2D_DNN_32", "DNN output against N AK4", 50, -1, 1, 50, 0, 1);
+  DNN_2D_33 = book<TH2D>("2D_DNN_33", "DNN output against N HOTVR", 50, -1, 1, 50, 0, 1);
 
 }
 

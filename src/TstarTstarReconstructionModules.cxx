@@ -20,20 +20,20 @@ namespace {
 
     ReconstructionHypothesis ttbar_hyp = hyp.ttbar_hyp();
 
-    double mtophad_ = 158.3;
-    double sigmatophad_ = 23.95;
+    double mtophad_ = 170.5;
+    double sigmatophad_ = 28.02;
     double chi2_top_had;
     if(is_HOTVR) chi2_top_had = pow((inv_mass(ttbar_hyp.tophad_v4()) - (mtophad_))/(sigmatophad_) ,2);
     else chi2_top_had = pow((ttbar_hyp.tophad_topjet_ptr()->softdropmass() - (mtophad_))/(sigmatophad_) ,2);
     chi2 += chi2_top_had;
 
-    double mtoplep_ = 171.6;
-    double sigmatoplep_ = 25.68;
+    double mtoplep_ = 173.8;
+    double sigmatoplep_ = 25.56;
     double chi2_top_lep = pow((inv_mass(ttbar_hyp.toplep_v4()) - (mtoplep_))/(sigmatoplep_) ,2);
     chi2 += chi2_top_lep;
 
-    double sigma_deltaM_Tstar = 0.136;
-    double mean_deltaM_Tstar = 0.2681;
+    double sigma_deltaM_Tstar = 0.1749;
+    double mean_deltaM_Tstar = 0.3513;
     double deltaM_norm = (inv_mass(hyp.tstarlep_v4()) - inv_mass(hyp.tstarhad_v4()))*2/(inv_mass(hyp.tstarlep_v4()) + inv_mass(hyp.tstarhad_v4()));
     double chi2_deltaM_Tstar = pow( (deltaM_norm - mean_deltaM_Tstar)/(sigma_deltaM_Tstar) ,2);
     chi2 += chi2_deltaM_Tstar;
@@ -292,67 +292,67 @@ bool TstarTstar_tgtg_AK4_Reconstruction::process(uhh2::Event& event){
 
       std::vector<LorentzVector> gluonCands;
       for(uint j = 0; j < event.jets->size(); j++){
-        if (i == j) continue;
-         Jet jet = event.jets->at(j);
-         if(deltaR(tj, jet) > R_toptaggedjet+0.4) gluonCands.push_back(event.jets->at(j).v4());
-       }
-       if(gluonCands.size() < 2) continue;
+        if (k == j) continue;
+	Jet jet = event.jets->at(j);
+	if(deltaR(tj, jet) > R_toptaggedjet+0.4) gluonCands.push_back(event.jets->at(j).v4());
+      }
+      if(gluonCands.size() < 2) continue;
 
-       for(uint g1 = 0; g1 < gluonCands.size(); g1++){
-   	     for(uint g2 = 0; g2 < gluonCands.size(); g2++){
-   	       if(g1 == g2) continue;
-
-           if(debug){cout << "Finding Neutrino candidates..." << endl;}
-           for(const auto& neutrino_p4 : neutrinos){ // loop over Neutrinos
-
-             if(debug){cout << "Starting Hypothesis construction..." << endl;}
-             ReconstructionHypothesis ttbar_hyp;
-             LorentzVector toplep_v4(lepton.v4() + neutrino_p4 + bj.v4());
-             ttbar_hyp.set_lepton(lepton);
-             ttbar_hyp.set_neutrino_v4(neutrino_p4);
-             ttbar_hyp.add_toplep_jet(bj);
-             ttbar_hyp.set_blep_v4(bj.v4());
-
-             LorentzVector tophad_v4(tj.v4());
-             ttbar_hyp.add_tophad_jet(tj);
-             ttbar_hyp.set_tophad_topjet_ptr(&event.topjets->at(i));
-
-             ttbar_hyp.set_toplep_v4(toplep_v4);
-             ttbar_hyp.set_tophad_v4(tophad_v4);
-
-             LorentzVector gluon1_v4 = gluonCands.at(g1);
-             LorentzVector gluon2_v4 = gluonCands.at(g2);
-
-             ReconstructionTstarHypothesis hyp;
-
-             hyp.set_ttbar(ttbar_hyp);
-
-             LorentzVector tstarlep_v4(toplep_v4 + gluon1_v4);
-             LorentzVector tstarhad_v4(tophad_v4 + gluon2_v4);
-
-             hyp.set_tstarlep_v4(tstarlep_v4);
-             hyp.set_tstarhad_v4(tstarhad_v4);
-
-             hyp.set_tstar1gluon_v4(tstarlep_v4);
-             hyp.set_tstar2gluon_v4(tstarhad_v4);
-
-             hyp.set_gluon1_v4(gluon1_v4);
-             hyp.set_gluon2_v4(gluon2_v4);
-
-             if(debug){cout << "Writing Hypothesis..." << endl;}
-             TstarTstar_hyp_vector.push_back(hyp);
-           }
-         }
-       }
-     }
-   }
-
-   if(debug){cout << "Done, return to main" << endl;}
-   event.set(h_tstartstar_hyp_vector, TstarTstar_hyp_vector);
-
-   if(TstarTstar_hyp_vector.size() == 0){return false;}
-
-   return true;
+      for(uint g1 = 0; g1 < gluonCands.size(); g1++){
+	for(uint g2 = 0; g2 < gluonCands.size(); g2++){
+	  if(g1 == g2) continue;
+	  
+	  if(debug){cout << "Finding Neutrino candidates..." << endl;}
+	  for(const auto& neutrino_p4 : neutrinos){ // loop over Neutrinos
+	    
+	    if(debug){cout << "Starting Hypothesis construction..." << endl;}
+	    ReconstructionHypothesis ttbar_hyp;
+	    LorentzVector toplep_v4(lepton.v4() + neutrino_p4 + bj.v4());
+	    ttbar_hyp.set_lepton(lepton);
+	    ttbar_hyp.set_neutrino_v4(neutrino_p4);
+	    ttbar_hyp.add_toplep_jet(bj);
+	    ttbar_hyp.set_blep_v4(bj.v4());
+	    
+	    LorentzVector tophad_v4(tj.v4());
+	    ttbar_hyp.add_tophad_jet(tj);
+	    ttbar_hyp.set_tophad_topjet_ptr(&event.topjets->at(i));
+	    
+	    ttbar_hyp.set_toplep_v4(toplep_v4);
+	    ttbar_hyp.set_tophad_v4(tophad_v4);
+	    
+	    LorentzVector gluon1_v4 = gluonCands.at(g1);
+	    LorentzVector gluon2_v4 = gluonCands.at(g2);
+	    
+	    ReconstructionTstarHypothesis hyp;
+	    
+	    hyp.set_ttbar(ttbar_hyp);
+	    
+	    LorentzVector tstarlep_v4(toplep_v4 + gluon1_v4);
+	    LorentzVector tstarhad_v4(tophad_v4 + gluon2_v4);
+	    
+	    hyp.set_tstarlep_v4(tstarlep_v4);
+	    hyp.set_tstarhad_v4(tstarhad_v4);
+	    
+	    hyp.set_tstar1gluon_v4(tstarlep_v4);
+	    hyp.set_tstar2gluon_v4(tstarhad_v4);
+	    
+	    hyp.set_gluon1_v4(gluon1_v4);
+	    hyp.set_gluon2_v4(gluon2_v4);
+	    
+	    if(debug){cout << "Writing Hypothesis..." << endl;}
+	    TstarTstar_hyp_vector.push_back(hyp);
+	  }
+	}
+      }
+    }
+  }
+  
+  if(debug){cout << "Done, return to main" << endl;}
+  event.set(h_tstartstar_hyp_vector, TstarTstar_hyp_vector);
+  
+  if(TstarTstar_hyp_vector.size() == 0){return false;}
+  
+  return true;
 }
 
 // ######################## new stuff ends here ############

@@ -4,6 +4,7 @@
 #include "UHH2/core/include/AnalysisModule.h"
 #include "UHH2/core/include/Event.h"
 #include "UHH2/common/include/CommonModules.h"
+#include "UHH2/common/include/LuminosityHists.h"
 #include "UHH2/common/include/CleaningModules.h"
 #include "UHH2/common/include/ElectronHists.h"
 #include "UHH2/common/include/NSelections.h"
@@ -57,6 +58,15 @@ private:
   unique_ptr<ElectronCleaner> EleCleaner_highpt;
   unique_ptr<Selection> met_sel;
 
+  unique_ptr<Selection> triggerSingleJet450_sel;
+  unique_ptr<Selection> triggerSingleLeptonEle1_sel;
+  unique_ptr<Selection> triggerSingleLeptonEle2_sel;
+  unique_ptr<Selection> triggerSingleLeptonEle3_sel;
+  unique_ptr<Selection> triggerSingleLeptonMu1_sel;
+  unique_ptr<Selection> triggerSingleLeptonMu2_sel;
+  unique_ptr<Selection> triggerSingleLeptonMu3_sel;
+  unique_ptr<Selection> triggerHT1_sel, triggerHT2_sel, triggerHT3_sel, triggerHT4_sel, triggerHT5_sel,  triggerHT6_sel;
+  unique_ptr<Selection> triggerPFHT_sel;
 
   // ##### Histograms #####
   // Store the Hists collection as member variables. Again, use unique_ptr to avoid memory leaks.
@@ -68,16 +78,33 @@ private:
   std::unique_ptr<Hists> h_lepsel_mu,     h_fatjetsel_mu,     h_METsel_mu;
   std::unique_ptr<Hists> h_lepsel_mu_lowpt,     h_fatjetsel_mu_lowpt,     h_METsel_mu_lowpt;
   std::unique_ptr<Hists> h_lepsel_mu_highpt,     h_fatjetsel_mu_highpt,     h_METsel_mu_highpt;
+  std::unique_ptr<Hists> h_triggerSingleLeptonMu, h_triggerSingleLeptonEle;
+  std::unique_ptr<Hists> h_trigger;
+  std::unique_ptr<Hists> h_trigger_gen;
+  std::unique_ptr<Hists> h_trigger_ele;
+  std::unique_ptr<Hists> h_trigger_ele_lowpt;
+  std::unique_ptr<Hists> h_trigger_ele_highpt;
+  std::unique_ptr<Hists> h_trigger_mu;
+  std::unique_ptr<Hists> h_trigger_mu_lowpt;
+  std::unique_ptr<Hists> h_trigger_mu_highpt;
   std::unique_ptr<uhh2::AnalysisModule> ttgenprod;
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
   uhh2::Event::Handle<bool> h_is_muevt;
 
   uhh2::Event::Handle<double> h_evt_weight;
 
+  std::unique_ptr<LuminosityHists> lumihist_beforeSel, lumihist_afterTrigger, lumihist_afterLepSel, lumihist_afterNJets, lumihist_afterMET;
+
+
   bool debug = false;
+  bool doTriggerSel = true;
 
   // bools for channel and stuff. will be read in later
   bool is_MC;
+  bool data_isMu = false;
+  bool data_is2017B = false;
+
+  TString year;
 
 };
 
@@ -97,12 +124,24 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
 
   }
 
-  if(debug) cout << "trying..." << endl;
-  ctx.get("HOTVRTopTagSFs");
-  if(debug) cout << "done." << endl;
+  year = ctx.get("year", "<not set>");
+  if(year == "<not set>"){
+    if(ctx.get("dataset_version").find("2016") != std::string::npos) year = "2016";
+    else if(ctx.get("dataset_version").find("2017") != std::string::npos) year = "2017";
+    else if(ctx.get("dataset_version").find("2018") != std::string::npos) year = "2018";
+    else throw "No year found in dataset name!";
+  }
+  if(true) cout << "Year is " << year << "." << endl;
 
   // 0. Reading in whether MC and if so, which channel
   is_MC = ctx.get("dataset_type") == "MC";
+
+  if(!is_MC) data_isMu = (ctx.get("dataset_version").find("SingleMuon") != std::string::npos);
+  if(!is_MC) data_is2017B = (ctx.get("dataset_version").find("SingleElectron2017_RunB") != std::string::npos);
+
+  if(debug) cout << "trying..." << endl;
+  ctx.get("HOTVRTopTagSFs");
+  if(debug) cout << "done." << endl;
 
   // 1. setup modules. CommonModules
   common.reset(new CommonModules());
@@ -147,6 +186,24 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   // MET selection
   met_sel.reset(new METCut  (50.,1e9));
 
+  // trigger defs
+  if(is_MC || !data_isMu) {
+    // The following exist for both 2016 and 2017
+    // until 120 GeV, except for 2017B, there for whole range
+    if(year == "2018") triggerSingleLeptonEle1_sel.reset(new TriggerSelection("HLT_Ele32_WPTight_Gsf_v*"));
+    else triggerSingleLeptonEle1_sel.reset(new TriggerSelection("HLT_Ele27_WPTight_Gsf_v*"));
+    // above 120 GeV
+    triggerSingleLeptonEle2_sel.reset(new TriggerSelection("HLT_Photon175_v*"));
+    if(!data_is2017B) triggerSingleLeptonEle3_sel.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
+  }
+  if(is_MC || data_isMu){
+    // until 27 GeV
+    triggerSingleLeptonMu1_sel.reset(new TriggerSelection("HLT_IsoMu24_v*"));
+    if(year == "2016") triggerSingleLeptonMu2_sel.reset(new TriggerSelection("HLT_IsoTkMu24_v*"));
+    // above 60 GeV
+    triggerSingleLeptonMu3_sel.reset(new TriggerSelection("HLT_Mu50_v*"));
+  }
+
   // 3. Set up Hists classes:
   h_nocuts.reset(new TstarTstarHists(ctx, "NoCuts"));
   h_common.reset(new TstarTstarHists(ctx, "AfterCommon"));
@@ -178,11 +235,32 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   h_fatjetsel_mu_highpt.reset(new TstarTstarHists(ctx, "AfterAK8jets_mu_highpt"));
   h_METsel_mu_highpt.reset(new TstarTstarHists(ctx, "AfterMET_mu_highpt"));
 
+  h_trigger.reset(new TstarTstarHists(ctx, "AfterTrigger"));
+  h_trigger_mu.reset(new TstarTstarHists(ctx, "AfterTrigger_mu"));
+  h_trigger_mu_lowpt.reset(new TstarTstarHists(ctx, "AfterTrigger_mu_lowpt"));
+  h_trigger_mu_highpt.reset(new TstarTstarHists(ctx, "AfterTrigger_mu_highpt"));
+
+  h_trigger_ele.reset(new TstarTstarHists(ctx, "AfterTrigger_ele"));
+  h_trigger_ele_lowpt.reset(new TstarTstarHists(ctx, "AfterTrigger_ele_lowpt"));
+  h_trigger_ele_highpt.reset(new TstarTstarHists(ctx, "AfterTrigger_ele_highpt"));
+
   h_nocuts_gen.reset(new TstarTstarGenHists(ctx, "NoCuts_gen"));
   h_common_gen.reset(new TstarTstarGenHists(ctx, "AfterCommon_gen"));
+  h_trigger_gen.reset(new TstarTstarGenHists(ctx, "AfterTrigger_gen"));
   h_lepsel_gen.reset(new TstarTstarGenHists(ctx, "AfterLepSel_gen"));
   h_fatjetsel_gen.reset(new TstarTstarGenHists(ctx, "AfterAK8jets_gen"));
   h_METsel_gen.reset(new TstarTstarGenHists(ctx, "AfterMET_gen"));
+
+  h_triggerSingleLeptonMu.reset(new TstarTstarHists(ctx, "triggerSingleLeptonMu"));
+  h_triggerSingleLeptonEle.reset(new TstarTstarHists(ctx, "triggerSingleLeptonEle"));
+
+  lumihist_beforeSel.reset(new LuminosityHists(ctx, "lumihist_beforeSel"));
+  lumihist_afterTrigger.reset(new LuminosityHists(ctx, "lumihist_afterTrigger"));
+  lumihist_afterLepSel.reset(new LuminosityHists(ctx, "lumihist_afterLepSel"));
+  lumihist_afterNJets.reset(new LuminosityHists(ctx, "lumihist_afterNJets"));
+  lumihist_afterMET.reset(new LuminosityHists(ctx, "lumihist_afterMET"));
+
+
 
   h_is_muevt = ctx.declare_event_output<bool>("is_muevt");
   h_evt_weight = ctx.declare_event_output<double>("evt_weight");
@@ -220,11 +298,39 @@ bool TstarTstarPreselectionModule::process(Event & event) {
 
   h_common->fill(event);
   h_common_gen->fill(event);
+  lumihist_beforeSel->fill(event);
   if(debug) cout<<"Filled hists after cleaning"<<endl;
 
-
-
   //---- Preselection
+
+  // Trigger
+  bool pass_trigger = false;
+  bool pass_trigger_SingleMu_lowpt = false;
+  bool pass_trigger_SingleMu_highpt = false;
+  if(is_MC || data_isMu){
+    if(year == "2016") {
+      pass_trigger_SingleMu_lowpt = (triggerSingleLeptonMu1_sel->passes(event) || triggerSingleLeptonMu2_sel->passes(event));
+    }
+    else pass_trigger_SingleMu_lowpt = triggerSingleLeptonMu1_sel->passes(event);
+    pass_trigger_SingleMu_highpt = triggerSingleLeptonMu3_sel->passes(event);
+  }
+  bool pass_trigger_SingleEle_lowpt = false;
+  bool pass_trigger_SingleEle_highpt = false;
+  if(is_MC || !data_isMu){
+    pass_trigger_SingleEle_lowpt = triggerSingleLeptonEle1_sel->passes(event);
+    if(data_is2017B) pass_trigger_SingleEle_highpt = (triggerSingleLeptonEle2_sel->passes(event) || triggerSingleLeptonEle1_sel->passes(event));
+    else pass_trigger_SingleEle_highpt = (triggerSingleLeptonEle2_sel->passes(event) || triggerSingleLeptonEle3_sel->passes(event));
+  }
+  if(pass_trigger_SingleMu_lowpt && (event.muons->size() >= 1)){if(event.muons->at(0).pt()<=60) pass_trigger = true; }
+  if(pass_trigger_SingleMu_highpt && (event.muons->size() >= 1)){if(event.muons->at(0).pt()>60) pass_trigger = true; }
+  if(pass_trigger_SingleEle_lowpt && (event.electrons->size() >= 1)){if(event.electrons->at(0).pt()<=120)pass_trigger = true; }
+  if(pass_trigger_SingleEle_highpt && (event.electrons->size() >= 1)){if(event.electrons->at(0).pt()>120)pass_trigger = true; }
+  if(!pass_trigger && doTriggerSel) return false;
+  h_trigger->fill(event);
+  h_trigger_gen->fill(event);
+  lumihist_afterTrigger->fill(event);
+
+  if(debug) cout<<"Filled hists after Trigger"<<endl;
 
   // Require exactly one muon or one electron
   const bool pass_lep1 = (((event.muons->size() == 1) || (event.electrons->size() == 1)) && (event.electrons->size()+event.muons->size()) == 1);
@@ -233,6 +339,7 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   else event.set(h_is_muevt, false);
   h_lepsel->fill(event);
   h_lepsel_gen->fill(event);
+  lumihist_afterLepSel->fill(event);
   if(event.get(h_is_muevt)){
     h_lepsel_mu->fill(event);
     if(event.muons->at(0).pt()<=60) h_lepsel_mu_lowpt->fill(event);
@@ -252,6 +359,7 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   if(!pass_njet) return false;
   h_fatjetsel->fill(event);
   h_fatjetsel_gen->fill(event);
+  lumihist_afterNJets->fill(event);
   if(event.get(h_is_muevt)){
     h_fatjetsel_mu->fill(event);
     if(event.muons->at(0).pt()<=60) h_fatjetsel_mu_lowpt->fill(event);
@@ -269,6 +377,7 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   if(!pass_MET) return false;
   h_METsel->fill(event);
   h_METsel_gen->fill(event);
+  lumihist_afterMET->fill(event);
   if(event.get(h_is_muevt)){
     h_METsel_mu->fill(event);
     if(event.muons->at(0).pt()<=60) h_METsel_mu_lowpt->fill(event);

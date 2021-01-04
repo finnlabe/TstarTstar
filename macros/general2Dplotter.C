@@ -4,7 +4,7 @@
 // Run it with following command:
 // root -l -b -q general2Dplotter.C
 
-void general2Dplotter(TString filename="MC.TstarTstar_Combined.root", TString subpath="DNN_Hists", TString histname="2D_DNN_1"){
+void general2Dplotter(TString filename="TstarTstar", TString subpath="DNN", TString histname="2D_DNN_ST"){
   // gStyle->SetOptStat(0);
   // gStyle->SetTitleSize(0.045,"x");  
   // gStyle->SetTitleSize(0.045,"y");
@@ -32,15 +32,40 @@ void general2Dplotter(TString filename="MC.TstarTstar_Combined.root", TString su
   
 
  //Files after selection
- TString path = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/MCStudy/hadded/";
- TString fileprefix = "uhh2.AnalysisModuleRunner.";
+ TString path = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/AfterDNN/hadded/";
+ TString fileprefix = "uhh2.AnalysisModuleRunner.MC.";
+ //TString fileprefix = "";
 
- TFile *input = TFile::Open(path+fileprefix+filename);
+ TFile *input = TFile::Open(path+fileprefix+filename+".root");
+ if(!input) cout << "Empty file" << endl;
  TH2D *hist = (TH2D*)input->Get(subpath+"/"+histname);
+ if(!hist) cout << "Empty hist" << endl;
 
  TCanvas *c1_hist = new TCanvas("chist", "c", w, h);
- // c1_hist->SetLogz(1);
+ c1_hist->SetLogz();
  //hist->GetZaxis()->SetRangeUser(0,1);
+
+ // scale some stuff
+ int binsX = 50;
+ int binsY = 50;
+
+ for(uint x = 1; x <= binsX; x++){
+   double sum = 0;
+   for(uint y = 1; y <= binsY; y++){
+     sum += hist->GetBinContent(x, y);
+   }
+   cout << x << "   " << sum << endl;
+   if(sum > 0){
+     for(uint y = 1; y <= binsY; y++){
+       hist->SetBinContent(x, y, hist->GetBinContent(x, y)/sum);
+     }
+   }
+ }
+
+ hist->GetXaxis()->SetTitle("H_{T} [GeV]");
+ hist->GetYaxis()->SetTitle("DNN output");
+ hist->SetTitle("");
+
  hist->Draw("colz");
  c1_hist->SaveAs(filename+"_"+subpath+"_"+histname+".pdf");
 
