@@ -91,7 +91,7 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   // primary vertices
   book<TH1F>("N_pv", "N^{PV}", 50, 0, 50);
 
-  //MET and HT
+  // MET and HT
   book<TH1F>("pt_MET", "missing E_{T} [GeV]", 100, 0, 2000);
   book<TH1F>("pt_ST_jets", "S_{T} [GeV]", 30, 0, 3000);
   book<TH1F>("pt_ST_jets_oldbins", "S_{T}^{jets}=#sum_{i}|HOTVR p^{i}_{T}| [GeV]", 100, 10, 4000);

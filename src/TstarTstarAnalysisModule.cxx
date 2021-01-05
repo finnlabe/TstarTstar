@@ -149,6 +149,9 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   // MC or real data
   is_MC = ctx.get("dataset_type") == "MC";
 
+  is_TTbar = (ctx.get("dataset_version").find("TT") != std::string::npos);
+  is_Signal = (ctx.get("dataset_version").find("Tstar") != std::string::npos);
+
 
   // ###### 1. Set up modules ######
   // primary lepton
@@ -288,10 +291,6 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
   ST_bkg = (TH1D*)f->Get("ST_bkg_split");
   ST_sig_2 = (TH1D*)f->Get("ST_sig_rebinned");
   ST_bkg_2 = (TH1D*)f->Get("ST_bkg_rebinned");
-
-  is_TTbar = (ctx.get("dataset_version").find("TT") != std::string::npos);
-  is_Signal = (ctx.get("dataset_version").find("Tstar") != std::string::npos);
-
 
 }
 
