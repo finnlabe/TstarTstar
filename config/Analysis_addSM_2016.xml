@@ -198,7 +198,7 @@
 
 
             <!-- the class name of the AnalysisModule subclasses to run: -->
-            <Item Name="AnalysisModule" Value="TstarTstarMCStudyModule" />
+            <Item Name="AnalysisModule" Value="TstarTstarAnalysisModule" />
 
             <!-- tell AnalysisModuleRunner NOT to use the MC event weight from SFrame; rather let
                  MCLumiWeight (called via CommonModules) calculate the MC event weight. The MC
