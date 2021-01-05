@@ -72,31 +72,25 @@ private:
 
 
   // ##### Histograms #####
-  std::unique_ptr<Hists> h_beforeReco, h_beforeReco_ttag, h_beforeReco_nottag, h_afterPrimlep, h_afterHypCreation, h_afterReco_Full, h_afterReco_ttag, h_afterReco_nottag, h_lowchi2, h_highchi2, h_afterGEN, h_afterGEN_onlyttbar, h_afterGEN_onlyttbar_ttag, h_afterGEN_onlyttbar_nottag, h_notReconstructible, h_notReconstructible_ttag, h_notReconstructible_nottag, h_passFatJetSel;
-  std::unique_ptr<Hists> h_afterHypCreation_AK4, h_afterReco_Full_AK4, h_afterReco_ttag_AK4, h_afterReco_nottag_AK4, h_lowchi2_AK4, h_highchi2_AK4, h_notReconstructible_AK4, h_notReconstructible_ttag_AK4, h_notReconstructible_nottag_AK4;
-  std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_Full, h_RecoPlots_ttag, h_RecoPlots_nottag, h_RecoPlots_lowchi2, h_RecoPlots_highchi2;
-  std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_GEN, h_RecoPlots_GEN_onlyttbar, h_RecoPlots_GEN_onlyttbar_ttag, h_RecoPlots_GEN_onlyttbar_nottag;
-  std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_Full_AK4, h_RecoPlots_ttag_AK4, h_RecoPlots_nottag_AK4, h_RecoPlots_lowchi2_AK4, h_RecoPlots_highchi2_AK4;
-  std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_GEN_AK4, h_RecoPlots_GEN_onlyttbar_AK4, h_RecoPlots_GEN_onlyttbar_ttag_AK4, h_RecoPlots_GEN_onlyttbar_nottag_AK4;
+  std::unique_ptr<Hists> h_beforeReco, h_beforeReco_ttag, h_beforeReco_nottag, h_beforeReco_mu, h_beforeReco_mu_lowpt, h_beforeReco_mu_highpt, h_beforeReco_ele, h_beforeReco_ele_lowpt, h_beforeReco_ele_highpt;
+  std::unique_ptr<Hists> h_passFatJetSel;
+  std::unique_ptr<Hists> h_beforeReco_gen;
 
-  std::unique_ptr<Hists> h_afterPrimlep_mu, h_afterPrimlep_mu_lowpt, h_afterPrimlep_mu_highpt, h_afterPrimlep_ele, h_afterPrimlep_ele_lowpt, h_afterPrimlep_ele_highpt;
+  std::unique_ptr<Hists> h_afterHypCreation, h_afterReco_Full, h_afterReco_ttag, h_afterReco_nottag, h_afterReco_lowchi2, h_afterReco_highchi2;
+  std::unique_ptr<Hists> h_afterReco_gen;
+  std::unique_ptr<Hists> h_RecoPlots_Full, h_RecoPlots_ttag, h_RecoPlots_nottag, h_RecoPlots_lowchi2, h_RecoPlots_highchi2;
+  std::unique_ptr<Hists> h_notReconstructible, h_notReconstructible_ttag, h_notReconstructible_nottag;
 
-  std::unique_ptr<Hists> h_AfterDNNcut_02, h_AfterDNNcut_03, h_AfterDNNcut_04, h_AfterDNNcut_05, h_AfterDNNcut_06, h_AfterDNNcut_07, h_AfterDNNcut_08;
-  std::unique_ptr<Hists> h_notDNNcut_02, h_notDNNcut_03, h_notDNNcut_04, h_notDNNcut_05, h_notDNNcut_06, h_notDNNcut_07, h_notDNNcut_08;
+  std::unique_ptr<Hists> h_afterHypCreation_AK4, h_afterReco_Full_AK4, h_afterReco_ttag_AK4, h_afterReco_nottag_AK4, h_afterReco_lowchi2_AK4, h_afterReco_highchi2_AK4;
+  std::unique_ptr<Hists> h_RecoPlots_Full_AK4, h_RecoPlots_ttag_AK4, h_RecoPlots_nottag_AK4, h_RecoPlots_lowchi2_AK4, h_RecoPlots_highchi2_AK4;
+  std::unique_ptr<Hists> h_notReconstructible_AK4, h_notReconstructible_ttag_AK4, h_notReconstructible_nottag_AK4;
+
+  std::unique_ptr<Hists> h_afterGEN, h_afterGEN_onlyttbar, h_afterGEN_onlyttbar_ttag, h_afterGEN_onlyttbar_nottag;
+  std::unique_ptr<Hists> h_RecoPlots_GEN, h_RecoPlots_GEN_onlyttbar, h_RecoPlots_GEN_onlyttbar_ttag, h_RecoPlots_GEN_onlyttbar_nottag;
 
   std::unique_ptr<Hists> h_ST_reweighted, h_ST_reweighted_2;
-  std::unique_ptr<TstarTstarRecoTstarHists> h_RecoPlots_AfterDNNcut, h_RecoPlots_notDNNcut;
-
-  std::unique_ptr<Hists> h_GEN_Hists, h_GEN_Hists_pre;
-  std::unique_ptr<Hists> h_DNN_Inputs, h_DNN_Inputs_reweighted, h_DNN_Inputs_reweighted_2;
-
   std::unique_ptr<Hists> h_top_gluon_checks, h_top_gluon_checks_reweighted, h_top_gluon_checks_reweighted_2;
-  std::unique_ptr<TstarTstarDNNHists> h_DNN_Hists, h_DNN_Hists_reweighted, h_DNN_Hists_reweighted_2, h_DNN_Hists_AfterDNNCut, h_DNN_Hists_lowpt, h_DNN_Hists_medpt, h_DNN_Hists_highpt;
-
-  std::unique_ptr<LuminosityHists> lumihist_ele_lowpt;
-  std::unique_ptr<LuminosityHists> lumihist_ele_highpt;
-  std::unique_ptr<LuminosityHists> lumihist_mu_lowpt;
-  std::unique_ptr<LuminosityHists> lumihist_mu_highpt;
+  std::unique_ptr<Hists> h_DNN_Inputs, h_DNN_Inputs_reweighted, h_DNN_Inputs_reweighted_2;
 
 
   // ###### Handles ######
@@ -179,81 +173,87 @@ TstarTstarMCStudyModule::TstarTstarMCStudyModule(Context & ctx){
 
 
   // ###### 3. Set up histograms ######
+  // before Reconstruction
   h_beforeReco.reset(new TstarTstarHists(ctx, "beforeReco"));
   h_beforeReco_ttag.reset(new TstarTstarHists(ctx, "beforeReco_ttag"));
   h_beforeReco_nottag.reset(new TstarTstarHists(ctx, "beforeReco_nottag"));
-  h_afterPrimlep.reset(new TstarTstarHists(ctx, "afterPrimlep"));
-  h_passFatJetSel.reset(new TstarTstarHists(ctx, "passFatJetSel"));
-  h_afterHypCreation.reset(new TstarTstarHists(ctx, "afterHypCreation"));
+  h_beforeReco_mu.reset(new TstarTstarHists(ctx, "beforeReco_mu"));
+  h_beforeReco_mu_lowpt.reset(new TstarTstarHists(ctx, "beforeReco_mu_lowpt"));
+  h_beforeReco_mu_highpt.reset(new TstarTstarHists(ctx, "beforeReco_mu_highpt"));
+  h_beforeReco_ele.reset(new TstarTstarHists(ctx, "beforeReco_ele"));
+  h_beforeReco_ele_lowpt.reset(new TstarTstarHists(ctx, "beforeReco_ele_lowpt"));
+  h_beforeReco_ele_highpt.reset(new TstarTstarHists(ctx, "beforeReco_ele_highpt"));
+  h_beforeReco_gen.reset(new TstarTstarGenHists(ctx, "beforeReco_gen"));
+
+  // After additional fat jet selection
+  h_passFatJetSel.reset(new TstarTstarHists(ctx, "AfterFatJets"));
+
+  // Reco regular
+  h_afterHypCreation.reset(new TstarTstarHists(ctx, "AfterHypCreation"));
+
   h_afterReco_Full.reset(new TstarTstarHists(ctx, "AfterReco_Full"));
   h_afterReco_ttag.reset(new TstarTstarHists(ctx, "AfterReco_ttag"));
   h_afterReco_nottag.reset(new TstarTstarHists(ctx, "AfterReco_nottag"));
-  h_lowchi2.reset(new TstarTstarHists(ctx, "Lowchi2"));
-  h_highchi2.reset(new TstarTstarHists(ctx, "Highchi2"));
-  h_afterGEN.reset(new TstarTstarHists(ctx, "AfterGEN"));
-  h_afterGEN_onlyttbar.reset(new TstarTstarHists(ctx, "AfterGEN_onlyttbar"));
-  h_afterGEN_onlyttbar_ttag.reset(new TstarTstarHists(ctx, "AfterGEN_onlyttbar_ttag"));
-  h_afterGEN_onlyttbar_nottag.reset(new TstarTstarHists(ctx, "AfterGEN_onlyttbar_nottag"));
-  h_notReconstructible.reset(new TstarTstarHists(ctx, "notReconstructible"));
-  h_notReconstructible_ttag.reset(new TstarTstarHists(ctx, "notReconstructible_ttag"));
-  h_notReconstructible_nottag.reset(new TstarTstarHists(ctx, "notReconstructible_nottag"));
-
-  h_afterHypCreation_AK4.reset(new TstarTstarHists(ctx, "afterHypCreation_AK4"));
-  h_afterReco_Full_AK4.reset(new TstarTstarHists(ctx, "AfterReco_Full_AK4"));
-  h_afterReco_ttag_AK4.reset(new TstarTstarHists(ctx, "AfterReco_ttag_AK4"));
-  h_afterReco_nottag_AK4.reset(new TstarTstarHists(ctx, "AfterReco_nottag_AK4"));
-  h_lowchi2_AK4.reset(new TstarTstarHists(ctx, "Lowchi2_AK4"));
-  h_highchi2_AK4.reset(new TstarTstarHists(ctx, "Highchi2_AK4"));
-  h_notReconstructible_AK4.reset(new TstarTstarHists(ctx, "notReconstructible_AK4"));
-  h_notReconstructible_ttag_AK4.reset(new TstarTstarHists(ctx, "notReconstructible_ttag_AK4"));
-  h_notReconstructible_nottag_AK4.reset(new TstarTstarHists(ctx, "notReconstructible_nottag_AK4"));
-
-  h_ST_reweighted.reset(new TstarTstarHists(ctx, "STreweighted"));
-  h_ST_reweighted_2.reset(new TstarTstarHists(ctx, "STreweighted_2"));
-
-  h_afterPrimlep_mu.reset(new TstarTstarHists(ctx, "afterPrimlep_mu"));
-  h_afterPrimlep_mu_lowpt.reset(new TstarTstarHists(ctx, "afterPrimlep_mu_lowpt"));
-  h_afterPrimlep_mu_highpt.reset(new TstarTstarHists(ctx, "afterPrimlep_mu_highpt"));
-  h_afterPrimlep_ele.reset(new TstarTstarHists(ctx, "afterPrimlep_ele"));
-  h_afterPrimlep_ele_lowpt.reset(new TstarTstarHists(ctx, "afterPrimlep_ele_lowpt"));
-  h_afterPrimlep_ele_highpt.reset(new TstarTstarHists(ctx, "afterPrimlep_ele_highpt"));
+  h_afterReco_lowchi2.reset(new TstarTstarHists(ctx, "AfterReco_lowchi2"));
+  h_afterReco_highchi2.reset(new TstarTstarHists(ctx, "AfterReco_highchi2"));
+  h_afterReco_gen.reset(new TstarTstarGenHists(ctx, "AfterReco_gen"));
 
   h_RecoPlots_Full.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_Full"));
   h_RecoPlots_ttag.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_ttag"));
   h_RecoPlots_nottag.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_nottag"));
   h_RecoPlots_lowchi2.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_lowchi2"));
   h_RecoPlots_highchi2.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_highchi2"));
-  h_RecoPlots_GEN.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN"));
-  h_RecoPlots_GEN_onlyttbar.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN_onlyttbar"));
-  h_RecoPlots_GEN_onlyttbar_ttag.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN_onlyttbar_ttag"));
-  h_RecoPlots_GEN_onlyttbar_nottag.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN_onlyttbar_nottag"));
+
+  h_notReconstructible.reset(new TstarTstarHists(ctx, "notReconstructible"));
+  h_notReconstructible_ttag.reset(new TstarTstarHists(ctx, "notReconstructible_ttag"));
+  h_notReconstructible_nottag.reset(new TstarTstarHists(ctx, "notReconstructible_nottag"));
+
+  // Reco AK4
+  h_afterHypCreation_AK4.reset(new TstarTstarHists(ctx, "afterHypCreation_AK4"));
+
+  h_afterReco_Full_AK4.reset(new TstarTstarHists(ctx, "AfterReco_Full_AK4"));
+  h_afterReco_ttag_AK4.reset(new TstarTstarHists(ctx, "AfterReco_ttag_AK4"));
+  h_afterReco_nottag_AK4.reset(new TstarTstarHists(ctx, "AfterReco_nottag_AK4"));
+  h_afterReco_lowchi2_AK4.reset(new TstarTstarHists(ctx, "AfterReco_lowchi2_AK4"));
+  h_afterReco_highchi2_AK4.reset(new TstarTstarHists(ctx, "AfterReco_highchi2_AK4"));
 
   h_RecoPlots_Full_AK4.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_Full_AK4"));
   h_RecoPlots_ttag_AK4.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_ttag_AK4"));
   h_RecoPlots_nottag_AK4.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_nottag_AK4"));
   h_RecoPlots_lowchi2_AK4.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_lowchi2_AK4"));
   h_RecoPlots_highchi2_AK4.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_highchi2_AK4"));
-  h_RecoPlots_GEN_AK4.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN_AK4"));
-  h_RecoPlots_GEN_onlyttbar_AK4.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN_onlyttbar_AK4"));
-  h_RecoPlots_GEN_onlyttbar_ttag_AK4.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN_onlyttbar_ttag_AK4"));
-  h_RecoPlots_GEN_onlyttbar_nottag_AK4.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN_onlyttbar_nottag_AK4"));
 
-  h_GEN_Hists_pre.reset(new TstarTstarGenHists(ctx, "GEN_Hists_beforeReco"));
-  h_GEN_Hists.reset(new TstarTstarGenHists(ctx, "GEN_Hists_AfterReco"));
+  h_notReconstructible_AK4.reset(new TstarTstarHists(ctx, "notReconstructible_AK4"));
+  h_notReconstructible_ttag_AK4.reset(new TstarTstarHists(ctx, "notReconstructible_ttag_AK4"));
+  h_notReconstructible_nottag_AK4.reset(new TstarTstarHists(ctx, "notReconstructible_nottag_AK4"));
 
-  h_DNN_Inputs.reset(new TstarTstarDNNInputHists(ctx, "DNN_Inputs"));
-  h_DNN_Inputs_reweighted.reset(new TstarTstarDNNInputHists(ctx, "DNN_Inputs_reweighted"));
-  h_DNN_Inputs_reweighted_2.reset(new TstarTstarDNNInputHists(ctx, "DNN_Inputs_reweighted_2"));
+  // GEN matching
+  h_RecoPlots_GEN.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN"));
+  h_afterGEN.reset(new TstarTstarHists(ctx, "AfterGEN"));
 
+  h_afterGEN_onlyttbar.reset(new TstarTstarHists(ctx, "AfterGEN_onlyttbar"));
+  h_afterGEN_onlyttbar_ttag.reset(new TstarTstarHists(ctx, "AfterGEN_onlyttbar_ttag"));
+  h_afterGEN_onlyttbar_nottag.reset(new TstarTstarHists(ctx, "AfterGEN_onlyttbar_nottag"));
+  h_RecoPlots_GEN_onlyttbar.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN_onlyttbar"));
+  h_RecoPlots_GEN_onlyttbar_ttag.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN_onlyttbar_ttag"));
+  h_RecoPlots_GEN_onlyttbar_nottag.reset(new TstarTstarRecoTstarHists(ctx, "RecoPlots_GEN_onlyttbar_nottag"));
+
+
+  // ST reweighting
+  h_ST_reweighted.reset(new TstarTstarHists(ctx, "STreweighted"));
+  h_ST_reweighted_2.reset(new TstarTstarHists(ctx, "STreweighted_2"));
+
+
+  // GEN hists that work also for BG
   h_top_gluon_checks.reset(new TstarTstarAllGenHists(ctx, "Top_check"));
   h_top_gluon_checks_reweighted.reset(new TstarTstarAllGenHists(ctx, "Top_check_reweighted"));
   h_top_gluon_checks_reweighted_2.reset(new TstarTstarAllGenHists(ctx, "Top_check_reweighted_2"));
 
-  lumihist_ele_lowpt.reset(new LuminosityHists(ctx, "lumihists_ele_lowpt"));
-  lumihist_ele_highpt.reset(new LuminosityHists(ctx, "lumihists_ele_highpt"));
-  lumihist_mu_lowpt.reset(new LuminosityHists(ctx, "lumihists_mu_lowpt"));
-  lumihist_mu_highpt.reset(new LuminosityHists(ctx, "lumihists_mu_highpt"));
 
+  // DNN hists
+  h_DNN_Inputs.reset(new TstarTstarDNNInputHists(ctx, "DNN_Inputs"));
+  h_DNN_Inputs_reweighted.reset(new TstarTstarDNNInputHists(ctx, "DNN_Inputs_reweighted"));
+  h_DNN_Inputs_reweighted_2.reset(new TstarTstarDNNInputHists(ctx, "DNN_Inputs_reweighted_2"));
 
 
 
@@ -322,18 +322,6 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   // prevent empty handles
   event.set(h_tstartstar_hyp, ReconstructionTstarHypothesis());
 
-  // lumihists
-  if(muon_evt){
-    if(event.muons->at(0).pt() > 60) lumihist_mu_highpt->fill(event);
-    else lumihist_mu_lowpt->fill(event);
-  }
-  else {
-    if(event.electrons->at(0).pt() > 120) lumihist_ele_highpt->fill(event);
-    else lumihist_ele_lowpt->fill(event);
-  }
-
-  h_top_gluon_checks->fill(event);
-
   // fill hists before things have happened
   event.weight = event.get(h_evt_weight);
   h_beforeReco->fill(event);
@@ -379,7 +367,7 @@ bool TstarTstarMCStudyModule::process(Event & event) {
     if(bestHypFound){
       h_RecoPlots_Full->fill(event);
       h_afterReco_Full->fill(event);
-      h_GEN_Hists->fill(event);
+      h_afterReco_gen->fill(event);
       if(pass_ttag){
 	       h_RecoPlots_ttag->fill(event);
 	       h_afterReco_ttag->fill(event);
@@ -390,11 +378,11 @@ bool TstarTstarMCStudyModule::process(Event & event) {
       }
       if(event.get(h_tstartstar_hyp).chi2()<50){
         h_RecoPlots_lowchi2->fill(event);
-        h_lowchi2->fill(event);
+        h_afterReco_lowchi2->fill(event);
       }
       else {
         h_RecoPlots_highchi2->fill(event);
-        h_highchi2->fill(event);
+        h_afterReco_highchi2->fill(event);
       }
     }
   }
@@ -430,11 +418,11 @@ bool TstarTstarMCStudyModule::process(Event & event) {
   //     }
   //     if(event.get(h_tstartstar_hyp).chi2()<50){
   //       h_RecoPlots_lowchi2_AK4->fill(event);
-  //       h_lowchi2_AK4->fill(event);
+  //       h_afterReco_lowchi2_AK4->fill(event);
   //     }
   //     else {
   //       h_RecoPlots_highchi2_AK4->fill(event);
-  //       h_highchi2_AK4->fill(event);
+  //       h_afterReco_highchi2_AK4->fill(event);
   //     }
   //   }
   // }
@@ -489,6 +477,7 @@ bool TstarTstarMCStudyModule::process(Event & event) {
     double st_jets = 0;
     double ST_weight = 0;
     double ST_weight_2 = 0;
+    h_top_gluon_checks->fill(event);
     for(const auto & jet : *event.topjets) st_jets += jet.pt();
     if(is_TTbar){
       if(st_jets < 3000){
