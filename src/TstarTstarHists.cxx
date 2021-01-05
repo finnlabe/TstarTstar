@@ -13,6 +13,9 @@ using namespace std;
 using namespace uhh2;
 //using namespace uhh2examples;
 
+float inv_mass_2(const LorentzVector& p4){ return p4.isTimelike() ? p4.mass() : -sqrt(-p4.mass2()); }
+
+
 TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(ctx, dirname){
   topjetID = AndId<TopJet>(HOTVRTopTag(), Tau32Groomed(0.56));
 
@@ -70,6 +73,8 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   // book<TH2D>("HADcharged_vs_PU_jet1","HADcharged vs PU; PU; HADcharged",100,0,100,100,0.0,1.0);
   // book<TH2D>("HADneutral_vs_PU_jet1","HADneutral vs PU; PU; HADneutral",100,0,100,100,0.0,1.0);
 
+  book<TH1F>("tau32_HOTVR1", "HOTVR-1 #tau_{32}", 20, 0, 1);
+  book<TH1F>("jetmass_HOTVR1", "m_{HOTVR-1}", 25, 0, 500);
 
   // leptons
   book<TH1F>("N_mu", "N^{#mu}", 10, 0, 10);
@@ -180,6 +185,11 @@ void TstarTstarHists::fill(const Event & event){
   if(Njets>=4){
     hist("eta_jet4")->Fill(jets->at(3).eta(), weight);
     hist("pt_jet4")->Fill(jets->at(3).pt(), weight);
+  }
+
+  if(event.topjets->size()>0) {
+    hist("tau32_HOTVR1")->Fill(event.topjets->at(0).tau3_groomed()/event.topjets->at(0).tau2_groomed(), weight);
+    hist("jetmass_HOTVR1")->Fill(inv_mass_2(event.topjets->at(0).v4()), weight);
   }
 
   if(debug) cout << "Finished filling jet observables." << endl;

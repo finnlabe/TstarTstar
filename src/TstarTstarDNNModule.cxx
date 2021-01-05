@@ -60,7 +60,9 @@ private:
   std::unique_ptr<Hists> h_AfterDNNcut_02, h_AfterDNNcut_03, h_AfterDNNcut_04, h_AfterDNNcut_05, h_AfterDNNcut_06, h_AfterDNNcut_07, h_AfterDNNcut_08;
   std::unique_ptr<Hists> h_notDNNcut_02,   h_notDNNcut_03,   h_notDNNcut_04,   h_notDNNcut_05,   h_notDNNcut_06,   h_notDNNcut_07,   h_notDNNcut_08;
 
-  std::unique_ptr<TstarTstarDNNHists> h_DNN_Hists, h_DNN_Hists_reweighted, h_DNN_Hists_reweighted_2, h_DNN_Hists_AfterDNNCut, h_DNN_Hists_lowpt, h_DNN_Hists_medpt, h_DNN_Hists_highpt;
+  std::unique_ptr<Hists> h_DNN, h_DNN_reweighted, h_DNN_reweighted_2, h_DNN_lowpt, h_DNN_medpt, h_DNN_highpt;
+  std::unique_ptr<Hists> h_DNN_lowST, h_DNN_highST, h_DNN_lowDNN, h_DNN_highDNN, h_DNN_highST_lowDNN, h_DNN_highST_highDNN;
+  std::unique_ptr<Hists> h_AfterDNN, h_AfterDNN_lowST, h_AfterDNN_highST, h_AfterDNN_lowDNN, h_AfterDNN_highDNN, h_AfterDNN_highST_lowDNN, h_AfterDNN_highST_highDNN;
 
 
   // ###### Control switches ######
@@ -137,13 +139,26 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_AfterDNNcut_08.reset(new TstarTstarHists(ctx, "AfterDNNcut_08"));
   h_notDNNcut_08.reset(new TstarTstarHists(ctx, "notDNNcut_08"));
 
-  h_DNN_Hists.reset(new TstarTstarDNNHists(ctx, "DNN_Hists"));
-  h_DNN_Hists_reweighted.reset(new TstarTstarDNNHists(ctx, "DNN_Hists_reweighted"));
-  h_DNN_Hists_reweighted_2.reset(new TstarTstarDNNHists(ctx, "DNN_Hists_reweighted_2"));
-  h_DNN_Hists_AfterDNNCut.reset(new TstarTstarDNNHists(ctx, "DNN_Hists_AfterDNNCut"));
-  h_DNN_Hists_lowpt.reset(new TstarTstarDNNHists(ctx, "DNN_Hists_lowpt"));
-  h_DNN_Hists_medpt.reset(new TstarTstarDNNHists(ctx, "DNN_Hists_medpt"));
-  h_DNN_Hists_highpt.reset(new TstarTstarDNNHists(ctx, "DNN_Hists_highpt"));
+  h_DNN.reset(new TstarTstarDNNHists(ctx, "DNN"));
+  h_DNN_reweighted.reset(new TstarTstarDNNHists(ctx, "DNN_reweighted"));
+  h_DNN_reweighted_2.reset(new TstarTstarDNNHists(ctx, "DNN_reweighted_2"));
+  h_DNN_lowpt.reset(new TstarTstarDNNHists(ctx, "DNN_lowpt"));
+  h_DNN_medpt.reset(new TstarTstarDNNHists(ctx, "DNN_medpt"));
+  h_DNN_highpt.reset(new TstarTstarDNNHists(ctx, "DNN_highpt"));
+  h_DNN_lowST.reset(new TstarTstarDNNHists(ctx, "DNN_lowST"));
+  h_DNN_highST.reset(new TstarTstarDNNHists(ctx, "DNN_highST"));
+  h_DNN_lowDNN.reset(new TstarTstarDNNHists(ctx, "DNN_lowDNN"));
+  h_DNN_highDNN.reset(new TstarTstarDNNHists(ctx, "DNN_highDNN"));
+  h_DNN_highST_lowDNN.reset(new TstarTstarDNNHists(ctx, "DNN_highST_lowDNN"));
+  h_DNN_highST_highDNN.reset(new TstarTstarDNNHists(ctx, "DNN_highST_highDNN"));
+
+  h_AfterDNN.reset(new TstarTstarHists(ctx, "AfterDNN"));
+  h_AfterDNN_lowST.reset(new TstarTstarHists(ctx, "AfterDNN_lowST"));
+  h_AfterDNN_highST.reset(new TstarTstarHists(ctx, "AfterDNN_highST"));
+  h_AfterDNN_lowDNN.reset(new TstarTstarHists(ctx, "AfterDNN_lowDNN"));
+  h_AfterDNN_highDNN.reset(new TstarTstarHists(ctx, "AfterDNN_highDNN"));
+  h_AfterDNN_highST_lowDNN.reset(new TstarTstarHists(ctx, "AfterDNN_highST_lowDNN"));
+  h_AfterDNN_highST_highDNN.reset(new TstarTstarHists(ctx, "AfterDNN_highST_highDNN"));
 
   // ###### 4. init handles ######
   h_evt_weight = ctx.get_handle<double>("evt_weight");
@@ -174,6 +189,9 @@ bool TstarTstarDNNModule::process(Event & event) {
   // set primary lepton
   reco_primlep->process(event);
 
+  // claculating H_T
+  double st_jets = 0;
+  for(const auto & jet : *event.topjets) st_jets += jet.pt();
 
   // ################
   // ### DNN Part ###
@@ -185,19 +203,19 @@ bool TstarTstarDNNModule::process(Event & event) {
 
   // hists
   if(debug) std::cout << "Plotting" << endl;
-  h_DNN_Hists->fill(event);
+  h_DNN->fill(event);
   h_topcheck->fill(event);
   if(is_TTbar) event.weight *= ST_weight;
-  h_DNN_Hists_reweighted->fill(event);
+  h_DNN_reweighted->fill(event);
   h_topcheck_reweighted->fill(event);
   event.weight = event.get(h_evt_weight);
   if(is_TTbar || is_Signal) event.weight = ST_weight_2;
-  h_DNN_Hists_reweighted_2->fill(event);
+  h_DNN_reweighted_2->fill(event);
   h_topcheck_reweighted_2->fill(event);
   event.weight = event.get(h_evt_weight);
-  if(event.topjets->at(0).pt() < 500) h_DNN_Hists_lowpt->fill(event);
-  else if (event.topjets->at(0).pt() < 1000) h_DNN_Hists_medpt->fill(event);
-  else h_DNN_Hists_highpt->fill(event);
+  if(event.topjets->at(0).pt() < 500) h_DNN_lowpt->fill(event);
+  else if (event.topjets->at(0).pt() < 1000) h_DNN_medpt->fill(event);
+  else h_DNN_highpt->fill(event);
 
   if(is_MC) { // blinding!!!
     // do DNN cuts
@@ -215,6 +233,37 @@ bool TstarTstarDNNModule::process(Event & event) {
     else h_notDNNcut_07->fill(event);
     if(event.get(h_DNN_output) > 0.8) h_AfterDNNcut_08->fill(event);
     else h_notDNNcut_08->fill(event);
+  }
+
+
+  // some more plotting
+  double DNNoutput = event.get(h_DNN_output);
+  h_AfterDNN->fill(event);
+
+  if(st_jets>500){
+    h_DNN_highST->fill(event);
+    h_AfterDNN_highST->fill(event);
+    if(DNNoutput > 0.6) {
+      h_DNN_highST_highDNN->fill(event);
+      h_AfterDNN_highST_highDNN->fill(event);
+    }
+    else {
+      h_DNN_highST_lowDNN->fill(event);
+      h_AfterDNN_highST_lowDNN->fill(event);
+    }
+  }
+  else {
+    h_DNN_lowST->fill(event);
+    h_AfterDNN_lowST->fill(event);
+  }
+
+  if(DNNoutput > 0.6) {
+    h_DNN_highDNN->fill(event);
+    h_AfterDNN_highDNN->fill(event);
+  }
+  else {
+    h_DNN_lowDNN->fill(event);
+    h_AfterDNN_lowDNN->fill(event);
   }
 
   if(debug){cout << "Done ##################################" << endl;}
