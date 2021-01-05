@@ -103,13 +103,13 @@ private:
   // ##### Control switches #####
   bool debug = false;
   bool doTriggerSel = true;
-  bool is_MC;
-  bool data_isMu = false;
-  bool data_is2017B = false;
 
 
   // ##### other needed definitions #####
   TString year;
+  bool is_MC;
+  bool data_isMu = false;
+  bool data_is2017B = false;
 
 };
 
