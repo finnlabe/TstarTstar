@@ -266,7 +266,8 @@ void TstarTstarHists::fill(const Event & event){
 
   double st_jets = 0.;
   for(const auto & jet : *event.topjets) st_jets += jet.pt();
-  hist("pt_ST_jets")->Fill(st_jets, weight);
+  if(ST_jets > 3000) hist("pt_ST_jets")->Fill(2999.9, weight);
+  else hist("pt_ST_jets")->Fill(st_jets, weight);
   hist("pt_ST_jets_oldbins")->Fill(st_jets, weight);
 
   // dR stuff
