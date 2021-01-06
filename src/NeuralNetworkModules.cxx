@@ -4,13 +4,14 @@
 #include <sstream>
 #include <string>
 
+// header
 #include "UHH2/TstarTstar/include/NeuralNetworkModules.h"
 
+// UHH2 stuff
 #include "UHH2/core/include/AnalysisModule.h"
 #include "UHH2/core/include/Selection.h"
 #include "UHH2/core/include/Utils.h"
 #include "UHH2/core/include/Event.h"
-
 #include "UHH2/common/include/EventHists.h"
 #include "UHH2/common/include/ElectronHists.h"
 #include "UHH2/common/include/MuonHists.h"
@@ -36,6 +37,7 @@
 
 using namespace std;
 
+// quick inv mass method
 float inv_mass(const LorentzVector& p4){ return p4.isTimelike() ? p4.mass() : -sqrt(-p4.mass2()); }
 
 // A quick functions to get the DNN mean and std for normalisation
