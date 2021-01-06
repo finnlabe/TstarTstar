@@ -148,18 +148,20 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   if(!is_MC) data_is2017B = (ctx.get("dataset_version").find("SingleElectron2017_RunB") != std::string::npos);
 
   // ###### 1. set up modules ######
+  if(debug) cout << "Setting up modules" << endl;
   // CommonModules
   common.reset(new CommonModules());
   common->switch_metcorrection();
+  if(debug) cout << "Common done" << endl;
 
   // HOTVR jets
   // ctx.get("HOTVRTopTagSFs"); // TODO check do I need this line?
-  HOTVRCorr.reset(new HOTVRJetCorrectionModule(ctx));
-  HadronicTopFinder.reset(new HadronicTop(ctx));
-  TopJetId topjetID = AndId<TopJet>(HOTVRTopTag(), Tau32Groomed(0.56)); // Top Tag that is used later
-  HOTVRScale.reset(new HOTVRScaleFactor(ctx, topjetID));
-
+  // HOTVRCorr.reset(new HOTVRJetCorrectionModule(ctx)); // crashes
+  // HadronicTopFinder.reset(new HadronicTop(ctx));
+  // TopJetId topjetID = AndId<TopJet>(HOTVRTopTag(), Tau32Groomed(0.56)); // Top Tag that is used later
+  // HOTVRScale.reset(new HOTVRScaleFactor(ctx, topjetID));
   HOTVRcleaner.reset(new TopJetCleaner(ctx, PtEtaCut(150.0, 2.5)));
+  if(debug) cout << "HOTVR done" << endl;
 
   // Electron
   ElectronId eleID_lowpt = ElectronID_Summer16_tight;
@@ -167,6 +169,7 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   double electron_pt_lowpt(30.);
   double electron_pt_highpt(120.);
   common->set_electron_id(OrId<Electron>( AndId<Electron>(PtEtaSCCut(electron_pt_lowpt, 2.4), eleID_lowpt, EleMaxPtCut(120.)),  AndId<Electron>(PtEtaSCCut(electron_pt_highpt, 2.4), eleID_highpt)));
+  if(debug) cout << "Electrons done" << endl;
 
   // Muon
   MuonId muID_lowpt = AndId<Muon>(MuonID(Muon::CutBasedIdTight), MuonID(Muon::PFIsoTight));
@@ -174,15 +177,18 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   double muon_pt_lowpt(27.);
   double muon_pt_highpt(60.);
   common->set_muon_id(OrId<Muon>( AndId<Muon>(PtEtaCut(muon_pt_lowpt, 2.4), muID_lowpt, MuMaxPtCut(60.)),  AndId<Muon>(PtEtaCut(muon_pt_highpt, 2.4), muID_highpt)));
+  if(debug) cout << "Muons done" << endl;
 
   // AK4 Jets
   common->switch_jetlepcleaner();
   common->switch_jetPtSorter();
   double jet_pt(30.);
   common->set_jet_id(AndId<Jet>(PtEtaCut(jet_pt, 2.5), JetPFID(JetPFID::WP_TIGHT_PUPPI)));
+  if(debug) cout << "Jets done" << endl;
 
   // init common
   common->init(ctx);
+  if(debug) cout << "Common init done" << endl;
 
   // find ttbar for GEN
   if(is_MC){
@@ -300,13 +306,13 @@ bool TstarTstarPreselectionModule::process(Event & event) {
 
   // ###### common modules, corrections & cleaning ######
   if(!(common->process(event))) return false;
-  if(!(HOTVRCorr->process(event))) return false;
+  //if(!(HOTVRCorr->process(event))) return false;
   if(!(HOTVRcleaner->process(event))) return false;
 
   // ###### scale factors ######
   // Top Tagging scale factors
-  HadronicTopFinder->process(event);
-  HOTVRScale->process(event);
+  // HadronicTopFinder->process(event);
+  // HOTVRScale->process(event);
 
   // hists before selection
   h_common->fill(event);
