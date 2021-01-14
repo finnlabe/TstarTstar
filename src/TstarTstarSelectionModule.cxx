@@ -83,6 +83,8 @@ private:
   std::unique_ptr<Hists> h_beginSel_mu_lowpt,   h_btagcut_mu_lowpt,    h_2Dcut_mu_lowpt,      h_dRcut_mu_lowpt;
   std::unique_ptr<Hists> h_beginSel_mu_highpt,  h_btagcut_mu_highpt,   h_2Dcut_mu_highpt,     h_dRcut_mu_highpt;
 
+  std::unique_ptr<Hists> h_afterSelection_gen, h_afterSelection_genmatch;
+
   // TODO better trigger plots!
   std::unique_ptr<Hists> h_trigger, h_trigger_mu, h_trigger_ele;
   std::unique_ptr<Hists> h_trigger_gen;
@@ -228,6 +230,10 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   h_dRcut_mu.reset(new TstarTstarHists(ctx, "AfterdR_mu"));
   h_dRcut_mu_lowpt.reset(new TstarTstarHists(ctx, "AfterdR_mu_lowpt"));
   h_dRcut_mu_highpt.reset(new TstarTstarHists(ctx, "AfterdR_mu_highpt"));
+
+  h_afterSelection_gen.reset(new TstarTstarGenHists(ctx, "AfterSel_gen"));
+  h_afterSelection_genmatch.reset(new TstarTstarGenRecoMatchedHists(ctx, "AfterSel_genmatch"));
+
 
   // TODO
   h_trigger.reset(new TstarTstarHists(ctx, "AfterTrigger"));
@@ -412,6 +418,10 @@ bool TstarTstarSelectionModule::process(Event & event) {
 
   // Scale factors.
   // A lot of stuff will happen here. hopefully.
+
+  // some final plot for comparison
+  h_afterSelection_gen->fill(event);
+  h_afterSelection_genmatch->fill(event);
 
 
   // Outputting ST

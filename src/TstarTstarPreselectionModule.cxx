@@ -92,6 +92,8 @@ private:
   std::unique_ptr<Hists> h_lepsel_mu_lowpt,  h_jetsel_mu_lowpt,  h_fatjetsel_mu_lowpt,  h_METsel_mu_lowpt;
   std::unique_ptr<Hists> h_lepsel_mu_highpt, h_jetsel_mu_highpt, h_fatjetsel_mu_highpt, h_METsel_mu_highpt;
 
+  std::unique_ptr<Hists> h_afterSelection_gen, h_afterSelection_genmatch;
+
 
   // ##### Handles #####
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
@@ -277,6 +279,9 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   h_fatjetsel_mu_highpt.reset(new TstarTstarHists(ctx, "AfterAK8jets_mu_highpt"));
   h_METsel_mu_highpt.reset(new TstarTstarHists(ctx, "AfterMET_mu_highpt"));
 
+  h_afterSelection_gen.reset(new TstarTstarGenHists(ctx, "AfterSel_gen"));
+  h_afterSelection_genmatch.reset(new TstarTstarGenRecoMatchedHists(ctx, "AfterSel_genmatch"));
+
 
   // ###### 4. init handles ######
   h_is_muevt = ctx.declare_event_output<bool>("is_muevt");
@@ -440,6 +445,9 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   }
   if(debug) cout<<"Filled hists after MET"<<endl;
 
+  // some gen check hists
+  h_afterSelection_gen->fill(event);
+  h_afterSelection_genmatch->fill(event);
 
   // outputting event weight for following modules
   event.set(h_evt_weight, event.weight);
