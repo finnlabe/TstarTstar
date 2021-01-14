@@ -6,15 +6,15 @@
 
 <!ENTITY OUTPUTdir           "/nfs/dust/cms/user/flabe/TstarTstar/data/Preselection/2018/">
 
-<!ENTITY SingleMuon2018_RunA   SYSTEM  "../../common/datasets/RunII_102X_v1/2018/DATA_SingleMuon2018_RunA.xml">
-<!ENTITY SingleMuon2018_RunB   SYSTEM  "../../common/datasets/RunII_102X_v1/2018/DATA_SingleMuon2018_RunB.xml">
-<!ENTITY SingleMuon2018_RunC   SYSTEM  "../../common/datasets/RunII_102X_v1/2018/DATA_SingleMuon2018_RunC.xml">
-<!ENTITY SingleMuon2018_RunD   SYSTEM  "../../common/datasets/RunII_102X_v1/2018/DATA_SingleMuon2018_RunD.xml">
+<!ENTITY SingleMuon2018_RunA   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2018/DATA_SingleMuon2018_RunA.xml">
+<!ENTITY SingleMuon2018_RunB   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2018/DATA_SingleMuon2018_RunB.xml">
+<!ENTITY SingleMuon2018_RunC   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2018/DATA_SingleMuon2018_RunC.xml">
+<!ENTITY SingleMuon2018_RunD   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2018/DATA_SingleMuon2018_RunD.xml">
 
-<!ENTITY EGamma2018_RunA   SYSTEM  "../../common/datasets/RunII_102X_v1/2018/DATA_EGamma2018_RunA.xml">
-<!ENTITY EGamma2018_RunB   SYSTEM  "../../common/datasets/RunII_102X_v1/2018/DATA_EGamma2018_RunB.xml">
-<!ENTITY EGamma2018_RunC   SYSTEM  "../../common/datasets/RunII_102X_v1/2018/DATA_EGamma2018_RunC.xml">
-<!ENTITY EGamma2018_RunD   SYSTEM  "../../common/datasets/RunII_102X_v1/2018/DATA_EGamma2018_RunD.xml">
+<!ENTITY EGamma2018_RunA   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2018/DATA_EGamma2018_RunA.xml">
+<!ENTITY EGamma2018_RunB   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2018/DATA_EGamma2018_RunB.xml">
+<!ENTITY EGamma2018_RunC   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2018/DATA_EGamma2018_RunC.xml">
+<!ENTITY EGamma2018_RunD   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2018/DATA_EGamma2018_RunD.xml">
 
 ]>
 

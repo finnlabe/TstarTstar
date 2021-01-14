@@ -6,17 +6,17 @@
 
 <!ENTITY OUTPUTdir           "/nfs/dust/cms/user/flabe/TstarTstar/data/Preselection/2017/">
 
-<!ENTITY SingleMuon2017_RunB   SYSTEM  "../../common/datasets/RunII_102X_v1/2017/DATA_SingleMuon2017_RunB.xml">
-<!ENTITY SingleMuon2017_RunC   SYSTEM  "../../common/datasets/RunII_102X_v1/2017/DATA_SingleMuon2017_RunC.xml">
-<!ENTITY SingleMuon2017_RunD   SYSTEM  "../../common/datasets/RunII_102X_v1/2017/DATA_SingleMuon2017_RunD.xml">
-<!ENTITY SingleMuon2017_RunE   SYSTEM  "../../common/datasets/RunII_102X_v1/2017/DATA_SingleMuon2017_RunE.xml">
-<!ENTITY SingleMuon2017_RunF   SYSTEM  "../../common/datasets/RunII_102X_v1/2017/DATA_SingleMuon2017_RunF.xml">
+<!ENTITY SingleMuon2017_RunB   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2017/DATA_SingleMuon2017_RunB.xml">
+<!ENTITY SingleMuon2017_RunC   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2017/DATA_SingleMuon2017_RunC.xml">
+<!ENTITY SingleMuon2017_RunD   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2017/DATA_SingleMuon2017_RunD.xml">
+<!ENTITY SingleMuon2017_RunE   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2017/DATA_SingleMuon2017_RunE.xml">
+<!ENTITY SingleMuon2017_RunF   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2017/DATA_SingleMuon2017_RunF.xml">
 
-<!ENTITY SingleElectron2017_RunB   SYSTEM  "../../common/datasets/RunII_102X_v1/2017/DATA_SingleElectron_Run2017B.xml">
-<!ENTITY SingleElectron2017_RunC   SYSTEM  "../../common/datasets/RunII_102X_v1/2017/DATA_SingleElectron_Run2017C.xml">
-<!ENTITY SingleElectron2017_RunD   SYSTEM  "../../common/datasets/RunII_102X_v1/2017/DATA_SingleElectron_Run2017D.xml">
-<!ENTITY SingleElectron2017_RunE   SYSTEM  "../../common/datasets/RunII_102X_v1/2017/DATA_SingleElectron_Run2017E.xml">
-<!ENTITY SingleElectron2017_RunF   SYSTEM  "../../common/datasets/RunII_102X_v1/2017/DATA_SingleElectron_Run2017F.xml">
+<!ENTITY SingleElectron2017_RunB   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2017/DATA_SingleElectron_Run2017B.xml">
+<!ENTITY SingleElectron2017_RunC   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2017/DATA_SingleElectron_Run2017C.xml">
+<!ENTITY SingleElectron2017_RunD   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2017/DATA_SingleElectron_Run2017D.xml">
+<!ENTITY SingleElectron2017_RunE   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2017/DATA_SingleElectron_Run2017E.xml">
+<!ENTITY SingleElectron2017_RunF   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2017/DATA_SingleElectron_Run2017F.xml">
 
 ]>
 

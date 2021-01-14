@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE JobConfiguration PUBLIC "" "JobConfig.dtd" [
 
-<!ENTITY TTToSemiLeptonic                                       SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_TTToSemiLeptonic.xml">
-<!ENTITY ST_tW_top_5f_NoFullyHadronicDecays                     SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_ST_tW_top_5f_NoFullyHadronicDecays.xml">
-<!ENTITY ST_tW_antitop_5f_NoFullyHadronicDecays                 SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_ST_tW_antitop_5f_NoFullyHadronicDecays.xml">
-<!ENTITY ST_s-channel_4f_leptonDecays                           SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_ST_s-channel_4f_leptonDecays.xml">
-<!ENTITY SingleTop_t-channel_top                                SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_SingleTop_t-channel_top.xml">
-<!ENTITY SingleTop_t-channel_antitop                            SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_SingleTop_t-channel_antitop.xml">
-<!ENTITY WJetsToLNu_HT-70To100                                  SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-70To100.xml">
-<!ENTITY WJetsToLNu_HT-100To200                                 SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-100To200.xml">
-<!ENTITY WJetsToLNu_HT-200To400                                 SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-200To400.xml">
-<!ENTITY WJetsToLNu_HT-400To600                                 SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-400To600.xml">
-<!ENTITY WJetsToLNu_HT-600To800                                 SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-600To800.xml">
-<!ENTITY WJetsToLNu_HT-800To1200                                SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-800To1200.xml">
-<!ENTITY WJetsToLNu_HT-1200To2500                               SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-1200To2500.xml">
-<!ENTITY WJetsToLNu_HT-2500ToInf                                SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-2500ToInf.xml">
+<!ENTITY TTToSemiLeptonic                                       SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2018/MC_TTToSemiLeptonic.xml">
+<!ENTITY ST_tW_top_5f_NoFullyHadronicDecays                     SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2018/MC_ST_tW_top_5f_NoFullyHadronicDecays.xml">
+<!ENTITY ST_tW_antitop_5f_NoFullyHadronicDecays                 SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2018/MC_ST_tW_antitop_5f_NoFullyHadronicDecays.xml">
+<!ENTITY ST_s-channel_4f_leptonDecays                           SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2018/MC_ST_s-channel_4f_leptonDecays.xml">
+<!ENTITY SingleTop_t-channel_top                                SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2018/MC_SingleTop_t-channel_top.xml">
+<!ENTITY SingleTop_t-channel_antitop                            SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2018/MC_SingleTop_t-channel_antitop.xml">
+<!ENTITY WJetsToLNu_HT-70To100                                  SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-70To100.xml">
+<!ENTITY WJetsToLNu_HT-100To200                                 SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-100To200.xml">
+<!ENTITY WJetsToLNu_HT-200To400                                 SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-200To400.xml">
+<!ENTITY WJetsToLNu_HT-400To600                                 SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-400To600.xml">
+<!ENTITY WJetsToLNu_HT-600To800                                 SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-600To800.xml">
+<!ENTITY WJetsToLNu_HT-800To1200                                SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-800To1200.xml">
+<!ENTITY WJetsToLNu_HT-1200To2500                               SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-1200To2500.xml">
+<!ENTITY WJetsToLNu_HT-2500ToInf                                SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2018/MC_WJetsToLNu_HT-2500ToInf.xml">
 
-<!ENTITY WWToLNuQQ                                              SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WW_TuneCP5_13TeV-pythia8.xml">
-<!ENTITY WZToLNu2Q                                              SYSTEM  "../../common/datasets/RunII_102X_v1/2018/MC_WZ_TuneCP5_13TeV-pythia8.xml">
+<!ENTITY WWToLNuQQ                                              SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2018/MC_WW_TuneCP5_13TeV-pythia8.xml">
+<!ENTITY WZToLNu2Q                                              SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2018/MC_WZ_TuneCP5_13TeV-pythia8.xml">
 
 <!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/TstarTstar/data/Preselection/2018/">
 ]>

@@ -4,16 +4,16 @@
 <!ENTITY b_Cacheable     "False">
 <!ENTITY NEVT            "-1">
 
-<!ENTITY QCDPt170to300 SYSTEM "../../common/datasets/RunII_102X_v1/2018/MC_QCD_Pt_170to300_TuneCP5_13TeV_pythia8.xml">
-<!ENTITY QCDPt300to470 SYSTEM "../../common/datasets/RunII_102X_v1/2018/MC_QCD_Pt_300to470_TuneCP5_13TeV_pythia8.xml">
-<!ENTITY QCDPt470to600 SYSTEM "../../common/datasets/RunII_102X_v1/2018/MC_QCD_Pt_470to600_TuneCP5_13TeV_pythia8.xml">
-<!ENTITY QCDPt600to800 SYSTEM "../../common/datasets/RunII_102X_v1/2018/MC_QCD_Pt_600to800_TuneCP5_13TeV_pythia8.xml">
-<!ENTITY QCDPt800to1000 SYSTEM "../../common/datasets/RunII_102X_v1/2018/MC_QCD_Pt_800to1000_TuneCP5_13TeV_pythia8.xml">
-<!ENTITY QCDPt1000to1400 SYSTEM "../../common/datasets/RunII_102X_v1/2018/MC_QCD_Pt_1000to1400_TuneCP5_13TeV_pythia8.xml">
-<!ENTITY QCDPt1400to1800 SYSTEM "../../common/datasets/RunII_102X_v1/2018/MC_QCD_Pt_1400to1800_TuneCP5_13TeV_pythia8.xml">
-<!ENTITY QCDPt1800to2400 SYSTEM "../../common/datasets/RunII_102X_v1/2018/MC_QCD_Pt_1800to2400_TuneCP5_13TeV_pythia8.xml">
-<!ENTITY QCDPt2400to3200 SYSTEM "../../common/datasets/RunII_102X_v1/2018/MC_QCD_Pt_2400to3200_TuneCP5_13TeV_pythia8.xml">
-<!ENTITY QCDPt3200toInf SYSTEM "../../common/datasets/RunII_102X_v1/2018/MC_QCD_Pt_3200toInf_TuneCP5_13TeV_pythia8.xml">
+<!ENTITY QCDPt170to300 SYSTEM "../../common/UHH2-datasets/RunII_102X_v1/2018/MC_QCD_Pt_170to300_TuneCP5_13TeV_pythia8.xml">
+<!ENTITY QCDPt300to470 SYSTEM "../../common/UHH2-datasets/RunII_102X_v1/2018/MC_QCD_Pt_300to470_TuneCP5_13TeV_pythia8.xml">
+<!ENTITY QCDPt470to600 SYSTEM "../../common/UHH2-datasets/RunII_102X_v1/2018/MC_QCD_Pt_470to600_TuneCP5_13TeV_pythia8.xml">
+<!ENTITY QCDPt600to800 SYSTEM "../../common/UHH2-datasets/RunII_102X_v1/2018/MC_QCD_Pt_600to800_TuneCP5_13TeV_pythia8.xml">
+<!ENTITY QCDPt800to1000 SYSTEM "../../common/UHH2-datasets/RunII_102X_v1/2018/MC_QCD_Pt_800to1000_TuneCP5_13TeV_pythia8.xml">
+<!ENTITY QCDPt1000to1400 SYSTEM "../../common/UHH2-datasets/RunII_102X_v1/2018/MC_QCD_Pt_1000to1400_TuneCP5_13TeV_pythia8.xml">
+<!ENTITY QCDPt1400to1800 SYSTEM "../../common/UHH2-datasets/RunII_102X_v1/2018/MC_QCD_Pt_1400to1800_TuneCP5_13TeV_pythia8.xml">
+<!ENTITY QCDPt1800to2400 SYSTEM "../../common/UHH2-datasets/RunII_102X_v1/2018/MC_QCD_Pt_1800to2400_TuneCP5_13TeV_pythia8.xml">
+<!ENTITY QCDPt2400to3200 SYSTEM "../../common/UHH2-datasets/RunII_102X_v1/2018/MC_QCD_Pt_2400to3200_TuneCP5_13TeV_pythia8.xml">
+<!ENTITY QCDPt3200toInf SYSTEM "../../common/UHH2-datasets/RunII_102X_v1/2018/MC_QCD_Pt_3200toInf_TuneCP5_13TeV_pythia8.xml">
 
 <!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/TstarTstar/data/Preselection/2018/">
 ]>
