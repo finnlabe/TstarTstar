@@ -6,15 +6,15 @@
 
 void general2Dplotter(TString filename="TstarTstar", TString subpath="DNN", TString histname="2D_DNN_ST"){
   // gStyle->SetOptStat(0);
-  // gStyle->SetTitleSize(0.045,"x");  
+  // gStyle->SetTitleSize(0.045,"x");
   // gStyle->SetTitleSize(0.045,"y");
   // gStyle->SetTitleYOffset(0.9);
 
   gStyle->SetOptFit(0);
   gStyle->SetOptStat(0);
-  gStyle->SetTitleSize(0.06,"x");  
+  gStyle->SetTitleSize(0.06,"x");
   gStyle->SetTitleSize(0.06,"y");
-  gStyle->SetLabelSize(0.05,"x");  
+  gStyle->SetLabelSize(0.05,"x");
   gStyle->SetLabelSize(0.05,"y");
   gStyle->SetLabelSize(0.05,"z");
   gStyle->SetTitleYOffset(1.20);
@@ -29,10 +29,10 @@ void general2Dplotter(TString filename="TstarTstar", TString subpath="DNN", TStr
   gROOT->ForceStyle();
   Double_t w = 600;
   Double_t h = 600;
-  
+
 
  //Files after selection
- TString path = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/AfterDNN/hadded/";
+ TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/";
  TString fileprefix = "uhh2.AnalysisModuleRunner.MC.";
  //TString fileprefix = "";
 
@@ -62,7 +62,7 @@ void general2Dplotter(TString filename="TstarTstar", TString subpath="DNN", TStr
    }
  }
 
- hist->GetXaxis()->SetTitle("H_{T} [GeV]");
+ hist->GetXaxis()->SetTitle("S_{T} [GeV]");
  hist->GetYaxis()->SetTitle("DNN output");
  hist->SetTitle("");
 

@@ -6,11 +6,12 @@
 
 void GeneralPlotterMultiples(){
 
-  TString path_pre = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/";
-  std::vector<TString> files = {"Preselection/hadded/uhh2.AnalysisModuleRunner.MC.TstarTstar_M-1000.root", "Selection/hadded/uhh2.AnalysisModuleRunner.MC.TstarTstar_M-1000.root"};
-  std::vector<TString> steps = {"AfterMET_gen", "beginSel_gen"};
-  std::vector<TString> hists = {"weight", "weight"};
-  std::vector<TString> labels = {"Presel", "Sel"};
+  TString path_pre = "/nfs/dust/cms/user/flabe/TstarTstar/data/";
+  std::vector<TString> files = {"GenInfo/hadded/uhh2.AnalysisModuleRunner.MC.TstarTstar_M-700.root", "GenInfo/hadded/uhh2.AnalysisModuleRunner.MC.TstarTstar_M-1300.root", "GenInfo/hadded/uhh2.AnalysisModuleRunner.MC.TstarTstar_M-2000.root"};
+  std::vector<TString> steps = {"GenRecoMatchedHists", "GenRecoMatchedHists", "GenRecoMatchedHists"};
+  std::vector<TString> hists = {"topmatches", "topmatches", "topmatches"};
+  std::vector<TString> labels = {"T* M-700", "T* M-1300", "T* M-2000"};
+  bool normalize = true;
 
   Double_t w = 800;
   Double_t h = 600;
@@ -23,10 +24,11 @@ void GeneralPlotterMultiples(){
     TFile *input = TFile::Open(path_pre+files.at(i));
     TH1D *hist = (TH1D*)input->Get(steps.at(i)+"/"+hists.at(i)); //histogram
     if(!hist) cout<<"Hist is empty"<<endl;;
-    hist->SetMarkerStyle(20);
+    if(normalize) hist->Scale(1/hist->Integral());
+    hist->SetMarkerStyle(0);
     hist->SetMarkerColor(i+1);
-    hist->SetLineColor(i+1);
-    hist->GetYaxis()->SetRangeUser(0, 10000);
+    hist->SetLineStyle(i+1);
+    hist->GetYaxis()->SetRangeUser(0, .8);
     hist->Draw("hist same");
     legend->AddEntry(hist, labels.at(i));
   }

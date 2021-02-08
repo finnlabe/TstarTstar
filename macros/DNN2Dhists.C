@@ -32,7 +32,7 @@ void DNN2Dhists(TString filename="MC.TstarTstar_M-1200.root", TString filename2=
   
 
  //Files after selection
- TString path = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Analysis/2016/hadded/";
+ TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/Analysis/2016/hadded/";
  TString fileprefix = "uhh2.AnalysisModuleRunner.";
  TString histname="2D_DNN_";
 
