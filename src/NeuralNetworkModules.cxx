@@ -207,12 +207,12 @@ std::vector<double> NeuralNetworkInputNormalizer::normalizeInputs(uhh2::Event& e
 
 NeuralNetworkIncluder::NeuralNetworkIncluder(Context& ctx, bool parametrized) {
   is_parametrized = parametrized;
-  path = "/nfs/dust/cms/user/flabe/CMSSW/CMSSW_10_2_10/src/UHH2/MLCorner/TstarNN/";
+  path = "/nfs/dust/cms/user/flabe/MLCorner/TstarNN/old/";
   if(parametrized) path += "Parametric";
   else path += "NonParametric";
   NNInputCreator.reset(new NeuralNetworkInputCreator(ctx));
   NNInputNormalizer.reset(new NeuralNetworkInputNormalizer(ctx, path));
-  NNModule.reset(new NeuralNetworkModule(ctx, path+"/bestModel/model.pb", path+"/bestModel/model.config.pbtxt"));
+  NNModule.reset(new NeuralNetworkModule(ctx, path+"/model.pb", path+"/model.config.pbtxt"));
   h_masspoint = ctx.get_handle<double>("masspoint");
   h_DNN_output = ctx.declare_event_output<double>("DNN_output");
 }

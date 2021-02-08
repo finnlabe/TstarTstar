@@ -55,7 +55,8 @@ private:
 
 
   // ##### Histograms #####
-  std::unique_ptr<Hists> h_topcheck, h_topcheck_reweighted, h_topcheck_reweighted_2;
+  std::unique_ptr<Hists> h_topcheck, h_topcheck_reweighted;
+  std::unique_ptr<Hists> h_STreweighted;
 
   std::unique_ptr<Hists> h_AfterDNNcut_02, h_AfterDNNcut_03, h_AfterDNNcut_04, h_AfterDNNcut_05, h_AfterDNNcut_06, h_AfterDNNcut_07, h_AfterDNNcut_08;
   std::unique_ptr<Hists> h_notDNNcut_02,   h_notDNNcut_03,   h_notDNNcut_04,   h_notDNNcut_05,   h_notDNNcut_06,   h_notDNNcut_07,   h_notDNNcut_08;
@@ -76,7 +77,6 @@ private:
   uhh2::Event::Handle<double> h_evt_weight;
 
   uhh2::Event::Handle<double> h_ST_weight;
-  uhh2::Event::Handle<double> h_ST_weight_2;
 
   uhh2::Event::Handle<double> h_DNN_output;
   uhh2::Event::Handle<bool> h_do_masspoint;
@@ -122,7 +122,8 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   // 3. Set up Hists classes:
   h_topcheck.reset(new TstarTstarAllGenHists(ctx, "topcheck"));
   h_topcheck_reweighted.reset(new TstarTstarAllGenHists(ctx, "topcheck_reweighted"));
-  h_topcheck_reweighted_2.reset(new TstarTstarAllGenHists(ctx, "topcheck_reweighted_2"));
+
+  h_STreweighted.reset(new TstarTstarHists(ctx, "topcheck"));
 
   h_AfterDNNcut_02.reset(new TstarTstarHists(ctx, "AfterDNNcut_02"));
   h_notDNNcut_02.reset(new TstarTstarHists(ctx, "notDNNcut_02"));
@@ -166,7 +167,6 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_flag_muonevent = ctx.get_handle<int>("flag_muonevent");
 
   h_ST_weight = ctx.declare_event_output<double>("ST_weight");
-  h_ST_weight_2 = ctx.declare_event_output<double>("ST_weight_flat");
 
   h_DNN_output = ctx.get_handle<double>("DNN_output");
 
@@ -184,14 +184,19 @@ bool TstarTstarDNNModule::process(Event & event) {
 
   // get ST weights
   double ST_weight = event.get(h_ST_weight);
-  double ST_weight_2 = event.get(h_ST_weight_2);
 
   // set primary lepton
   reco_primlep->process(event);
 
-  // claculating H_T
+  event.weight = ST_weight * event.get(h_evt_weight);
+  h_STreweighted->fill(event);
+  event.weight = event.get(h_evt_weight);
+
+  // claculating ST
   double st_jets = 0;
   for(const auto & jet : *event.topjets) st_jets += jet.pt();
+  for(const auto & lepton : *event.electrons) st_jets += lepton.pt();
+  for(const auto & lepton : *event.muons) st_jets += lepton.pt();
 
   // ################
   // ### DNN Part ###
@@ -208,10 +213,6 @@ bool TstarTstarDNNModule::process(Event & event) {
   if(is_TTbar) event.weight *= ST_weight;
   h_DNN_reweighted->fill(event);
   h_topcheck_reweighted->fill(event);
-  event.weight = event.get(h_evt_weight);
-  if(is_TTbar || is_Signal) event.weight = ST_weight_2;
-  h_DNN_reweighted_2->fill(event);
-  h_topcheck_reweighted_2->fill(event);
   event.weight = event.get(h_evt_weight);
   if(event.topjets->at(0).pt() < 500) h_DNN_lowpt->fill(event);
   else if (event.topjets->at(0).pt() < 1000) h_DNN_medpt->fill(event);
