@@ -20,6 +20,7 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   topjetID = AndId<TopJet>(HOTVRTopTag(), Tau32Groomed(0.56));
 
   h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
+  h_neutrino = ctx.get_handle<LorentzVector>("neutrino");
 
   // book all histograms here
   book<TH1F>("weight", "weight", 55, -1, 10);
@@ -64,15 +65,6 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   book<TH2D>("pt_mu_pt_HOTVR1", ";p_{T}^{#mu}; p_{T}^{AK8 jet 1}", 60, 10, 1100, 70, 10, 2500);
   book<TH2D>("pt_ele_pt_HOTVR1", ";p_{T}^{ele}; p_{T}^{AK8 jet 1}", 60, 10, 1100, 70, 10, 2500);
 
-  // book<TH2D>("EMcharged_vs_eta_jet1","EMcharged vs #eta; #eta; EMcharged",100,-6,6,100,0.0,1.0);
-  // book<TH2D>("EMneutral_vs_eta_jet1","EMneutral vs #eta; #eta; EMneutral",100,-6,6,100,0.0,1.0);
-  // book<TH2D>("HADcharged_vs_eta_jet1","HADcharged vs #eta; #eta; HADcharged",100,-6,6,100,0.0,1.0);
-  // book<TH2D>("HADneutral_vs_eta_jet1","HADneutral vs #eta; #eta; HADneutral",100,-6,6,100,0.0,1.0);
-  // book<TH2D>("EMcharged_vs_PU_jet1","EMcharged vs PU; PU; EMcharged",100,0,100,100,0.0,1.0);
-  // book<TH2D>("EMneutral_vs_PU_jet1","EMneutral vs PU; PU; EMneutral",100,0,100,100,0.0,1.0);
-  // book<TH2D>("HADcharged_vs_PU_jet1","HADcharged vs PU; PU; HADcharged",100,0,100,100,0.0,1.0);
-  // book<TH2D>("HADneutral_vs_PU_jet1","HADneutral vs PU; PU; HADneutral",100,0,100,100,0.0,1.0);
-
   book<TH1F>("tau32_HOTVR1", "HOTVR-1 #tau_{32}", 20, 0, 1);
   book<TH1F>("jetmass_HOTVR1", "m_{HOTVR-1}", 25, 0, 500);
 
@@ -96,10 +88,22 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   // primary vertices
   book<TH1F>("N_pv", "N^{PV}", 50, 0, 50);
 
-  // MET and HT
+  // MET
   book<TH1F>("pt_MET", "missing E_{T} [GeV]", 100, 0, 2000);
-  book<TH1F>("pt_ST_jets", "S_{T} [GeV]", 30, 0, 3000);
-  book<TH1F>("pt_ST_jets_oldbins", "S_{T}^{jets}=#sum_{i}|HOTVR p^{i}_{T}| [GeV]", 100, 10, 4000);
+
+  // ST and HT
+  book<TH1F>("pt_HT", "H_{T} [GeV]", 30, 0, 3000);
+  book<TH1F>("pt_HTlep", "H_{T} + p_{T} (#ell) [GeV]", 30, 0, 3000);
+  book<TH1F>("pt_ST", "S_{T} [GeV]", 30, 0, 3000);
+  book<TH1F>("pt_ST_fullrange", "S_{T} [GeV]", 50, 0, 5000);
+  book<TH1F>("pt_asym12", "#Delta p_{T} (jet 1, jet 2) [GeV]", 20, 0, 2000);
+  book<TH1F>("pt_asym13", "#Delta p_{T} (jet 1, jet 3) [GeV]", 20, 0, 2000);
+  book<TH1F>("pt_asym14", "#Delta p_{T} (jet 1, jet 4) [GeV]", 20, 0, 2000);
+  book<TH1F>("pt_asym23", "#Delta p_{T} (jet 2, jet 3) [GeV]", 20, 0, 2000);
+  book<TH1F>("pt_asym24", "#Delta p_{T} (jet 2, jet 4) [GeV]", 20, 0, 2000);
+  book<TH1F>("pt_asym34", "#Delta p_{T} (jet 3, jet 4) [GeV]", 20, 0, 2000);
+  book<TH1F>("pt_asym12_over_ST", "#Delta p_{T} (jet 1, jet 2) / S_{T} [GeV]", 15, 0, 1.5);
+
 
   // deltaR observables
   book<TH1F>("dR_lepton_closestJet", "#DeltaR (lepton, closestJet)", 30, 0, 6);
@@ -264,11 +268,34 @@ void TstarTstarHists::fill(const Event & event){
   hist("pt_MET")->Fill(event.met->pt(), weight);
   if(debug) cout << "Finished filling MET observables." << endl;
 
-  double st_jets = 0.;
-  for(const auto & jet : *event.topjets) st_jets += jet.pt();
-  if(st_jets > 3000) hist("pt_ST_jets")->Fill(2999.9, weight);
-  else hist("pt_ST_jets")->Fill(st_jets, weight);
-  hist("pt_ST_jets_oldbins")->Fill(st_jets, weight);
+  double st = 0.;
+  for(const auto & jet : *event.topjets) st += jet.pt();
+  if(st > 3000) hist("pt_HT")->Fill(2999.9, weight);
+  else hist("pt_HT")->Fill(st, weight);
+
+  for(const auto & lepton : *event.electrons) st += lepton.pt();
+  for(const auto & lepton : *event.muons) st += lepton.pt();
+  if(st > 3000) hist("pt_HTlep")->Fill(2999.9, weight);
+  else hist("pt_HTlep")->Fill(st, weight);
+
+  try {
+    LorentzVector neutrino = event.get(h_neutrino);
+    st += neutrino.pt();
+    if(st > 3000) hist("pt_ST")->Fill(2999.9, weight);
+    else hist("pt_ST")->Fill(st, weight);
+    hist("pt_ST_fullrange")->Fill(st, weight);
+  } catch(...) {}
+
+  // p_T asymmetry
+  if(event.jets->size() > 3) {
+    hist("pt_asym12")->Fill(event.jets->at(0).pt()-event.jets->at(1).pt(), weight);
+    hist("pt_asym13")->Fill(event.jets->at(0).pt()-event.jets->at(2).pt(), weight);
+    hist("pt_asym14")->Fill(event.jets->at(0).pt()-event.jets->at(3).pt(), weight);
+    hist("pt_asym23")->Fill(event.jets->at(1).pt()-event.jets->at(2).pt(), weight);
+    hist("pt_asym24")->Fill(event.jets->at(1).pt()-event.jets->at(3).pt(), weight);
+    hist("pt_asym34")->Fill(event.jets->at(2).pt()-event.jets->at(3).pt(), weight);
+    hist("pt_asym12_over_ST")->Fill((event.jets->at(0).pt()-event.jets->at(1).pt())/st, weight);
+  }
 
   // dR stuff
   FlavorParticle primary_lepton;

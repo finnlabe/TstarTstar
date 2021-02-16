@@ -65,9 +65,9 @@ private:
 
 
   // ##### Histograms #####
-  std::unique_ptr<Hists> h_beforeReco, h_beforeReco_ttag, h_beforeReco_nottag, h_beforeReco_mu, h_beforeReco_mu_lowpt, h_beforeReco_mu_highpt, h_beforeReco_ele, h_beforeReco_ele_lowpt, h_beforeReco_ele_highpt;
-  std::unique_ptr<Hists> h_passFatJetSel;
-  std::unique_ptr<Hists> h_beforeReco_gen;
+  std::unique_ptr<Hists> h_main, h_main_ttag, h_main_nottag, h_main_mu, h_main_mu_lowpt, h_main_mu_highpt, h_main_ele, h_main_ele_lowpt, h_main_ele_highpt;
+  std::unique_ptr<Hists> h_crosscheck;
+  std::unique_ptr<Hists> h_main_gen;
 
   std::unique_ptr<Hists> h_DNN_Inputs;
 
@@ -76,7 +76,7 @@ private:
   uhh2::Event::Handle<double> h_evt_weight;
   uhh2::Event::Handle<FlavorParticle> h_primlep;
   uhh2::Event::Handle<double> h_ST;
-  uhh2::Event::Handle<FlavorParticle> h_neutrino;
+  uhh2::Event::Handle<LorentzVector> h_neutrino;
 
   // for reconstruction
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
@@ -142,16 +142,17 @@ TstarTstarAnalysisModule::TstarTstarAnalysisModule(Context & ctx){
 
   // ###### 3. Set up histograms ######
   // before Reconstruction
-  h_beforeReco.reset(new TstarTstarHists(ctx, "beforeReco"));
-  h_beforeReco_ttag.reset(new TstarTstarHists(ctx, "beforeReco_ttag"));
-  h_beforeReco_nottag.reset(new TstarTstarHists(ctx, "beforeReco_nottag"));
-  h_beforeReco_mu.reset(new TstarTstarHists(ctx, "beforeReco_mu"));
-  h_beforeReco_mu_lowpt.reset(new TstarTstarHists(ctx, "beforeReco_mu_lowpt"));
-  h_beforeReco_mu_highpt.reset(new TstarTstarHists(ctx, "beforeReco_mu_highpt"));
-  h_beforeReco_ele.reset(new TstarTstarHists(ctx, "beforeReco_ele"));
-  h_beforeReco_ele_lowpt.reset(new TstarTstarHists(ctx, "beforeReco_ele_lowpt"));
-  h_beforeReco_ele_highpt.reset(new TstarTstarHists(ctx, "beforeReco_ele_highpt"));
-  h_beforeReco_gen.reset(new TstarTstarGenHists(ctx, "beforeReco_gen"));
+  h_crosscheck.reset(new TstarTstarHists(ctx, "crosscheck"));
+  h_main.reset(new TstarTstarHists(ctx, "main"));
+  h_main_ttag.reset(new TstarTstarHists(ctx, "main_ttag"));
+  h_main_nottag.reset(new TstarTstarHists(ctx, "main_nottag"));
+  h_main_mu.reset(new TstarTstarHists(ctx, "main_mu"));
+  h_main_mu_lowpt.reset(new TstarTstarHists(ctx, "main_mu_lowpt"));
+  h_main_mu_highpt.reset(new TstarTstarHists(ctx, "main_mu_highpt"));
+  h_main_ele.reset(new TstarTstarHists(ctx, "main_ele"));
+  h_main_ele_lowpt.reset(new TstarTstarHists(ctx, "main_ele_lowpt"));
+  h_main_ele_highpt.reset(new TstarTstarHists(ctx, "main_ele_highpt"));
+  h_main_gen.reset(new TstarTstarGenHists(ctx, "main_gen"));
 
   // DNN hists
   h_DNN_Inputs.reset(new TstarTstarDNNInputHists(ctx, "DNN_Inputs"));
@@ -161,7 +162,8 @@ TstarTstarAnalysisModule::TstarTstarAnalysisModule(Context & ctx){
   h_evt_weight = ctx.get_handle<double>("evt_weight");
   h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
   h_flag_muonevent = ctx.declare_event_output<int>("flag_muonevent");
-  h_neutrino = ctx.declare_event_output<FlavorParticle>("PrimaryLepton");
+  h_flag_toptagevent = ctx.declare_event_output<int>("flag_toptagevent");
+  h_neutrino = ctx.declare_event_output<LorentzVector>("neutrino");
 
   if(is_MC) h_ttbargen = ctx.get_handle<TTbarGen>("ttbargen");
 
@@ -173,7 +175,7 @@ TstarTstarAnalysisModule::TstarTstarAnalysisModule(Context & ctx){
     h_ST_weight = ctx.declare_event_output<double>("ST_weight");
   }
 
-  TFile *f = new TFile("/nfs/dust/cms/user/flabe/MLCorner/TstarNN/old/ST_weights.root");
+  TFile *f = new TFile("/nfs/dust/cms/user/flabe/MLCorner/TstarNN/reweightingApproach/output/data/ST_weights.root");
   ST_ratio = (TH1D*)f->Get("ST_ratio");
 
 }
@@ -187,6 +189,8 @@ bool TstarTstarAnalysisModule::process(Event & event) {
   // reapply weights
   event.weight = event.get(h_evt_weight);
   if(debug) cout << "weights applied." << endl;
+
+  h_crosscheck->fill(event);
 
   // set lepton channel
   const bool muon_evt = (event.muons->size() == 1);
@@ -202,47 +206,60 @@ bool TstarTstarAnalysisModule::process(Event & event) {
   // ttgen
   if(is_MC) ttgenprod->process(event);
 
+  // neutrinoreconstruction
+  const Particle& lepton = event.get(h_primlep); // Primary Lepton has to be set
+  std::vector<LorentzVector> neutrinos = NeutrinoReconstruction(lepton.v4(), event.met->v4());
+  if(debug) std::cout << "We have this many neutrino options: " << neutrinos.size() << std::endl;
+  for(auto &ntr : neutrinos) {
+    if(debug) std::cout << "Neutrino pt: " << ntr.pt() << std::endl;
+    double Wmass = inv_mass(ntr+lepton.v4());
+    if(debug) std::cout << "W mass: " << Wmass << std::endl;
+  }
+  event.set(h_neutrino, neutrinos.at(0));
+  // TODO find some better way to select best neutrino reconstruction?
+
+  if(debug) std::cout << "Hists before everything" << std::endl;
   // fill hists before things have happened
-  h_beforeReco->fill(event);
-  h_beforeReco_gen->fill(event);
-  if(pass_ttag) h_beforeReco_ttag->fill(event);
-  else h_beforeReco_nottag->fill(event);
+  h_main->fill(event);
+  h_main_gen->fill(event);
+  if(pass_ttag) h_main_ttag->fill(event);
+  else h_main_nottag->fill(event);
   if(event.get(h_flag_muonevent)){
-    h_beforeReco_mu->fill(event);
-    if(event.get(h_primlep).pt()<60) h_beforeReco_mu_lowpt->fill(event);
-    else h_beforeReco_mu_highpt->fill(event);
+    h_main_mu->fill(event);
+    if(event.get(h_primlep).pt()<60) h_main_mu_lowpt->fill(event);
+    else h_main_mu_highpt->fill(event);
   }
   else {
-    h_beforeReco_ele->fill(event);
-    if(event.get(h_primlep).pt()<120) h_beforeReco_ele_lowpt->fill(event);
-    else h_beforeReco_ele_highpt->fill(event);
+    h_main_ele->fill(event);
+    if(event.get(h_primlep).pt()<120) h_main_ele_lowpt->fill(event);
+    else h_main_ele_highpt->fill(event);
   }
 
-    // ########################################
-    // ########### DNN Preparation ############
-    // ########################################
+  // ########################################
+  // ########### DNN Preparation ############
+  // ########################################
 
-    if(debug) cout << "Start DNN stuff" << endl;
+  if(debug) cout << "Start DNN stuff" << endl;
 
-    // Filling output for DNN
-    if(outputDNNvalues){
-      event.set(h_do_masspoint, do_masspoint);
-      if(debug) cout << "Write inputs" << endl;
-      DNN_InputWriter->process(event);
-      if(debug) cout << "plot inputs" << endl;
-      h_DNN_Inputs->fill(event);
-      double st_jets = 0.;
-      for(const auto & jet : *event.topjets) st_jets += jet.pt();
-      for(const auto & lepton : *event.electrons) st_jets += lepton.pt();
-      for(const auto & lepton : *event.muons) st_jets += lepton.pt();
-      event.set(h_ST, st_jets);
-      double ST_weight = 1;
-      if(is_TTbar) ST_weight = 1/(ST_ratio->GetBinContent(ST_ratio->GetXaxis()->FindBin(st_jets)));
-      event.set(h_ST_weight, ST_weight);
-    }
+  // Filling output for DNN
+  if(outputDNNvalues){
+    event.set(h_do_masspoint, do_masspoint);
+    if(debug) cout << "Write inputs" << endl;
+    DNN_InputWriter->process(event);
+    if(debug) cout << "plot inputs" << endl;
+    h_DNN_Inputs->fill(event);
+    double st_jets = 0.;
+    for(const auto & jet : *event.topjets) st_jets += jet.pt();
+    for(const auto & lepton : *event.electrons) st_jets += lepton.pt();
+    for(const auto & lepton : *event.muons) st_jets += lepton.pt();
+    event.set(h_ST, st_jets);
+    double ST_weight = 1;
+    if(is_TTbar) ST_weight = 1/(ST_ratio->GetBinContent(ST_ratio->GetXaxis()->FindBin(st_jets)));
+    event.set(h_ST_weight, ST_weight);
+  }
 
-    if(debug){cout << "Done ##################################" << endl;}
-    return true;
+  if(debug){cout << "Done ##################################" << endl;}
+  return true;
 
 }
 
