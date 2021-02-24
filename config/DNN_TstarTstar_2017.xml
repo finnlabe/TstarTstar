@@ -23,7 +23,7 @@
 
 	<!-- ##### gluon gluon ##### -->
 
-	<InputData Lumi="192800" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-700_207v2" Cacheable="False">
+	<InputData Lumi="192800" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-700_2017v2" Cacheable="False">
 	 <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.TstarTstarToTgluonTgluon_M-700_2017v2.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
@@ -119,7 +119,7 @@
       <Item Name="lumi_file" Value="common/data/2017/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON_v1.root"/>
 	    <Item Name="lumihists_lumi_per_bin" Value="500.0"/>
 
-      <Item Name="additionalBranches" Value="is_muevt evt_weight ST_weight DNN_Inputs" />
+      <Item Name="additionalBranches" Value="is_muevt evt_weight ST_weight DNN_Inputs neutrino" />
 
 <!--	    <Item Name="is_puppi" Value="&IS_PUPPI;"/> -->
 
