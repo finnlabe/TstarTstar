@@ -69,6 +69,7 @@ private:
   // ###### Control switches ######
   bool debug = false;
   bool do_masspoint = false;
+  bool doAddInputs = false;
 
 
   // ###### Handles ######
@@ -81,6 +82,7 @@ private:
   uhh2::Event::Handle<double> h_DNN_output;
   uhh2::Event::Handle<bool> h_do_masspoint;
   uhh2::Event::Handle<double> h_ST;
+  uhh2::Event::Handle<bool> h_DoAddInputs;
 
 
   // ###### other parameters ######
@@ -165,6 +167,7 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_evt_weight = ctx.get_handle<double>("evt_weight");
   h_flag_toptagevent = ctx.get_handle<int>("flag_toptagevent");
   h_flag_muonevent = ctx.get_handle<int>("flag_muonevent");
+  h_DoAddInputs = ctx.declare_event_output<bool>("doAddInputs");
 
   h_ST_weight = ctx.declare_event_output<double>("ST_weight");
 
@@ -187,6 +190,9 @@ bool TstarTstarDNNModule::process(Event & event) {
 
   // set primary lepton
   reco_primlep->process(event);
+
+  // setting addInputs
+  event.set(h_DoAddInputs, doAddInputs);
 
   event.weight = ST_weight * event.get(h_evt_weight);
   h_STreweighted->fill(event);

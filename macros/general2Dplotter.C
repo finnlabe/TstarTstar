@@ -63,10 +63,54 @@ void general2Dplotter(TString filename="TstarTstar", TString subpath="DNN", TStr
  }
 
  hist->GetXaxis()->SetTitle("S_{T} [GeV]");
+ hist->GetXaxis()->SetNdivisions(505);
  hist->GetYaxis()->SetTitle("DNN output");
  hist->SetTitle("");
 
  hist->Draw("colz");
- c1_hist->SaveAs(filename+"_"+subpath+"_"+histname+".pdf");
+
+ // draw Lumi text
+ TString infotext = TString::Format("%3.1f fb^{-1} (%d TeV)", 137., 13);
+ TLatex *text = new TLatex(3.5, 24, infotext);
+ text->SetNDC();
+ text->SetTextAlign(33);
+ text->SetX(0.88);
+ text->SetTextFont(42);
+ text->SetY(1);
+ text->SetTextSize(0.045);
+ text->Draw();
+
+ // draw CMS Work in Progress text
+ TString cmstext = "CMS";
+ TLatex *text2 = new TLatex(3.5, 24, cmstext);
+ text2->SetNDC();
+ text2->SetTextAlign(13);
+ text2->SetX(0.185);
+ text2->SetTextFont(62);
+ text2->SetTextSize(0.05);
+ text2->SetY(1);
+ text2->Draw();
+ TString preltext = "Work in Progress";
+ TLatex *text3 = new TLatex(3.5, 24, preltext);
+ text3->SetNDC();
+ text3->SetTextAlign(13);
+ text3->SetX(0.29);
+ text3->SetTextFont(52);
+ text3->SetTextSize(0.035);
+ text3->SetY(0.986);
+ text3->Draw();
+
+ // Draw line after certain bin to split presel, sel,
+ Double_t x[2], y[2];
+ x[0] = 500;
+ x[1] = 500;
+ y[0] = 0;
+ y[1] = 1;
+ TGraph *gr = new TGraph(2,x,y);
+ gr->SetLineColor(1);
+ gr->SetLineWidth(2);
+ gr->Draw("same");
+
+ c1_hist->SaveAs("plots/"+filename+"_"+subpath+"_"+histname+".pdf");
 
 }

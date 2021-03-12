@@ -6,6 +6,8 @@
 
 void efficiencies(TString suffix = ""){
 
+  gROOT->SetBatch(kTRUE); // to not open canvas and get XQuartz in the way
+
   Double_t w = 420;
   Double_t h = 400;
 
@@ -15,27 +17,28 @@ void efficiencies(TString suffix = ""){
 
   // Drawing Definitions
   TCanvas *canvas = new TCanvas("chist", "c", w, h);
-  TLegend *leg = new TLegend(0.22,0.175,0.4,0.60);
+  TLegend *leg = new TLegend(0.22,0.2,0.4,0.60);
   //TLegend *leg = new TLegend(0.45,0.755,0.825,0.88);
 
   leg->SetTextFont(42);
   leg->SetTextSize(0.035);
 
   gPad->SetTopMargin(0.05); gPad->SetBottomMargin(0.16);  gPad->SetLeftMargin(0.19); gPad->SetRightMargin(0.065);
+  gPad->SetTicky();
 
   canvas->SetLogy();
   //leg->SetNColumns(4);
 
   // Defining paths
-  TString pathPresel = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/hadded/";
-  TString pathSel = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/hadded/";
-  TString pathReco = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Analysis/hadded/";
+  TString pathPresel = "/nfs/dust/cms/user/flabe/TstarTstar/data/Preselection/hadded/";
+  TString pathSel = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/hadded/";
+  TString pathReco = "/nfs/dust/cms/user/flabe/TstarTstar/data/Analysis/hadded/";
   TString fileprefix = "uhh2.AnalysisModuleRunner.MC.";
   TString histname = "N_jets";
 
   // Defining Steps
-  std::vector<TString> preselSteps = {"AfterTrigger", "AfterLepSel", "AfterAK8jets", "AfterMET"};
-  std::vector<TString> selSteps = {};
+  std::vector<TString> preselSteps = {"AfterTrigger", "AfterLep", "AfterJets", "AfterFatJets", "AfterMET"};
+  std::vector<TString> selSteps = {"AfterBtag", "AfterdR"};
   std::vector<TString> recoSteps = {};
   int stepcount = preselSteps.size() + selSteps.size() + recoSteps.size();
 
@@ -58,14 +61,14 @@ void efficiencies(TString suffix = ""){
   std::vector<TString> BGSamples = {"TTbar", "ST", "WJets", "QCD"};
   //std::vector<TString> BGSamples = {};
 
-  std::vector<TString> signal_labels = {"T* M-700", "T* M-1600"};
-  std::vector<TString> BG_labels = {"t#bar{t}", "ST", "W+jets", "QCD"};
+  std::vector<TString> signal_labels = {"T* 700 GeV", "T* 1600 GeV"};
+  std::vector<TString> BG_labels = {"t#bar{t}", "single t", "W+jets", "QCD"};
 
   // Defining Drawing options
   std::vector<int> colors_Signal = {1, 1, 1, 1};
   std::vector<int> line_Signal = {2, 3, 4, 5};
   std::vector<int> colors_BG = {810, 800, 600, 867};
-  std::vector<TString> labels = {"Trigger", "N_{lep}","N_{jet}", "MET","b-tag", "kinematic", "reco", "should not be visible"};
+  std::vector<TString> labels = {"Trigger", "N_{lep}", "N_{AK4}", "N_{HOTVR}", "MET", "b-tag", "iso.", "should not be visible"};
 
   // ########################
   // ## Finish Definitions ##
@@ -83,8 +86,14 @@ void efficiencies(TString suffix = ""){
   for(const auto & sample : BGSamples){
     input = TFile::Open(pathPresel+fileprefix+sample+".root");
     hist = (TH1D*)input->Get(preselSteps.at(0)+"/"+histname);
-    initial_BG.push_back(hist->Integral());
-    initial_BG_sum += hist->Integral();
+    double val = hist->Integral();
+    if (sample == "WJets") {
+      input = TFile::Open(pathPresel+fileprefix+sample+"_1.root");
+      hist = (TH1D*)input->Get(preselSteps.at(0)+"/"+histname);
+      val += hist->Integral();
+    }
+    initial_BG.push_back(val);
+    initial_BG_sum += val;
   }
   // if no presel is present:
   /**
@@ -127,6 +136,11 @@ void efficiencies(TString suffix = ""){
       input = TFile::Open(pathPresel+fileprefix+sample+".root");
       hist = (TH1D*)input->Get(step+"/"+histname);
       double val = hist->Integral();
+      if (sample == "WJets") {
+        input = TFile::Open(pathPresel+fileprefix+sample+"_1.root");
+        hist = (TH1D*)input->Get(step+"/"+histname);
+        val += hist->Integral();
+      }
       cutflow_BG.at(index_sample)->SetBinContent(index_step, val/initial_BG.at(index_sample));
       index_sample++;
     }
@@ -251,7 +265,7 @@ void efficiencies(TString suffix = ""){
   leg->Draw("same");
 
   // draw Lumi text
-  TString infotext = TString::Format("%3.1f fb^{-1} (%d TeV)", 130., 13);
+  TString infotext = TString::Format("%3.1f fb^{-1} (%d TeV)", 137., 13);
   TLatex *text = new TLatex(3.5, 24, infotext);
   text->SetNDC();
   text->SetTextAlign(33);
@@ -260,6 +274,26 @@ void efficiencies(TString suffix = ""){
   text->SetY(1);
   text->SetTextSize(0.045);
   text->Draw();
+
+  // draw CMS Work in Progress text
+  TString cmstext = "CMS";
+  TLatex *text2 = new TLatex(3.5, 24, cmstext);
+  text2->SetNDC();
+  text2->SetTextAlign(13);
+  text2->SetX(0.5);
+  text2->SetTextFont(62);
+  text2->SetTextSize(0.05);
+  text2->SetY(0.3);
+  text2->Draw();
+  TString preltext = "Work in Progress";
+  TLatex *text3 = new TLatex(3.5, 24, preltext);
+  text3->SetNDC();
+  text3->SetTextAlign(13);
+  text3->SetX(0.5);
+  text3->SetTextFont(52);
+  text3->SetTextSize(0.035);
+  text3->SetY(0.25);
+  text3->Draw();
 
   // Draw line after certain bin to split presel, sel,
   bool doLine = false;
@@ -271,7 +305,7 @@ void efficiencies(TString suffix = ""){
     TLine *line2 = new TLine(pos2,1.25,pos2,1.8);
     line2->Draw("same");
   }
-  canvas->SaveAs("Cutflow"+suffix+".pdf");
+  canvas->SaveAs("plots/efficiency"+suffix+".pdf");
 
   int index_sample = 0;
   for(const auto & sample : signalSamples){

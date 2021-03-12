@@ -15,10 +15,11 @@ TstarTstarDNNHists::TstarTstarDNNHists(Context & ctx, const string & dirname): H
 
   h_DNN_output = ctx.get_handle<double>("DNN_output");
   h_DNN_Inputs = ctx.get_handle<std::vector<double>>("DNN_Inputs");
+  h_neutrino = ctx.get_handle<LorentzVector>("neutrino");
 
   // book all histograms here
   book<TH1F>("DNN_output", "DNN output", 20, 0, 1);
-  DNN_2D_ST = book<TH2D>("2D_DNN_ST", "DNN output against ST", 50, 0, 3000, 50, 0, 1);
+  DNN_2D_ST = book<TH2D>("2D_DNN_ST", "DNN output against ST", 40, 0, 4000, 50, 0, 1);
 
   DNN_2D_1 = book<TH2D>("2D_DNN_1", "DNN output against lepton pt", 50, -1, 1, 50, 0, 1);
   DNN_2D_2 = book<TH2D>("2D_DNN_2", "DNN output against lepton eta", 50, -1, 1, 50, 0, 1);
@@ -70,9 +71,13 @@ void TstarTstarDNNHists::fill(const Event & event){
   std::vector<double> inputs = event.get(h_DNN_Inputs);
 
   hist("DNN_output")->Fill(DNNoutput, weight);
-  double st_jets = 0;
-  for(const auto & jet : *event.topjets) st_jets += jet.pt();
-  DNN_2D_ST->Fill(st_jets, DNNoutput, weight);
+  double st = 0;
+  for(const auto & jet : *event.topjets) st += jet.pt();
+  for(const auto & lepton : *event.electrons) st += lepton.pt();
+  for(const auto & lepton : *event.muons) st += lepton.pt();
+  LorentzVector neutrino = event.get(h_neutrino);
+  st += neutrino.pt();
+  DNN_2D_ST->Fill(st, DNNoutput, weight);
 
   DNN_2D_1->Fill(inputs.at(0), DNNoutput, weight);
   DNN_2D_2->Fill(inputs.at(1), DNNoutput, weight);

@@ -98,8 +98,17 @@ std::vector<double> NeuralNetworkInputCreator::getInputs() {
   return DNNInputs;
 }
 
+std::vector<double> NeuralNetworkInputCreator::getAddInputs() {
+  return AddDNNInputs;
+}
+
 bool NeuralNetworkInputCreator::setInputs(std::vector<double> vec) {
   DNNInputs = vec;
+  return true;
+}
+
+bool NeuralNetworkInputCreator::setAddInputs(std::vector<double> vec) {
+  AddDNNInputs = vec;
   return true;
 }
 
@@ -172,6 +181,31 @@ bool NeuralNetworkInputCreator::createInputs(Event& event) {
   return true;
 }
 
+bool NeuralNetworkInputCreator::createAddInputs(Event& event) {
+
+  std::vector<double> values;
+
+  // first add input: p_T asymmetry jet 1 jet 4
+  values.push_back(event.jets->at(0).pt()-event.jets->at(3).pt());
+
+  // second add input: deltaR leading 2 HOTVR jets
+  if(event.topjets->size() > 1) values.push_back(deltaR(event.topjets->at(0), event.topjets->at(1)));
+  else values.push_back(-100);
+
+  // third add input: deltaR lepton closest HOTVR jet
+  const FlavorParticle& lepton = event.get(h_primlep);
+  double min_deltaR = 9999;
+  for (const auto & topjet : *event.topjets) {
+    double cur_deltaR = deltaR(lepton, topjet);
+    if(cur_deltaR < min_deltaR) min_deltaR = cur_deltaR;
+  }
+  values.push_back(min_deltaR);
+
+  AddDNNInputs = values;
+
+  return true;
+}
+
 // ######################################
 // ######################################
 // ######################################
@@ -189,6 +223,8 @@ NeuralNetworkInputNormalizer::NeuralNetworkInputNormalizer(Context& ctx, const s
 
 std::vector<double> NeuralNetworkInputNormalizer::normalizeInputs(uhh2::Event& event, std::vector<double> DNNInputs) {
 
+  // the means and stds fpr AddInputs are expected to be contained in the same files as for the "regular" inputs
+  // if the DNNInputs-Vector is not correctly matching this, the code will crash here.
   assert(DNNInputs.size() == DNNInputs_mean.size());
   assert(DNNInputs.size() == DNNInputs_std.size());
 
@@ -207,19 +243,25 @@ std::vector<double> NeuralNetworkInputNormalizer::normalizeInputs(uhh2::Event& e
 
 NeuralNetworkIncluder::NeuralNetworkIncluder(Context& ctx, bool parametrized) {
   is_parametrized = parametrized;
-  path = "/nfs/dust/cms/user/flabe/MLCorner/TstarNN/old/";
+  path = "/nfs/dust/cms/user/flabe/MLCorner/TstarNN/reweightingApproach/";
   if(parametrized) path += "Parametric";
   else path += "NonParametric";
+  path += "/bestModel/";
   NNInputCreator.reset(new NeuralNetworkInputCreator(ctx));
   NNInputNormalizer.reset(new NeuralNetworkInputNormalizer(ctx, path));
   NNModule.reset(new NeuralNetworkModule(ctx, path+"/model.pb", path+"/model.config.pbtxt"));
   h_masspoint = ctx.get_handle<double>("masspoint");
   h_DNN_output = ctx.declare_event_output<double>("DNN_output");
+  h_DoAddInputs = ctx.get_handle<bool>("doAddInputs");
 }
 
 bool NeuralNetworkIncluder::process(Event& event) {
   NNInputCreator->createInputs(event);
   std::vector<double> inputs = NNInputCreator->getInputs();
+  if(event.get(h_DoAddInputs)) {
+    std::vector<double> Addinputs = NNInputCreator->getAddInputs();
+    inputs.insert(inputs.end(), Addinputs.begin(), Addinputs.end());
+  }
   if(is_parametrized) inputs.push_back(event.get(h_masspoint));
 
   // Normalizing
@@ -243,8 +285,13 @@ NeuralNetworkInputWriter::NeuralNetworkInputWriter(Context& ctx) {
     handles.push_back(ctx.declare_event_output<double>("DNN_Input_"+std::to_string(i)));
   }
 
+  for(uint i = 0; i < 3; i++){
+    Addhandles.push_back(ctx.declare_event_output<double>("DNN_AddInput_"+std::to_string(i)));
+  }
+
   // Define Handle for DNN
   h_DNN_Inputs = ctx.declare_event_output<std::vector<double>>("DNN_Inputs");
+  h_DNN_AddInputs = ctx.declare_event_output<std::vector<double>>("DNN_AddInputs");
   h_masspoint = ctx.declare_event_output<double>("masspoint");
 
   is_MC = ctx.get("dataset_type") == "MC";
@@ -252,12 +299,20 @@ NeuralNetworkInputWriter::NeuralNetworkInputWriter(Context& ctx) {
 
 bool NeuralNetworkInputWriter::process(uhh2::Event& event) {
   NNInputCreator->createInputs(event);
+  NNInputCreator->createAddInputs(event);
   std::vector<double> Inputs = NNInputCreator->getInputs();
+  std::vector<double> AddInputs = NNInputCreator->getAddInputs();
   event.set(h_DNN_Inputs, Inputs);
+  event.set(h_DNN_AddInputs, AddInputs);
 
   int i = 0;
   for(auto & handle : handles){
     event.set(handle, Inputs.at(i));
+    i++;
+  }
+  i = 0;
+  for(auto & handle : Addhandles){
+    event.set(handle, AddInputs.at(i));
     i++;
   }
 

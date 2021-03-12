@@ -30,7 +30,10 @@
 using namespace std;
 using namespace uhh2;
 
-//namespace uhh2 {
+namespace uhh2 {
+
+// quick method to calculate inv_mass
+float inv_mass(const LorentzVector& p4){ return p4.isTimelike() ? p4.mass() : -sqrt(-p4.mass2()); }
 
 /** \brief Module for the full selection in T*T*->ttbar gg/gamma search
  *
@@ -84,6 +87,7 @@ private:
   std::unique_ptr<Hists> h_beginSel_mu_highpt,  h_btagcut_mu_highpt,   h_2Dcut_mu_highpt,     h_dRcut_mu_highpt;
 
   std::unique_ptr<Hists> h_afterSelection_gen, h_afterSelection_genmatch;
+  std::unique_ptr<Hists> h_afterSelection;
 
   // TODO better trigger plots!
   std::unique_ptr<Hists> h_trigger, h_trigger_mu, h_trigger_ele;
@@ -94,7 +98,7 @@ private:
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
   uhh2::Event::Handle<bool> h_is_muevt;
   uhh2::Event::Handle<double> h_evt_weight;
-  uhh2::Event::Handle<double> h_ST;
+  uhh2::Event::Handle<LorentzVector> h_neutrino;
 
   // ###### Control Switches ######
   bool debug = false;
@@ -231,9 +235,9 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   h_dRcut_mu_lowpt.reset(new TstarTstarHists(ctx, "AfterdR_mu_lowpt"));
   h_dRcut_mu_highpt.reset(new TstarTstarHists(ctx, "AfterdR_mu_highpt"));
 
+  h_afterSelection.reset(new TstarTstarHists(ctx, "AfterSel"));
   h_afterSelection_gen.reset(new TstarTstarGenHists(ctx, "AfterSel_gen"));
   h_afterSelection_genmatch.reset(new TstarTstarGenRecoMatchedHists(ctx, "AfterSel_genmatch"));
-
 
   // TODO
   h_trigger.reset(new TstarTstarHists(ctx, "AfterTrigger"));
@@ -246,8 +250,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   h_is_muevt = ctx.get_handle<bool>("is_muevt");
   h_evt_weight = ctx.get_handle<double>("evt_weight");
   h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
-
-  h_ST = ctx.declare_event_output<double>("ST");
+  h_neutrino = ctx.declare_event_output<LorentzVector>("neutrino");
 
 }
 
@@ -417,17 +420,24 @@ bool TstarTstarSelectionModule::process(Event & event) {
   }
 
   // Scale factors.
-  // A lot of stuff will happen here. hopefully.
+  // A lot of stuff will happen here eventually
+
+  // Neutrin reconstruction
+  const Particle& lepton = event.get(h_primlep); // Primary Lepton has to be set
+  std::vector<LorentzVector> neutrinos = NeutrinoReconstruction(lepton.v4(), event.met->v4());
+  if(debug) std::cout << "We have this many neutrino options: " << neutrinos.size() << std::endl;
+  for(auto &ntr : neutrinos) {
+    if(debug) std::cout << "Neutrino pt: " << ntr.pt() << std::endl;
+    double Wmass = inv_mass(ntr+lepton.v4());
+    if(debug) std::cout << "W mass: " << Wmass << std::endl;
+  }
+  event.set(h_neutrino, neutrinos.at(0));
+  // TODO find some better way to select best neutrino reconstruction?
 
   // some final plot for comparison
+  h_afterSelection->fill(event);
   h_afterSelection_gen->fill(event);
   h_afterSelection_genmatch->fill(event);
-
-
-  // Outputting ST
-  double st_jets = 0.;
-  for(const auto & jet : *event.topjets) st_jets += jet.pt();
-  event.set(h_ST, st_jets);
 
   return true;
 }
@@ -435,3 +445,5 @@ bool TstarTstarSelectionModule::process(Event & event) {
 // as we want to run the ExampleCycleNew directly with AnalysisModuleRunner,
 // make sure the TstarTstarSelectionModule is found by class name. This is ensured by this macro:
 UHH2_REGISTER_ANALYSIS_MODULE(TstarTstarSelectionModule)
+
+}

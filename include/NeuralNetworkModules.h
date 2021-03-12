@@ -15,8 +15,11 @@ public:
   explicit NeuralNetworkInputCreator(uhh2::Context&);
   virtual bool process(uhh2::Event&) override {return false;}
   virtual bool createInputs(uhh2::Event&);
+  virtual bool createAddInputs(uhh2::Event&);
   virtual std::vector<double> getInputs();
+  virtual std::vector<double> getAddInputs();
   virtual bool setInputs(std::vector<double>);
+  virtual bool setAddInputs(std::vector<double>);
 private:
   uhh2::Event::Handle<bool> h_do_masspoint;
   uhh2::Event::Handle<FlavorParticle> h_primlep;
@@ -24,6 +27,7 @@ private:
   std::string DNN_path;
   bool is_MC;
   std::vector<double> DNNInputs;
+  std::vector<double> AddDNNInputs;
 };
 
 class NeuralNetworkInputNormalizer: uhh2::AnalysisModule {
@@ -49,6 +53,7 @@ private:
   std::string path;
   uhh2::Event::Handle<double> h_DNN_output;
   uhh2::Event::Handle<double> h_masspoint;
+  uhh2::Event::Handle<bool> h_DoAddInputs;
 };
 
 
@@ -62,8 +67,10 @@ private:
 
   uhh2::Event::Handle<double> h_masspoint;
   uhh2::Event::Handle<std::vector<double>> h_DNN_Inputs;
+  uhh2::Event::Handle<std::vector<double>> h_DNN_AddInputs;
 
   std::vector<uhh2::Event::Handle<double>> handles;
+  std::vector<uhh2::Event::Handle<double>> Addhandles;
 
 
 };

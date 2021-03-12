@@ -41,7 +41,7 @@ using namespace uhh2;
 namespace uhh2 {
 
 // quick method to calculate inv_mass
-float inv_mass(const LorentzVector& p4){ return p4.isTimelike() ? p4.mass() : -sqrt(-p4.mass2()); }
+// float inv_mass(const LorentzVector& p4){ return p4.isTimelike() ? p4.mass() : -sqrt(-p4.mass2()); }
 
 /** \brief Module for the T*T*->ttbar gg MC based study
  *
@@ -66,7 +66,7 @@ private:
 
   // ##### Histograms #####
   std::unique_ptr<Hists> h_main, h_main_ttag, h_main_nottag, h_main_mu, h_main_mu_lowpt, h_main_mu_highpt, h_main_ele, h_main_ele_lowpt, h_main_ele_highpt;
-  std::unique_ptr<Hists> h_crosscheck;
+  std::unique_ptr<Hists> h_crosscheck, h_STreweighted;
   std::unique_ptr<Hists> h_main_gen;
 
   std::unique_ptr<Hists> h_DNN_Inputs;
@@ -154,6 +154,8 @@ TstarTstarAnalysisModule::TstarTstarAnalysisModule(Context & ctx){
   h_main_ele_highpt.reset(new TstarTstarHists(ctx, "main_ele_highpt"));
   h_main_gen.reset(new TstarTstarGenHists(ctx, "main_gen"));
 
+  h_STreweighted.reset(new TstarTstarHists(ctx, "STreweighted"));
+
   // DNN hists
   h_DNN_Inputs.reset(new TstarTstarDNNInputHists(ctx, "DNN_Inputs"));
 
@@ -163,7 +165,7 @@ TstarTstarAnalysisModule::TstarTstarAnalysisModule(Context & ctx){
   h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
   h_flag_muonevent = ctx.declare_event_output<int>("flag_muonevent");
   h_flag_toptagevent = ctx.declare_event_output<int>("flag_toptagevent");
-  h_neutrino = ctx.declare_event_output<LorentzVector>("neutrino");
+  h_neutrino = ctx.get_handle<LorentzVector>("neutrino");
 
   if(is_MC) h_ttbargen = ctx.get_handle<TTbarGen>("ttbargen");
 
@@ -206,18 +208,6 @@ bool TstarTstarAnalysisModule::process(Event & event) {
   // ttgen
   if(is_MC) ttgenprod->process(event);
 
-  // neutrinoreconstruction
-  const Particle& lepton = event.get(h_primlep); // Primary Lepton has to be set
-  std::vector<LorentzVector> neutrinos = NeutrinoReconstruction(lepton.v4(), event.met->v4());
-  if(debug) std::cout << "We have this many neutrino options: " << neutrinos.size() << std::endl;
-  for(auto &ntr : neutrinos) {
-    if(debug) std::cout << "Neutrino pt: " << ntr.pt() << std::endl;
-    double Wmass = inv_mass(ntr+lepton.v4());
-    if(debug) std::cout << "W mass: " << Wmass << std::endl;
-  }
-  event.set(h_neutrino, neutrinos.at(0));
-  // TODO find some better way to select best neutrino reconstruction?
-
   if(debug) std::cout << "Hists before everything" << std::endl;
   // fill hists before things have happened
   h_main->fill(event);
@@ -248,14 +238,24 @@ bool TstarTstarAnalysisModule::process(Event & event) {
     DNN_InputWriter->process(event);
     if(debug) cout << "plot inputs" << endl;
     h_DNN_Inputs->fill(event);
-    double st_jets = 0.;
-    for(const auto & jet : *event.topjets) st_jets += jet.pt();
-    for(const auto & lepton : *event.electrons) st_jets += lepton.pt();
-    for(const auto & lepton : *event.muons) st_jets += lepton.pt();
-    event.set(h_ST, st_jets);
+    double st = 0.;
+    for(const auto & jet : *event.topjets) st += jet.pt();
+    for(const auto & lepton : *event.electrons) st += lepton.pt();
+    for(const auto & lepton : *event.muons) st += lepton.pt();
+    LorentzVector neutrino = event.get(h_neutrino);
+    st += neutrino.pt();
+    event.set(h_ST, st);
     double ST_weight = 1;
-    if(is_TTbar) ST_weight = 1/(ST_ratio->GetBinContent(ST_ratio->GetXaxis()->FindBin(st_jets)));
+    if(is_TTbar){
+      if(st > 4000) st = 3999;
+      double value = ST_ratio->GetBinContent(ST_ratio->GetXaxis()->FindBin(st));
+      if(value > 0) ST_weight = 1/value;
+      else ST_weight = 0;
+    }
     event.set(h_ST_weight, ST_weight);
+    event.weight = event.get(h_ST_weight) * event.get(h_evt_weight);
+    h_STreweighted->fill(event);
+    event.weight = event.get(h_evt_weight);
   }
 
   if(debug){cout << "Done ##################################" << endl;}

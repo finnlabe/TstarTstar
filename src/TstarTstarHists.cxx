@@ -92,10 +92,10 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   book<TH1F>("pt_MET", "missing E_{T} [GeV]", 100, 0, 2000);
 
   // ST and HT
-  book<TH1F>("pt_HT", "H_{T} [GeV]", 30, 0, 3000);
-  book<TH1F>("pt_HTlep", "H_{T} + p_{T} (#ell) [GeV]", 30, 0, 3000);
-  book<TH1F>("pt_ST", "S_{T} [GeV]", 30, 0, 3000);
-  book<TH1F>("pt_ST_fullrange", "S_{T} [GeV]", 50, 0, 5000);
+  book<TH1F>("pt_HT", "H_{T} [GeV]", 40, 0, 4000);
+  book<TH1F>("pt_HTlep", "H_{T} + p_{T} (#ell) [GeV]", 40, 0, 4000);
+  book<TH1F>("pt_ST", "S_{T} [GeV]", 40, 0, 4000);
+  book<TH1F>("pt_ST_fullrange", "S_{T} [GeV]", 60, 0, 6000);
   book<TH1F>("pt_asym12", "#Delta p_{T} (jet 1, jet 2) [GeV]", 20, 0, 2000);
   book<TH1F>("pt_asym13", "#Delta p_{T} (jet 1, jet 3) [GeV]", 20, 0, 2000);
   book<TH1F>("pt_asym14", "#Delta p_{T} (jet 1, jet 4) [GeV]", 20, 0, 2000);
@@ -270,18 +270,18 @@ void TstarTstarHists::fill(const Event & event){
 
   double st = 0.;
   for(const auto & jet : *event.topjets) st += jet.pt();
-  if(st > 3000) hist("pt_HT")->Fill(2999.9, weight);
+  if(st > 4000) hist("pt_HT")->Fill(3999.9, weight);
   else hist("pt_HT")->Fill(st, weight);
 
   for(const auto & lepton : *event.electrons) st += lepton.pt();
   for(const auto & lepton : *event.muons) st += lepton.pt();
-  if(st > 3000) hist("pt_HTlep")->Fill(2999.9, weight);
+  if(st > 4000) hist("pt_HTlep")->Fill(3999.9, weight);
   else hist("pt_HTlep")->Fill(st, weight);
 
   try {
     LorentzVector neutrino = event.get(h_neutrino);
     st += neutrino.pt();
-    if(st > 3000) hist("pt_ST")->Fill(2999.9, weight);
+    if(st > 4000) hist("pt_ST")->Fill(3999.9, weight);
     else hist("pt_ST")->Fill(st, weight);
     hist("pt_ST_fullrange")->Fill(st, weight);
   } catch(...) {}

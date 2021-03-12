@@ -24,6 +24,7 @@ public:
   private:
     uhh2::Event::Handle<double> h_DNN_output;
     uhh2::Event::Handle<std::vector<double>> h_DNN_Inputs;
+    uhh2::Event::Handle<LorentzVector> h_neutrino;
 
     TH2D *DNN_2D_ST;
 
