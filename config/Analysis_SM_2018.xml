@@ -135,7 +135,7 @@
       <Item Name="lumi_file" Value="common/data/2018/Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.root"/>
 	    <Item Name="lumihists_lumi_per_bin" Value="500.0"/>
 
-      <Item Name="additionalBranches" Value="is_muevt evt_weight" />
+      <Item Name="additionalBranches" Value="is_muevt evt_weight neutrino" />
 
       <Item Name="jersmear_direction" Value="nominal"/>
 	    <Item Name="jecsmear_direction" Value="nominal"/>
