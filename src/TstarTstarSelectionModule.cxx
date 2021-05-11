@@ -14,6 +14,7 @@
 #include "UHH2/common/include/MuonIds.h"
 #include "UHH2/common/include/TriggerSelection.h"
 #include "UHH2/common/include/TTbarGen.h"
+#include "UHH2/common/include/MCWeight.h"
 
 // TstarTstar stuff
 #include "UHH2/TstarTstar/include/ModuleBASE.h"
@@ -77,14 +78,14 @@ private:
 
 
   // ###### Histograms ######
-  std::unique_ptr<Hists> h_beginSel,            h_btagcut,             h_2Dcut,               h_dRcut;
-  std::unique_ptr<Hists> h_beginSel_gen,        h_btagcut_gen,         h_2Dcut_gen,           h_dRcut_gen;
-  std::unique_ptr<Hists> h_beginSel_ele,        h_btagcut_ele,         h_2Dcut_ele,           h_dRcut_ele;
-  std::unique_ptr<Hists> h_beginSel_ele_lowpt,  h_btagcut_ele_lowpt,   h_2Dcut_ele_lowpt,     h_dRcut_ele_lowpt;
-  std::unique_ptr<Hists> h_beginSel_ele_highpt, h_btagcut_ele_highpt,  h_2Dcut_ele_highpt,    h_dRcut_ele_highpt;
-  std::unique_ptr<Hists> h_beginSel_mu,         h_btagcut_mu,          h_2Dcut_mu,            h_dRcut_mu;
-  std::unique_ptr<Hists> h_beginSel_mu_lowpt,   h_btagcut_mu_lowpt,    h_2Dcut_mu_lowpt,      h_dRcut_mu_lowpt;
-  std::unique_ptr<Hists> h_beginSel_mu_highpt,  h_btagcut_mu_highpt,   h_2Dcut_mu_highpt,     h_dRcut_mu_highpt;
+  std::unique_ptr<Hists> h_beginSel,            h_btagcut,             h_2Dcut,               h_dRcut,               h_STcut,            h_scale;
+  std::unique_ptr<Hists> h_beginSel_gen,        h_btagcut_gen,         h_2Dcut_gen,           h_dRcut_gen,           h_STcut_gen,        h_scale_gen;
+  std::unique_ptr<Hists> h_beginSel_ele,        h_btagcut_ele,         h_2Dcut_ele,           h_dRcut_ele,           h_STcut_ele,        h_scale_ele;
+  std::unique_ptr<Hists> h_beginSel_ele_lowpt,  h_btagcut_ele_lowpt,   h_2Dcut_ele_lowpt,     h_dRcut_ele_lowpt,     h_STcut_ele_lowpt,  h_scale_ele_lowpt;
+  std::unique_ptr<Hists> h_beginSel_ele_highpt, h_btagcut_ele_highpt,  h_2Dcut_ele_highpt,    h_dRcut_ele_highpt,    h_STcut_ele_highpt, h_scale_ele_highpt;
+  std::unique_ptr<Hists> h_beginSel_mu,         h_btagcut_mu,          h_2Dcut_mu,            h_dRcut_mu,            h_STcut_mu,         h_scale_mu;
+  std::unique_ptr<Hists> h_beginSel_mu_lowpt,   h_btagcut_mu_lowpt,    h_2Dcut_mu_lowpt,      h_dRcut_mu_lowpt,      h_STcut_mu_lowpt,   h_scale_mu_lowpt;
+  std::unique_ptr<Hists> h_beginSel_mu_highpt,  h_btagcut_mu_highpt,   h_2Dcut_mu_highpt,     h_dRcut_mu_highpt,     h_STcut_mu_highpt,  h_scale_mu_highpt;
 
   std::unique_ptr<Hists> h_afterSelection_gen, h_afterSelection_genmatch;
   std::unique_ptr<Hists> h_afterSelection;
@@ -99,11 +100,11 @@ private:
   uhh2::Event::Handle<bool> h_is_muevt;
   uhh2::Event::Handle<double> h_evt_weight;
   uhh2::Event::Handle<LorentzVector> h_neutrino;
+  uhh2::Event::Handle<double> h_ST;
 
   // ###### Control Switches ######
   bool debug = false;
   bool isTrigger = false;
-
 
   // ###### other needed definitions ######
   bool is_MC;
@@ -157,10 +158,14 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
 
   // Scale factor stuff
   // Muon
-  //sf_muon_trig_lowpt.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/flabe/CMSSW/CMSSW_10_2_10/src/UHH2/common/data/2016/MuonTrigger_EfficienciesAndSF_average_RunBtoH.root", "IsoMu24_OR_IsoTkMu24_PtEtaBins", 0.5, "muon_trigger_lowpt", true, "nominal"));
-  //sf_muon_trig_highpt.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/flabe/CMSSW/CMSSW_10_2_10/src/UHH2/common/data/2016/MuonTrigger_EfficienciesAndSF_average_RunBtoH.root", "IsoMu50_OR_IsoTkMu_50_PtEtaBins", 0.5, "muon_trigger_highpt", true, "nominal"));
-  //sf_muon_ID.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/flabe/CMSSW/CMSSW_10_2_10/src/UHH2/common/data/2016/MuonID_EfficienciesAndSF_average_RunBtoH.root", "NUM_TightID_DEN_genTracks_eta_pt", 1, "muon_tightID", true, "nominal"));
-  //sf_muon_iso.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/flabe/CMSSW/CMSSW_10_2_10/src/UHH2/common/data/2016/MuonIso_EfficienciesAndSF_average_RunBtoH.root", "NUM_TightRelIso_DEN_TightIDandIPCut_eta_pt", 1, "muon_iso", true, "nominal"));
+  string SF_path = ctx.get("SF_path");
+  //if(year == "2016") {
+  if(false){
+    sf_muon_trig_lowpt.reset(new MCMuonScaleFactor(ctx, SF_path+"/MuonTrigger_EfficienciesAndSF_average_RunBtoH.root", "IsoMu24_OR_IsoTkMu24_PtEtaBins", 1, "muon_trigger_lowpt", true, "nominal"));
+    // high pt not in that file :(
+    sf_muon_ID.reset(new MCMuonScaleFactor(ctx, SF_path+"/MuonID_EfficienciesAndSF_average_RunBtoH.root", "NUM_TightID_DEN_genTracks_eta_pt", 1, "muon_tightID", true, "nominal"));
+    sf_muon_iso.reset(new MCMuonScaleFactor(ctx, SF_path+"/MuonIso_EfficienciesAndSF_average_RunBtoH.root", "NUM_TightRelIso_DEN_TightIDandIPCut_eta_pt", 1, "muon_iso", true, "nominal"));
+  }
 
   // Electron
   //sf_ele_trig.reset();
@@ -235,6 +240,24 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   h_dRcut_mu_lowpt.reset(new TstarTstarHists(ctx, "AfterdR_mu_lowpt"));
   h_dRcut_mu_highpt.reset(new TstarTstarHists(ctx, "AfterdR_mu_highpt"));
 
+  h_STcut.reset(new TstarTstarHists(ctx, "AfterST"));
+  h_STcut_gen.reset(new TstarTstarGenHists(ctx, "AfterST_gen"));
+  h_STcut_ele.reset(new TstarTstarHists(ctx, "AfterST_ele"));
+  h_STcut_ele_lowpt.reset(new TstarTstarHists(ctx, "AfterST_ele_lowpt"));
+  h_STcut_ele_highpt.reset(new TstarTstarHists(ctx, "AfterST_ele_highpt"));
+  h_STcut_mu.reset(new TstarTstarHists(ctx, "AfterST_mu"));
+  h_STcut_mu_lowpt.reset(new TstarTstarHists(ctx, "AfterST_mu_lowpt"));
+  h_STcut_mu_highpt.reset(new TstarTstarHists(ctx, "AfterST_mu_highpt"));
+
+  h_scale.reset(new TstarTstarHists(ctx, "AfterScale"));
+  h_scale_gen.reset(new TstarTstarGenHists(ctx, "AfterScale_gen"));
+  h_scale_ele.reset(new TstarTstarHists(ctx, "AfterScale_ele"));
+  h_scale_ele_lowpt.reset(new TstarTstarHists(ctx, "AfterScale_ele_lowpt"));
+  h_scale_ele_highpt.reset(new TstarTstarHists(ctx, "AfterScale_ele_highpt"));
+  h_scale_mu.reset(new TstarTstarHists(ctx, "AfterScale_mu"));
+  h_scale_mu_lowpt.reset(new TstarTstarHists(ctx, "AfterScale_mu_lowpt"));
+  h_scale_mu_highpt.reset(new TstarTstarHists(ctx, "AfterScale_mu_highpt"));
+
   h_afterSelection.reset(new TstarTstarHists(ctx, "AfterSel"));
   h_afterSelection_gen.reset(new TstarTstarGenHists(ctx, "AfterSel_gen"));
   h_afterSelection_genmatch.reset(new TstarTstarGenRecoMatchedHists(ctx, "AfterSel_genmatch"));
@@ -251,6 +274,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   h_evt_weight = ctx.get_handle<double>("evt_weight");
   h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
   h_neutrino = ctx.declare_event_output<LorentzVector>("neutrino");
+  h_ST = ctx.declare_event_output<double>("ST");
 
 }
 
@@ -386,6 +410,46 @@ bool TstarTstarSelectionModule::process(Event & event) {
   if(debug) cout << "Passed dR cut." << endl;
 
 
+  // ST cut to reduce computation time (and file sizes)
+  // Neutrin reconstruction
+  const Particle& lepton = event.get(h_primlep); // Primary Lepton has to be set
+  std::vector<LorentzVector> neutrinos = NeutrinoReconstruction(lepton.v4(), event.met->v4());
+  if(debug) std::cout << "We have this many neutrino options: " << neutrinos.size() << std::endl;
+  for(auto &ntr : neutrinos) {
+    if(debug) std::cout << "Neutrino pt: " << ntr.pt() << std::endl;
+    double Wmass = inv_mass(ntr+lepton.v4());
+    if(debug) std::cout << "W mass: " << Wmass << std::endl;
+  }
+  event.set(h_neutrino, neutrinos.at(0));
+  // TODO find some better way to select best neutrino reconstruction?
+
+  // st calculation
+  double st = 0.;
+  for(const auto & jet : *event.topjets) st += jet.pt();
+  for(const auto & lepton : *event.electrons) st += lepton.pt();
+  for(const auto & lepton : *event.muons) st += lepton.pt();
+  LorentzVector neutrino = event.get(h_neutrino);
+  st += neutrino.pt();
+  event.set(h_ST, st);
+
+  // st cut
+  if(st < 500) return false;
+
+  // hists
+  h_STcut->fill(event);
+  h_STcut_gen->fill(event);
+  if(event.get(h_is_muevt)){
+    h_STcut_mu->fill(event);
+    if(event.muons->at(0).pt()<=60) h_STcut_mu_lowpt->fill(event);
+    else h_STcut_mu_highpt->fill(event);
+  }
+  else {
+    h_STcut_ele->fill(event);
+    if(event.electrons->at(0).pt()<=120) h_STcut_ele_lowpt->fill(event);
+    else h_STcut_ele_highpt->fill(event);
+  }
+  if(debug) cout << "Passed ST cut." << endl;
+
   // #######################
   // ### Trigger studies ###
   // #######################
@@ -420,19 +484,27 @@ bool TstarTstarSelectionModule::process(Event & event) {
   }
 
   // Scale factors.
-  // A lot of stuff will happen here eventually
-
-  // Neutrin reconstruction
-  const Particle& lepton = event.get(h_primlep); // Primary Lepton has to be set
-  std::vector<LorentzVector> neutrinos = NeutrinoReconstruction(lepton.v4(), event.met->v4());
-  if(debug) std::cout << "We have this many neutrino options: " << neutrinos.size() << std::endl;
-  for(auto &ntr : neutrinos) {
-    if(debug) std::cout << "Neutrino pt: " << ntr.pt() << std::endl;
-    double Wmass = inv_mass(ntr+lepton.v4());
-    if(debug) std::cout << "W mass: " << Wmass << std::endl;
+  //if(year == "2016"){
+  if(false){
+    sf_muon_ID->process(event);
+    sf_muon_trig_lowpt->process(event); // only do this when actually used - not that easy thanks to the handle sh*t
+    sf_muon_iso->process(event); // isolation only for low pt
   }
-  event.set(h_neutrino, neutrinos.at(0));
-  // TODO find some better way to select best neutrino reconstruction?
+  // hists
+  h_scale->fill(event);
+  h_scale_gen->fill(event);
+  if(event.get(h_is_muevt)){
+    h_scale_mu->fill(event);
+    if(event.muons->at(0).pt()<=60) h_scale_mu_lowpt->fill(event);
+    else h_scale_mu_highpt->fill(event);
+  }
+  else {
+    h_scale_ele->fill(event);
+    if(event.electrons->at(0).pt()<=120) h_scale_ele_lowpt->fill(event);
+    else h_scale_ele_highpt->fill(event);
+  }
+  if(debug) cout << "Passed scale cut." << endl;
+
 
   // some final plot for comparison
   h_afterSelection->fill(event);

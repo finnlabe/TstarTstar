@@ -14,6 +14,8 @@ using namespace uhh2;
 TstarTstarDNNInputHists::TstarTstarDNNInputHists(Context & ctx, const string & dirname): Hists(ctx, dirname){
 
   h_DNN_Inputs = ctx.get_handle<std::vector<double>>("DNN_Inputs");
+  h_DNN_AddInputs = ctx.get_handle<std::vector<double>>("DNN_AddInputs");
+
 
   // book all histograms here
   DNN_2D_1 = book<TH1D>("DNN_Input_1", "lepton p_{T}",  20, 0, 2000);
@@ -50,6 +52,10 @@ TstarTstarDNNInputHists::TstarTstarDNNInputHists(Context & ctx, const string & d
   DNN_2D_32 = book<TH1D>("DNN_Input_32", "N_{AK4}",  10, 0, 10);
   DNN_2D_33 = book<TH1D>("DNN_Input_33", "N_{HOTVR}",  10, 0, 10);
 
+  AddDNN_2D_1 = book<TH1D>("DNN_AddInput_1", "p_{T} asymmetry",  25, 0, 1);
+  AddDNN_2D_2 = book<TH1D>("DNN_AddInput_2", "#Delta R (HOTVR 1, HOTVR 2)",  30, 0, 6);
+  AddDNN_2D_3 = book<TH1D>("DNN_AddInput_3", "#Delta R (lepton, closest HOTVR)",  30, 0, 6);
+
 }
 
 
@@ -63,6 +69,7 @@ void TstarTstarDNNInputHists::fill(const Event & event){
   double weight = event.weight;
 
   std::vector<double> inputs = event.get(h_DNN_Inputs);
+  std::vector<double> addInputs = event.get(h_DNN_AddInputs);
 
   DNN_2D_1->Fill(inputs.at(0), weight);
   DNN_2D_2->Fill(inputs.at(1), weight);
@@ -97,6 +104,10 @@ void TstarTstarDNNInputHists::fill(const Event & event){
   DNN_2D_31->Fill(inputs.at(30), weight);
   DNN_2D_32->Fill(inputs.at(31), weight);
   DNN_2D_33->Fill(inputs.at(32), weight);
+
+  AddDNN_2D_1->Fill(addInputs.at(0), weight);
+  AddDNN_2D_2->Fill(addInputs.at(1), weight);
+  AddDNN_2D_3->Fill(addInputs.at(2), weight);
 
 }
 

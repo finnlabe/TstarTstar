@@ -69,7 +69,7 @@ private:
   // ###### Control switches ######
   bool debug = false;
   bool do_masspoint = false;
-  bool doAddInputs = false;
+  bool doAddInputs = true;
 
 
   // ###### Handles ######

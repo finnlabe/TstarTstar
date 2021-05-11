@@ -4,7 +4,7 @@
 // Run it with following command:
 // root -l -b -q general2Dplotter.C
 
-void general2Dplotter(TString filename="TstarTstar", TString subpath="DNN", TString histname="2D_DNN_ST"){
+void general2Dplotter(TString filename="TTbar", TString subpath="DNN", TString histname="2D_DNN_ST"){
   // gStyle->SetOptStat(0);
   // gStyle->SetTitleSize(0.045,"x");
   // gStyle->SetTitleSize(0.045,"y");
@@ -32,7 +32,7 @@ void general2Dplotter(TString filename="TstarTstar", TString subpath="DNN", TStr
 
 
  //Files after selection
- TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/";
+ TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/fullyCorrelated/";
  TString fileprefix = "uhh2.AnalysisModuleRunner.MC.";
  //TString fileprefix = "";
 

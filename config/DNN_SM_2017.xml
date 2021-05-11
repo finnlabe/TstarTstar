@@ -116,7 +116,7 @@
             <OutputTree Name="AnalysisTree" />
           </InputData>
 
-  	<InputData Lumi="48107014.51" NEventsMax="-1" Type="MC" Version="WZToLNu2Q_2017v2" Cacheable="False">
+  	<InputData Lumi="32897748.09" NEventsMax="-1" Type="MC" Version="WZToLNu2Q_2017v2" Cacheable="False">
       <In FileName="&INPUTdir;/uhh2.AnalysisModuleRunner.MC.WZToLNu2Q_2017v2.root" Lumi="0.0"/>
             <InputTree Name="AnalysisTree" />
             <OutputTree Name="AnalysisTree" />

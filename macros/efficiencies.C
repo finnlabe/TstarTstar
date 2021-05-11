@@ -19,7 +19,7 @@ void efficiencies(TString suffix = ""){
   TCanvas *canvas = new TCanvas("chist", "c", w, h);
   TLegend *leg = new TLegend(0.22,0.2,0.4,0.60);
   //TLegend *leg = new TLegend(0.45,0.755,0.825,0.88);
-
+  leg->SetFillStyle(0);
   leg->SetTextFont(42);
   leg->SetTextSize(0.035);
 
@@ -38,7 +38,7 @@ void efficiencies(TString suffix = ""){
 
   // Defining Steps
   std::vector<TString> preselSteps = {"AfterTrigger", "AfterLep", "AfterJets", "AfterFatJets", "AfterMET"};
-  std::vector<TString> selSteps = {"AfterBtag", "AfterdR"};
+  std::vector<TString> selSteps = {"AfterBtag", "AfterdR", "AfterST"};
   std::vector<TString> recoSteps = {};
   int stepcount = preselSteps.size() + selSteps.size() + recoSteps.size();
 
@@ -68,7 +68,7 @@ void efficiencies(TString suffix = ""){
   std::vector<int> colors_Signal = {1, 1, 1, 1};
   std::vector<int> line_Signal = {2, 3, 4, 5};
   std::vector<int> colors_BG = {810, 800, 600, 867};
-  std::vector<TString> labels = {"Trigger", "N_{lep}", "N_{AK4}", "N_{HOTVR}", "MET", "b-tag", "iso.", "should not be visible"};
+  std::vector<TString> labels = {"Trigger", "N_{lep}", "N_{AK4}", "N_{HOTVR}", "MET", "b-tag", "iso.", "S_{T}", "should not be visible"};
 
   // ########################
   // ## Finish Definitions ##

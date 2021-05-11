@@ -17,7 +17,7 @@
 <!ENTITY MC_WJetsToLNu_HT-2500ToInf                                SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2017/WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8.xml">
 
 <!ENTITY MC_WWToLNuQQ                                              SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2017/WWToLNuQQ_NNPDF31_TuneCP5_13TeV-powheg-pythia8.xml">
-<!ENTITY MC_WZToLNu2Q                                              SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2017/WZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8.xml">
+<!ENTITY MC_WZToLNu2Q                                              SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2017/WZTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8_Fall17_v2.xml">
 
 <!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/TstarTstar/data/Preselection/2017/">
 ]>
@@ -128,7 +128,7 @@
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-	<InputData Lumi="48107014.51" NEventsMax="-1" Type="MC" Version="WZToLNu2Q_2017v2" Cacheable="False">
+	<InputData Lumi="32897748.09" NEventsMax="-1" Type="MC" Version="WZToLNu2Q_2017v2" Cacheable="False">
 	  &MC_WZToLNu2Q;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />

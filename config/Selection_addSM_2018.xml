@@ -112,6 +112,7 @@
             <Item Name="pileup_directory_data" Value="common/data/2018/MyDataPileupHistogram2018.root" />
 
             <Item Name="HOTVRTopTagSFs" Value="/nfs/dust/cms/user/flabe/CMSSW/CMSSW_10_2_10/src/UHH2/HOTVR/data/2018TopTaggingScaleFactors.root" />
+            <Item Name="SF_path" Value="/nfs/dust/cms/user/flabe/TstarTstar/CMSSW_10_2_17/src/UHH2/common/data/2018/" />
 
             <!-- Some test configuration; see TstarTstarModule.cxx for how to access it: -->
             <Item Name="TestKey" Value="TestKeyValue" />

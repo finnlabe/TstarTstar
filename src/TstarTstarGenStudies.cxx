@@ -39,7 +39,7 @@ private:
   // ##### Histograms #####
   // Store the Hists collection as member variables. Again, use unique_ptr to avoid memory leaks.
   std::unique_ptr<Hists> h_GenHists;
-  std::unique_ptr<Hists> h_GenRecoMatchedHists;
+  //std::unique_ptr<Hists> h_GenRecoMatchedHists;
 
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
 
@@ -57,7 +57,7 @@ TstarTstarGenStudies::TstarTstarGenStudies(Context & ctx){
   }
 
   h_GenHists.reset(new TstarTstarGenHists(ctx, "GenHists"));
-  h_GenRecoMatchedHists.reset(new TstarTstarGenRecoMatchedHists(ctx, "GenRecoMatchedHists"));
+  //h_GenRecoMatchedHists.reset(new TstarTstarGenRecoMatchedHists(ctx, "GenRecoMatchedHists"));
 
   MCWeight.reset(new MCLumiWeight(ctx));
   ttgenprod.reset(new TTbarGenProducer(ctx, "ttbargen", false));
@@ -72,7 +72,7 @@ bool TstarTstarGenStudies::process(Event & event) {
   ttgenprod->process(event);
 
   h_GenHists->fill(event);
-  h_GenRecoMatchedHists->fill(event);
+  //h_GenRecoMatchedHists->fill(event);
 
   return true;
 }

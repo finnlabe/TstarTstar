@@ -76,7 +76,7 @@ void NeuralNetworkModule::CreateInputs(Event & event, std::vector<double> values
   }
 
   // sanity check when including
-  if (NNInputs.size()!=LayerInputs.size()) throw logic_error("NeuralNetworkIncluder.cxx: Create a number of inputs diffetent wrt. LayerInputs.size()="+to_string(LayerInputs.size()));
+  if (NNInputs.size()!=LayerInputs.size()) throw logic_error("NeuralNetworkIncluder.cxx: Create a number of inputs diffetent wrt. LayerInputs.size()="+to_string(LayerInputs.size())+" NNInputs.size()="+to_string(NNInputs.size()));
 }
 
 // ######################################
@@ -186,11 +186,15 @@ bool NeuralNetworkInputCreator::createAddInputs(Event& event) {
   std::vector<double> values;
 
   // first add input: p_T asymmetry jet 1 jet 4
-  values.push_back(event.jets->at(0).pt()-event.jets->at(3).pt());
+  double pt_asym = event.jets->at(0).pt()-event.jets->at(3).pt();
+  double pt_sum = 0.;
+  for (const auto & jet : *event.jets) pt_sum += jet.pt();
+  pt_asym /= pt_sum;
+  values.push_back(pt_asym);
 
   // second add input: deltaR leading 2 HOTVR jets
   if(event.topjets->size() > 1) values.push_back(deltaR(event.topjets->at(0), event.topjets->at(1)));
-  else values.push_back(-100);
+  else values.push_back(-1);
 
   // third add input: deltaR lepton closest HOTVR jet
   const FlavorParticle& lepton = event.get(h_primlep);
@@ -225,6 +229,7 @@ std::vector<double> NeuralNetworkInputNormalizer::normalizeInputs(uhh2::Event& e
 
   // the means and stds fpr AddInputs are expected to be contained in the same files as for the "regular" inputs
   // if the DNNInputs-Vector is not correctly matching this, the code will crash here.
+  // std::cout << "Inputs: " << DNNInputs.size() << " Means: " << DNNInputs_mean.size() << " Stds: " << DNNInputs_std.size() << std::endl;
   assert(DNNInputs.size() == DNNInputs_mean.size());
   assert(DNNInputs.size() == DNNInputs_std.size());
 
@@ -243,13 +248,14 @@ std::vector<double> NeuralNetworkInputNormalizer::normalizeInputs(uhh2::Event& e
 
 NeuralNetworkIncluder::NeuralNetworkIncluder(Context& ctx, bool parametrized) {
   is_parametrized = parametrized;
-  path = "/nfs/dust/cms/user/flabe/MLCorner/TstarNN/reweightingApproach/";
-  if(parametrized) path += "Parametric";
-  else path += "NonParametric";
-  path += "/bestModel/";
+  path = "/nfs/dust/cms/user/flabe/MLCorner/TstarNN/reweightingApproach/NonParametric/";
+  //path = "/nfs/dust/cms/user/flabe/MLCorner/TstarNN/DisCoApproach/output/STweightFalse_lambda0.05_layers4_nodes25_25_25_25_dropout0.0__2/";
   NNInputCreator.reset(new NeuralNetworkInputCreator(ctx));
+  //NNInputNormalizer.reset(new NeuralNetworkInputNormalizer(ctx, path+"/data/"));
   NNInputNormalizer.reset(new NeuralNetworkInputNormalizer(ctx, path));
-  NNModule.reset(new NeuralNetworkModule(ctx, path+"/model.pb", path+"/model.config.pbtxt"));
+  //NNModule.reset(new NeuralNetworkModule(ctx, path+"/network/model/frozen_graph.pb", path+"/network/model/frozen_graph.config.pbtxt"));
+  //NNModule.reset(new NeuralNetworkModule(ctx, path+"model.pb", path+"model.config.pbtxt"));
+  NNModule.reset(new NeuralNetworkModule(ctx, path+"/bestModel/model.pb", path+"/bestModel/model.config.pbtxt"));
   h_masspoint = ctx.get_handle<double>("masspoint");
   h_DNN_output = ctx.declare_event_output<double>("DNN_output");
   h_DoAddInputs = ctx.get_handle<bool>("doAddInputs");
@@ -259,6 +265,7 @@ bool NeuralNetworkIncluder::process(Event& event) {
   NNInputCreator->createInputs(event);
   std::vector<double> inputs = NNInputCreator->getInputs();
   if(event.get(h_DoAddInputs)) {
+    NNInputCreator->createAddInputs(event);
     std::vector<double> Addinputs = NNInputCreator->getAddInputs();
     inputs.insert(inputs.end(), Addinputs.begin(), Addinputs.end());
   }

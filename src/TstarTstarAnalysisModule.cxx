@@ -69,7 +69,7 @@ private:
   std::unique_ptr<Hists> h_crosscheck, h_STreweighted;
   std::unique_ptr<Hists> h_main_gen;
 
-  std::unique_ptr<Hists> h_DNN_Inputs;
+  std::unique_ptr<Hists> h_DNN_Inputs, h_DNN_Inputs_reweighted;
 
 
   // ###### Handles ######
@@ -158,7 +158,7 @@ TstarTstarAnalysisModule::TstarTstarAnalysisModule(Context & ctx){
 
   // DNN hists
   h_DNN_Inputs.reset(new TstarTstarDNNInputHists(ctx, "DNN_Inputs"));
-
+  h_DNN_Inputs_reweighted.reset(new TstarTstarDNNInputHists(ctx, "DNN_Inputs_reweighted"));
 
   // ###### 4. Init handles ######
   h_evt_weight = ctx.get_handle<double>("evt_weight");
@@ -255,6 +255,7 @@ bool TstarTstarAnalysisModule::process(Event & event) {
     event.set(h_ST_weight, ST_weight);
     event.weight = event.get(h_ST_weight) * event.get(h_evt_weight);
     h_STreweighted->fill(event);
+    h_DNN_Inputs_reweighted->fill(event);
     event.weight = event.get(h_evt_weight);
   }
 

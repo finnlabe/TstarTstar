@@ -19,7 +19,9 @@ TstarTstarDNNHists::TstarTstarDNNHists(Context & ctx, const string & dirname): H
 
   // book all histograms here
   book<TH1F>("DNN_output", "DNN output", 20, 0, 1);
+  book<TH1F>("DNN_output_noWeights", "DNN output NO WEIGHTS", 20, 0, 1);
   DNN_2D_ST = book<TH2D>("2D_DNN_ST", "DNN output against ST", 40, 0, 4000, 50, 0, 1);
+  book<TH1F>("DNN_output_nolowST", "DNN output nolowST", 20, 0, 1);
 
   DNN_2D_1 = book<TH2D>("2D_DNN_1", "DNN output against lepton pt", 50, -1, 1, 50, 0, 1);
   DNN_2D_2 = book<TH2D>("2D_DNN_2", "DNN output against lepton eta", 50, -1, 1, 50, 0, 1);
@@ -71,6 +73,7 @@ void TstarTstarDNNHists::fill(const Event & event){
   std::vector<double> inputs = event.get(h_DNN_Inputs);
 
   hist("DNN_output")->Fill(DNNoutput, weight);
+  hist("DNN_output_noWeights")->Fill(DNNoutput, 1);
   double st = 0;
   for(const auto & jet : *event.topjets) st += jet.pt();
   for(const auto & lepton : *event.electrons) st += lepton.pt();
@@ -78,6 +81,7 @@ void TstarTstarDNNHists::fill(const Event & event){
   LorentzVector neutrino = event.get(h_neutrino);
   st += neutrino.pt();
   DNN_2D_ST->Fill(st, DNNoutput, weight);
+  if(st > 500) hist("DNN_output_nolowST")->Fill(DNNoutput, weight);
 
   DNN_2D_1->Fill(inputs.at(0), DNNoutput, weight);
   DNN_2D_2->Fill(inputs.at(1), DNNoutput, weight);

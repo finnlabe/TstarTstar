@@ -5,43 +5,47 @@
 
 void shapeCompare(){
 
+  gStyle->SetOptStat(0);
+
   Double_t w = 800;
   Double_t h = 600;
 
-  TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/";
-  TString filename = "FullSignal.root";
-  TString histname = "pt_ST_jets";
-
-  TString subpathA = "/Analysis/";
-  TString folderA = "beforeReco";
-  TString subpathB = "/DNN/";
-  TString folderB = "AfterDNNcut_06"; // sure?
+  TString histname = "pt_ST";
+  std::vector<TString> files = {
+    "/nfs/dust/cms/user/flabe/TstarTstar/data/Analysis/hadded/uhh2.AnalysisModuleRunner.MC.TTbar.root",
+    "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/uhh2.AnalysisModuleRunner.MC.TTbar.root",
+    "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/uhh2.AnalysisModuleRunner.MC.TTbar.root",
+    "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/uhh2.AnalysisModuleRunner.MC.TTbar.root",
+  };
+  std::vector<TString> folders = {"main", "AfterDNNcut_02", "AfterDNNcut_05", "AfterDNNcut_08"};
+  assert(file.size() == folder.size());
 
   TCanvas *c1_hist = new TCanvas("chist", "c", w, h);
+  TLegend *leg = new TLegend(0.22,0.175,0.6,0.40);
+
+  leg->SetTextFont(42);
+  leg->SetTextSize(0.035);
   c1_hist->SetLogy();
 
-  TFile *input1 = TFile::Open(path+subpathA+"/"+filename);
-  if(!input1) cout<<"File A is empty"<<endl;
-  TH1D *hist1 = (TH1D*)input1->Get(folderA+"/"+histname); //histogram
-  if(!hist1) cout<<"Hist A is empty"<<endl;
-  hist1->Scale(1/hist1->Integral());
-  hist1->GetXaxis()->SetTitle("S_{T} [GeV]");
-  hist1->GetYaxis()->SetTitle("events");
-  hist1->SetMarkerStyle(20);
-  hist1->SetMarkerColor(1);
-  hist1->SetLineColor(1);
-  hist1->Draw("hist");
+  int i = 0;
+  for (auto file : files) {
+    cout << "Processing " << file << "." << endl;
+    TString folder = folders.at(i);
+    TFile *input = TFile::Open(file);
+    if(!input) cout<<"File is empty"<<endl;
+    TH1D *hist = (TH1D*)input->Get(folder+"/"+histname); //histogram
+    if(!hist) cout<<"Hist is empty"<<endl;
+    hist->Scale(1/hist->Integral());
+    hist->GetYaxis()->SetTitle("events");
+    hist->SetMarkerStyle(20);
+    hist->SetMarkerColor(i+1);
+    hist->SetLineColor(i+1);
+    if(i == 0) hist->Draw("hist");
+    else hist->Draw("hist same");
+    leg->AddEntry(hist, folder, "l");
+    i++;
+  }
 
-  TFile *input2 = TFile::Open(path+subpathB+"/"+filename);
-  TH1D *hist2 = (TH1D*)input2->Get(folderB+"/"+histname); //histogram
-  if(!hist2) cout<<"Hist A is empty"<<endl;
-  hist2->Scale(1/hist2->Integral());
-  hist2->GetXaxis()->SetTitle("S_{T} [GeV]");
-  hist2->GetYaxis()->SetTitle("events");
-  hist2->SetMarkerStyle(20);
-  hist2->SetMarkerColor(1);
-  hist2->SetLineColor(2);
-  hist2->Draw("hist same");
-
-  c1_hist->SaveAs("shapeST_sig.pdf");
+  leg->Draw("same");
+  c1_hist->SaveAs("plots/shape_"+histname+".pdf");
 }
