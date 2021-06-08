@@ -227,11 +227,11 @@ bool TstarTstarDNNModule::process(Event & event) {
   if(is_MC) { // blinding!!!
     // do DNN cuts
     if(event.get(h_DNN_output) > 0.2) h_AfterDNNcut_02->fill(event);
-    else h_notDNNcut_02->fill(event);
+    //else h_notDNNcut_02->fill(event);
     if(event.get(h_DNN_output) > 0.3) h_AfterDNNcut_03->fill(event);
-    else h_notDNNcut_03->fill(event);
+    //else h_notDNNcut_03->fill(event);
     if(event.get(h_DNN_output) > 0.4) h_AfterDNNcut_04->fill(event);
-    else h_notDNNcut_04->fill(event);
+    //else h_notDNNcut_04->fill(event);
     if(event.get(h_DNN_output) > 0.5) h_AfterDNNcut_05->fill(event);
     else h_notDNNcut_05->fill(event);
     if(event.get(h_DNN_output) > 0.6) h_AfterDNNcut_06->fill(event);
@@ -241,6 +241,11 @@ bool TstarTstarDNNModule::process(Event & event) {
     if(event.get(h_DNN_output) > 0.8) h_AfterDNNcut_08->fill(event);
     else h_notDNNcut_08->fill(event);
   }
+
+  // these I can most likely look at...
+  if(event.get(h_DNN_output) < 0.2) h_notDNNcut_02->fill(event);
+  if(event.get(h_DNN_output) < 0.3) h_notDNNcut_03->fill(event);
+  if(event.get(h_DNN_output) < 0.4) h_notDNNcut_04->fill(event);
 
 
   // some more plotting

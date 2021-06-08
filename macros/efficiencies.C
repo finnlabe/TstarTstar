@@ -308,9 +308,9 @@ void efficiencies(TString suffix = ""){
   canvas->SaveAs("plots/efficiency"+suffix+".pdf");
 
   int index_sample = 0;
-  for(const auto & sample : signalSamples){
-    double pre_ttag = cutflow_Signal.at(index_sample)->GetBinContent(6);
-    double post_ttag = cutflow_Signal.at(index_sample)->GetBinContent(8);
+  for(const auto & sample : BGSamples){
+    double pre_ttag = cutflow_BG.at(index_sample)->GetBinContent(7);
+    double post_ttag = cutflow_BG.at(index_sample)->GetBinContent(8);
     cout << "For " << sample << " the efficiency is " << post_ttag/pre_ttag << endl;
     index_sample++;
   }
