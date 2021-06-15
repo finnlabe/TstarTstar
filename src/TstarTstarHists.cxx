@@ -1,6 +1,7 @@
 #include "UHH2/TstarTstar/include/TstarTstarHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarSelections.h"
 #include "UHH2/TstarTstar/include/TstarTstarReconstructionModules.h"
+#include "UHH2/TstarTstar/include/ReconstructionTstarHypothesis.h"
 #include "UHH2/core/include/Event.h"
 #include "UHH2/HOTVR/include/HOTVRIds.h"
 
@@ -21,6 +22,9 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
 
   h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
   h_neutrino = ctx.get_handle<LorentzVector>("neutrino");
+
+  h_tstartstar_hyp_gHOTVR = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_Hyp_gHOTVR");
+  h_tstartstar_hyp_gAK4 = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_Hyp_gAK4");
 
   // book all histograms here
   book<TH1F>("weight", "weight", 55, -1, 10);
@@ -118,6 +122,20 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   book<TH1F>("dphi_lepton_fatjet2", "#Delta#phi (lepton, hotvrjet 2)", 21, 0, 7);
   book<TH1F>("dphi_ttagjet_gluonjet", "#Delta#phi (ttagjet, gluonjet)", 21, 0, 7);
 
+  // some invariant masses
+  book<TH1F>("invmass_lep_b", "M_{\ell, b}", 25, 0, 500);
+  book<TH1F>("invmass_lep_MET", "M_{\ell, MET}", 25, 0, 500);
+  book<TH1F>("invmass_b_MET", "M_{b, MET}", 25, 0, 500);
+
+  // reconstructred Tstar masses
+  book<TH1F>("M_Tstar_gHOTVR_had", "M_{T^{*}} gHOTVR had", 30, 0, 3000);
+  book<TH1F>("M_Tstar_gHOTVR_lep", "M_{T^{*}} gHOTVR lep", 30, 0, 3000);
+  book<TH1F>("M_Tstar_gHOTVR_uncorr", "M_{T^{*}} gHOTVR uncorr", 30, 0, 3000);
+  book<TH1F>("M_Tstar_gHOTVR", "M_{T^{*}} gHOTVR", 30, 0, 3000);
+  book<TH1F>("M_Tstar_gAK4_had", "M_{T^{*}} gAK4 had", 30, 0, 3000);
+  book<TH1F>("M_Tstar_gAK4_lep", "M_{T^{*}} gAK4 lep", 30, 0, 3000);
+  book<TH1F>("M_Tstar_gAK4_uncorr", "M_{T^{*}} gAK4 uncorr", 30, 0, 3000);
+  book<TH1F>("M_Tstar_gAK4", "M_{T^{*}} gAK4", 30, 0, 3000);
 
 
 }
@@ -359,6 +377,40 @@ void TstarTstarHists::fill(const Event & event){
       hist("dR_ttagjet_gluonjet")->Fill(deltaR(ttagjet_best, gluonjet), weight);
       hist("dphi_ttagjet_gluonjet")->Fill(abs(ttagjet_best.phi() - gluonjet.phi()), weight);
     }
+
+    for(const auto & jet : *event.jets) {
+      if(jet.btag_DeepCSV() > 0.2219) {
+        hist("invmass_lep_b")->Fill(inv_mass_2(primary_lepton.v4() + jet.v4()), weight);
+        hist("invmass_b_MET")->Fill(inv_mass_2(jet.v4() + event.met->v4()), weight);
+        break;
+      }
+    }
+    hist("invmass_lep_MET")->Fill(inv_mass_2(primary_lepton.v4() + event.met->v4()), weight);
+
+    // reco plots
+    //gHOTVR
+    try {
+      ReconstructionTstarHypothesis hyp_gHOTVR = event.get(h_tstartstar_hyp_gHOTVR);
+      hist("M_Tstar_gHOTVR_uncorr")->Fill(hyp_gHOTVR.tstarlep_v4().pt(), weight/2);
+      if(hyp_gHOTVR.tstarhad_v4().pt() != 0) {
+        hist("M_Tstar_gHOTVR")->Fill(hyp_gHOTVR.tstarlep_v4().pt(), weight/2);
+        hist("M_Tstar_gHOTVR_lep")->Fill(hyp_gHOTVR.tstarlep_v4().pt(), weight);
+        hist("M_Tstar_gHOTVR")->Fill(hyp_gHOTVR.tstarhad_v4().pt(), weight/2);
+        hist("M_Tstar_gHOTVR_had")->Fill(hyp_gHOTVR.tstarhad_v4().pt(), weight);
+      }
+    } catch(...) {}
+
+    //gAK4
+    try {
+      ReconstructionTstarHypothesis hyp_gAK4 = event.get(h_tstartstar_hyp_gAK4);
+      hist("M_Tstar_gAK4_uncorr")->Fill(hyp_gAK4.tstarlep_v4().pt(), weight/2);
+      if(hyp_gAK4.tstarhad_v4().pt() != 0) {
+        hist("M_Tstar_gAK4")->Fill(hyp_gAK4.tstarlep_v4().pt(), weight/2);
+        hist("M_Tstar_gAK4_lep")->Fill(hyp_gAK4.tstarlep_v4().pt(), weight);
+        hist("M_Tstar_gAK4")->Fill(hyp_gAK4.tstarhad_v4().pt(), weight/2);
+        hist("M_Tstar_gAK4_had")->Fill(hyp_gAK4.tstarhad_v4().pt(), weight);
+      }
+    } catch(...) {}
 
     if(debug) cout << "Finished Tstar Hists!" << endl;
 

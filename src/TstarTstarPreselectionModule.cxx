@@ -200,7 +200,7 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
     ScaleFactor_ele_ID_noiso.reset(new MCElecScaleFactor(ctx, SF_path+"/electrons/2017_ElectronMVA90noiso.root", 0., "id"));
   }
   else if(year == "2018") {
-    ScaleFactor_ele_ID.reset(new MCElecScaleFactor(ctx, SF_path+"/electrons/E2018_ElectronMVA90.root", 0., "id"));
+    ScaleFactor_ele_ID.reset(new MCElecScaleFactor(ctx, SF_path+"/electrons/2018_ElectronMVA90.root", 0., "id"));
     ScaleFactor_ele_ID_noiso.reset(new MCElecScaleFactor(ctx, SF_path+"/electrons/2018_ElectronMVA90noiso.root", 0., "id"));
   }
   h_weight_sfele_id = ctx.get_handle<float>("weight_sfelec_id");

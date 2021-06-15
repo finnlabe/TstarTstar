@@ -3,6 +3,7 @@
 #include "UHH2/core/include/Hists.h"
 #include "UHH2/core/include/Event.h"
 #include "UHH2/HOTVR/include/HOTVRIds.h"
+#include "UHH2/TstarTstar/include/ReconstructionTstarHypothesis.h"
 
 namespace uhh2{
 
@@ -27,7 +28,8 @@ public:
     uhh2::Event::Handle<FlavorParticle> h_primlep;
     uhh2::Event::Handle<LorentzVector> h_neutrino;
 
-
+    uhh2::Event::Handle<ReconstructionTstarHypothesis> h_tstartstar_hyp_gHOTVR;
+    uhh2::Event::Handle<ReconstructionTstarHypothesis> h_tstartstar_hyp_gAK4;
 };
 
 }

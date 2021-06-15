@@ -63,9 +63,17 @@ private:
   std::unique_ptr<uhh2::AnalysisModule> ttgenprod;
   std::unique_ptr<uhh2::AnalysisModule> reco_primlep;
 
+  std::unique_ptr<TstarTstar_tgtg_TopTag_Reconstruction> Tstarreco_gHOTVR;
+  std::unique_ptr<TstarTstar_tgtg_AK4_Reconstruction> Tstarreco_gAK4;
+  std::unique_ptr<TstarTstar_Discrimination> TstarDiscriminator_gHOTVR;
+  std::unique_ptr<TstarTstar_Discrimination> TstarDiscriminator_gAK4;
+  uhh2::Event::Handle<ReconstructionTstarHypothesis> h_tstartstar_hyp;
+  uhh2::Event::Handle<ReconstructionTstarHypothesis> h_tstartstar_hyp_gHOTVR;
+  uhh2::Event::Handle<ReconstructionTstarHypothesis> h_tstartstar_hyp_gAK4;
 
   // ##### Histograms #####
   std::unique_ptr<Hists> h_main, h_main_ttag, h_main_nottag, h_main_mu, h_main_mu_lowpt, h_main_mu_highpt, h_main_ele, h_main_ele_lowpt, h_main_ele_highpt;
+  std::unique_ptr<Hists> h_reco, h_reco_ttag, h_reco_nottag, h_reco_mu, h_reco_mu_lowpt, h_reco_mu_highpt, h_reco_ele, h_reco_ele_lowpt, h_reco_ele_highpt;
   std::unique_ptr<Hists> h_crosscheck, h_STreweighted;
   std::unique_ptr<Hists> h_main_gen;
 
@@ -154,6 +162,17 @@ TstarTstarAnalysisModule::TstarTstarAnalysisModule(Context & ctx){
   h_main_ele_highpt.reset(new TstarTstarHists(ctx, "main_ele_highpt"));
   h_main_gen.reset(new TstarTstarGenHists(ctx, "main_gen"));
 
+  // after Reconstruction
+  h_reco.reset(new TstarTstarHists(ctx, "reco"));
+  h_reco_ttag.reset(new TstarTstarHists(ctx, "reco_ttag"));
+  h_reco_nottag.reset(new TstarTstarHists(ctx, "reco_nottag"));
+  h_reco_mu.reset(new TstarTstarHists(ctx, "reco_mu"));
+  h_reco_mu_lowpt.reset(new TstarTstarHists(ctx, "reco_mu_lowpt"));
+  h_reco_mu_highpt.reset(new TstarTstarHists(ctx, "reco_mu_highpt"));
+  h_reco_ele.reset(new TstarTstarHists(ctx, "reco_ele"));
+  h_reco_ele_lowpt.reset(new TstarTstarHists(ctx, "reco_ele_lowpt"));
+  h_reco_ele_highpt.reset(new TstarTstarHists(ctx, "reco_ele_highpt"));
+
   h_STreweighted.reset(new TstarTstarHists(ctx, "STreweighted"));
 
   // DNN hists
@@ -179,6 +198,15 @@ TstarTstarAnalysisModule::TstarTstarAnalysisModule(Context & ctx){
 
   TFile *f = new TFile("/nfs/dust/cms/user/flabe/MLCorner/TstarNN/reweightingApproach/output/data/ST_weights.root");
   ST_ratio = (TH1D*)f->Get("ST_ratio");
+
+  // TstarTstar reconstruction
+  Tstarreco_gHOTVR.reset(new TstarTstar_tgtg_TopTag_Reconstruction(ctx, NeutrinoReconstruction, topjetID));
+  Tstarreco_gAK4.reset(new TstarTstar_tgtg_AK4_Reconstruction(ctx, NeutrinoReconstruction, topjetID));
+  TstarDiscriminator_gHOTVR.reset(new TstarTstar_Discrimination(ctx));
+  TstarDiscriminator_gAK4.reset(new TstarTstar_Discrimination(ctx));
+  h_tstartstar_hyp = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_Hyp");
+  h_tstartstar_hyp_gHOTVR = ctx.declare_event_output<ReconstructionTstarHypothesis>("TstarTstar_Hyp_gHOTVR");
+  h_tstartstar_hyp_gAK4 = ctx.declare_event_output<ReconstructionTstarHypothesis>("TstarTstar_Hyp_gAK4");
 
 }
 
@@ -257,6 +285,51 @@ bool TstarTstarAnalysisModule::process(Event & event) {
     h_STreweighted->fill(event);
     h_DNN_Inputs_reweighted->fill(event);
     event.weight = event.get(h_evt_weight);
+  }
+
+  // ########################################
+  // ###### TstarTstar Reconstruction #######
+  // ########################################
+
+  // gHOTVR case
+  if(is_MC){ // blinding
+    if(Tstarreco_gHOTVR->process(event)) {
+      if(TstarDiscriminator_gHOTVR->process(event)) {
+        event.set(h_tstartstar_hyp_gHOTVR, event.get(h_tstartstar_hyp));
+      }
+    } else {
+      event.set(h_tstartstar_hyp_gHOTVR, ReconstructionTstarHypothesis());
+    }
+  } else {
+    event.set(h_tstartstar_hyp_gHOTVR, ReconstructionTstarHypothesis());
+  }
+
+  // gHOTVR case
+  if(is_MC){ // blinding
+    if(Tstarreco_gAK4->process(event)) {
+      if(TstarDiscriminator_gAK4->process(event)) {
+        event.set(h_tstartstar_hyp_gAK4, event.get(h_tstartstar_hyp));
+      }
+    } else {
+      event.set(h_tstartstar_hyp_gAK4, ReconstructionTstarHypothesis());
+    }
+  } else {
+    event.set(h_tstartstar_hyp_gAK4, ReconstructionTstarHypothesis());
+  }
+
+  // filling hists after reco
+  h_reco->fill(event);
+  if(pass_ttag) h_reco_ttag->fill(event);
+  else h_reco_nottag->fill(event);
+  if(event.get(h_flag_muonevent)){
+    h_reco_mu->fill(event);
+    if(event.get(h_primlep).pt()<60) h_reco_mu_lowpt->fill(event);
+    else h_reco_mu_highpt->fill(event);
+  }
+  else {
+    h_reco_ele->fill(event);
+    if(event.get(h_primlep).pt()<120) h_reco_ele_lowpt->fill(event);
+    else h_reco_ele_highpt->fill(event);
   }
 
   if(debug){cout << "Done ##################################" << endl;}
