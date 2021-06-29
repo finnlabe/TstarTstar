@@ -108,6 +108,7 @@ private:
   uhh2::Event::Handle<bool> h_is_muevt;
   uhh2::Event::Handle<bool> h_is_highpt;
   uhh2::Event::Handle<double> h_evt_weight;
+  uhh2::Event::Handle<bool> h_is_triggered;
 
   // SF handles
   uhh2::Event::Handle<float> h_weight_sfmu_id;
@@ -122,8 +123,6 @@ private:
 
   // ##### Control switches #####
   bool debug = false;
-  bool doTriggerSel = true;
-
 
   // ##### other needed definitions #####
   TString year;
@@ -347,6 +346,7 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   h_is_muevt = ctx.declare_event_output<bool>("is_muevt");
   h_is_highpt = ctx.declare_event_output<bool>("is_highpt");
   h_evt_weight = ctx.declare_event_output<double>("evt_weight");
+  h_is_triggered = ctx.declare_event_output<bool>("is_triggered");
 
 }
 
@@ -412,17 +412,23 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   if(pass_trigger_SingleMu_highpt && (event.muons->size() >= 1)){if(event.muons->at(0).pt()>60) pass_trigger = true; }
   if(pass_trigger_SingleEle_lowpt && (event.electrons->size() >= 1)){if(event.electrons->at(0).pt()<=120)pass_trigger = true; }
   if(pass_trigger_SingleEle_highpt && (event.electrons->size() >= 1)){if(event.electrons->at(0).pt()>120)pass_trigger = true; }
-  if(!pass_trigger && doTriggerSel) return false;
+  event.set(h_is_triggered, pass_trigger);
 
-  // hists
-  h_trigger->fill(event);
-  h_trigger_gen->fill(event);
-  lumihist_trigger->fill(event);
-  if(debug) cout<<"Filled hists after Trigger"<<endl;
+  // bools
+  bool pass_lep1;
+  bool pass_njet;
+  bool pass_fat_njet;
+  bool pass_MET;
 
+  if(pass_trigger) {
+    h_trigger->fill(event);
+    h_trigger_gen->fill(event);
+    lumihist_trigger->fill(event);
+    if(debug) cout<<"Filled hists after Trigger"<<endl;
+  }
 
   // ###### Lepton selection ######
-  const bool pass_lep1 = (((event.muons->size() == 1) || (event.electrons->size() == 1)) && (event.electrons->size()+event.muons->size()) == 1);
+  pass_lep1 = (((event.muons->size() == 1) || (event.electrons->size() == 1)) && (event.electrons->size()+event.muons->size()) == 1);
   if(!pass_lep1) return false;
 
   // setting muevt handle
@@ -466,102 +472,113 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   }
 
   // just plotting the SFs for cross checks
-  h_SFhists->fill(event);
-  if(event.get(h_is_muevt)){
-    h_SFhists_mu->fill(event);
-    if(event.get(h_is_highpt)) h_SFhists_mu_highpt->fill(event);
-    else h_SFhists_mu_lowpt->fill(event);
-  }
-  else {
-    h_SFhists_ele->fill(event);
-    if(event.get(h_is_highpt)) h_SFhists_ele_highpt->fill(event);
-    else h_SFhists_ele_lowpt->fill(event);
+  if(pass_trigger) {
+    h_SFhists->fill(event);
+    if(event.get(h_is_muevt)){
+      h_SFhists_mu->fill(event);
+      if(event.get(h_is_highpt)) h_SFhists_mu_highpt->fill(event);
+      else h_SFhists_mu_lowpt->fill(event);
+    }
+    else {
+      h_SFhists_ele->fill(event);
+      if(event.get(h_is_highpt)) h_SFhists_ele_highpt->fill(event);
+      else h_SFhists_ele_lowpt->fill(event);
+    }
   }
 
   // hists
-  h_lepsel->fill(event);
-  h_lepsel_gen->fill(event);
-  lumihist_lepsel->fill(event);
-  if(event.get(h_is_muevt)){
-    h_lepsel_mu->fill(event);
-    if(event.muons->at(0).pt()<=60) h_lepsel_mu_lowpt->fill(event);
-    else h_lepsel_mu_highpt->fill(event);
-  }
-  else {
-    h_lepsel_ele->fill(event);
-    if(event.electrons->at(0).pt()<=120) h_lepsel_ele_lowpt->fill(event);
-    else h_lepsel_ele_highpt->fill(event);
+  if(pass_trigger) {
+    h_lepsel->fill(event);
+    h_lepsel_gen->fill(event);
+    lumihist_lepsel->fill(event);
+    if(event.get(h_is_muevt)){
+      h_lepsel_mu->fill(event);
+      if(event.muons->at(0).pt()<=60) h_lepsel_mu_lowpt->fill(event);
+      else h_lepsel_mu_highpt->fill(event);
+    }
+    else {
+      h_lepsel_ele->fill(event);
+      if(event.electrons->at(0).pt()<=120) h_lepsel_ele_lowpt->fill(event);
+      else h_lepsel_ele_highpt->fill(event);
+    }
   }
   if(debug) cout << "Filled hists after lepsel" << endl;
 
   // ###### jet selection ######
-  bool pass_njet = (event.jets->size()>3);
+  pass_njet = (event.jets->size()>3);
   if(!pass_njet) return false;
 
   // hists
-  h_jetsel->fill(event);
-  h_jetsel_gen->fill(event);
-  lumihist_jetsel->fill(event);
-  if(event.get(h_is_muevt)){
-    h_jetsel_mu->fill(event);
-    if(event.muons->at(0).pt()<=60) h_jetsel_mu_lowpt->fill(event);
-    else h_jetsel_mu_highpt->fill(event);
+  if(pass_trigger) {
+    h_jetsel->fill(event);
+    h_jetsel_gen->fill(event);
+    lumihist_jetsel->fill(event);
+    if(event.get(h_is_muevt)){
+      h_jetsel_mu->fill(event);
+      if(event.muons->at(0).pt()<=60) h_jetsel_mu_lowpt->fill(event);
+      else h_jetsel_mu_highpt->fill(event);
+    }
+    else {
+      h_jetsel_ele->fill(event);
+      if(event.electrons->at(0).pt()<=120) h_jetsel_ele_lowpt->fill(event);
+      else h_jetsel_ele_highpt->fill(event);
+    }
+    if(debug) cout << "Filled hists after fatjetsel" << endl;
   }
-  else {
-    h_jetsel_ele->fill(event);
-    if(event.electrons->at(0).pt()<=120) h_jetsel_ele_lowpt->fill(event);
-    else h_jetsel_ele_highpt->fill(event);
-  }
-  if(debug) cout << "Filled hists after fatjetsel" << endl;
 
   // ###### fat jet selection ######
-  bool pass_fat_njet = (event.topjets->size()>0);
+  pass_fat_njet = (event.topjets->size()>0);
   if(!pass_fat_njet) return false;
 
   // hists
-  h_fatjetsel->fill(event);
-  h_fatjetsel_gen->fill(event);
-  lumihist_fatjetsel->fill(event);
-  if(event.get(h_is_muevt)){
-    h_fatjetsel_mu->fill(event);
-    if(event.muons->at(0).pt()<=60) h_fatjetsel_mu_lowpt->fill(event);
-    else h_fatjetsel_mu_highpt->fill(event);
+  if(pass_trigger) {
+    h_fatjetsel->fill(event);
+    h_fatjetsel_gen->fill(event);
+    lumihist_fatjetsel->fill(event);
+    if(event.get(h_is_muevt)){
+      h_fatjetsel_mu->fill(event);
+      if(event.muons->at(0).pt()<=60) h_fatjetsel_mu_lowpt->fill(event);
+      else h_fatjetsel_mu_highpt->fill(event);
+    }
+    else {
+      h_fatjetsel_ele->fill(event);
+      if(event.electrons->at(0).pt()<=120) h_fatjetsel_ele_lowpt->fill(event);
+      else h_fatjetsel_ele_highpt->fill(event);
+    }
+    if(debug) cout << "Filled hists after fatjetsel" << endl;
   }
-  else {
-    h_fatjetsel_ele->fill(event);
-    if(event.electrons->at(0).pt()<=120) h_fatjetsel_ele_lowpt->fill(event);
-    else h_fatjetsel_ele_highpt->fill(event);
-  }
-  if(debug) cout << "Filled hists after fatjetsel" << endl;
 
 
   // ###### MET Selection ######
-  bool pass_MET =  met_sel->passes(event);
+  pass_MET =  met_sel->passes(event);
   if(!pass_MET) return false;
 
   // hists
-  h_METsel->fill(event);
-  h_METsel_gen->fill(event);
-  lumihist_METsel->fill(event);
-  if(event.get(h_is_muevt)){
-    h_METsel_mu->fill(event);
-    if(event.muons->at(0).pt()<=60) h_METsel_mu_lowpt->fill(event);
-    else h_METsel_mu_highpt->fill(event);
+  if(pass_trigger) {
+    h_METsel->fill(event);
+    h_METsel_gen->fill(event);
+    lumihist_METsel->fill(event);
+    if(event.get(h_is_muevt)){
+      h_METsel_mu->fill(event);
+      if(event.muons->at(0).pt()<=60) h_METsel_mu_lowpt->fill(event);
+      else h_METsel_mu_highpt->fill(event);
+    }
+    else {
+      h_METsel_ele->fill(event);
+      if(event.electrons->at(0).pt()<=120) h_METsel_ele_lowpt->fill(event);
+      else h_METsel_ele_highpt->fill(event);
+    }
+    if(debug) cout<<"Filled hists after MET"<<endl;
   }
-  else {
-    h_METsel_ele->fill(event);
-    if(event.electrons->at(0).pt()<=120) h_METsel_ele_lowpt->fill(event);
-    else h_METsel_ele_highpt->fill(event);
-  }
-  if(debug) cout<<"Filled hists after MET"<<endl;
 
   // some gen check hists
-  h_afterSelection_gen->fill(event);
-  h_afterSelection_genmatch->fill(event);
+  if(pass_trigger) {
+    h_afterSelection_gen->fill(event);
+    h_afterSelection_genmatch->fill(event);
+  }
 
   // outputting event weight for following modules
   event.set(h_evt_weight, event.weight);
-
 
   if(debug) cout << "########### Done with preselection! ###########" << endl << endl;
   return true;

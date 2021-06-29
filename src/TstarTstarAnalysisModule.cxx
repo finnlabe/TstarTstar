@@ -21,6 +21,7 @@
 // TstarTstar stuff
 #include "UHH2/TstarTstar/include/TstarTstarSelections.h"
 #include "UHH2/TstarTstar/include/TstarTstarHists.h"
+#include "UHH2/TstarTstar/include/TstarTstarGENTstarRecoHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarDNNHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarDNNInputHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarRecoTstarHists.h"
@@ -41,7 +42,7 @@ using namespace uhh2;
 namespace uhh2 {
 
 // quick method to calculate inv_mass
-// float inv_mass(const LorentzVector& p4){ return p4.isTimelike() ? p4.mass() : -sqrt(-p4.mass2()); }
+float inv_mass_3(const LorentzVector& p4){ return p4.isTimelike() ? p4.mass() : -sqrt(-p4.mass2()); }
 
 /** \brief Module for the T*T*->ttbar gg MC based study
  *
@@ -70,6 +71,11 @@ private:
   uhh2::Event::Handle<ReconstructionTstarHypothesis> h_tstartstar_hyp;
   uhh2::Event::Handle<ReconstructionTstarHypothesis> h_tstartstar_hyp_gHOTVR;
   uhh2::Event::Handle<ReconstructionTstarHypothesis> h_tstartstar_hyp_gAK4;
+  uhh2::Event::Handle<ReconstructionTstarHypothesis> h_tstartstar_GENhyp_gHOTVR;
+  uhh2::Event::Handle<ReconstructionTstarHypothesis> h_tstartstar_GENhyp_gAK4;
+  std::unique_ptr<TstarTstarGenDiscriminator> TstarGENDiscriminator_gHOTVR;
+  std::unique_ptr<TstarTstarGenDiscriminator> TstarGENDiscriminator_gAK4;
+
 
   // ##### Histograms #####
   std::unique_ptr<Hists> h_main, h_main_ttag, h_main_nottag, h_main_mu, h_main_mu_lowpt, h_main_mu_highpt, h_main_ele, h_main_ele_lowpt, h_main_ele_highpt;
@@ -79,6 +85,7 @@ private:
 
   std::unique_ptr<Hists> h_DNN_Inputs, h_DNN_Inputs_reweighted;
 
+  std::unique_ptr<Hists> h_GENTstarReco;
 
   // ###### Handles ######
   uhh2::Event::Handle<double> h_evt_weight;
@@ -175,6 +182,9 @@ TstarTstarAnalysisModule::TstarTstarAnalysisModule(Context & ctx){
 
   h_STreweighted.reset(new TstarTstarHists(ctx, "STreweighted"));
 
+  // GEN reco
+  h_GENTstarReco.reset(new TstarTstarGENTstarRecoHists(ctx, "GENTstarReco"));
+
   // DNN hists
   h_DNN_Inputs.reset(new TstarTstarDNNInputHists(ctx, "DNN_Inputs"));
   h_DNN_Inputs_reweighted.reset(new TstarTstarDNNInputHists(ctx, "DNN_Inputs_reweighted"));
@@ -207,6 +217,10 @@ TstarTstarAnalysisModule::TstarTstarAnalysisModule(Context & ctx){
   h_tstartstar_hyp = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_Hyp");
   h_tstartstar_hyp_gHOTVR = ctx.declare_event_output<ReconstructionTstarHypothesis>("TstarTstar_Hyp_gHOTVR");
   h_tstartstar_hyp_gAK4 = ctx.declare_event_output<ReconstructionTstarHypothesis>("TstarTstar_Hyp_gAK4");
+  TstarGENDiscriminator_gAK4.reset(new TstarTstarGenDiscriminator(ctx));
+  TstarGENDiscriminator_gHOTVR.reset(new TstarTstarGenDiscriminator(ctx));
+  h_tstartstar_GENhyp_gHOTVR = ctx.declare_event_output<ReconstructionTstarHypothesis>("TstarTstar_GENHyp_gHOTVR");
+  h_tstartstar_GENhyp_gAK4 = ctx.declare_event_output<ReconstructionTstarHypothesis>("TstarTstar_GENHyp_gAK4");
 
 }
 
@@ -294,31 +308,38 @@ bool TstarTstarAnalysisModule::process(Event & event) {
   // gHOTVR case
   if(is_MC){ // blinding
     if(Tstarreco_gHOTVR->process(event)) {
-      if(TstarDiscriminator_gHOTVR->process(event)) {
-        event.set(h_tstartstar_hyp_gHOTVR, event.get(h_tstartstar_hyp));
-      }
+      TstarDiscriminator_gHOTVR->process(event);
+      event.set(h_tstartstar_hyp_gHOTVR, event.get(h_tstartstar_hyp));
+      TstarGENDiscriminator_gHOTVR->process(event);
+      event.set(h_tstartstar_GENhyp_gHOTVR, event.get(h_tstartstar_hyp));
     } else {
       event.set(h_tstartstar_hyp_gHOTVR, ReconstructionTstarHypothesis());
+      event.set(h_tstartstar_GENhyp_gHOTVR, ReconstructionTstarHypothesis());
     }
   } else {
     event.set(h_tstartstar_hyp_gHOTVR, ReconstructionTstarHypothesis());
+    event.set(h_tstartstar_GENhyp_gHOTVR, ReconstructionTstarHypothesis());
   }
 
-  // gHOTVR case
+  // gAK4 case
   if(is_MC){ // blinding
     if(Tstarreco_gAK4->process(event)) {
-      if(TstarDiscriminator_gAK4->process(event)) {
-        event.set(h_tstartstar_hyp_gAK4, event.get(h_tstartstar_hyp));
-      }
+      TstarDiscriminator_gAK4->process(event);
+      event.set(h_tstartstar_hyp_gAK4, event.get(h_tstartstar_hyp));
+      TstarGENDiscriminator_gAK4->process(event);
+      event.set(h_tstartstar_GENhyp_gAK4, event.get(h_tstartstar_hyp));
     } else {
       event.set(h_tstartstar_hyp_gAK4, ReconstructionTstarHypothesis());
+      event.set(h_tstartstar_GENhyp_gAK4, ReconstructionTstarHypothesis());
     }
   } else {
     event.set(h_tstartstar_hyp_gAK4, ReconstructionTstarHypothesis());
+    event.set(h_tstartstar_GENhyp_gAK4, ReconstructionTstarHypothesis());
   }
 
   // filling hists after reco
   h_reco->fill(event);
+  h_GENTstarReco->fill(event);
   if(pass_ttag) h_reco_ttag->fill(event);
   else h_reco_nottag->fill(event);
   if(event.get(h_flag_muonevent)){

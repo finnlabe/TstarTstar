@@ -21,7 +21,7 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   topjetID = AndId<TopJet>(HOTVRTopTag(), Tau32Groomed(0.56));
 
   h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
-  h_neutrino = ctx.get_handle<LorentzVector>("neutrino");
+  h_ST = ctx.get_handle<LorentzVector>("ST");
 
   h_tstartstar_hyp_gHOTVR = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_Hyp_gHOTVR");
   h_tstartstar_hyp_gAK4 = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_Hyp_gAK4");
@@ -128,15 +128,23 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   book<TH1F>("invmass_b_MET", "M_{b, MET}", 25, 0, 500);
 
   // reconstructred Tstar masses
+  // HOTVR approach
+  book<TH1F>("chi2_gHOTVR", "#chi^{2} gHOTVR", 25, 0, 100);
   book<TH1F>("M_Tstar_gHOTVR_had", "M_{T^{*}} gHOTVR had", 30, 0, 3000);
   book<TH1F>("M_Tstar_gHOTVR_lep", "M_{T^{*}} gHOTVR lep", 30, 0, 3000);
   book<TH1F>("M_Tstar_gHOTVR_uncorr", "M_{T^{*}} gHOTVR uncorr", 30, 0, 3000);
   book<TH1F>("M_Tstar_gHOTVR", "M_{T^{*}} gHOTVR", 30, 0, 3000);
+  book<TH1F>("M_top_gHOTVR_had", "M_{t} gHOTVR had", 30, 0, 500);
+  book<TH1F>("M_top_gHOTVR_lep", "M_{t} gHOTVR lep", 30, 0, 500);
+
+  // AK4 jet approach
+  book<TH1F>("chi2_gAK4", "#chi^{2} gAK4", 25, 0, 100);
   book<TH1F>("M_Tstar_gAK4_had", "M_{T^{*}} gAK4 had", 30, 0, 3000);
   book<TH1F>("M_Tstar_gAK4_lep", "M_{T^{*}} gAK4 lep", 30, 0, 3000);
   book<TH1F>("M_Tstar_gAK4_uncorr", "M_{T^{*}} gAK4 uncorr", 30, 0, 3000);
   book<TH1F>("M_Tstar_gAK4", "M_{T^{*}} gAK4", 30, 0, 3000);
-
+  book<TH1F>("M_top_gAK4_had", "M_{t} gAK4 had", 30, 0, 500);
+  book<TH1F>("M_top_gAK4_lep", "M_{t} gAK4 lep", 30, 0, 500);
 
 }
 
@@ -297,8 +305,7 @@ void TstarTstarHists::fill(const Event & event){
   else hist("pt_HTlep")->Fill(st, weight);
 
   try {
-    LorentzVector neutrino = event.get(h_neutrino);
-    st += neutrino.pt();
+    st = event.get(h_ST);
     if(st > 4000) hist("pt_ST")->Fill(3999.9, weight);
     else hist("pt_ST")->Fill(st, weight);
     hist("pt_ST_fullrange")->Fill(st, weight);
@@ -393,10 +400,14 @@ void TstarTstarHists::fill(const Event & event){
       ReconstructionTstarHypothesis hyp_gHOTVR = event.get(h_tstartstar_hyp_gHOTVR);
       hist("M_Tstar_gHOTVR_uncorr")->Fill(hyp_gHOTVR.tstarlep_v4().pt(), weight/2);
       if(hyp_gHOTVR.tstarhad_v4().pt() != 0) {
-        hist("M_Tstar_gHOTVR")->Fill(hyp_gHOTVR.tstarlep_v4().pt(), weight/2);
-        hist("M_Tstar_gHOTVR_lep")->Fill(hyp_gHOTVR.tstarlep_v4().pt(), weight);
-        hist("M_Tstar_gHOTVR")->Fill(hyp_gHOTVR.tstarhad_v4().pt(), weight/2);
-        hist("M_Tstar_gHOTVR_had")->Fill(hyp_gHOTVR.tstarhad_v4().pt(), weight);
+        ReconstructionHypothesis ttbarhyp_gHOTVR = hyp_gHOTVR.ttbar_hyp();
+        hist("chi2_gHOTVR")->Fill(hyp_gHOTVR.chi2(), weight);
+        hist("M_top_gHOTVR_had")->Fill(inv_mass_2(ttbarhyp_gHOTVR.tophad_v4()), weight);
+        hist("M_top_gHOTVR_lep")->Fill(inv_mass_2(ttbarhyp_gHOTVR.toplep_v4()), weight);
+        hist("M_Tstar_gHOTVR")->Fill(inv_mass_2(hyp_gHOTVR.tstarlep_v4()), weight/2);
+        hist("M_Tstar_gHOTVR_lep")->Fill(inv_mass_2(hyp_gHOTVR.tstarlep_v4()), weight);
+        hist("M_Tstar_gHOTVR")->Fill(inv_mass_2(hyp_gHOTVR.tstarhad_v4()), weight/2);
+        hist("M_Tstar_gHOTVR_had")->Fill(inv_mass_2(hyp_gHOTVR.tstarhad_v4()), weight);
       }
     } catch(...) {}
 
@@ -405,10 +416,14 @@ void TstarTstarHists::fill(const Event & event){
       ReconstructionTstarHypothesis hyp_gAK4 = event.get(h_tstartstar_hyp_gAK4);
       hist("M_Tstar_gAK4_uncorr")->Fill(hyp_gAK4.tstarlep_v4().pt(), weight/2);
       if(hyp_gAK4.tstarhad_v4().pt() != 0) {
-        hist("M_Tstar_gAK4")->Fill(hyp_gAK4.tstarlep_v4().pt(), weight/2);
-        hist("M_Tstar_gAK4_lep")->Fill(hyp_gAK4.tstarlep_v4().pt(), weight);
-        hist("M_Tstar_gAK4")->Fill(hyp_gAK4.tstarhad_v4().pt(), weight/2);
-        hist("M_Tstar_gAK4_had")->Fill(hyp_gAK4.tstarhad_v4().pt(), weight);
+        ReconstructionHypothesis ttbarhyp_gAK4 = hyp_gAK4.ttbar_hyp();
+        hist("chi2_gAK4")->Fill(hyp_gAK4.chi2(), weight);
+        hist("M_top_gAK4_had")->Fill(inv_mass_2(ttbarhyp_gAK4.tophad_v4()), weight);
+        hist("M_top_gAK4_lep")->Fill(inv_mass_2(ttbarhyp_gAK4.toplep_v4()), weight);
+        hist("M_Tstar_gAK4")->Fill(inv_mass_2(hyp_gAK4.tstarlep_v4()), weight/2);
+        hist("M_Tstar_gAK4_lep")->Fill(inv_mass_2(hyp_gAK4.tstarlep_v4()), weight);
+        hist("M_Tstar_gAK4")->Fill(inv_mass_2(hyp_gAK4.tstarhad_v4()), weight/2);
+        hist("M_Tstar_gAK4_had")->Fill(inv_mass_2(hyp_gAK4.tstarhad_v4()), weight);
       }
     } catch(...) {}
 

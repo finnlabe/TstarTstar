@@ -301,10 +301,10 @@ bool TstarTstar_tgtg_AK4_Reconstruction::process(uhh2::Event& event){
       for(uint g1 = 0; g1 < gluonCands.size(); g1++){
 	for(uint g2 = 0; g2 < gluonCands.size(); g2++){
 	  if(g1 == g2) continue;
-	  
+
 	  if(debug){cout << "Finding Neutrino candidates..." << endl;}
 	  for(const auto& neutrino_p4 : neutrinos){ // loop over Neutrinos
-	    
+
 	    if(debug){cout << "Starting Hypothesis construction..." << endl;}
 	    ReconstructionHypothesis ttbar_hyp;
 	    LorentzVector toplep_v4(lepton.v4() + neutrino_p4 + bj.v4());
@@ -312,33 +312,33 @@ bool TstarTstar_tgtg_AK4_Reconstruction::process(uhh2::Event& event){
 	    ttbar_hyp.set_neutrino_v4(neutrino_p4);
 	    ttbar_hyp.add_toplep_jet(bj);
 	    ttbar_hyp.set_blep_v4(bj.v4());
-	    
+
 	    LorentzVector tophad_v4(tj.v4());
 	    ttbar_hyp.add_tophad_jet(tj);
 	    ttbar_hyp.set_tophad_topjet_ptr(&event.topjets->at(i));
-	    
+
 	    ttbar_hyp.set_toplep_v4(toplep_v4);
 	    ttbar_hyp.set_tophad_v4(tophad_v4);
-	    
+
 	    LorentzVector gluon1_v4 = gluonCands.at(g1);
 	    LorentzVector gluon2_v4 = gluonCands.at(g2);
-	    
+
 	    ReconstructionTstarHypothesis hyp;
-	    
+
 	    hyp.set_ttbar(ttbar_hyp);
-	    
+
 	    LorentzVector tstarlep_v4(toplep_v4 + gluon1_v4);
 	    LorentzVector tstarhad_v4(tophad_v4 + gluon2_v4);
-	    
+
 	    hyp.set_tstarlep_v4(tstarlep_v4);
 	    hyp.set_tstarhad_v4(tstarhad_v4);
-	    
+
 	    hyp.set_tstar1gluon_v4(tstarlep_v4);
 	    hyp.set_tstar2gluon_v4(tstarhad_v4);
-	    
+
 	    hyp.set_gluon1_v4(gluon1_v4);
 	    hyp.set_gluon2_v4(gluon2_v4);
-	    
+
 	    if(debug){cout << "Writing Hypothesis..." << endl;}
 	    TstarTstar_hyp_vector.push_back(hyp);
 	  }
@@ -346,12 +346,12 @@ bool TstarTstar_tgtg_AK4_Reconstruction::process(uhh2::Event& event){
       }
     }
   }
-  
+
   if(debug){cout << "Done, return to main" << endl;}
   event.set(h_tstartstar_hyp_vector, TstarTstar_hyp_vector);
-  
+
   if(TstarTstar_hyp_vector.size() == 0){return false;}
-  
+
   return true;
 }
 
@@ -371,7 +371,7 @@ bool TstarTstar_Discrimination::process(uhh2::Event& event){
   // Read in all Hypothesiseses
   // save chi2 in each Hyp.
   // Chose hyp with lowest chi2
-  // save in h_tstartstar_hyp TODO
+  // save in h_tstartstar_hyp
 
   std::vector<ReconstructionTstarHypothesis> hyp_vector = event.get(h_tstartstar_hyp_vector);
 

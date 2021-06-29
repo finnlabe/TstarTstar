@@ -404,8 +404,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
     for(const auto & jet : *event.topjets) st += jet.pt();
     for(const auto & lepton : *event.electrons) st += lepton.pt();
     for(const auto & lepton : *event.muons) st += lepton.pt();
-    LorentzVector neutrino = event.get(h_neutrino);
-    st += neutrino.pt();
+    st += event.MET.pt();
     event.set(h_ST, st);
 
     // st cut

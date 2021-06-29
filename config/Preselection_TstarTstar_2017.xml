@@ -43,78 +43,78 @@
 
          <!-- tgtg -->
 
-        <InputData Lumi="192800" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-700_2017v2" Cacheable="False">
+        <InputData Lumi="22128.33747" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-700_2017v2" Cacheable="False">
 	  &TstarTstarToTgluonTgluon_M-700_Run2017;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-800_2017v2" Cacheable="False">
+        <InputData Lumi="71360.26946" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-800_2017v2" Cacheable="False">
 	  &TstarTstarToTgluonTgluon_M-800_Run2017;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-900_2017v2" Cacheable="False">
+        <InputData Lumi="207595.7198" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-900_2017v2" Cacheable="False">
 	  &TstarTstarToTgluonTgluon_M-900_Run2017;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
-        <InputData Lumi="199013" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1000_2017v2" Cacheable="False">
+        <InputData Lumi="760116.7219" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1000_2017v2" Cacheable="False">
 	  &TstarTstarToTgluonTgluon_M-1000_Run2017;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1200_2017v2" Cacheable="False">
+        <InputData Lumi="3442992.649" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1200_2017v2" Cacheable="False">
 	  &TstarTstarToTgluonTgluon_M-1200_Run2017;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1300_2017v2" Cacheable="False">
+        <InputData Lumi="8119585.252" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1300_2017v2" Cacheable="False">
 	  &TstarTstarToTgluonTgluon_M-1300_Run2017;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1400_2017v2" Cacheable="False">
+        <InputData Lumi="18458869.03" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1400_2017v2" Cacheable="False">
 	  &TstarTstarToTgluonTgluon_M-1400_Run2017;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1500_2017v2" Cacheable="False">
+        <InputData Lumi="41274899.08" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1500_2017v2" Cacheable="False">
 	  &TstarTstarToTgluonTgluon_M-1500_Run2017;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="192870" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1600_2017v2" Cacheable="False">
+        <InputData Lumi="87168547.55" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1600_2017v2" Cacheable="False">
 	  &TstarTstarToTgluonTgluon_M-1600_Run2017;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
 
         </InputData>
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1700_2017v2" Cacheable="False">
+        <InputData Lumi="194308698.2" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1700_2017v2" Cacheable="False">
     &TstarTstarToTgluonTgluon_M-1700_Run2017;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1800_2017v2" Cacheable="False">
+        <InputData Lumi="429449960.5" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1800_2017v2" Cacheable="False">
     &TstarTstarToTgluonTgluon_M-1800_Run2017;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1900_2017v2" Cacheable="False">
+        <InputData Lumi="932118472.3" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1900_2017v2" Cacheable="False">
     &TstarTstarToTgluonTgluon_M-1900_Run2017;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-2000_2017v2" Cacheable="False">
+        <InputData Lumi="4.94E+10" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-2000_2017v2" Cacheable="False">
     &TstarTstarToTgluonTgluon_M-2000_Run2017;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
