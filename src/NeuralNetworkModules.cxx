@@ -124,7 +124,7 @@ bool NeuralNetworkInputCreator::createInputs(Event& event) {
   if(event.get(h_is_muevt)) values.push_back(event.muons->at(0).relIso());
   else values.push_back(event.electrons->at(0).relIso());
 
-  // HOTVR jet 1
+  // HOTVR jets
   uint i = 0;
   for (const auto & topjet : *event.topjets){
     if(i == 3) break;
@@ -135,19 +135,6 @@ bool NeuralNetworkInputCreator::createInputs(Event& event) {
     values.push_back(topjet.tau2_groomed());
     values.push_back(topjet.tau3_groomed());
     values.push_back(topjet.subjets().size());
-    // matching AK4 jets
-    double radius = 600/topjet.pt();
-    if(radius > 1.5) radius = 1.5;
-    else if (radius < 0.1) radius = 0.1;
-    //std::vector<jet> matched_jets; //unused atm, but may be useful at some point?
-    double maxbtag = 0;
-    for (const auto & jet : *event.jets) {
-      if(deltaR(jet, topjet) < radius){
-        //matched_jets.push_back(jet);
-        if(jet.btag_DeepCSV() > maxbtag) maxbtag = jet.btag_DeepCSV();
-      }
-    }
-    values.push_back(maxbtag);
     i++;
   }
   for(;i < 3;i++){
@@ -158,14 +145,21 @@ bool NeuralNetworkInputCreator::createInputs(Event& event) {
     values.push_back(0); // tau2
     values.push_back(0); // tau3
     values.push_back(0); // subjets
-    values.push_back(0); // max btag
   }
 
-  // Neutrino
-  std::vector<LorentzVector> neutrinos = NeutrinoReconstruction(lepton.v4(), event.met->v4());
-  values.push_back(neutrinos.at(0).pt());
-  values.push_back(neutrinos.at(0).eta());
-  values.push_back(neutrinos.at(0).phi());
+  double maxbtag = 0.;
+  Jet btaggedjet;
+  for (const auto & jet : *event.jets) {
+      if(jet.btag_DeepCSV() > maxbtag) btaggedjet = jet;
+  }
+  values.push_back(btaggedjet.pt());
+  values.push_back(btaggedjet.eta());
+  values.push_back(btaggedjet.phi());
+  values.push_back(btaggedjet.btag_DeepCSV());
+
+  // MET
+  values.push_back(event.met->pt());
+  values.push_back(event.met->phi());
 
   // Event variables
   values.push_back(event.jets->size());

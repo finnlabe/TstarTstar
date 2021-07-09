@@ -447,6 +447,8 @@ bool TstarTstarSelectionModule::process(Event & event) {
       if(debug) cout<<"Filled hists after Trigger"<<endl;
     }
 
+    if(!is_triggered) return false; // now finally reject all non-triggered!
+
     if(pass_btagcut) { // only fill these for btag cut passes
       // some final plot for comparison
       h_afterSelection->fill(event);
