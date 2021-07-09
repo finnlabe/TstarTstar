@@ -8,7 +8,7 @@ void efficiencies(TString suffix = ""){
 
   gROOT->SetBatch(kTRUE); // to not open canvas and get XQuartz in the way
 
-  Double_t w = 420;
+  Double_t w = 450;
   Double_t h = 400;
 
   // Reuseable buffers
@@ -23,7 +23,7 @@ void efficiencies(TString suffix = ""){
   leg->SetTextFont(42);
   leg->SetTextSize(0.035);
 
-  gPad->SetTopMargin(0.05); gPad->SetBottomMargin(0.16);  gPad->SetLeftMargin(0.19); gPad->SetRightMargin(0.065);
+  gPad->SetTopMargin(0.05); gPad->SetBottomMargin(0.16);  gPad->SetLeftMargin(0.19); gPad->SetRightMargin(0.09);
   gPad->SetTicky();
 
   canvas->SetLogy();
@@ -68,7 +68,7 @@ void efficiencies(TString suffix = ""){
   std::vector<int> colors_Signal = {1, 1, 1, 1};
   std::vector<int> line_Signal = {2, 3, 4, 5};
   std::vector<int> colors_BG = {810, 800, 600, 867};
-  std::vector<TString> labels = {"Trigger", "N_{lep}", "N_{AK4}", "N_{HOTVR}", "MET", "b-tag", "iso.", "S_{T}", "should not be visible"};
+  std::vector<TString> labels = {"Trigger", "N_{lep} = 1", "N_{AK4} #geq 4", "N_{HOTVR} #geq 1", "MET > 50GeV", "N_{b-tag} #geq 1", "Isolation", "S_{T} > 500GeV", "should not be visible"};
 
   // ########################
   // ## Finish Definitions ##
@@ -222,7 +222,7 @@ void efficiencies(TString suffix = ""){
       hist->GetYaxis()->SetTitleFont(42);
       hist->GetYaxis()->SetLabelFont(42);
 
-      hist->GetXaxis()->SetLabelSize(0.055); // 0.045
+      hist->GetXaxis()->SetLabelSize(0.045); // 0.055
       hist->GetXaxis()->SetLabelOffset(0.01);
       hist->GetXaxis()->SetTickLength(0.03);
       //hist->GetXaxis()->SetTitleSize(0.05);

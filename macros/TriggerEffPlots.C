@@ -7,23 +7,23 @@
 void TriggerEffPlots(TString filename="uhh2.AnalysisModuleRunner.MC.TstarTstar.root", TString label="TstarTstar"){
 
   bool bPlotRatio = false;
-  
+
   Double_t w = 400;
   Double_t h = 400;
 
   TCanvas *m_can = new TCanvas("canvas", "canvas", w, h);
 
   gPad->SetTopMargin(0.05); gPad->SetBottomMargin(0.16);  gPad->SetLeftMargin(0.19); gPad->SetRightMargin(0.05);
-  
+
   // ###################### end cosmetics #######################
 
-  TString channel="mu";
-  TString subpath_pre="AfterdR";
-  TString subpath_post="AfterTrigger";
-  
+  TString channel="ele";
+  TString subpath_pre="TriggerXcheck";
+  TString subpath_post="AfterST";
+
   //Files after selection
   //We expect histograms filled with and without trigger selection stored in the same file
-  TString path = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/";
+  TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/hadded/";
   TFile *input = TFile::Open(path+filename);
   TH1D *hist_trigger = (TH1D*)input->Get(subpath_post+"_"+channel+"/pt_"+channel);//histogram after trigger selection
   TH1D *hist_denom = (TH1D*)input->Get(subpath_pre+"_"+channel+"/pt_"+channel);//histogram before trigger selection
@@ -42,7 +42,7 @@ void TriggerEffPlots(TString filename="uhh2.AnalysisModuleRunner.MC.TstarTstar.r
 
   //eff.Scale(1/0.999);
   for(int i=0;i<eff.GetN();i++) eff.GetY()[i] /= 0.999;
-  
+
   // cosmetics
   eff.GetXaxis()->SetTitle(hist_trigger->GetTitle());
   eff.GetYaxis()->SetTitle("Efficiency");
@@ -67,7 +67,7 @@ void TriggerEffPlots(TString filename="uhh2.AnalysisModuleRunner.MC.TstarTstar.r
 
   eff.GetYaxis()->SetRangeUser(0,1.5);
   eff.GetXaxis()->SetRangeUser(0,1000);
- 
+
   eff.SetMarkerStyle(1);
   eff.SetLineWidth(2);
   eff.SetMarkerColor(1);
@@ -75,7 +75,7 @@ void TriggerEffPlots(TString filename="uhh2.AnalysisModuleRunner.MC.TstarTstar.r
 
   eff.Draw("AP");
 
-  TString infotext = TString::Format("%3.1f fb^{-1} (%d TeV)", 130., 13);
+  TString infotext = TString::Format("%3.1f fb^{-1} (%d TeV)", 137., 13);
   TLatex *text = new TLatex(3.5, 24, infotext);
   text->SetNDC();
   text->SetTextAlign(33);
@@ -85,5 +85,5 @@ void TriggerEffPlots(TString filename="uhh2.AnalysisModuleRunner.MC.TstarTstar.r
   text->SetTextSize(0.045);
   text->Draw();
 
-  m_can->SaveAs("TrgEff_"+channel+".pdf");
+  m_can->SaveAs("plots/TrgEff_"+channel+".pdf");
 }
