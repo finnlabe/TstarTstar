@@ -140,7 +140,7 @@
       <Item Name="lumi_file" Value="common/data/2017/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON_v1.root"/>
 	    <Item Name="lumihists_lumi_per_bin" Value="500.0"/>
 
-      <Item Name="additionalBranches" Value="is_muevt evt_weight" />
+      <Item Name="additionalBranches" Value="is_muevt evt_weight is_triggered" />
 
 <!--	    <Item Name="is_puppi" Value="&IS_PUPPI;"/> -->
 
