@@ -68,7 +68,7 @@ void efficiencies(TString suffix = ""){
   std::vector<int> colors_Signal = {1, 1, 1, 1};
   std::vector<int> line_Signal = {2, 3, 4, 5};
   std::vector<int> colors_BG = {810, 800, 600, 867};
-  std::vector<TString> labels = {"Trigger", "N_{lep}", "N_{AK4}", "N_{HOTVR}", "MET", "b-tag", "iso.", "S_{T}", "should not be visible"};
+  std::vector<TString> labels = {"Trigger", "N_{lep} = 1", "N_{AK4} #geq 4", "N_{HOTVR} #geq 1", "MET > 50 GeV", "N_{b-tag} #geq 1", "isolation", "S_{T} > 500 GeV", "should not be visible"};
 
   // ########################
   // ## Finish Definitions ##

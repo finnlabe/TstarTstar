@@ -15,7 +15,7 @@ TstarTstarDNNHists::TstarTstarDNNHists(Context & ctx, const string & dirname): H
 
   h_DNN_output = ctx.get_handle<double>("DNN_output");
   h_DNN_Inputs = ctx.get_handle<std::vector<double>>("DNN_Inputs");
-  h_ST = ctx.get_handle<LorentzVector>("ST");
+  h_ST = ctx.get_handle<double>("ST");
 
   // book all histograms here
   book<TH1F>("DNN_output", "DNN output", 20, 0, 1);

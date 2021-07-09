@@ -61,6 +61,8 @@ private:
   std::unique_ptr<AnalysisModule> ScaleFactor_ele_ID;
   std::unique_ptr<AnalysisModule> ScaleFactor_ele_ID_noiso;
 
+  std::unique_ptr<AnalysisModule> ScaleFactor_ele_ID;
+
   // cleaners
   unique_ptr<TopJetCleaner> HOTVRcleaner;
   unique_ptr<MuonCleaner> MuCleaner_lowpt;
@@ -398,8 +400,8 @@ bool TstarTstarPreselectionModule::process(Event & event) {
     if(year == "2016") {
       pass_trigger_SingleMu_lowpt = (trg_mu24_iso->passes(event) || trg_mu24_iso_tk->passes(event));
     }
-    else pass_trigger_SingleMu_lowpt = trg_mu24_iso->passes(event);
-    pass_trigger_SingleMu_highpt = trg_mu50->passes(event);
+    else pass_trigger_SingleMu_lowpt = (trg_mu24_iso->passes(event));
+    pass_trigger_SingleMu_highpt = (trg_mu50->passes(event));
   }
   bool pass_trigger_SingleEle_lowpt = false;
   bool pass_trigger_SingleEle_highpt = false;

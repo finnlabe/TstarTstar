@@ -21,7 +21,7 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   topjetID = AndId<TopJet>(HOTVRTopTag(), Tau32Groomed(0.56));
 
   h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
-  h_ST = ctx.get_handle<LorentzVector>("ST");
+  h_ST = ctx.get_handle<double>("ST");
 
   h_tstartstar_hyp_gHOTVR = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_Hyp_gHOTVR");
   h_tstartstar_hyp_gAK4 = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_Hyp_gAK4");
