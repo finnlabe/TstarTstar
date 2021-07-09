@@ -97,6 +97,7 @@ private:
   uhh2::Event::Handle<double> h_evt_weight;
   uhh2::Event::Handle<LorentzVector> h_neutrino;
   uhh2::Event::Handle<double> h_ST;
+  uhh2::Event::Handle<bool> h_is_triggered;
 
   // ###### Control Switches ######
   bool debug = false;
@@ -234,10 +235,10 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   h_afterSelection_genmatch.reset(new TstarTstarGenRecoMatchedHists(ctx, "AfterSel_genmatch"));
 
   // TODO
-  h_trigger.reset(new TstarTstarHists(ctx, "AfterTrigger"));
-  h_trigger_mu.reset(new TstarTstarHists(ctx, "AfterTrigger_mu"));
-  h_trigger_ele.reset(new TstarTstarHists(ctx, "AfterTrigger_ele"));
-  h_trigger_gen.reset(new TstarTstarGenHists(ctx, "AfterTrigger_gen"));
+  h_trigger.reset(new TstarTstarHists(ctx, "TriggerXcheck"));
+  h_trigger_mu.reset(new TstarTstarHists(ctx, "TriggerXcheck_mu"));
+  h_trigger_ele.reset(new TstarTstarHists(ctx, "TriggerXcheck_ele"));
+  h_trigger_gen.reset(new TstarTstarGenHists(ctx, "TriggerXcheck_gen"));
 
 
   // ###### 4. Init Handles ######
@@ -246,6 +247,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
   h_neutrino = ctx.declare_event_output<LorentzVector>("neutrino");
   h_ST = ctx.declare_event_output<double>("ST");
+  h_is_triggered = ctx.get_handle<bool>("is_triggered");
 
 }
 
@@ -258,6 +260,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
   // reapply event weights from handle
   event.weight = event.get(h_evt_weight);
   if(debug) cout << "weights applied." << endl;
+  bool is_triggered = event.get(h_is_triggered);
 
   // Fill ttgen object for correct matching check, etc
   if(is_MC) ttgenprod->process(event);
@@ -266,18 +269,20 @@ bool TstarTstarSelectionModule::process(Event & event) {
   reco_primlep->process(event);
 
   // hists before anything happened
-  if(debug) std::cout << "Fill Crosscheck hists" << endl;
-  h_beginSel->fill(event);
-  h_beginSel_gen->fill(event);
-  if(event.get(h_is_muevt)){
-    h_beginSel_mu->fill(event);
-    if(event.muons->at(0).pt()<=60) h_beginSel_mu_lowpt->fill(event);
-    else h_beginSel_mu_highpt->fill(event);
-  }
-  else {
-    h_beginSel_ele->fill(event);
-    if(event.electrons->at(0).pt()<=120) h_beginSel_ele_lowpt->fill(event);
-    else h_beginSel_ele_highpt->fill(event);
+  if(is_triggered) {
+    if(debug) std::cout << "Fill Crosscheck hists" << endl;
+    h_beginSel->fill(event);
+    h_beginSel_gen->fill(event);
+    if(event.get(h_is_muevt)){
+      h_beginSel_mu->fill(event);
+      if(event.muons->at(0).pt()<=60) h_beginSel_mu_lowpt->fill(event);
+      else h_beginSel_mu_highpt->fill(event);
+    }
+    else {
+      h_beginSel_ele->fill(event);
+      if(event.electrons->at(0).pt()<=120) h_beginSel_ele_lowpt->fill(event);
+      else h_beginSel_ele_highpt->fill(event);
+    }
   }
 
 
@@ -290,7 +295,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
   for (const auto & jet: *event.jets){
     if(jet.btag_DeepCSV() > 0.2219) pass_btagcut = true;
   }
-  if(pass_btagcut) {
+  if(pass_btagcut && is_triggered) {
     // hists
     h_btagcut->fill(event);
     h_btagcut_gen->fill(event);
@@ -367,7 +372,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
     }
     if(!pass_dR) return false;
 
-    if(pass_btagcut) { // only fill these for btag cut passes
+    if(pass_btagcut && is_triggered) { // only fill these for btag cut passes
       // hists
       h_dRcut->fill(event);
       h_dRcut_gen->fill(event);
@@ -410,7 +415,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
     // st cut
     if(st < 500) return false;
 
-    if(pass_btagcut) { // only fill these for btag cut passes
+    if(pass_btagcut && is_triggered) { // only fill these for btag cut passes
       // hists
       h_STcut->fill(event);
       h_STcut_gen->fill(event);
@@ -434,35 +439,12 @@ bool TstarTstarSelectionModule::process(Event & event) {
     // ### Trigger studies ###
     // #######################
 
-    if(pass_btagcut) { // only fill these for btag cut passes
-      bool pass_trigger = false;
-      bool pass_trigger_SingleMu_lowpt = false;
-      bool pass_trigger_SingleMu_highpt = false;
-      if(is_MC || data_isMu){
-        if(year == "2016") {
-          pass_trigger_SingleMu_lowpt = (triggerSingleLeptonMu1_sel->passes(event) || triggerSingleLeptonMu2_sel->passes(event));
-        }
-        else pass_trigger_SingleMu_lowpt = triggerSingleLeptonMu1_sel->passes(event);
-        pass_trigger_SingleMu_highpt = triggerSingleLeptonMu3_sel->passes(event);
-      }
-      bool pass_trigger_SingleEle_lowpt = false;
-      bool pass_trigger_SingleEle_highpt = false;
-      if(is_MC || !data_isMu){
-        pass_trigger_SingleEle_lowpt = triggerSingleLeptonEle1_sel->passes(event);
-        if(data_is2017B) pass_trigger_SingleEle_highpt = (triggerSingleLeptonEle2_sel->passes(event) || triggerSingleLeptonEle1_sel->passes(event));
-        else pass_trigger_SingleEle_highpt = (triggerSingleLeptonEle2_sel->passes(event) || triggerSingleLeptonEle3_sel->passes(event));
-      }
-      if(pass_trigger_SingleMu_lowpt && (event.muons->size() >= 1)){if(event.muons->at(0).pt()<=60) pass_trigger = true; }
-      if(pass_trigger_SingleMu_highpt && (event.muons->size() >= 1)){if(event.muons->at(0).pt()>60) pass_trigger = true; }
-      if(pass_trigger_SingleEle_lowpt && (event.electrons->size() >= 1)){if(event.electrons->at(0).pt()<=120)pass_trigger = true; }
-      if(pass_trigger_SingleEle_highpt && (event.electrons->size() >= 1)){if(event.electrons->at(0).pt()>120)pass_trigger = true; }
-      if(pass_trigger) {
-        h_trigger->fill(event);
-        h_trigger_gen->fill(event);
-        if(event.get(h_is_muevt)) h_trigger_mu->fill(event);
-        else h_trigger_ele->fill(event);
-        if(debug) cout<<"Filled hists after Trigger"<<endl;
-      }
+    if(pass_btagcut) { // fill these also for "non-triggered" events to have a comparison
+      h_trigger->fill(event);
+      h_trigger_gen->fill(event);
+      if(event.get(h_is_muevt)) h_trigger_mu->fill(event);
+      else h_trigger_ele->fill(event);
+      if(debug) cout<<"Filled hists after Trigger"<<endl;
     }
 
     if(pass_btagcut) { // only fill these for btag cut passes

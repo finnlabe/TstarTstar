@@ -61,8 +61,6 @@ private:
   std::unique_ptr<AnalysisModule> ScaleFactor_ele_ID;
   std::unique_ptr<AnalysisModule> ScaleFactor_ele_ID_noiso;
 
-  std::unique_ptr<AnalysisModule> ScaleFactor_ele_ID;
-
   // cleaners
   unique_ptr<TopJetCleaner> HOTVRcleaner;
   unique_ptr<MuonCleaner> MuCleaner_lowpt;
