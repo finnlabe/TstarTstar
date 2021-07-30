@@ -15,6 +15,7 @@
 #include <UHH2/common/include/MuonIds.h>
 #include "UHH2/common/include/MCWeight.h"
 #include <UHH2/common/include/TriggerSelection.h>
+#include <UHH2/common/include/DetectorCleaning.h>
 
 // TstarTstar custom stuff
 #include "UHH2/TstarTstar/include/TstarTstarCustomIds.h"
@@ -67,6 +68,7 @@ private:
   unique_ptr<MuonCleaner> MuCleaner_highpt;
   unique_ptr<ElectronCleaner> EleCleaner_lowpt;
   unique_ptr<ElectronCleaner> EleCleaner_highpt;
+  unique_ptr<EtaPhiEventCleaner> HEMCleaner;
 
   // trigger selections
   unique_ptr<Selection> trg_ele32;
@@ -85,6 +87,7 @@ private:
 
   // ##### Histograms #####
   // full hists
+  std::unique_ptr<Hists> h_beforeHEM;
   std::unique_ptr<Hists> h_nocuts,     h_common,        h_trigger,        h_lepsel,        h_jetsel,        h_fatjetsel,        h_METsel;
   std::unique_ptr<Hists> h_nocuts_gen, h_common_gen,    h_trigger_gen,    h_lepsel_gen,    h_jetsel_gen,    h_fatjetsel_gen,    h_METsel_gen;
   std::unique_ptr<LuminosityHists>     lumihist_common, lumihist_trigger, lumihist_lepsel, lumihist_jetsel, lumihist_fatjetsel, lumihist_METsel;
@@ -175,6 +178,9 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   common.reset(new CommonModules());
   common->switch_metcorrection();
   if(debug) cout << "Common done" << endl;
+
+  // HEM issue
+  HEMCleaner.reset(new HEMCleanerSelection(ctx, "jetsAk4Puppi", "hotvrPuppi"));
 
   // HOTVR jets
   HOTVRCorr.reset(new HOTVRJetCorrectionModule(ctx)); // crashes
@@ -274,6 +280,8 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
 
   // ###### 3. set up hists ######
   // general
+  h_beforeHEM.reset(new TstarTstarHists(ctx, "beforeHEM"));
+
   h_nocuts.reset(new TstarTstarHists(ctx, "NoCuts"));
   h_common.reset(new TstarTstarHists(ctx, "AfterCommon"));
   h_trigger.reset(new TstarTstarHists(ctx, "AfterTrigger"));
@@ -375,10 +383,20 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   if(!(HOTVRCorr->process(event))) return false;
   if(!(HOTVRcleaner->process(event))) return false;
 
+  if(debug) cout<<"common modules done"<<endl;
+
   // ###### scale factors ######
   // Top Tagging scale factors
   HadronicTopFinder->process(event);
   HOTVRScale->process(event);
+
+  if(debug) cout<<"HOTVR scale done"<<endl;
+
+  // addressing HEM Issue
+  h_beforeHEM->fill(event);
+  if(!(HEMCleaner->passes(event))) return false;
+
+  if(debug) cout<<"HEM done"<<endl;
 
   // hists before selection
   h_common->fill(event);
@@ -391,27 +409,17 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   // #################
 
   // ###### Trigger selection ######
-  bool pass_trigger = false;
-  bool pass_trigger_SingleMu_lowpt = false;
-  bool pass_trigger_SingleMu_highpt = false;
+  bool pass_trigger_mu = false;
+  bool pass_trigger_ele = false;
   if(is_MC || data_isMu){
-    if(year == "2016") {
-      pass_trigger_SingleMu_lowpt = (trg_mu24_iso->passes(event) || trg_mu24_iso_tk->passes(event));
-    }
-    else pass_trigger_SingleMu_lowpt = (trg_mu24_iso->passes(event));
-    pass_trigger_SingleMu_highpt = (trg_mu50->passes(event));
+    if(year == "2016") pass_trigger_mu = (trg_mu24_iso->passes(event) || trg_mu24_iso_tk->passes(event) || trg_mu50->passes(event));
+    else pass_trigger_mu = (trg_mu24_iso->passes(event) || trg_mu50->passes(event));
   }
-  bool pass_trigger_SingleEle_lowpt = false;
-  bool pass_trigger_SingleEle_highpt = false;
   if(is_MC || !data_isMu){
-    pass_trigger_SingleEle_lowpt = trg_ele32->passes(event);
-    if(data_is2017B) pass_trigger_SingleEle_highpt = (trg_pho175->passes(event) || trg_ele32->passes(event));
-    else pass_trigger_SingleEle_highpt = (trg_pho175->passes(event) || trg_ele115->passes(event));
+    if(data_is2017B) pass_trigger_ele = (trg_pho175->passes(event) || trg_ele32->passes(event));
+    else pass_trigger_ele = (trg_ele32->passes(event) || trg_pho175->passes(event) || trg_ele115->passes(event));
   }
-  if(pass_trigger_SingleMu_lowpt && (event.muons->size() >= 1)){if(event.muons->at(0).pt()<=60) pass_trigger = true; }
-  if(pass_trigger_SingleMu_highpt && (event.muons->size() >= 1)){if(event.muons->at(0).pt()>60) pass_trigger = true; }
-  if(pass_trigger_SingleEle_lowpt && (event.electrons->size() >= 1)){if(event.electrons->at(0).pt()<=120)pass_trigger = true; }
-  if(pass_trigger_SingleEle_highpt && (event.electrons->size() >= 1)){if(event.electrons->at(0).pt()>120)pass_trigger = true; }
+  bool pass_trigger = pass_trigger_mu || pass_trigger_ele;
   event.set(h_is_triggered, pass_trigger);
 
   // bools
