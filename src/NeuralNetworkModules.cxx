@@ -249,7 +249,7 @@ NeuralNetworkIncluder::NeuralNetworkIncluder(Context& ctx, bool parametrized) {
   NNInputNormalizer.reset(new NeuralNetworkInputNormalizer(ctx, path));
   //NNModule.reset(new NeuralNetworkModule(ctx, path+"/network/model/frozen_graph.pb", path+"/network/model/frozen_graph.config.pbtxt"));
   //NNModule.reset(new NeuralNetworkModule(ctx, path+"model.pb", path+"model.config.pbtxt"));
-  NNModule.reset(new NeuralNetworkModule(ctx, path+"/bestModel/model.pb", path+"/bestModel/model.config.pbtxt"));
+  NNModule.reset(new NeuralNetworkModule(ctx, path+"/model.pb", path+"/model.config.pbtxt"));
   h_masspoint = ctx.get_handle<double>("masspoint");
   h_DNN_output = ctx.declare_event_output<double>("DNN_output");
   h_DoAddInputs = ctx.get_handle<bool>("doAddInputs");

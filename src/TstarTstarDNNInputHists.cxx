@@ -46,7 +46,7 @@ TstarTstarDNNInputHists::TstarTstarDNNInputHists(Context & ctx, const string & d
   DNN_2D_26 = book<TH1D>("DNN_Input_26", "b-jet p_{T}",  20, 0, 3000);
   DNN_2D_27 = book<TH1D>("DNN_Input_27", "b-jet #eta",  20, -4, 4);
   DNN_2D_28 = book<TH1D>("DNN_Input_28", "b-jet #phi",  20, -4, 4);
-  DNN_2D_29 = book<TH1D>("DNN_Input_26", "b-jet DeepCSV score",  20, 0, 1);
+  DNN_2D_29 = book<TH1D>("DNN_Input_29", "b-jet DeepCSV score",  20, 0, 1);
   DNN_2D_30 = book<TH1D>("DNN_Input_30", "MET p_{T}",  20, 0, 2000);
   DNN_2D_31 = book<TH1D>("DNN_Input_31", "MET #phi",  20, -4, 4);
   DNN_2D_32 = book<TH1D>("DNN_Input_32", "N_{AK4}",  10, 0, 10);
