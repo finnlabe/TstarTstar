@@ -68,7 +68,7 @@ private:
   unique_ptr<MuonCleaner> MuCleaner_highpt;
   unique_ptr<ElectronCleaner> EleCleaner_lowpt;
   unique_ptr<ElectronCleaner> EleCleaner_highpt;
-  unique_ptr<EtaPhiEventCleaner> HEMCleaner;
+  unique_ptr<HEMCleanerSelection> HEMCleaner;
 
   // trigger selections
   unique_ptr<Selection> trg_ele32;
@@ -125,7 +125,7 @@ private:
   uhh2::Event::Handle<float> h_weight_sfele_id_up;
 
   // ##### Control switches #####
-  bool debug = false;
+  bool debug = true;
 
   // ##### other needed definitions #####
   TString year;
@@ -180,7 +180,7 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   if(debug) cout << "Common done" << endl;
 
   // HEM issue
-  HEMCleaner.reset(new HEMCleanerSelection(ctx, "jetsAk4Puppi", "hotvrPuppi"));
+  HEMCleaner.reset(new HEMCleanerSelection(ctx, "jets", "topjets"));
 
   // HOTVR jets
   HOTVRCorr.reset(new HOTVRJetCorrectionModule(ctx)); // crashes
@@ -355,6 +355,7 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   h_is_highpt = ctx.declare_event_output<bool>("is_highpt");
   h_evt_weight = ctx.declare_event_output<double>("evt_weight");
   h_is_triggered = ctx.declare_event_output<bool>("is_triggered");
+
 
 }
 
