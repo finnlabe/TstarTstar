@@ -44,82 +44,82 @@
          <!-- tgtg -->
 
 
-                 <InputData Lumi="22954.70692" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-700_2018" Cacheable="False">
-         	  &TstarTstarToTgluonTgluon_M-700_Run2018;
-                   <InputTree Name="AnalysisTree" />
-                   <OutputTree Name="AnalysisTree" />
-                 </InputData>
+         <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-700_2018" Cacheable="False">
+    &TstarTstarToTgluonTgluon_M-700_Run2018;
+           <InputTree Name="AnalysisTree" />
+           <OutputTree Name="AnalysisTree" />
+         </InputData>
 
-                 <InputData Lumi="71360.26946" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-800_2018" Cacheable="False">
-         	  &TstarTstarToTgluonTgluon_M-800_Run2018;
-                   <InputTree Name="AnalysisTree" />
-                   <OutputTree Name="AnalysisTree" />
-                 </InputData>
+         <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-800_2018" Cacheable="False">
+    &TstarTstarToTgluonTgluon_M-800_Run2018;
+           <InputTree Name="AnalysisTree" />
+           <OutputTree Name="AnalysisTree" />
+         </InputData>
 
-                 <InputData Lumi="195407.7751" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-900_2018" Cacheable="False">
-         	  &TstarTstarToTgluonTgluon_M-900_Run2018;
-                   <InputTree Name="AnalysisTree" />
-                   <OutputTree Name="AnalysisTree" />
-                 </InputData>
-                 <InputData Lumi="763886.5017" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1000_2018" Cacheable="False">
-         	  &TstarTstarToTgluonTgluon_M-1000_Run2018;
-                   <InputTree Name="AnalysisTree" />
-                   <OutputTree Name="AnalysisTree" />
-                 </InputData>
+         <InputData Lumi="188258" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-900_2018" Cacheable="False">
+    &TstarTstarToTgluonTgluon_M-900_Run2018;
+           <InputTree Name="AnalysisTree" />
+           <OutputTree Name="AnalysisTree" />
+         </InputData>
+         <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1000_2018" Cacheable="False">
+    &TstarTstarToTgluonTgluon_M-1000_Run2018;
+           <InputTree Name="AnalysisTree" />
+           <OutputTree Name="AnalysisTree" />
+         </InputData>
 
-                 <InputData Lumi="3077622.269" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1200_2018" Cacheable="False">
-         	  &TstarTstarToTgluonTgluon_M-1200_Run2018;
-                   <InputTree Name="AnalysisTree" />
-                   <OutputTree Name="AnalysisTree" />
-                 </InputData>
+         <InputData Lumi="178776" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1200_2018" Cacheable="False">
+    &TstarTstarToTgluonTgluon_M-1200_Run2018;
+           <InputTree Name="AnalysisTree" />
+           <OutputTree Name="AnalysisTree" />
+         </InputData>
 
-                 <InputData Lumi="8119585.252" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1300_2018" Cacheable="False">
-         	  &TstarTstarToTgluonTgluon_M-1300_Run2018;
-                   <InputTree Name="AnalysisTree" />
-                   <OutputTree Name="AnalysisTree" />
-                 </InputData>
+         <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1300_2018" Cacheable="False">
+    &TstarTstarToTgluonTgluon_M-1300_Run2018;
+           <InputTree Name="AnalysisTree" />
+           <OutputTree Name="AnalysisTree" />
+         </InputData>
 
-                 <InputData Lumi="18458869.03" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1400_2018" Cacheable="False">
-         	  &TstarTstarToTgluonTgluon_M-1400_Run2018;
-                   <InputTree Name="AnalysisTree" />
-                   <OutputTree Name="AnalysisTree" />
-                 </InputData>
+         <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1400_2018" Cacheable="False">
+    &TstarTstarToTgluonTgluon_M-1400_Run2018;
+           <InputTree Name="AnalysisTree" />
+           <OutputTree Name="AnalysisTree" />
+         </InputData>
 
-                 <InputData Lumi="39394414.68" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1500_2018" Cacheable="False">
-         	  &TstarTstarToTgluonTgluon_M-1500_Run2018;
-                   <InputTree Name="AnalysisTree" />
-                   <OutputTree Name="AnalysisTree" />
-                 </InputData>
+         <InputData Lumi="198000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1500_2018" Cacheable="False">
+    &TstarTstarToTgluonTgluon_M-1500_Run2018;
+           <InputTree Name="AnalysisTree" />
+           <OutputTree Name="AnalysisTree" />
+         </InputData>
 
-                 <InputData Lumi="89976091.58" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1600_2018" Cacheable="False">
-         	  &TstarTstarToTgluonTgluon_M-1600_Run2018;
-                   <InputTree Name="AnalysisTree" />
-                   <OutputTree Name="AnalysisTree" />
+         <InputData Lumi="199082" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1600_2018" Cacheable="False">
+    &TstarTstarToTgluonTgluon_M-1600_Run2018;
+           <InputTree Name="AnalysisTree" />
+           <OutputTree Name="AnalysisTree" />
 
-                 </InputData>
-                 <InputData Lumi="194308698.2" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1700_2018" Cacheable="False">
-             &TstarTstarToTgluonTgluon_M-1700_Run2018;
-                   <InputTree Name="AnalysisTree" />
-                   <OutputTree Name="AnalysisTree" />
-                 </InputData>
+         </InputData>
+         <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1700_2018" Cacheable="False">
+     &TstarTstarToTgluonTgluon_M-1700_Run2018;
+           <InputTree Name="AnalysisTree" />
+           <OutputTree Name="AnalysisTree" />
+         </InputData>
 
-                 <InputData Lumi="404288487.3" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1800_2018" Cacheable="False">
-             &TstarTstarToTgluonTgluon_M-1800_Run2018;
-                   <InputTree Name="AnalysisTree" />
-                   <OutputTree Name="AnalysisTree" />
-                 </InputData>
+         <InputData Lumi="188282" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1800_2018" Cacheable="False">
+     &TstarTstarToTgluonTgluon_M-1800_Run2018;
+           <InputTree Name="AnalysisTree" />
+           <OutputTree Name="AnalysisTree" />
+         </InputData>
 
-                 <InputData Lumi="932118472.3" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1900_2018" Cacheable="False">
-             &TstarTstarToTgluonTgluon_M-1900_Run2018;
-                   <InputTree Name="AnalysisTree" />
-                   <OutputTree Name="AnalysisTree" />
-                 </InputData>
+         <InputData Lumi="200000" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-1900_2018" Cacheable="False">
+     &TstarTstarToTgluonTgluon_M-1900_Run2018;
+           <InputTree Name="AnalysisTree" />
+           <OutputTree Name="AnalysisTree" />
+         </InputData>
 
-                 <InputData Lumi="4.92E+10" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-2000_2018" Cacheable="False">
-             &TstarTstarToTgluonTgluon_M-2000_Run2018;
-                   <InputTree Name="AnalysisTree" />
-                   <OutputTree Name="AnalysisTree" />
-                 </InputData>
+         <InputData Lumi="199407" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_M-2000_2018" Cacheable="False">
+     &TstarTstarToTgluonTgluon_M-2000_Run2018;
+           <InputTree Name="AnalysisTree" />
+           <OutputTree Name="AnalysisTree" />
+         </InputData>
 
         <UserConfig>
             <!-- define which collections to read from the input. Only specify what you need to save I/O time -->
