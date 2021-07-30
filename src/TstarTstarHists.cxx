@@ -111,6 +111,7 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
 
   // deltaR observables
   book<TH1F>("dR_lepton_closestJet", "#DeltaR (lepton, closestJet)", 30, 0, 6);
+  book<TH1F>("dR_lepton_closestJet_fine", "#DeltaR (lepton, closestJet)", 40, 0, 2);
   book<TH1F>("dR_fatjet1_fatjet2", "#DeltaR (hotvrjet 1, hotvrjet 1)", 20, 0, 6);
   book<TH1F>("dR_lepton_fatjet1", "#DeltaR (lepton, hotvrjet 1)", 20, 0, 6);
   book<TH1F>("dR_lepton_fatjet2", "#DeltaR (lepton, hotvrjet 2)", 20, 0, 6);
@@ -145,6 +146,11 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   book<TH1F>("M_Tstar_gAK4", "M_{T^{*}} gAK4", 30, 0, 3000);
   book<TH1F>("M_top_gAK4_had", "M_{t} gAK4 had", 30, 0, 500);
   book<TH1F>("M_top_gAK4_lep", "M_{t} gAK4 lep", 30, 0, 500);
+
+  book<TH1F>("mjj", "m_{j j}", 30, 0, 3000);
+
+  book<TH2D>("HEMcheck", ";#eta_{AK4}; #phi_{AK4}", 40, -4, 4, 40, -4, 4);
+
 
 }
 
@@ -322,6 +328,10 @@ void TstarTstarHists::fill(const Event & event){
     hist("pt_asym12_over_ST")->Fill((event.jets->at(0).pt()-event.jets->at(1).pt())/st, weight);
   }
 
+  for (const auto & jet : *event.jets){
+    ((TH2D*)hist("HEMcheck"))->Fill(jet.eta(),jet.phi(), weight);
+  }
+
   // dR stuff
   FlavorParticle primary_lepton;
   try {
@@ -333,6 +343,7 @@ void TstarTstarHists::fill(const Event & event){
     if(cur_deltaR < min_deltaR) min_deltaR = cur_deltaR;
   }
   hist("dR_lepton_closestJet")->Fill(min_deltaR, weight);
+  hist("dR_lepton_closestJet_fine")->Fill(min_deltaR, weight);
 
   if(event.topjets->size()>1){
     hist("dR_fatjet1_fatjet2")->Fill(deltaR(event.topjets->at(0), event.topjets->at(1)), weight);
