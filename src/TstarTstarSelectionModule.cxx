@@ -15,6 +15,7 @@
 #include "UHH2/common/include/TriggerSelection.h"
 #include "UHH2/common/include/TTbarGen.h"
 #include "UHH2/common/include/MCWeight.h"
+#include <UHH2/common/include/DetectorCleaning.h>
 
 // TstarTstar stuff
 #include "UHH2/TstarTstar/include/ModuleBASE.h"
@@ -60,6 +61,7 @@ private:
   // selections
   unique_ptr<Selection> twodcut_sel;
   unique_ptr<Selection> toptagevt_sel;
+  unique_ptr<HEMCleanerSelection> HEMCleaner;
 
   // triggers
   // TODO clean this
@@ -84,7 +86,7 @@ private:
   std::unique_ptr<Hists> h_beginSel_mu_highpt,  h_btagcut_mu_highpt,   h_2Dcut_mu_highpt,     h_dRcut_mu_highpt,     h_STcut_mu_highpt  ;
 
   std::unique_ptr<Hists> h_afterSelection_gen, h_afterSelection_genmatch;
-  std::unique_ptr<Hists> h_afterSelection;
+  std::unique_ptr<Hists> h_afterSelection, h_afterHEMcleaning;
 
   // TODO better trigger plots!
   std::unique_ptr<Hists> h_trigger, h_trigger_mu, h_trigger_ele;
@@ -165,6 +167,9 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   toptagevt_sel.reset(new TopTagEventSelection(topjetID));
   **/
 
+  // HEM issue
+  HEMCleaner.reset(new HEMCleanerSelection(ctx, "jets", "topjets"));
+
   // Trigger selections
   if(is_MC || !data_isMu) {
     // The following exist for both 2016 and 2017
@@ -233,6 +238,8 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   h_afterSelection.reset(new TstarTstarHists(ctx, "AfterSel"));
   h_afterSelection_gen.reset(new TstarTstarGenHists(ctx, "AfterSel_gen"));
   h_afterSelection_genmatch.reset(new TstarTstarGenRecoMatchedHists(ctx, "AfterSel_genmatch"));
+
+  h_afterHEMcleaning.reset(new TstarTstarHists(ctx, "AfterHEMcleaning"));
 
   // TODO
   h_trigger.reset(new TstarTstarHists(ctx, "TriggerXcheck"));
@@ -457,6 +464,10 @@ bool TstarTstarSelectionModule::process(Event & event) {
     } else {
       //h_nobtagcontrolregion->fill();
     }
+
+    // addressing HEM Issue
+    if(!(HEMCleaner->passes(event))) return false;
+    if(pass_btagcut) h_afterHEMcleaning->fill(event);
 
     // at the moment control region ends here!
     if(pass_btagcut) return true;
