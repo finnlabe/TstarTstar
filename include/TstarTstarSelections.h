@@ -16,7 +16,7 @@ namespace uhh2 {
   public:
     explicit TwoDCut(float min_deltaR, float min_pTrel): min_deltaR_(min_deltaR), min_pTrel_(min_pTrel) {}
     virtual bool passes(const Event&) override;
-    
+
   private:
     float min_deltaR_, min_pTrel_;
   };
@@ -32,7 +32,7 @@ namespace uhh2 {
     GenParticle Wlep, Whad, blep, bhad, thad, tlep, lepton, neutrino, Whadd1,Whadd2;
   };
 
-  
+
 
 
   class METCut : public Selection {
@@ -66,5 +66,20 @@ namespace uhh2 {
     TopJetId topjetID_;
   };
   /////
-  
+
+  class Eled0dzCut {
+  public:
+    Eled0dzCut(float max_d0_, float max_dz_): max_d0(max_d0_), max_dz(max_dz_){}
+
+      bool operator()(const Electron & ele, const uhh2::Event & event) const{
+        const auto & pv = event.pvs->at(0);
+        double pv_d0 = ele.gsfTrack_dxy_vertex(pv.x(), pv.y());
+        double pv_dz = ele.gsfTrack_dz_vertex(pv.x(), pv.y(), pv.z());
+        return (pv_d0 < max_d0 && pv_dz < max_dz);
+      }
+
+  private:
+    float max_d0, max_dz;
+  };
+
 }

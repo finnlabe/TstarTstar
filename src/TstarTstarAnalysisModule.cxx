@@ -92,6 +92,7 @@ private:
   uhh2::Event::Handle<FlavorParticle> h_primlep;
   uhh2::Event::Handle<double> h_ST;
   uhh2::Event::Handle<LorentzVector> h_neutrino;
+  uhh2::Event::Handle<bool> h_is_btagevent;
 
   // for reconstruction
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
@@ -195,6 +196,7 @@ TstarTstarAnalysisModule::TstarTstarAnalysisModule(Context & ctx){
   h_flag_muonevent = ctx.declare_event_output<int>("flag_muonevent");
   h_flag_toptagevent = ctx.declare_event_output<int>("flag_toptagevent");
   h_neutrino = ctx.get_handle<LorentzVector>("neutrino");
+  h_is_btagevent = ctx.get_handle<bool>("is_btagevent");
 
   if(is_MC) h_ttbargen = ctx.get_handle<TTbarGen>("ttbargen");
 
@@ -252,19 +254,21 @@ bool TstarTstarAnalysisModule::process(Event & event) {
 
   if(debug) std::cout << "Hists before everything" << std::endl;
   // fill hists before things have happened
-  h_main->fill(event);
-  h_main_gen->fill(event);
-  if(pass_ttag) h_main_ttag->fill(event);
-  else h_main_nottag->fill(event);
-  if(event.get(h_flag_muonevent)){
-    h_main_mu->fill(event);
-    if(event.get(h_primlep).pt()<60) h_main_mu_lowpt->fill(event);
-    else h_main_mu_highpt->fill(event);
-  }
-  else {
-    h_main_ele->fill(event);
-    if(event.get(h_primlep).pt()<120) h_main_ele_lowpt->fill(event);
-    else h_main_ele_highpt->fill(event);
+  if(event.get(h_is_btagevent)) {
+    h_main->fill(event);
+    h_main_gen->fill(event);
+    if(pass_ttag) h_main_ttag->fill(event);
+    else h_main_nottag->fill(event);
+    if(event.get(h_flag_muonevent)){
+      h_main_mu->fill(event);
+      if(event.get(h_primlep).pt()<60) h_main_mu_lowpt->fill(event);
+      else h_main_mu_highpt->fill(event);
+    }
+    else {
+      h_main_ele->fill(event);
+      if(event.get(h_primlep).pt()<120) h_main_ele_lowpt->fill(event);
+      else h_main_ele_highpt->fill(event);
+    }
   }
 
   // ########################################
@@ -279,7 +283,7 @@ bool TstarTstarAnalysisModule::process(Event & event) {
     if(debug) cout << "Write inputs" << endl;
     DNN_InputWriter->process(event);
     if(debug) cout << "plot inputs" << endl;
-    h_DNN_Inputs->fill(event);
+    if(event.get(h_is_btagevent)) h_DNN_Inputs->fill(event);
     double st = 0.;
     for(const auto & jet : *event.topjets) st += jet.pt();
     for(const auto & lepton : *event.electrons) st += lepton.pt();
@@ -296,8 +300,8 @@ bool TstarTstarAnalysisModule::process(Event & event) {
     }
     event.set(h_ST_weight, ST_weight);
     event.weight = event.get(h_ST_weight) * event.get(h_evt_weight);
-    h_STreweighted->fill(event);
-    h_DNN_Inputs_reweighted->fill(event);
+    if(event.get(h_is_btagevent)) h_STreweighted->fill(event);
+    if(event.get(h_is_btagevent)) h_DNN_Inputs_reweighted->fill(event);
     event.weight = event.get(h_evt_weight);
   }
 
@@ -338,19 +342,21 @@ bool TstarTstarAnalysisModule::process(Event & event) {
   }
 
   // filling hists after reco
-  h_reco->fill(event);
-  h_GENTstarReco->fill(event);
-  if(pass_ttag) h_reco_ttag->fill(event);
-  else h_reco_nottag->fill(event);
-  if(event.get(h_flag_muonevent)){
-    h_reco_mu->fill(event);
-    if(event.get(h_primlep).pt()<60) h_reco_mu_lowpt->fill(event);
-    else h_reco_mu_highpt->fill(event);
-  }
-  else {
-    h_reco_ele->fill(event);
-    if(event.get(h_primlep).pt()<120) h_reco_ele_lowpt->fill(event);
-    else h_reco_ele_highpt->fill(event);
+  if(event.get(h_is_btagevent)) {
+    h_reco->fill(event);
+    h_GENTstarReco->fill(event);
+    if(pass_ttag) h_reco_ttag->fill(event);
+    else h_reco_nottag->fill(event);
+    if(event.get(h_flag_muonevent)){
+      h_reco_mu->fill(event);
+      if(event.get(h_primlep).pt()<60) h_reco_mu_lowpt->fill(event);
+      else h_reco_mu_highpt->fill(event);
+    }
+    else {
+      h_reco_ele->fill(event);
+      if(event.get(h_primlep).pt()<120) h_reco_ele_lowpt->fill(event);
+      else h_reco_ele_highpt->fill(event);
+    }
   }
 
   if(debug){cout << "Done ##################################" << endl;}

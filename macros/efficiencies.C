@@ -32,14 +32,14 @@ void efficiencies(TString suffix = ""){
   // Defining paths
   TString pathPresel = "/nfs/dust/cms/user/flabe/TstarTstar/data/Preselection/hadded/";
   TString pathSel = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/hadded/";
-  TString pathReco = "/nfs/dust/cms/user/flabe/TstarTstar/data/Analysis/hadded/";
+  TString pathReco = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/";
   TString fileprefix = "uhh2.AnalysisModuleRunner.MC.";
   TString histname = "N_jets";
 
   // Defining Steps
   std::vector<TString> preselSteps = {"AfterTrigger", "AfterLep", "AfterJets", "AfterFatJets", "AfterMET"};
   std::vector<TString> selSteps = {"AfterBtag", "AfterdR", "AfterST"};
-  std::vector<TString> recoSteps = {};
+  std::vector<TString> recoSteps = {"newTaggerSR"};
   int stepcount = preselSteps.size() + selSteps.size() + recoSteps.size();
 
   // Adding suffix
@@ -68,7 +68,7 @@ void efficiencies(TString suffix = ""){
   std::vector<int> colors_Signal = {1, 1, 1, 1};
   std::vector<int> line_Signal = {2, 3, 4, 5};
   std::vector<int> colors_BG = {810, 800, 600, 867};
-  std::vector<TString> labels = {"Trigger", "N_{lep} = 1", "N_{AK4} #geq 4", "N_{HOTVR} #geq 1", "MET > 50GeV", "N_{b-tag} #geq 1", "Isolation", "S_{T} > 500GeV", "should not be visible"};
+  std::vector<TString> labels = {"Trigger", "N_{lep} = 1", "N_{AK4} #geq 4", "N_{HOTVR} #geq 1", "MET > 50GeV", "N_{b-tag} #geq 1", "Isolation", "S_{T} > 500GeV", "SR", "should not be visible"};
 
   // ########################
   // ## Finish Definitions ##
@@ -307,10 +307,20 @@ void efficiencies(TString suffix = ""){
   }
   canvas->SaveAs("plots/efficiency"+suffix+".pdf");
 
+  // signal effs
   int index_sample = 0;
+  for(const auto & sample : signalSamples){
+    double pre_ttag = cutflow_Signal.at(index_sample)->GetBinContent(8);
+    double post_ttag = cutflow_Signal.at(index_sample)->GetBinContent(9);
+    cout << "For " << sample << " the efficiency is " << post_ttag/pre_ttag << endl;
+    index_sample++;
+  }
+
+  // background effs
+  index_sample = 0;
   for(const auto & sample : BGSamples){
-    double pre_ttag = cutflow_BG.at(index_sample)->GetBinContent(7);
-    double post_ttag = cutflow_BG.at(index_sample)->GetBinContent(8);
+    double pre_ttag = cutflow_BG.at(index_sample)->GetBinContent(8);
+    double post_ttag = cutflow_BG.at(index_sample)->GetBinContent(9);
     cout << "For " << sample << " the efficiency is " << post_ttag/pre_ttag << endl;
     index_sample++;
   }

@@ -28,6 +28,8 @@
 
 // other stuff
 #include "UHH2/HOTVR/include/HOTVRIds.h"
+#include "UHH2/HOTVR/include/HadronicTop.h"
+#include "UHH2/HOTVR/include/HOTVRScaleFactor.h"
 
 using namespace std;
 using namespace uhh2;
@@ -57,6 +59,16 @@ private:
   // general
   unique_ptr<uhh2::AnalysisModule> reco_primlep;
   unique_ptr<uhh2::AnalysisModule> ttgenprod;
+
+  // scale factors
+  std::unique_ptr<AnalysisModule> HadronicTopFinder;
+  std::unique_ptr<AnalysisModule> HOTVRScale;
+  std::unique_ptr<AnalysisModule> ScaleFactor_muon_ID;
+  std::unique_ptr<AnalysisModule> ScaleFactor_muon_iso;
+  std::unique_ptr<AnalysisModule> ScaleFactor_muon_trigger;
+  std::unique_ptr<AnalysisModule> ScaleFactor_ele_ID;
+  std::unique_ptr<AnalysisModule> ScaleFactor_ele_ID_noiso;
+  std::unique_ptr<AnalysisModule> ScaleFactor_ele_trigger;
 
   // selections
   unique_ptr<Selection> twodcut_sel;
@@ -96,14 +108,26 @@ private:
   uhh2::Event::Handle<FlavorParticle> h_primlep;
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
   uhh2::Event::Handle<bool> h_is_muevt;
+  uhh2::Event::Handle<bool> h_is_highpt;
   uhh2::Event::Handle<double> h_evt_weight;
   uhh2::Event::Handle<LorentzVector> h_neutrino;
   uhh2::Event::Handle<double> h_ST;
   uhh2::Event::Handle<bool> h_is_triggered;
+  uhh2::Event::Handle<bool> h_is_btagevent;
+
+  // SF handles
+  uhh2::Event::Handle<float> h_weight_sfmu_id;
+  uhh2::Event::Handle<float> h_weight_sfmu_id_down;
+  uhh2::Event::Handle<float> h_weight_sfmu_id_up;
+  uhh2::Event::Handle<float> h_weight_sfmu_isolation;
+  uhh2::Event::Handle<float> h_weight_sfmu_isolation_down;
+  uhh2::Event::Handle<float> h_weight_sfmu_isolation_up;
+  uhh2::Event::Handle<float> h_weight_sfele_id;
+  uhh2::Event::Handle<float> h_weight_sfele_id_down;
+  uhh2::Event::Handle<float> h_weight_sfele_id_up;
 
   // ###### Control Switches ######
   bool debug = false;
-  bool isTrigger = false;
 
   // ###### other needed definitions ######
   bool is_MC;
@@ -131,6 +155,9 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   // ###### 0. Setting variables ######
   // MC or real data
   is_MC = ctx.get("dataset_type") == "MC";
+
+  // getting SF file path
+  string SF_path = ctx.get("SF_path");
 
   // year of samples
   year = ctx.get("year", "<not set>");
@@ -161,11 +188,48 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   // 2D cut
   twodcut_sel.reset(new TwoDCut(0.4, 25.0));  // The same as in Z'->ttbar semileptonic
 
-  // Top Tagging
-  /**
-  topjetID = AndId<TopJet>(HOTVRTopTag(), Tau32Groomed(0.56));
-  toptagevt_sel.reset(new TopTagEventSelection(topjetID));
-  **/
+  // HOTVR scale
+  topjetID = AndId<TopJet>(HOTVRTopTag(), Tau32Groomed(0.56)); // Top Tag that is used later
+  HadronicTopFinder.reset(new HadronicTop(ctx));
+  HOTVRScale.reset(new HOTVRScaleFactor(ctx, topjetID));
+
+  // lepton scale
+  // electron
+  if(year == "2016") {
+    ScaleFactor_ele_ID.reset(new MCElecScaleFactor(ctx, SF_path+"/electrons/2016LegacyReReco_ElectronMVA90_Fall17V2.root", 0., "id"));
+    ScaleFactor_ele_ID_noiso.reset(new MCElecScaleFactor(ctx, SF_path+"/electrons/2016LegacyReReco_ElectronMVA90noiso_Fall17V2.root", 0., "id"));
+  }
+  else if(year == "2017") {
+    ScaleFactor_ele_ID.reset(new MCElecScaleFactor(ctx, SF_path+"/electrons/2017_ElectronMVA90.root", 0., "id"));
+    ScaleFactor_ele_ID_noiso.reset(new MCElecScaleFactor(ctx, SF_path+"/electrons/2017_ElectronMVA90noiso.root", 0., "id"));
+  }
+  else if(year == "2018") {
+    ScaleFactor_ele_ID.reset(new MCElecScaleFactor(ctx, SF_path+"/electrons/2018_ElectronMVA90.root", 0., "id"));
+    ScaleFactor_ele_ID_noiso.reset(new MCElecScaleFactor(ctx, SF_path+"/electrons/2018_ElectronMVA90noiso.root", 0., "id"));
+  }
+  h_weight_sfele_id = ctx.get_handle<float>("weight_sfelec_id");
+  h_weight_sfele_id_down = ctx.get_handle<float>("weight_sfelec_id_down");
+  h_weight_sfele_id_up = ctx.get_handle<float>("weight_sfelec_id_up");
+
+  // muons
+  if(year == "2016") {
+    ScaleFactor_muon_ID.reset(new MCMuonScaleFactor(ctx, SF_path+"/muons/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ID.root", "NUM_TightID_DEN_TrackerMuons_abseta_pt", 0., "id", false));
+    ScaleFactor_muon_iso.reset(new MCMuonScaleFactor(ctx, SF_path+"/muons/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ISO.root", "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", 0., "isolation", false));
+  }
+  else if(year == "2017") {
+    ScaleFactor_muon_ID.reset(new MCMuonScaleFactor(ctx, SF_path+"/muons/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ID.root", "NUM_TightID_DEN_TrackerMuons_abseta_pt", 0., "id", false));
+    ScaleFactor_muon_iso.reset(new MCMuonScaleFactor(ctx, SF_path+"/muons/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ISO.root", "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", 0., "isolation", false));
+  }
+  else if(year == "2018") {
+    ScaleFactor_muon_ID.reset(new MCMuonScaleFactor(ctx, SF_path+"/muons/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ID.root", "NUM_TightID_DEN_TrackerMuons_abseta_pt", 0., "id", false));
+    ScaleFactor_muon_iso.reset(new MCMuonScaleFactor(ctx, SF_path+"/muons/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ISO.root", "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", 0., "isolation", false));
+  }
+  h_weight_sfmu_id = ctx.get_handle<float>("weight_sfmu_id");
+  h_weight_sfmu_id_down = ctx.get_handle<float>("weight_sfmu_id_down");
+  h_weight_sfmu_id_up = ctx.get_handle<float>("weight_sfmu_id_up");
+  h_weight_sfmu_isolation = ctx.get_handle<float>("weight_sfmu_isolation");
+  h_weight_sfmu_isolation_down = ctx.get_handle<float>("weight_sfmu_isolation_down");
+  h_weight_sfmu_isolation_up = ctx.get_handle<float>("weight_sfmu_isolation_up");
 
   // HEM issue
   HEMCleaner.reset(new HEMCleanerSelection(ctx, "jets", "topjets"));
@@ -250,11 +314,13 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
 
   // ###### 4. Init Handles ######
   h_is_muevt = ctx.get_handle<bool>("is_muevt");
+  h_is_highpt = ctx.get_handle<bool>("is_highpt");
   h_evt_weight = ctx.get_handle<double>("evt_weight");
   h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
   h_neutrino = ctx.declare_event_output<LorentzVector>("neutrino");
   h_ST = ctx.declare_event_output<double>("ST");
   h_is_triggered = ctx.get_handle<bool>("is_triggered");
+  h_is_btagevent = ctx.declare_event_output<bool>("is_btagevent");
 
 }
 
@@ -271,9 +337,11 @@ bool TstarTstarSelectionModule::process(Event & event) {
 
   // Fill ttgen object for correct matching check, etc
   if(is_MC) ttgenprod->process(event);
+  if(debug) std::cout << "Filled ttgenprod" << endl;
 
   // set primary lepton
   reco_primlep->process(event);
+  if(debug) std::cout << "Got primary lepton" << endl;
 
   // hists before anything happened
   if(is_triggered) {
@@ -296,12 +364,14 @@ bool TstarTstarSelectionModule::process(Event & event) {
   // #################
   // ### Selection ###
   // #################
+  if(debug) std::cout << "Starting selection" << endl;
 
   // ###### Btag Selection ######
   bool pass_btagcut = false;
   for (const auto & jet: *event.jets){
     if(jet.btag_DeepCSV() > 0.2219) pass_btagcut = true;
   }
+  event.set(h_is_btagevent,pass_btagcut);
   if(pass_btagcut && is_triggered) {
     // hists
     h_btagcut->fill(event);
@@ -321,6 +391,9 @@ bool TstarTstarSelectionModule::process(Event & event) {
   else {
     // TODO control region plots maybe here?
   }
+
+  if(debug) std::cout << "Done b-tag" << endl;
+
 
     // ###### Lepton-2Dcut ######
     // if(debug) std::cout << "Start 2D cut" << endl;
@@ -360,6 +433,10 @@ bool TstarTstarSelectionModule::process(Event & event) {
     // }
     // if(debug) cout << "Passed 2D cut." << endl;
 
+    if(debug) std::cout << "We have muons: " << event.muons->size() << endl;
+    if(debug) std::cout << "We have electrons: " << event.electrons->size() << endl;
+    if(debug) std::cout << "is_muevt is: " << event.get(h_is_muevt) << endl;
+
 
     // ###### dR cut to suppress QCD ######
     FlavorParticle primary_lepton = event.get(h_primlep);
@@ -397,6 +474,9 @@ bool TstarTstarSelectionModule::process(Event & event) {
     } else {
       // btagging reverse region plots
     }
+
+    if(debug) std::cout << "Done dR" << endl;
+
 
     // ST cut to reduce computation time (and file sizes)
     // Neutrin reconstruction
@@ -441,6 +521,46 @@ bool TstarTstarSelectionModule::process(Event & event) {
       // TODO control region plots here!
     }
 
+    if(debug) std::cout << "Done ST" << endl;
+
+    // ######################
+    // ### Scale Factors! ###
+    // ######################
+
+    // HOTVR
+    HadronicTopFinder->process(event);
+    HOTVRScale->process(event);
+
+    if(debug) std::cout << "Done HOTVR scale" << endl;
+
+    // lepton SFs
+    if(event.get(h_is_muevt)){
+      ScaleFactor_muon_ID->process(event);
+      if(!event.get(h_is_highpt)) ScaleFactor_muon_iso->process(event);
+      else {
+        event.set(h_weight_sfmu_isolation, 1.);
+        event.set(h_weight_sfmu_isolation_down, 1.);
+        event.set(h_weight_sfmu_isolation_up, 1.);
+      }
+      event.set(h_weight_sfele_id, 1.);
+      event.set(h_weight_sfele_id_down, 1.);
+      event.set(h_weight_sfele_id_up, 1.);
+    }
+    else {
+      if(event.get(h_is_highpt)) ScaleFactor_ele_ID_noiso->process(event);
+      ScaleFactor_ele_ID->process(event);
+
+      // fixing empty handles
+      event.set(h_weight_sfmu_id, 1.);
+      event.set(h_weight_sfmu_id_down, 1.);
+      event.set(h_weight_sfmu_id_up, 1.);
+      event.set(h_weight_sfmu_isolation, 1.);
+      event.set(h_weight_sfmu_isolation_down, 1.);
+      event.set(h_weight_sfmu_isolation_up, 1.);
+    }
+
+    if(debug) std::cout << "Done Lepton ID, ISO SFs" << endl;
+
 
     // #######################
     // ### Trigger studies ###
@@ -465,13 +585,9 @@ bool TstarTstarSelectionModule::process(Event & event) {
       //h_nobtagcontrolregion->fill();
     }
 
-    // addressing HEM Issue
-    if(!(HEMCleaner->passes(event))) return false;
-    if(pass_btagcut) h_afterHEMcleaning->fill(event);
-
     // at the moment control region ends here!
-    if(pass_btagcut) return true;
-    else return false;
+    // if(pass_btagcut) return true;
+    return true;
 
 }
 

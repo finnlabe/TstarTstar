@@ -100,6 +100,11 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   book<TH1F>("pt_HTlep", "H_{T} + p_{T} (#ell) [GeV]", 40, 0, 4000);
   book<TH1F>("pt_ST", "S_{T} [GeV]", 40, 0, 4000);
   book<TH1F>("pt_ST_fullrange", "S_{T} [GeV]", 60, 0, 6000);
+
+  const int nbins = 16;
+  double bins[nbins] = {500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1750, 2000, 2500, 3000, 6000};
+  book<TH1F>("pt_ST_rebinned", "S_{T} [GeV]", nbins-1, bins);
+
   book<TH1F>("pt_asym12", "#Delta p_{T} (jet 1, jet 2) [GeV]", 20, 0, 2000);
   book<TH1F>("pt_asym13", "#Delta p_{T} (jet 1, jet 3) [GeV]", 20, 0, 2000);
   book<TH1F>("pt_asym14", "#Delta p_{T} (jet 1, jet 4) [GeV]", 20, 0, 2000);
@@ -315,6 +320,7 @@ void TstarTstarHists::fill(const Event & event){
     if(st > 4000) hist("pt_ST")->Fill(3999.9, weight);
     else hist("pt_ST")->Fill(st, weight);
     hist("pt_ST_fullrange")->Fill(st, weight);
+    hist("pt_ST_rebinned")->Fill(st, weight);
   } catch(...) {}
 
   // p_T asymmetry
@@ -437,6 +443,11 @@ void TstarTstarHists::fill(const Event & event){
         hist("M_Tstar_gAK4_had")->Fill(inv_mass_2(hyp_gAK4.tstarhad_v4()), weight);
       }
     } catch(...) {}
+
+    if(event.topjets->size() > 1) {
+      hist("mjj")->Fill(inv_mass_2(event.topjets->at(0).v4() + event.topjets->at(1).v4()));
+    }
+
 
     if(debug) cout << "Finished Tstar Hists!" << endl;
 

@@ -14,11 +14,13 @@ using namespace uhh2;
 TstarTstarDNNHists::TstarTstarDNNHists(Context & ctx, const string & dirname): Hists(ctx, dirname){
 
   h_DNN_output = ctx.get_handle<double>("DNN_output");
+  h_newTagger = ctx.get_handle<double>("newTagger");
   h_DNN_Inputs = ctx.get_handle<std::vector<double>>("DNN_Inputs");
   h_ST = ctx.get_handle<double>("ST");
 
   // book all histograms here
   book<TH1F>("DNN_output", "DNN output", 20, 0, 1);
+  book<TH1F>("newTagger", "decorrelated tagger", 20, -1, 1);
   book<TH1F>("DNN_output_noWeights", "DNN output NO WEIGHTS", 20, 0, 1);
   DNN_2D_ST = book<TH2D>("2D_DNN_ST", "DNN output against ST", 40, 0, 4000, 50, 0, 1);
   book<TH1F>("DNN_output_nolowST", "DNN output nolowST", 20, 0, 1);
@@ -111,6 +113,11 @@ void TstarTstarDNNHists::fill(const Event & event){
   DNN_2D_31->Fill(inputs.at(30), DNNoutput, weight);
   DNN_2D_32->Fill(inputs.at(31), DNNoutput, weight);
   DNN_2D_33->Fill(inputs.at(32), DNNoutput, weight);
+
+  try {
+    double newTagger = event.get(h_newTagger);
+    hist("newTagger")->Fill(newTagger, weight);
+  } catch(...) {}
 
 }
 

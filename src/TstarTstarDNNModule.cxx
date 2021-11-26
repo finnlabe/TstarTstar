@@ -36,6 +36,28 @@ using namespace uhh2;
 
 namespace uhh2 {
 
+// x, alpha, n, sigma, mean
+double crystalball_function(double x, double alpha, double n, double sigma, double mean) {
+  // evaluate the crystal ball function
+  if (sigma < 0.)     return 0.;
+  double z = (x - mean)/sigma;
+  if (alpha < 0) z = -z;
+  double abs_alpha = std::abs(alpha);
+  // double C = n/abs_alpha * 1./(n-1.) * std::exp(-alpha*alpha/2.);
+  // double D = std::sqrt(M_PI/2.)*(1.+ROOT::Math::erf(abs_alpha/std::sqrt(2.)));
+  // double N = 1./(sigma*(C+D));
+  if (z  > - abs_alpha)
+    return std::exp(- 0.5 * z * z);
+  else {
+    //double A = std::pow(n/abs_alpha,n) * std::exp(-0.5*abs_alpha*abs_alpha);
+    double nDivAlpha = n/abs_alpha;
+    double AA =  std::exp(-0.5*abs_alpha*abs_alpha);
+    double B = nDivAlpha -abs_alpha;
+    double arg = nDivAlpha/(B-z);
+    return AA * std::pow(arg,n);
+  }
+}
+
 /** \brief Module for the T*T*->ttbar gg MC based study
  *
  * This is the central class which calls other AnalysisModules, Hists or Selection classes.
@@ -55,16 +77,22 @@ private:
 
 
   // ##### Histograms #####
-  std::unique_ptr<Hists> h_topcheck, h_topcheck_reweighted;
+  std::unique_ptr<Hists> h_topcheck, h_topcheck_reweighted, h_AfterDNNcut_06_UGLYFIX;
   std::unique_ptr<Hists> h_STreweighted;
+
+  std::unique_ptr<Hists> h_newTaggerSR, h_newTaggerCR, h_newTagger_btagCR;
 
   std::unique_ptr<Hists> h_AfterDNNcut_02, h_AfterDNNcut_03, h_AfterDNNcut_04, h_AfterDNNcut_05, h_AfterDNNcut_06, h_AfterDNNcut_07, h_AfterDNNcut_08;
   std::unique_ptr<Hists> h_notDNNcut_02,   h_notDNNcut_03,   h_notDNNcut_04,   h_notDNNcut_05,   h_notDNNcut_06,   h_notDNNcut_07,   h_notDNNcut_08;
 
-  std::unique_ptr<Hists> h_DNN, h_DNN_reweighted, h_DNN_reweighted_2, h_DNN_lowpt, h_DNN_medpt, h_DNN_highpt;
+  std::unique_ptr<Hists> h_BtagControl_AfterDNNcut_02, h_BtagControl_AfterDNNcut_03, h_BtagControl_AfterDNNcut_04, h_BtagControl_AfterDNNcut_05, h_BtagControl_AfterDNNcut_06, h_BtagControl_AfterDNNcut_07, h_BtagControl_AfterDNNcut_08;
+  std::unique_ptr<Hists> h_BtagControl_notDNNcut_02,   h_BtagControl_notDNNcut_03,   h_BtagControl_notDNNcut_04,   h_BtagControl_notDNNcut_05,   h_BtagControl_notDNNcut_06,   h_BtagControl_notDNNcut_07,   h_BtagControl_notDNNcut_08;
+
+  std::unique_ptr<Hists> h_DNN, h_DNN_newTagger, h_DNN_BtagControl, h_DNN_reweighted, h_DNN_reweighted_2;
   std::unique_ptr<Hists> h_DNN_lowST, h_DNN_highST, h_DNN_lowDNN, h_DNN_highDNN, h_DNN_highST_lowDNN, h_DNN_highST_highDNN;
   std::unique_ptr<Hists> h_AfterDNN, h_AfterDNN_lowST, h_AfterDNN_highST, h_AfterDNN_lowDNN, h_AfterDNN_highDNN, h_AfterDNN_highST_lowDNN, h_AfterDNN_highST_highDNN;
 
+  std::unique_ptr<Hists> h_highLepton, h_highLepton_AfterDNNcut_06, h_highLepton_notDNNcut_06;
 
   // ###### Control switches ######
   bool debug = false;
@@ -76,6 +104,8 @@ private:
   uhh2::Event::Handle<int> h_flag_toptagevent;
   uhh2::Event::Handle<int> h_flag_muonevent;
   uhh2::Event::Handle<double> h_evt_weight;
+  uhh2::Event::Handle<bool> h_is_btagevent;
+
 
   uhh2::Event::Handle<double> h_ST_weight;
 
@@ -83,6 +113,7 @@ private:
   uhh2::Event::Handle<bool> h_do_masspoint;
   uhh2::Event::Handle<double> h_ST;
   uhh2::Event::Handle<bool> h_DoAddInputs;
+  uhh2::Event::Handle<double> h_newTagger;
 
 
   // ###### other parameters ######
@@ -127,6 +158,11 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
 
   h_STreweighted.reset(new TstarTstarHists(ctx, "topcheck"));
 
+  h_newTaggerSR.reset(new TstarTstarHists(ctx, "newTaggerSR"));
+  h_newTaggerCR.reset(new TstarTstarHists(ctx, "newTaggerCR"));
+  h_newTagger_btagCR.reset(new TstarTstarHists(ctx, "newTagger_btagCR"));
+
+  /**
   h_AfterDNNcut_02.reset(new TstarTstarHists(ctx, "AfterDNNcut_02"));
   h_notDNNcut_02.reset(new TstarTstarHists(ctx, "notDNNcut_02"));
   h_AfterDNNcut_03.reset(new TstarTstarHists(ctx, "AfterDNNcut_03"));
@@ -141,33 +177,46 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_notDNNcut_07.reset(new TstarTstarHists(ctx, "notDNNcut_07"));
   h_AfterDNNcut_08.reset(new TstarTstarHists(ctx, "AfterDNNcut_08"));
   h_notDNNcut_08.reset(new TstarTstarHists(ctx, "notDNNcut_08"));
+  **/
+
+  h_AfterDNNcut_06_UGLYFIX.reset(new TstarTstarHists(ctx, "AfterDNNcut_06_UGLYFIX"));
+
+  /**
+  h_BtagControl_AfterDNNcut_02.reset(new TstarTstarHists(ctx, "AfterDNNcut_02_BtagControl"));
+  h_BtagControl_notDNNcut_02.reset(new TstarTstarHists(ctx, "BtagControl_notDNNcut_02"));
+  h_BtagControl_AfterDNNcut_03.reset(new TstarTstarHists(ctx, "BtagControl_AfterDNNcut_03"));
+  h_BtagControl_notDNNcut_03.reset(new TstarTstarHists(ctx, "BtagControl_notDNNcut_03"));
+  h_BtagControl_AfterDNNcut_04.reset(new TstarTstarHists(ctx, "BtagControl_AfterDNNcut_04"));
+  h_BtagControl_notDNNcut_04.reset(new TstarTstarHists(ctx, "BtagControl_notDNNcut_04"));
+  h_BtagControl_AfterDNNcut_05.reset(new TstarTstarHists(ctx, "BtagControl_AfterDNNcut_05"));
+  h_BtagControl_notDNNcut_05.reset(new TstarTstarHists(ctx, "BtagControl_notDNNcut_05"));
+  h_BtagControl_AfterDNNcut_06.reset(new TstarTstarHists(ctx, "BtagControl_AfterDNNcut_06"));
+  h_BtagControl_notDNNcut_06.reset(new TstarTstarHists(ctx, "BtagControl_notDNNcut_06"));
+  h_BtagControl_AfterDNNcut_07.reset(new TstarTstarHists(ctx, "BtagControl_AfterDNNcut_07"));
+  h_BtagControl_notDNNcut_07.reset(new TstarTstarHists(ctx, "BtagControl_notDNNcut_07"));
+  h_BtagControl_AfterDNNcut_08.reset(new TstarTstarHists(ctx, "BtagControl_AfterDNNcut_08"));
+  h_BtagControl_notDNNcut_08.reset(new TstarTstarHists(ctx, "BtagControl_notDNNcut_08"));
+  **/
+
+  h_highLepton.reset(new TstarTstarHists(ctx, "highLepton"));
+  h_highLepton_AfterDNNcut_06.reset(new TstarTstarHists(ctx, "highLepton_AfterDNNcut_06"));
+  h_highLepton_notDNNcut_06.reset(new TstarTstarHists(ctx, "highLepton_notDNNcut_06"));
 
   h_DNN.reset(new TstarTstarDNNHists(ctx, "DNN"));
+  h_DNN_newTagger.reset(new TstarTstarDNNHists(ctx, "DNN_newTagger"));
+  h_DNN_BtagControl.reset(new TstarTstarDNNHists(ctx, "DNN_BtagControl"));
   h_DNN_reweighted.reset(new TstarTstarDNNHists(ctx, "DNN_reweighted"));
   h_DNN_reweighted_2.reset(new TstarTstarDNNHists(ctx, "DNN_reweighted_2"));
-  h_DNN_lowpt.reset(new TstarTstarDNNHists(ctx, "DNN_lowpt"));
-  h_DNN_medpt.reset(new TstarTstarDNNHists(ctx, "DNN_medpt"));
-  h_DNN_highpt.reset(new TstarTstarDNNHists(ctx, "DNN_highpt"));
-  h_DNN_lowST.reset(new TstarTstarDNNHists(ctx, "DNN_lowST"));
-  h_DNN_highST.reset(new TstarTstarDNNHists(ctx, "DNN_highST"));
-  h_DNN_lowDNN.reset(new TstarTstarDNNHists(ctx, "DNN_lowDNN"));
-  h_DNN_highDNN.reset(new TstarTstarDNNHists(ctx, "DNN_highDNN"));
-  h_DNN_highST_lowDNN.reset(new TstarTstarDNNHists(ctx, "DNN_highST_lowDNN"));
-  h_DNN_highST_highDNN.reset(new TstarTstarDNNHists(ctx, "DNN_highST_highDNN"));
 
   h_AfterDNN.reset(new TstarTstarHists(ctx, "AfterDNN"));
-  h_AfterDNN_lowST.reset(new TstarTstarHists(ctx, "AfterDNN_lowST"));
-  h_AfterDNN_highST.reset(new TstarTstarHists(ctx, "AfterDNN_highST"));
-  h_AfterDNN_lowDNN.reset(new TstarTstarHists(ctx, "AfterDNN_lowDNN"));
-  h_AfterDNN_highDNN.reset(new TstarTstarHists(ctx, "AfterDNN_highDNN"));
-  h_AfterDNN_highST_lowDNN.reset(new TstarTstarHists(ctx, "AfterDNN_highST_lowDNN"));
-  h_AfterDNN_highST_highDNN.reset(new TstarTstarHists(ctx, "AfterDNN_highST_highDNN"));
 
   // ###### 4. init handles ######
   h_evt_weight = ctx.get_handle<double>("evt_weight");
   h_flag_toptagevent = ctx.get_handle<int>("flag_toptagevent");
-  h_flag_muonevent = ctx.get_handle<int>("flag_muonevent");
   h_DoAddInputs = ctx.declare_event_output<bool>("doAddInputs");
+  h_newTagger = ctx.declare_event_output<double>("newTagger");
+  h_is_btagevent = ctx.get_handle<bool>("is_btagevent");
+  h_ST = ctx.get_handle<double>("ST");
 
   h_ST_weight = ctx.declare_event_output<double>("ST_weight");
 
@@ -194,15 +243,23 @@ bool TstarTstarDNNModule::process(Event & event) {
   // setting addInputs
   event.set(h_DoAddInputs, doAddInputs);
 
+  // placeholder as this flag seems to be wrong!!!
+  int N_jets_btag_loose = 0;
+  int N_jets_btag_medium = 0;
+  int N_jets_btag_tight = 0;
+  bool pass_btagcut = false;
+  for(const auto & jet : *event.jets) {
+    if(jet.btag_DeepCSV() > 0.2219) N_jets_btag_loose++;
+    if(jet.btag_DeepCSV() > 0.2219) pass_btagcut = true;
+    if(jet.btag_DeepCSV() > 0.6324) N_jets_btag_medium++;
+    if(jet.btag_DeepCSV() > 0.8958) N_jets_btag_tight++;
+  }
+
+
   event.weight = ST_weight * event.get(h_evt_weight);
-  h_STreweighted->fill(event);
+  if(pass_btagcut) h_STreweighted->fill(event);
   event.weight = event.get(h_evt_weight);
 
-  // claculating ST
-  double st_jets = 0;
-  for(const auto & jet : *event.topjets) st_jets += jet.pt();
-  for(const auto & lepton : *event.electrons) st_jets += lepton.pt();
-  for(const auto & lepton : *event.muons) st_jets += lepton.pt();
 
   // ################
   // ### DNN Part ###
@@ -212,70 +269,94 @@ bool TstarTstarDNNModule::process(Event & event) {
   if(debug) cout << "Include DNN model" << endl;
   DNN_Includer->process(event);
 
-  // hists
-  if(debug) std::cout << "Plotting" << endl;
-  h_DNN->fill(event);
-  h_topcheck->fill(event);
-  if(is_TTbar) event.weight *= ST_weight;
-  h_DNN_reweighted->fill(event);
-  h_topcheck_reweighted->fill(event);
-  event.weight = event.get(h_evt_weight);
-  if(event.topjets->at(0).pt() < 500) h_DNN_lowpt->fill(event);
-  else if (event.topjets->at(0).pt() < 1000) h_DNN_medpt->fill(event);
-  else h_DNN_highpt->fill(event);
+  if(debug) cout << "Done DNN include" << endl;
+  if(event.get(h_DNN_output) > 0.6) h_AfterDNNcut_06_UGLYFIX->fill(event);
 
-  if(is_MC) { // blinding!!!
-    // do DNN cuts
-    if(event.get(h_DNN_output) > 0.2) h_AfterDNNcut_02->fill(event);
-    //else h_notDNNcut_02->fill(event);
-    if(event.get(h_DNN_output) > 0.3) h_AfterDNNcut_03->fill(event);
-    //else h_notDNNcut_03->fill(event);
-    if(event.get(h_DNN_output) > 0.4) h_AfterDNNcut_04->fill(event);
-    //else h_notDNNcut_04->fill(event);
-    if(event.get(h_DNN_output) > 0.5) h_AfterDNNcut_05->fill(event);
-    else h_notDNNcut_05->fill(event);
-    if(event.get(h_DNN_output) > 0.6) h_AfterDNNcut_06->fill(event);
-    else h_notDNNcut_06->fill(event);
-    if(event.get(h_DNN_output) > 0.7) h_AfterDNNcut_07->fill(event);
-    else h_notDNNcut_07->fill(event);
-    if(event.get(h_DNN_output) > 0.8) h_AfterDNNcut_08->fill(event);
-    else h_notDNNcut_08->fill(event);
+  if(debug) cout << "Start filling hists" << endl;
+  // hists
+  if(pass_btagcut) {
+    h_DNN->fill(event);
+    h_topcheck->fill(event);
+    if(is_TTbar) event.weight *= ST_weight;
+    h_DNN_reweighted->fill(event);
+    h_topcheck_reweighted->fill(event);
+    event.weight = event.get(h_evt_weight);
+
+    // some more plotting
+    double DNNoutput = event.get(h_DNN_output);
+    h_AfterDNN->fill(event);
+
   }
 
-  // these I can most likely look at...
-  if(event.get(h_DNN_output) < 0.2) h_notDNNcut_02->fill(event);
-  if(event.get(h_DNN_output) < 0.3) h_notDNNcut_03->fill(event);
-  if(event.get(h_DNN_output) < 0.4) h_notDNNcut_04->fill(event);
+  /**
+  else {
+    h_DNN_BtagControl->fill(event);
+    if(event.get(h_DNN_output) > 0.2) h_BtagControl_AfterDNNcut_02->fill(event);
+    else h_BtagControl_notDNNcut_02->fill(event);
+    if(event.get(h_DNN_output) > 0.3) h_BtagControl_AfterDNNcut_03->fill(event);
+    else h_BtagControl_notDNNcut_03->fill(event);
+    if(event.get(h_DNN_output) > 0.4) h_BtagControl_AfterDNNcut_04->fill(event);
+    else h_BtagControl_notDNNcut_04->fill(event);
+    if(event.get(h_DNN_output) > 0.5) h_BtagControl_AfterDNNcut_05->fill(event);
+    else h_BtagControl_notDNNcut_05->fill(event);
+    if(event.get(h_DNN_output) > 0.6) h_BtagControl_AfterDNNcut_06->fill(event);
+    else h_BtagControl_notDNNcut_06->fill(event);
+    if(event.get(h_DNN_output) > 0.7) h_BtagControl_AfterDNNcut_07->fill(event);
+    else h_BtagControl_notDNNcut_07->fill(event);
+    if(event.get(h_DNN_output) > 0.8) h_BtagControl_AfterDNNcut_08->fill(event);
+    else h_BtagControl_notDNNcut_08->fill(event);
+  }
+  **/
 
+  if(debug) cout << "Defining CB function 1" << endl;
 
-  // some more plotting
-  double DNNoutput = event.get(h_DNN_output);
-  h_AfterDNN->fill(event);
-
-  if(st_jets>500){
-    h_DNN_highST->fill(event);
-    h_AfterDNN_highST->fill(event);
-    if(DNNoutput > 0.6) {
-      h_DNN_highST_highDNN->fill(event);
-      h_AfterDNN_highST_highDNN->fill(event);
+  // Additional decorrelation through "varying cut" on DNN output
+  // the function used here was obtained by a fit in the macro "decorrelatedTagger.C"
+  // 1  Constant     4.65951e-01   1.36602e-03  -9.94180e-06  -2.24498e-01
+  // 2  Mean         7.13578e+02   4.00979e+00   1.37526e-03   6.80281e-05
+  // 3  Sigma        2.40880e+02   7.13853e+00   8.82481e-03  -1.99541e-04
+  // 4  Alpha       -1.43648e-01   6.23610e-03   1.21231e-05  -3.65818e-02
+  // 5  N            5.14847e+05   2.62580e+05  -5.73867e+01   1.95656e-10
+  double crystal_constant = 8.09337e-01;
+  double crystal_mean = 6.86757e+02;
+  double crystal_sigma = 4.37874e+02;
+  double crystal_alpha = -2.14474e-01;
+  double crystal_n = 7.97461e+05;
+  double secondPart = 1 - (crystal_constant * crystalball_function(event.get(h_ST), crystal_alpha, crystal_n, crystal_sigma, crystal_mean));
+  double newTagger = event.get(h_DNN_output) - secondPart;
+  event.set(h_newTagger, newTagger);
+  if(pass_btagcut) {
+    h_DNN_newTagger->fill(event);
+    if(newTagger > 0) {
+      h_newTaggerSR->fill(event);
     }
     else {
-      h_DNN_highST_lowDNN->fill(event);
-      h_AfterDNN_highST_lowDNN->fill(event);
+      h_newTaggerCR->fill(event);
     }
   }
   else {
-    h_DNN_lowST->fill(event);
-    h_AfterDNN_lowST->fill(event);
+    if(newTagger > 0) {
+      h_newTagger_btagCR->fill(event);
+    }
   }
 
-  if(DNNoutput > 0.6) {
-    h_DNN_highDNN->fill(event);
-    h_AfterDNN_highDNN->fill(event);
-  }
-  else {
-    h_DNN_lowDNN->fill(event);
-    h_AfterDNN_lowDNN->fill(event);
+
+  // testing tighter pt cut
+  if(debug) cout << "testing tighter pt cut" << endl;
+  if(pass_btagcut) {
+    if(event.muons->size() == 1) {
+      h_highLepton->fill(event);
+      if(event.get(h_DNN_output) > 0.6) h_highLepton_AfterDNNcut_06->fill(event);
+      else h_highLepton_notDNNcut_06->fill(event);
+    }
+    else {
+      if(event.electrons->at(0).pt() > 50 && event.met->pt() > 80) {
+        h_highLepton->fill(event);
+        if(event.get(h_DNN_output) > 0.6) h_highLepton_AfterDNNcut_06->fill(event);
+        else h_highLepton_notDNNcut_06->fill(event);
+      }
+    }
+
   }
 
   if(debug){cout << "Done ##################################" << endl;}

@@ -1,5 +1,5 @@
-// Store 2D histograms filled in UHH2 model as pdf
-// author: A.Karavdina
+// Plot 2D histograms from UHH2
+// author: F. Labe
 // date: 23.09.2019
 // Run it with following command:
 // root -l -b -q general2Dplotter.C
@@ -32,7 +32,7 @@ void general2Dplotter(TString filename="TTbar", TString subpath="DNN", TString h
 
 
  //Files after selection
- TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/fullyCorrelated/";
+ TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/";
  TString fileprefix = "uhh2.AnalysisModuleRunner.MC.";
  //TString fileprefix = "";
 
@@ -46,6 +46,8 @@ void general2Dplotter(TString filename="TTbar", TString subpath="DNN", TString h
  //hist->GetZaxis()->SetRangeUser(0,1);
 
  // scale some stuff
+ /**
+ std::cout << "Attention! Reweighting by row is done!!" << std::endl;
  int binsX = 50;
  int binsY = 50;
 
@@ -61,6 +63,7 @@ void general2Dplotter(TString filename="TTbar", TString subpath="DNN", TString h
      }
    }
  }
+ **/
 
  hist->GetXaxis()->SetTitle("S_{T} [GeV]");
  hist->GetXaxis()->SetNdivisions(505);

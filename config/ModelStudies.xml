@@ -5,9 +5,9 @@
 <!ENTITY NEVT            "-1">
 
 <!ENTITY OUTPUTdir           "/nfs/dust/cms/user/flabe/TstarTstar/data/ModelStudies/">
-<!ENTITY INPUTdir            "/nfs/dust/cms/user/flabe/MadGraphStandalone/data/">
+<!ENTITY INPUTdir            "/nfs/dust/cms/user/flabe/TstarTstar/data/GridPacks/ttgg/">
 
-<!ENTITY TstarTstarToTgluonTgluon_M-900_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-900_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-1500_Run2017   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2017/TstarTstar/TstarTstarToTgluonTgluon_M-1500_TuneCP5_13TeV-madgraph-pythia8_Fall17_v1.xml">
 
 
 ]>
@@ -26,24 +26,47 @@
    <!-- <Cycle Name="uhh2::AnalysisModuleRunner"  RunMode="PROOF" ProofServer="lite://"  ProofWorkDir="/nfs/dust/cms/user/ottjoc/proof-wd/" ProofNodes="2" OutputDirectory="./" PostFix="" TargetLumi="1" >  -->
         <!-- Verion attribute must have year in it, same as used in ntuple config, e.g. 2018, 2016v3, etc -->
 
-        <InputData Lumi="1" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_Semileptonic" Cacheable="False">
-          <In FileName="&INPUTdir;/TstarTstar900/unweighted_events.root" Lumi="0.0"/>
+        <InputData Lumi="1" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_old_M1500" Cacheable="False">
+          &TstarTstarToTgluonTgluon_M-1500_Run2017;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="1" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_Spin32" Cacheable="False">
-	         &TstarTstarToTgluonTgluon_M-900_Run2017;
+        <InputData Lumi="1" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_new_M700" Cacheable="False">
+          <In FileName="&INPUTdir;/M700/cmsgrid_final.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
-        <InputData Lumi="1" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_top3decays" Cacheable="False">
-          <In FileName="&INPUTdir;/top3decays/unweighted_events.root" Lumi="0.0"/>
+        <InputData Lumi="1" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_new_M1000" Cacheable="False">
+          <In FileName="&INPUTdir;/M1000/cmsgrid_final.root" Lumi="0.0"/>
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
 
+        <InputData Lumi="1" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_new_M1500" Cacheable="False">
+          <In FileName="&INPUTdir;/M1500/cmsgrid_final.root" Lumi="0.0"/>
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+        <InputData Lumi="1" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_new_M2000" Cacheable="False">
+          <In FileName="&INPUTdir;/M2000/cmsgrid_final.root" Lumi="0.0"/>
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+        <InputData Lumi="1" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_new_M2500" Cacheable="False">
+          <In FileName="&INPUTdir;/M2500/cmsgrid_final.root" Lumi="0.0"/>
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
+
+        <InputData Lumi="1" NEventsMax="-1" Type="MC" Version="TstarTstarToTgluonTgluon_new_M3000" Cacheable="False">
+          <In FileName="&INPUTdir;/M3000/cmsgrid_final.root" Lumi="0.0"/>
+          <InputTree Name="AnalysisTree" />
+          <OutputTree Name="AnalysisTree" />
+        </InputData>
 
         <UserConfig>
             <!-- define which collections to read from the input. Only specify what you need to save I/O time -->

@@ -110,7 +110,7 @@
 	    <Item Name="lumi_file" Value="common/data/2016/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root"/>
 	    <Item Name="lumihists_lumi_per_bin" Value="500.0"/>
 
-      <Item Name="additionalBranches" Value="is_muevt evt_weight is_triggered" />
+      <Item Name="additionalBranches" Value="is_muevt evt_weight is_triggered is_highpt" />
 
 <!--	    <Item Name="is_puppi" Value="&IS_PUPPI;"/> -->
 
@@ -131,7 +131,8 @@
             <Item Name="pileup_directory_data" Value="common/data/2016/MyDataPileupHistogram.root" />
 
             <!-- Some test configuration; see TstarTstarModule.cxx for how to access it: -->
-            <Item Name="SF_path" Value="/nfs/dust/cms/user/flabe/TstarTstar/CMSSW_10_2_17/src/UHH2/common/data/2016/" />
+            <Item Name="HOTVRTopTagSFs" Value="/nfs/dust/cms/user/flabe/TstarTstar/CMSSW_10_2_17/src/UHH2/HOTVR/data/2016TopTaggingScaleFactors.root" />
+            <Item Name="SF_path" Value="/nfs/dust/cms/user/flabe/TstarTstar/CMSSW_10_2_17/src/UHH2/TstarTstar/factors/" />
 
             <Item Name="UseTrigger" Value="false" />
 

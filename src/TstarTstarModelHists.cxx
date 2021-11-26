@@ -33,7 +33,7 @@ TstarTstarModelHists::TstarTstarModelHists(Context & ctx, const string & dirname
 
   book<TH1F>("N_Tstar", "N_{T*} gen", 5, 0, 5);
   book<TH1F>("Tstar_spin", "Spin^{T*} gen", 30, -3, 3);
-  book<TH1F>("Tstar_mass", "M^{T*} gen", 100, 0, 2000);
+  book<TH1F>("Tstar_mass", "M^{T*} gen", 250, 0, 5000);
   book<TH1F>("Tstar_pt", "p_{T}^{T*} gen", 50, 0, 2000);
   book<TH1F>("Tstar_eta", "#eta^{T*} gen", 50, -5.2, 5.2);
   book<TH1F>("Tstar_phi", "#phi^{T*} gen", 30, -3.14, 3.14);
@@ -100,15 +100,12 @@ TstarTstarModelHists::TstarTstarModelHists(Context & ctx, const string & dirname
 
 void TstarTstarModelHists::fill(const Event & event){
   if(!is_mc) return;
+
   assert(event.genparticles);
   // Don't forget to always use the weight when filling.
   double weight = event.weight;
 
   hist("weight")->Fill(weight);
-
-  // get ttbargen object
-  TTbarGen ttbargen = event.get(h_ttbargen);
-  if(!ttbargen.IsSemiLeptonicDecay()){return;}
 
   // finding Tstars and determining which model is used
   std::vector<GenParticle> Tstars;
@@ -158,6 +155,10 @@ void TstarTstarModelHists::fill(const Event & event){
     hist("Tstar_eta")->Fill(Tstar.eta(), weight/N_Tstar);
     hist("Tstar_phi")->Fill(Tstar.phi(), weight/N_Tstar);
   }
+
+  // get ttbargen object
+  TTbarGen ttbargen = event.get(h_ttbargen);
+  if(!ttbargen.IsSemiLeptonicDecay()){return;}
 
   // top quarks
   hist("top_spin")->Fill(ttbargen.Top().spin(), weight/2);

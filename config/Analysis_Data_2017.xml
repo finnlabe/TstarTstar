@@ -96,10 +96,8 @@
       <Item Name="lumi_file" Value="common/data/2017/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON_v1.root"/>
 	    <Item Name="lumihists_lumi_per_bin" Value="1000.0"/>
 
-      <Item Name="additionalBranches" Value="is_muevt evt_weight neutrino" />
+      <Item Name="additionalBranches" Value="is_muevt evt_weight neutrino is_btagevent" />
 
-	    <Item Name="jersmear_direction" Value="nominal"/>
-	    <Item Name="jecsmear_direction" Value="nominal"/>
 
 
             <!-- the class name of the AnalysisModule subclasses to run: -->

@@ -108,7 +108,7 @@
 	    <Item Name="lumi_file" Value="common/data/2016/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root"/>
 	    <Item Name="lumihists_lumi_per_bin" Value="500.0"/>
 
-      <Item Name="additionalBranches" Value="is_muevt evt_weight ST_weight DNN_Inputs neutrino TstarTstar_Hyp_gHOTVR TstarTstar_Hyp_gAK4 ST" />
+      <Item Name="additionalBranches" Value="is_btagevent is_muevt evt_weight ST_weight DNN_Inputs neutrino TstarTstar_Hyp_gHOTVR TstarTstar_Hyp_gAK4 ST" />
 
 <!--	    <Item Name="is_puppi" Value="&IS_PUPPI;"/> -->
 
