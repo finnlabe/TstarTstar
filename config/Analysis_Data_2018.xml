@@ -86,8 +86,7 @@
       <Item Name="lumi_file" Value="common/data/2018/Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.root"/>
 	    <Item Name="lumihists_lumi_per_bin" Value="1000.0"/>
 
-      <Item Name="additionalBranches" Value="is_muevt evt_weight neutrino is_btagevent" />
-
+      <Item Name="additionalBranches" Value="is_muevt evt_weight neutrino is_btagevent weight_sfmu_id weight_sfmu_id_down weight_sfmu_id_up weight_sfmu_isolation weight_sfmu_isolation_down weight_sfmu_isolation_up weight_sfelec_id weight_sfelec_id_down weight_sfelec_id_up TopTagSF TopTagSF_down TopTagSF_merged_down TopTagSF_merged_up TopTagSF_non_down TopTagSF_non_up TopTagSF_semi_up TopTagSF_semi_down TopTagSF_up" />
 
             <!-- the class name of the AnalysisModule subclasses to run: -->
             <Item Name="AnalysisModule" Value="TstarTstarAnalysisModule" />
