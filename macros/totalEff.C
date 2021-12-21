@@ -4,23 +4,26 @@
 // Run it with following command:
 // root -l -b -q cutflowPlots.C
 
-void totalEff(TString suffix = ""){
+void totalEff(){
 
   // Reuseable buffers
   TFile *input;
   TH1D *hist;
 
-  TString pathReco = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/hadded/";
-  TString pathDNN = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Analysis/hadded/";
+  TString pathReco = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/hadded/";
+  TString pathDNN = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/";
   TString fileprefix = "uhh2.AnalysisModuleRunner.MC.";
   TString histname = "N_jets";
 
-  // Defining Samples
-  std::vector<TString> signalSamples = {"TstarTstar_M-700", "TstarTstar_M-1600", "TstarTstar_M-2000"};
-  std::vector<TString> BGSamples = {"TTbar", "ST", "WJets", "QCD"};
+  TString before =  "AfterST";
+  TString after = "AfterDNNcut_06_UGLYFIX";
 
-  std::vector<TString> signal_labels = {"T* M-700", "T* M-1600", "T* M-2000"};
-  std::vector<TString> BG_labels = {"TTbar", "ST", "WJets", "QCD"};
+  // Defining Samples
+  std::vector<TString> signalSamples = {"TstarTstar_M-700", "TstarTstar_M-800", "TstarTstar_M-900", "TstarTstar_M-1000", "TstarTstar_M-1200", "TstarTstar_M-1300", "TstarTstar_M-1400", "TstarTstar_M-1500", "TstarTstar_M-1600", "TstarTstar_M-1700", "TstarTstar_M-1800", "TstarTstar_M-1900", "TstarTstar_M-2000"};
+  std::vector<TString> BGSamples = {"TTbar", "ST", "WJets", "QCD", "VV"};
+
+  std::vector<TString> signal_labels = {"TstarTstar_M-700", "TstarTstar_M-800", "TstarTstar_M-900", "TstarTstar_M-1000", "TstarTstar_M-1200", "TstarTstar_M-1300", "TstarTstar_M-1400", "TstarTstar_M-1500", "TstarTstar_M-1600", "TstarTstar_M-1700", "TstarTstar_M-1800", "TstarTstar_M-1900", "TstarTstar_M-2000"};
+  std::vector<TString> BG_labels = {"TTbar", "ST", "WJets", "QCD", "VV"};
 
   // ########################
   // ## Finish Definitions ##
@@ -33,14 +36,14 @@ void totalEff(TString suffix = ""){
   for(const auto & sample : signalSamples){
     input = TFile::Open(pathReco+fileprefix+sample+".root");
     if (!input) cout << "First file not found" << endl;
-    hist = (TH1D*)input->Get("AfterTrigger/"+histname);
+    hist = (TH1D*)input->Get(before+"/"+histname);
     if (!hist) cout << "First hist not found" << endl;
     initial_signal.push_back(hist->Integral());
   }
   for(const auto & sample : BGSamples){
     input = TFile::Open(pathReco+fileprefix+sample+".root");
     if (!input) cout << "Second file not found" << endl;
-    hist = (TH1D*)input->Get("AfterTrigger/"+histname);
+    hist = (TH1D*)input->Get(before+"/"+histname);
     if (!hist) cout << "second hist not found" << endl;
     initial_BG.push_back(hist->Integral());
     initial_BG_sum += hist->Integral();
@@ -53,14 +56,14 @@ void totalEff(TString suffix = ""){
   for(const auto & sample : signalSamples){
     input = TFile::Open(pathDNN+fileprefix+sample+".root");
     if (!input) cout << "third file not found" << endl;
-    hist = (TH1D*)input->Get("AfterReco_Full/"+histname);
+    hist = (TH1D*)input->Get(after+"/"+histname);
     if (!hist) cout << "third hist not found" << endl;
     result_signal.push_back(hist->Integral());
   }
   for(const auto & sample : BGSamples){
     input = TFile::Open(pathDNN+fileprefix+sample+".root");
     if (!input) cout << "FOurth file not found" << endl;
-    hist = (TH1D*)input->Get("AfterReco_Full/"+histname);
+    hist = (TH1D*)input->Get(after+"/"+histname);
     if (!hist) cout << "fourth hist not found" << endl;
     result_BG.push_back(hist->Integral());
     result_BG_sum += hist->Integral();

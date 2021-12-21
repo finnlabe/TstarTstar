@@ -33,7 +33,7 @@ void decorrelatedTagger(){
   c1_hist->SetLogz();
 
   // get histogram
-  TString filename="TTbar";
+  TString filename="ttbar";
   TString subpath="DNN";
   TString histname="2D_DNN_ST";
   TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/";
@@ -158,6 +158,7 @@ void decorrelatedTagger(){
   fit->Draw("same");
 
   // plot some second line
+  /**
   double crystal_constant = 4.65951e-01;
   double crystal_mean = 7.13578e+02;
   double crystal_sigma = 2.40880e+02;
@@ -167,7 +168,7 @@ void decorrelatedTagger(){
   otherfunc->SetParameters(crystal_constant,crystal_mean,crystal_sigma,crystal_alpha,crystal_n);
   otherfunc->SetLineColor(kBlue);
   otherfunc->Draw("L same");
-
+  **/
   c1_hist->SaveAs("plots/variableCuts_"+filename+"_"+subpath+"_"+histname+".pdf");
 
 

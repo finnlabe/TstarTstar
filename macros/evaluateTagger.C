@@ -6,7 +6,7 @@
 
 void evaluateTagger(){
 
-  Double_t cut_value = 0.6;
+  Double_t cut_value = 0;
 
   // some style options
   gStyle->SetOptFit(0);
@@ -34,8 +34,8 @@ void evaluateTagger(){
 
   // get histogram
   TString filename="TTbar";
-  TString subpath="DNN";
-  TString histname="2D_DNN_ST";
+  TString subpath="DNN_newTagger";
+  TString histname="2D_newTagger_ST";
   TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/";
   TString fileprefix = "uhh2.AnalysisModuleRunner.MC.";
   TFile *input = TFile::Open(path+fileprefix+filename+".root");
@@ -44,7 +44,7 @@ void evaluateTagger(){
   if(!hist) cout << "Empty hist" << endl;
 
   // flip
-  TH2D *hist2 = new TH2D("oldrebin",hist->GetTitle(), 40, 0, 4000, 50, 0, 1);
+  TH2D *hist2 = new TH2D("oldrebin",hist->GetTitle(), 40, 0, 4000, 50, -1, 1);
   TAxis *xaxis = hist->GetXaxis(); TAxis *yaxis = hist->GetYaxis();
   for (int j=1; j<=yaxis->GetNbins();j++) {
     for (int i=1; i<=xaxis->GetNbins();i++) {
@@ -60,7 +60,7 @@ void evaluateTagger(){
   for(uint x = 0; x <= binsX; x++){
     TH1D* projection =  hist->ProjectionY("proj", x, x);
     Double_t total = projection->Integral();
-    int bin = projection->FindBin(1-cut_value);
+    int bin = projection->FindBin(cut_value);
     Double_t partial = projection->Integral(0, bin);
     if(partial > 0 && total > 0) efficiency->Fill(efficiency->GetBinCenter(x), partial/total);
   }
@@ -69,6 +69,8 @@ void evaluateTagger(){
   efficiency->GetXaxis()->SetTitle("S_{T} [GeV]");
   efficiency->GetYaxis()->SetTitle("efficiency");
   efficiency->GetXaxis()->SetNdivisions(505);
+  efficiency->GetXaxis()->SetRangeUser(500, 4000);
+  efficiency->GetYaxis()->SetRangeUser(0, 1);
   efficiency->Draw("hist");
   c1_hist->Update();
 
@@ -76,7 +78,7 @@ void evaluateTagger(){
   std::cout << "Mean: " << mean << std::endl;
 
   TLine *meanLine = new TLine(0, mean, 4000, mean);
-  meanLine->Draw("same");
+  //meanLine->Draw("same");
 
   // draw Lumi text
   TString infotext = TString::Format("%3.1f fb^{-1} (%d TeV)", 137., 13);
@@ -109,7 +111,7 @@ void evaluateTagger(){
   text3->SetY(0.986);
   text3->Draw();
 
-  c1_hist->SaveAs("plots/evaluateTagger.pdf");
+  c1_hist->SaveAs("plots/effi_"+filename+"_"+histname+".pdf");
 
 
 }

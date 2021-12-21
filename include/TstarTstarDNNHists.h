@@ -27,7 +27,7 @@ public:
     uhh2::Event::Handle<std::vector<double>> h_DNN_Inputs;
     uhh2::Event::Handle<double> h_ST;
 
-    TH2D *DNN_2D_ST;
+    TH2D *DNN_2D_ST, *newTagger_2D_ST;
 
     TH2D *DNN_2D_1, *DNN_2D_2, *DNN_2D_3, *DNN_2D_4, *DNN_2D_5, *DNN_2D_6, *DNN_2D_7, *DNN_2D_8, *DNN_2D_9, *DNN_2D_10;
     TH2D *DNN_2D_11, *DNN_2D_12, *DNN_2D_13, *DNN_2D_14, *DNN_2D_15, *DNN_2D_16, *DNN_2D_17, *DNN_2D_18, *DNN_2D_19, *DNN_2D_20;

@@ -427,6 +427,7 @@ bool TstarTstarPreselectionModule::process(Event & event) {
 
   // ###### jet selection ######
   pass_njet = (event.jets->size()>3);
+  if(isTriggerSFMeasurement) pass_njet = (event.jets->size()>1); // only need to require 1 jet for trigger SF measurement
   if(!pass_njet) return false;
 
   // hists

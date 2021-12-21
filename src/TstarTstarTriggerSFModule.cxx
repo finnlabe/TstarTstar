@@ -206,7 +206,7 @@ bool TstarTstarTriggerSFModule::process(uhh2::Event& event){
     if(!isMC && event.run <= 299329) passed_elec_trigger = (trigger_el_A->passes(event) || trigger_el_C->passes(event));
     else                             passed_elec_trigger = (trigger_el_B->passes(event) || trigger_el_C->passes(event));
   }
-  if(year == Year::is2018)  passed_elec_trigger = (trigger_el_B->passes(event) || trigger_el_C->passes(event));
+  if(year == Year::is2018)  passed_elec_trigger = (trigger_el_A->passes(event) || trigger_el_B->passes(event) || trigger_el_C->passes(event));
 
   /* Additional studies for kink in data at 200 GeV */
   bool pass_elec_only = true; bool pass_photon_only = true;

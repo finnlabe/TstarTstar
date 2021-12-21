@@ -24,7 +24,8 @@ TString year, year_v;
 
 TString fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/TriggerSF/";
 
-vector<double> pt_bins = {55, 75, 95, 115, 135, 155, 175, 200, 300, 1500};
+//vector<double> pt_bins = {55, 75, 95, 115, 135, 155, 175, 200, 300, 1500};
+vector<double> pt_bins = {55, 75, 95, 115, 135, 155, 175, 200, 250, 300, 400, 500};
 vector<double> pt_bins_control;
 // vector<double> pt_bins = {55, 75, 95, 115, 120, 130, 140, 150, 160, 170, 180, 190, 200, 220, 240, 260, 280, 300, 1500};
 // vector<double> pt_bins = {55, 65, 75, 85, 95, 105, 115, 120, 130, 140, 150, 160, 170, 180, 190, 200, 220, 240, 260, 280, 300, 1500};

@@ -98,7 +98,7 @@ private:
   std::unique_ptr<Hists> h_beginSel_mu_highpt,  h_btagcut_mu_highpt,   h_2Dcut_mu_highpt,     h_dRcut_mu_highpt,     h_STcut_mu_highpt  ;
 
   std::unique_ptr<Hists> h_afterSelection_gen, h_afterSelection_genmatch;
-  std::unique_ptr<Hists> h_afterSelection, h_afterHEMcleaning;
+  std::unique_ptr<Hists> h_afterSelection, h_afterHEMcleaning, h_afterHEMcleaning_ele, h_afterHEMcleaning_mu;
 
   // TODO better trigger plots!
   std::unique_ptr<Hists> h_trigger, h_trigger_mu, h_trigger_ele;
@@ -304,6 +304,8 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   h_afterSelection_genmatch.reset(new TstarTstarGenRecoMatchedHists(ctx, "AfterSel_genmatch"));
 
   h_afterHEMcleaning.reset(new TstarTstarHists(ctx, "AfterHEMcleaning"));
+  h_afterHEMcleaning_ele.reset(new TstarTstarHists(ctx, "AfterHEMcleaning_ele"));
+  h_afterHEMcleaning_mu.reset(new TstarTstarHists(ctx, "AfterHEMcleaning_mu"));
 
   // TODO
   h_trigger.reset(new TstarTstarHists(ctx, "TriggerXcheck"));
@@ -572,6 +574,16 @@ bool TstarTstarSelectionModule::process(Event & event) {
       if(event.get(h_is_muevt)) h_trigger_mu->fill(event);
       else h_trigger_ele->fill(event);
       if(debug) cout<<"Filled hists after Trigger"<<endl;
+    }
+
+    // Fixing the HEM issue
+    if(!HEMCleaner->passes(event)) return false;
+
+    if(pass_btagcut) { // fill these also for "non-triggered" events to have a comparison
+      h_afterHEMcleaning->fill(event);
+      if(event.get(h_is_muevt)) h_afterHEMcleaning_mu->fill(event);
+      else h_afterHEMcleaning_ele->fill(event);
+      if(debug) cout<<"Filled hists HEM fix"<<endl;
     }
 
     if(!is_triggered) return false; // now finally reject all non-triggered!

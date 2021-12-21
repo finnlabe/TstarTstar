@@ -24,6 +24,9 @@ B2G_TrimMass_Hists::B2G_TrimMass_Hists(Context & ctx, const string & dirname): H
   book<TH1F>("HT", "HT", 50, 0, 4000);
   book<TH1F>("pt", "pt", 50, 0, 2000);
 
+  book<TH1F>("lep_pt", "pt", 50, 0, 500);
+  book<TH1F>("lep_pt_aboveHT_600", "pt", 50, 0, 500);
+
   // now with various additional requirements
   book<TH1F>("HT_abovemj_55", "HT_abovemj_55", 50, 0, 4000);
   book<TH1F>("mjj_abovemj_55", "mjj_abovemj_55", 50, 0, 3000);
@@ -56,8 +59,13 @@ void B2G_TrimMass_Hists::fill(const Event & event){
 
   hist("oneBin")->Fill(0.5, weight);
 
+  hist("lep_pt")->Fill(event.electrons->at(0).pt(), weight);
+
   double HT = 0.;
-  for (const auto & jet : *event.topjets) HT += jet.pt();
+  for (const auto & jet : *event.jets) HT += jet.pt();
+
+  if(HT > 600) hist("lep_pt_aboveHT_600")->Fill(event.electrons->at(0).pt(), weight);
+
 
   double mj = 0;
   if(event.topjets->size() > 0) mj = event.topjets->at(0).softdropmass();

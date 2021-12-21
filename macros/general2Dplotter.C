@@ -4,7 +4,7 @@
 // Run it with following command:
 // root -l -b -q general2Dplotter.C
 
-void general2Dplotter(TString filename="TTbar", TString subpath="DNN", TString histname="2D_DNN_ST"){
+void general2Dplotter(TString filename="TstarTstar", TString subpath="DNN_newTagger", TString histname="2D_newTagger_ST"){
   // gStyle->SetOptStat(0);
   // gStyle->SetTitleSize(0.045,"x");
   // gStyle->SetTitleSize(0.045,"y");
@@ -33,6 +33,7 @@ void general2Dplotter(TString filename="TTbar", TString subpath="DNN", TString h
 
  //Files after selection
  TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/";
+ //TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/TriggerSF/";
  TString fileprefix = "uhh2.AnalysisModuleRunner.MC.";
  //TString fileprefix = "";
 
@@ -65,9 +66,10 @@ void general2Dplotter(TString filename="TTbar", TString subpath="DNN", TString h
  }
  **/
 
- hist->GetXaxis()->SetTitle("S_{T} [GeV]");
+ //hist->GetXaxis()->SetTitle("S_{T} [GeV]");
  hist->GetXaxis()->SetNdivisions(505);
- hist->GetYaxis()->SetTitle("DNN output");
+ //hist->GetYaxis()->SetTitle("DNN output");
+ //hist->GetZaxis()->SetRangeUser(10, 4e2);
  hist->SetTitle("");
 
  hist->Draw("colz");
@@ -104,6 +106,7 @@ void general2Dplotter(TString filename="TTbar", TString subpath="DNN", TString h
  text3->Draw();
 
  // Draw line after certain bin to split presel, sel,
+ /**
  Double_t x[2], y[2];
  x[0] = 500;
  x[1] = 500;
@@ -113,6 +116,7 @@ void general2Dplotter(TString filename="TTbar", TString subpath="DNN", TString h
  gr->SetLineColor(1);
  gr->SetLineWidth(2);
  gr->Draw("same");
+ **/
 
  c1_hist->SaveAs("plots/"+filename+"_"+subpath+"_"+histname+".pdf");
 

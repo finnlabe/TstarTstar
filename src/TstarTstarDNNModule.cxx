@@ -81,6 +81,7 @@ private:
   std::unique_ptr<Hists> h_STreweighted;
 
   std::unique_ptr<Hists> h_newTaggerSR, h_newTaggerCR, h_newTagger_btagCR;
+  std::unique_ptr<Hists> h_newTaggerSR_2, h_newTaggerCR_2, h_newTagger_btagCR_2;
 
   std::unique_ptr<Hists> h_AfterDNNcut_02, h_AfterDNNcut_03, h_AfterDNNcut_04, h_AfterDNNcut_05, h_AfterDNNcut_06, h_AfterDNNcut_07, h_AfterDNNcut_08;
   std::unique_ptr<Hists> h_notDNNcut_02,   h_notDNNcut_03,   h_notDNNcut_04,   h_notDNNcut_05,   h_notDNNcut_06,   h_notDNNcut_07,   h_notDNNcut_08;
@@ -88,7 +89,7 @@ private:
   std::unique_ptr<Hists> h_BtagControl_AfterDNNcut_02, h_BtagControl_AfterDNNcut_03, h_BtagControl_AfterDNNcut_04, h_BtagControl_AfterDNNcut_05, h_BtagControl_AfterDNNcut_06, h_BtagControl_AfterDNNcut_07, h_BtagControl_AfterDNNcut_08;
   std::unique_ptr<Hists> h_BtagControl_notDNNcut_02,   h_BtagControl_notDNNcut_03,   h_BtagControl_notDNNcut_04,   h_BtagControl_notDNNcut_05,   h_BtagControl_notDNNcut_06,   h_BtagControl_notDNNcut_07,   h_BtagControl_notDNNcut_08;
 
-  std::unique_ptr<Hists> h_DNN, h_DNN_newTagger, h_DNN_BtagControl, h_DNN_reweighted, h_DNN_reweighted_2;
+  std::unique_ptr<Hists> h_DNN, h_DNN_newTagger, h_DNN_newTagger_2, h_DNN_BtagControl, h_DNN_reweighted, h_DNN_reweighted_2;
   std::unique_ptr<Hists> h_DNN_lowST, h_DNN_highST, h_DNN_lowDNN, h_DNN_highDNN, h_DNN_highST_lowDNN, h_DNN_highST_highDNN;
   std::unique_ptr<Hists> h_AfterDNN, h_AfterDNN_lowST, h_AfterDNN_highST, h_AfterDNN_lowDNN, h_AfterDNN_highDNN, h_AfterDNN_highST_lowDNN, h_AfterDNN_highST_highDNN;
 
@@ -114,6 +115,7 @@ private:
   uhh2::Event::Handle<double> h_ST;
   uhh2::Event::Handle<bool> h_DoAddInputs;
   uhh2::Event::Handle<double> h_newTagger;
+  uhh2::Event::Handle<double> h_newTagger_2;
 
 
   // ###### other parameters ######
@@ -162,6 +164,10 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_newTaggerCR.reset(new TstarTstarHists(ctx, "newTaggerCR"));
   h_newTagger_btagCR.reset(new TstarTstarHists(ctx, "newTagger_btagCR"));
 
+  h_newTaggerSR_2.reset(new TstarTstarHists(ctx, "newTaggerSR_2"));
+  h_newTaggerCR_2.reset(new TstarTstarHists(ctx, "newTaggerCR_2"));
+  h_newTagger_btagCR_2.reset(new TstarTstarHists(ctx, "newTagger_btagCR_2"));
+
   /**
   h_AfterDNNcut_02.reset(new TstarTstarHists(ctx, "AfterDNNcut_02"));
   h_notDNNcut_02.reset(new TstarTstarHists(ctx, "notDNNcut_02"));
@@ -204,6 +210,7 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
 
   h_DNN.reset(new TstarTstarDNNHists(ctx, "DNN"));
   h_DNN_newTagger.reset(new TstarTstarDNNHists(ctx, "DNN_newTagger"));
+  h_DNN_newTagger_2.reset(new TstarTstarDNNHists(ctx, "DNN_newTagger_2"));
   h_DNN_BtagControl.reset(new TstarTstarDNNHists(ctx, "DNN_BtagControl"));
   h_DNN_reweighted.reset(new TstarTstarDNNHists(ctx, "DNN_reweighted"));
   h_DNN_reweighted_2.reset(new TstarTstarDNNHists(ctx, "DNN_reweighted_2"));
@@ -215,6 +222,7 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_flag_toptagevent = ctx.get_handle<int>("flag_toptagevent");
   h_DoAddInputs = ctx.declare_event_output<bool>("doAddInputs");
   h_newTagger = ctx.declare_event_output<double>("newTagger");
+  h_newTagger_2 = ctx.declare_event_output<double>("newTagger_2");
   h_is_btagevent = ctx.get_handle<bool>("is_btagevent");
   h_ST = ctx.get_handle<double>("ST");
 
@@ -337,6 +345,39 @@ bool TstarTstarDNNModule::process(Event & event) {
   else {
     if(newTagger > 0) {
       h_newTagger_btagCR->fill(event);
+    }
+  }
+
+  if(debug) cout << "Defining CB function 2" << endl;
+
+  // Additional decorrelation through "varying cut" on DNN output
+  // this was calculated for *all* backgrounds
+  // 1  Constant     7.92068e-01   1.38647e-03   3.14187e-06   6.78017e-01
+  // 2  Mean         6.78022e+02   3.18304e+00  -2.66192e-03  -4.38386e-04
+  // 3  Sigma        3.87509e+02   1.45291e+01  -4.11479e-02   2.57801e-05
+  // 4  Alpha       -1.64682e-01   7.28599e-03   6.36423e-06  -3.80328e-01
+  // 5  N            5.60357e+05   1.58958e+05   1.93129e+01   4.50859e-10
+  double crystal_constant_2 = 7.92068e-01;
+  double crystal_mean_2 = 6.78022e+02;
+  double crystal_sigma_2 = 3.87509e+02;
+  double crystal_alpha_2 = -1.64682e-01;
+  double crystal_n_2 = 5.60357e+05;
+  double secondPart_2 = 1 - (crystal_constant_2 * crystalball_function(event.get(h_ST), crystal_alpha_2, crystal_n_2, crystal_sigma_2, crystal_mean_2));
+  double newTagger_2 = event.get(h_DNN_output) - secondPart_2;
+  event.set(h_newTagger_2, newTagger_2);
+  std::cout << "test" << std::endl;
+  if(pass_btagcut) {
+    h_DNN_newTagger_2->fill(event);
+    if(newTagger_2 > 0) {
+      h_newTaggerSR_2->fill(event);
+    }
+    else {
+      h_newTaggerCR_2->fill(event);
+    }
+  }
+  else {
+    if(newTagger_2 > 0) {
+      h_newTagger_btagCR_2->fill(event);
     }
   }
 

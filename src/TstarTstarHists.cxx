@@ -101,8 +101,9 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   book<TH1F>("pt_ST", "S_{T} [GeV]", 40, 0, 4000);
   book<TH1F>("pt_ST_fullrange", "S_{T} [GeV]", 60, 0, 6000);
 
-  const int nbins = 16;
-  double bins[nbins] = {500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1750, 2000, 2500, 3000, 6000};
+  const int nbins = 36;
+  double bins[nbins] = {0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500,
+    2600, 2700, 2800, 2900, 3000, 3200, 3400, 3600, 4000, 6000};
   book<TH1F>("pt_ST_rebinned", "S_{T} [GeV]", nbins-1, bins);
 
   book<TH1F>("pt_asym12", "#Delta p_{T} (jet 1, jet 2) [GeV]", 20, 0, 2000);
@@ -320,7 +321,8 @@ void TstarTstarHists::fill(const Event & event){
     if(st > 4000) hist("pt_ST")->Fill(3999.9, weight);
     else hist("pt_ST")->Fill(st, weight);
     hist("pt_ST_fullrange")->Fill(st, weight);
-    hist("pt_ST_rebinned")->Fill(st, weight);
+    if(st > 6000) hist("pt_ST_rebinned")->Fill(5999.9, weight);
+    else hist("pt_ST_rebinned")->Fill(st, weight);
   } catch(...) {}
 
   // p_T asymmetry

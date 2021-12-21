@@ -26,15 +26,17 @@ void ratioplotter(){
   Double_t w = 800;
   Double_t h = 600;
 
+  TString sample = "ST";
+
   TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/";
-  TString filename = "uhh2.AnalysisModuleRunner.MC.TTbar.root";
+  TString filename = "uhh2.AnalysisModuleRunner.MC."+sample+".root";
   TString histname = "pt_ST";
   TString label = "S_{T}";
-  TString outputfilename = "ST";
 
   //TString folder_num = "AfterDNNcut_06";
   //TString folder_denom  = "notDNNcut_06";
   //TString folder_denom_2  = "notDNNcut_03";
+  TString suffix = "_2";
   TString folder_num = "newTaggerSR";
   TString folder_denom  = "newTaggerCR";
   TString folder_denom_2  = "newTaggerCR";
@@ -43,9 +45,9 @@ void ratioplotter(){
   canvas->SetLogy();
 
   TFile *input = TFile::Open(path+filename);
-  TH1D *hist_num = (TH1D*)input->Get(folder_num+"/"+histname); //histogram
-  TH1D *hist_denom = (TH1D*)input->Get(folder_denom+"/"+histname); //histogram
-  TH1D *hist_denom_2 = (TH1D*)input->Get(folder_denom_2+"/"+histname); //histogram
+  TH1D *hist_num = (TH1D*)input->Get(folder_num+suffix+"/"+histname); //histogram
+  TH1D *hist_denom = (TH1D*)input->Get(folder_denom+suffix+"/"+histname); //histogram
+  TH1D *hist_denom_2 = (TH1D*)input->Get(folder_denom_2+suffix+"/"+histname); //histogram
   if(!hist_num) std::cout << "Numerator does not exist!" << std::endl;
   if(!hist_denom) std::cout << "Denominator does not exist!" << std::endl;
 
@@ -77,7 +79,7 @@ void ratioplotter(){
   //legend->AddEntry(hist_denom_2,"Same CR","l");
   legend->Draw();
 
-  canvas->SaveAs("plots/comparison_"+outputfilename+".pdf");
+  canvas->SaveAs("plots/STcomparison_SRCR_"+sample+suffix+".pdf");
 
   canvas->SetLogy(false);
 
@@ -90,7 +92,7 @@ void ratioplotter(){
   hist_num_2->SetLineColor(4);
   hist_num->Draw("hist");
   //hist_num_2->Draw("hist same");
-  canvas->SaveAs("plots/ratio_"+outputfilename+".pdf");
+  canvas->SaveAs("plots/STratio_SRCR_"+sample+suffix+".pdf");
 
 
 }

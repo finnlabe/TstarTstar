@@ -6,7 +6,7 @@ void B2G_TrimMass_Efficiency(){
   gROOT->SetBatch(kTRUE); // to not open canvas and get XQuartz in the way
 
   // defining histogram to read
-  TString histname = "pt";
+  TString histname = "lep_pt_aboveHT_600";
   bool doSignalSample = false;
   bool doComparison = false; // only one can be true, doComparison is stronger
 
@@ -15,24 +15,14 @@ void B2G_TrimMass_Efficiency(){
   TString fileprefix = "uhh2.AnalysisModuleRunner.";
   TString filename = "DATA.SingleMuon2018_RunD_TrimMassTriggerTest_2018";
   TString signalSampleFilename = "MC.NMSSM_UL18";
-  TString before_path = "TrimMass_before";
-  std::vector<TString> afterPaths = {"TrimMass_afterHT", "TrimMass_afterPFJet500", "TrimMass_TrimMass30", "TrimMass_TrimMass50", "TrimMass_afterAll"};
-  std::vector<TString> titles = {"PFHT_1050", "PFJet500", "AK8PFJet400_TrimMass30", "AK8PFHT800_TrimMass50", "Total"};
-  std::vector<int> colors = {kGreen+2,kRed,kBlue,kBlue-9,1};
-
-  if(doComparison) {
-    doSignalSample = false;
-    afterPaths = {"TrimMass_afterAll", "TrimMass_currentPlan", "TrimMass_PFJet420_TrimMass30", "TrimMass_PFJet500_TrimMass30"};
-    titles = {"2018 setup", "Current plan", "with PFJet420_TrimMass30", "with PFJet500_TrimMass30"};
-    colors = {1, kOrange+7, kViolet, kViolet-6};
-  }
+  TString before_path = "LeptonCross_before";
+  std::vector<TString> afterPaths = {"LeptonCross_afterAll", "LeptonCross_afterWithoutCross"};
+  std::vector<TString> titles = {"All", "Without cross-trigger"};
+  std::vector<int> colors = {kGreen+2,kRed};
 
   // set x label
   TString xAxisLabel;
-  if(histname.BeginsWith("HT")) xAxisLabel = "H_{T} [GeV]";
-  if(histname.BeginsWith("mjj")) xAxisLabel = "m_{jj} [GeV]";
-  else if(histname.BeginsWith("mj")) xAxisLabel = "m_{j} [GeV]";
-  if(histname.BeginsWith("pt")) xAxisLabel = "p_{T} [GeV]";
+  xAxisLabel = "p^{e}_{T} [GeV]";
 
   // open file
   TFile *file = TFile::Open(path+fileprefix+filename+".root");
@@ -67,7 +57,7 @@ void B2G_TrimMass_Efficiency(){
   gPad->SetTopMargin(0.05); gPad->SetBottomMargin(0.16);  gPad->SetLeftMargin(0.19); gPad->SetRightMargin(0.09);
   gPad->SetTicky();
 
-  TLegend *leg = new TLegend(0.3,0.2);
+  TLegend *leg = new TLegend(0.6, 0.75, 0.9, 0.95);
   leg->SetFillStyle(0);
   leg->SetTextFont(42);
   leg->SetTextSize(0.035);
@@ -159,86 +149,7 @@ void B2G_TrimMass_Efficiency(){
   text3->SetY(0.99);
   text3->Draw();
 
-  // write cuts in plots additional text
-  // TODO finish this
-  double position = 0.4;
-  double step = 0.05;
-  double posX = 0.7;
-  double size = 0.035;
-
-  TString cuttext1;
-  if(histname.Contains("600pt")) cuttext1 = "p_{T}^{AK8} > 600 GeV";
-  else cuttext1 = "p_{T}^{AK8} > 200 GeV";
-  TLatex *textCuts1 = new TLatex(3.5, 24, cuttext1);
-  textCuts1->SetNDC();
-  textCuts1->SetX(posX);
-  textCuts1->SetTextSize(size);
-  textCuts1->SetY(position);
-  textCuts1->Draw();
-  position-=step;
-
-  TString cuttext2 = "|#eta^{AK8}| < 2.4";
-  TLatex *textCuts2 = new TLatex(3.5, 24, cuttext2);
-  textCuts2->SetNDC();
-  textCuts2->SetX(posX);
-  textCuts2->SetTextSize(size);
-  textCuts2->SetY(position);
-  textCuts2->Draw();
-  position-=step;
-
-  TString cuttext3 = "#Delta#eta_{jj} < 1.3";
-  TLatex *textCuts3 = new TLatex(3.5, 24, cuttext3);
-  textCuts3->SetNDC();
-  textCuts3->SetX(posX);
-  textCuts3->SetTextSize(size);
-  textCuts3->SetY(position);
-  textCuts3->Draw();
-  position-=step;
-
-  if(histname.Contains("abovemj")) {
-    TString cuttext4;
-    if(histname.Contains("55")) cuttext4 = "m_{j} > 55 GeV";
-    else cuttext4 = "m_{j} > 35 GeV";
-    TLatex *textCuts4 = new TLatex(3.5, 24, cuttext4);
-    textCuts4->SetNDC();
-    textCuts4->SetX(posX);
-    textCuts4->SetTextSize(size);
-    textCuts4->SetY(position);
-    textCuts4->Draw();
-    position-=step;
-  }
-
-  if(histname.Contains("aboveHT")) {
-    TString cuttext5 = "H_{T} > 1000 GeV";
-    TLatex *textCuts5 = new TLatex(3.5, 24, cuttext5);
-    textCuts5->SetNDC();
-    textCuts5->SetX(posX);
-    textCuts5->SetTextSize(size);
-    textCuts5->SetY(position);
-    textCuts5->Draw();
-    position-=step;
-  }
-
-  // plotting a signal sample in here
-  if (doSignalSample) {
-    TFile *signalfile = TFile::Open(path+fileprefix+signalSampleFilename+".root");
-    TObjArray *tx = histname.Tokenize("_");
-    TString signalSampleHistname = ((TObjString *)(tx->At(0)))->String();
-    std::cout << signalSampleHistname << std::endl;
-    TH1D *signalSampleHist = (TH1D*)signalfile->Get("main/"+signalSampleHistname);
-    if(!signalSampleHist) std::cout << "Hist does not exist" << std::endl;
-
-    // scale signalSampleHist to the pad coordinates
-    signalSampleHist->Scale(1/signalSampleHist->Integral());
-    signalSampleHist->SetFillColorAlpha(14, 0.5);
-    signalSampleHist->SetLineColor(0);
-    signalSampleHist->Draw("hist same");
-
-  }
-
-  TString outputname = "plots/B2G_TrimMass_Eff_"+histname+".pdf";
-  if(doSignalSample) outputname = "plots/B2G_TrimMass_eff_"+histname+"_withSignal.pdf";
-  if(doComparison) outputname = "plots/B2G_TrimMass_comparison_"+histname+".pdf";
+  TString outputname = "plots/B2G_LeptonHT_Eff_"+histname+".pdf";
   canvas->SaveAs(outputname);
 
 }
