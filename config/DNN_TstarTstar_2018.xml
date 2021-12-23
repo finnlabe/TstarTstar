@@ -123,8 +123,7 @@
       <Item Name="lumi_file" Value="common/data/2018/Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.root"/>
 	    <Item Name="lumihists_lumi_per_bin" Value="500.0"/>
 
-      <Item Name="additionalBranches" Value="is_btagevent is_muevt evt_weight ST_weight DNN_Inputs neutrino TstarTstar_Hyp_gHOTVR TstarTstar_Hyp_gAK4 ST" />
-
+      <Item Name="additionalBranches" Value="is_btagevent is_muevt evt_weight ST_weight DNN_Inputs neutrino TstarTstar_Hyp_gHOTVR TstarTstar_Hyp_gAK4 ST weight_sfmu_id weight_sfmu_id_down weight_sfmu_id_up weight_sfmu_isolation weight_sfmu_isolation_down weight_sfmu_isolation_up weight_sfelec_id weight_sfelec_id_down weight_sfelec_id_up TopTagSF TopTagSF_down TopTagSF_merged_down TopTagSF_merged_up TopTagSF_non_down TopTagSF_non_up TopTagSF_semi_up TopTagSF_semi_down TopTagSF_up" />
 
 <!--	    <Item Name="is_puppi" Value="&IS_PUPPI;"/> -->
 

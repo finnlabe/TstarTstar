@@ -18,6 +18,7 @@
 #include "UHH2/TstarTstar/include/TstarTstarSelections.h"
 #include "UHH2/TstarTstar/include/TstarTstarHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarDNNHists.h"
+#include "UHH2/TstarTstar/include/TstarTstarVariationHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarDNNInputHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarRecoTstarHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarAllGenHists.h"
@@ -95,6 +96,8 @@ private:
 
   std::unique_ptr<Hists> h_highLepton, h_highLepton_AfterDNNcut_06, h_highLepton_notDNNcut_06;
 
+  std::unique_ptr<Hists> h_SFVariations;
+
   // ###### Control switches ######
   bool debug = false;
   bool do_masspoint = false;
@@ -167,6 +170,8 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_newTaggerSR_2.reset(new TstarTstarHists(ctx, "newTaggerSR_2"));
   h_newTaggerCR_2.reset(new TstarTstarHists(ctx, "newTaggerCR_2"));
   h_newTagger_btagCR_2.reset(new TstarTstarHists(ctx, "newTagger_btagCR_2"));
+
+  h_SFVariations.reset(new TstarTstarVariationHists(ctx, "SFVariations"));
 
   /**
   h_AfterDNNcut_02.reset(new TstarTstarHists(ctx, "AfterDNNcut_02"));
@@ -337,6 +342,7 @@ bool TstarTstarDNNModule::process(Event & event) {
     h_DNN_newTagger->fill(event);
     if(newTagger > 0) {
       h_newTaggerSR->fill(event);
+      h_SFVariations->fill(event);
     }
     else {
       h_newTaggerCR->fill(event);
@@ -365,7 +371,6 @@ bool TstarTstarDNNModule::process(Event & event) {
   double secondPart_2 = 1 - (crystal_constant_2 * crystalball_function(event.get(h_ST), crystal_alpha_2, crystal_n_2, crystal_sigma_2, crystal_mean_2));
   double newTagger_2 = event.get(h_DNN_output) - secondPart_2;
   event.set(h_newTagger_2, newTagger_2);
-  std::cout << "test" << std::endl;
   if(pass_btagcut) {
     h_DNN_newTagger_2->fill(event);
     if(newTagger_2 > 0) {
