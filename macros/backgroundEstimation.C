@@ -1,4 +1,3 @@
-// Decorrelate DNN tagger, see https://confluence.desy.de/x/0up4DQ
 // author: F.Labe
 // date: 24.09.2021
 // Run it with following command:
@@ -14,8 +13,8 @@ void fill_reweighted(TH1F* hReweight,TH1F* hReweight_up,TH1F* hReweight_down, TF
   if(!f) std::cout << "File not found!" << std::endl;
 
   TTreeReader tReader("AnalysisTree", f);
-  TTreeReaderValue<double> preWeight(tReader, "evt_weight"); // I think this is called "weight" for me -> check
-  TTreeReaderValue<double> recoST(tReader, "ST"); // this should be called ST for me -> check
+  TTreeReaderValue<double> preWeight(tReader, "evt_weight");
+  TTreeReaderValue<double> recoST(tReader, "ST");
 
   while (tReader.Next()) {
     double ST = (*recoST);
@@ -63,7 +62,7 @@ void backgroundEstimation(){
   // definitions
   std::vector<TString> nontop_backgrounds = {"WJets", "QCD", "VV"};
   std::vector<TString> top_backgrounds = {"ST", "TTbar"};
-  TString data  = "data";
+  TString data = "data";
 
   TString subpath_SR="newTaggerCR";
   TString subpath_CR="newTagger_btagCR";
@@ -138,15 +137,25 @@ void backgroundEstimation(){
   TGraphAsymmErrors purity = TGraphAsymmErrors();
   purity.Divide(hist_btagCR_nontop, hist_btagCR, "cl=0.68 b(1,1) mode");
 
+  TFile *file = new TFile("files/bgest_purity.root", "RECREATE");
+  purity.SetName("purity");
+  purity.Write();
+  file->Close();
+  delete file;
+
   // calculate ratio histogram
   TGraphAsymmErrors ratio = TGraphAsymmErrors();
-  ratio.Divide(histSR, hist_btagCR, "pois");
+  ratio.Divide(histSR, hist_btagCR_nontop, "pois");
 
   // fit function to ratio histogram
-  TF1 *fit = new TF1("fit", "pol 1", 500, 4000);
-  TF1 *fit2 = new TF1("fit2", "pol 2", 500, 4000);
-  TFitResultPtr r_1 = ratio.Fit("fit", "N", "", 500, 4000);
-  TFitResultPtr r_2 = ratio.Fit("fit2", "N", "", 500, 4000);
+  TF1 *fit = new TF1("fit", "pol 1", 500, 6000);
+  TH1D *hint1 = new TH1D("hint", "Fit 1 with conf.band", 100, 0, 10000);
+  TF1 *fit2 = new TF1("fit2", "pol 2", 500, 6000);
+  TH1D *hint2 = new TH1D("hint", "Fit 2 with conf.band", 100, 0, 10000);
+  TFitResultPtr r_1 = ratio.Fit("fit", "NS", "", 500, 6000);
+  (TVirtualFitter::GetFitter())->GetConfidenceIntervals(hint1, 0.68);
+  TFitResultPtr r_2 = ratio.Fit("fit2", "NS", "", 500, 6000);
+  (TVirtualFitter::GetFitter())->GetConfidenceIntervals(hint2, 0.68);
 
   const int nbins = 16;
   double bins[nbins] = {500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1750, 2000, 2500, 3000, 6000};
@@ -196,14 +205,23 @@ void backgroundEstimation(){
   ratio.GetXaxis()->SetTitle("S_{T} [GeV]");
   ratio.GetXaxis()->SetNdivisions(505);
   ratio.GetYaxis()->SetTitle("ratio");
+  ratio.GetYaxis()->SetRangeUser(1, 80);
   ratio.SetTitle("");
 
   ratio.Draw("");
-  //fit->Draw("same");
-  //fit2->Draw("same");
+  fit->Draw("same");
+  fit2->SetLineColor(4);
+  fit2->Draw("same");
+
+  hint1->SetLineColor(2);
+  hint1->SetFillColorAlpha(2,0.3);
+  hint1->Draw("e3 same");
+  hint2->SetFillColorAlpha(4,0.3);
+  hint1->SetLineColor(4);
+  hint2->Draw("e3 same");
 
   // draw Lumi text
-  TString infotext = TString::Format("%3.1f fb^{-1} (%d TeV)", 137., 13);
+  TString infotext = TString::Format("%3.0f fb^{-1} (%d TeV)", 138., 13);
   TLatex *text = new TLatex(3.5, 24, infotext);
   text->SetNDC();
   text->SetTextAlign(33);

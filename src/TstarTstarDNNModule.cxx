@@ -31,6 +31,7 @@
 
 // other
 #include "UHH2/HOTVR/include/HOTVRIds.h"
+#include "TGraphAsymmErrors.h"
 
 using namespace std;
 using namespace uhh2;
@@ -59,6 +60,10 @@ double crystalball_function(double x, double alpha, double n, double sigma, doub
   }
 }
 
+double bgest_polynom(double x, double p0, double p1, double p2) {
+  return p0 + p1 * x + p2 * x * x;
+}
+
 /** \brief Module for the T*T*->ttbar gg MC based study
  *
  * This is the central class which calls other AnalysisModules, Hists or Selection classes.
@@ -79,10 +84,9 @@ private:
 
   // ##### Histograms #####
   std::unique_ptr<Hists> h_topcheck, h_topcheck_reweighted, h_AfterDNNcut_06_UGLYFIX;
-  std::unique_ptr<Hists> h_STreweighted;
+  std::unique_ptr<Hists> h_STreweighted, h_crosscheck;
 
   std::unique_ptr<Hists> h_newTaggerSR, h_newTaggerCR, h_newTagger_btagCR;
-  std::unique_ptr<Hists> h_newTaggerSR_2, h_newTaggerCR_2, h_newTagger_btagCR_2;
 
   std::unique_ptr<Hists> h_AfterDNNcut_02, h_AfterDNNcut_03, h_AfterDNNcut_04, h_AfterDNNcut_05, h_AfterDNNcut_06, h_AfterDNNcut_07, h_AfterDNNcut_08;
   std::unique_ptr<Hists> h_notDNNcut_02,   h_notDNNcut_03,   h_notDNNcut_04,   h_notDNNcut_05,   h_notDNNcut_06,   h_notDNNcut_07,   h_notDNNcut_08;
@@ -123,9 +127,13 @@ private:
 
   // ###### other parameters ######
   bool is_MC;
-  bool is_TTbar;
-  bool is_Signal;
-  bool is_Data;
+  bool is_TTbar = false;
+  bool is_Signal = false;
+
+  bool is_datadriven_BG_run = false;
+
+  TGraphAsymmErrors* bgest_purity;
+
 };
 
 
@@ -146,8 +154,12 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   // MC or real data
   is_MC = ctx.get("dataset_type") == "MC";
 
-  is_TTbar = (ctx.get("dataset_version").find("TT") != std::string::npos);
-  is_Signal = (ctx.get("dataset_version").find("Tstar") != std::string::npos);
+  if(!is_MC) is_datadriven_BG_run = ctx.get("use_data_for") == "background_extrapolation"; // get which running mode to use for data
+
+  if(is_MC) {
+    is_TTbar = (ctx.get("dataset_version").find("TT") != std::string::npos);
+    is_Signal = (ctx.get("dataset_version").find("Tstar") != std::string::npos);
+  }
 
   // ###### 1. set up modules ######
   // primlep
@@ -161,15 +173,12 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_topcheck.reset(new TstarTstarAllGenHists(ctx, "topcheck"));
   h_topcheck_reweighted.reset(new TstarTstarAllGenHists(ctx, "topcheck_reweighted"));
 
-  h_STreweighted.reset(new TstarTstarHists(ctx, "topcheck"));
+  h_crosscheck.reset(new TstarTstarHists(ctx, "crosscheck"));
+  h_STreweighted.reset(new TstarTstarHists(ctx, "STreweighted"));
 
   h_newTaggerSR.reset(new TstarTstarHists(ctx, "newTaggerSR"));
   h_newTaggerCR.reset(new TstarTstarHists(ctx, "newTaggerCR"));
   h_newTagger_btagCR.reset(new TstarTstarHists(ctx, "newTagger_btagCR"));
-
-  h_newTaggerSR_2.reset(new TstarTstarHists(ctx, "newTaggerSR_2"));
-  h_newTaggerCR_2.reset(new TstarTstarHists(ctx, "newTaggerCR_2"));
-  h_newTagger_btagCR_2.reset(new TstarTstarHists(ctx, "newTagger_btagCR_2"));
 
   h_SFVariations.reset(new TstarTstarVariationHists(ctx, "SFVariations"));
 
@@ -215,10 +224,8 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
 
   h_DNN.reset(new TstarTstarDNNHists(ctx, "DNN"));
   h_DNN_newTagger.reset(new TstarTstarDNNHists(ctx, "DNN_newTagger"));
-  h_DNN_newTagger_2.reset(new TstarTstarDNNHists(ctx, "DNN_newTagger_2"));
   h_DNN_BtagControl.reset(new TstarTstarDNNHists(ctx, "DNN_BtagControl"));
   h_DNN_reweighted.reset(new TstarTstarDNNHists(ctx, "DNN_reweighted"));
-  h_DNN_reweighted_2.reset(new TstarTstarDNNHists(ctx, "DNN_reweighted_2"));
 
   h_AfterDNN.reset(new TstarTstarHists(ctx, "AfterDNN"));
 
@@ -227,13 +234,15 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_flag_toptagevent = ctx.get_handle<int>("flag_toptagevent");
   h_DoAddInputs = ctx.declare_event_output<bool>("doAddInputs");
   h_newTagger = ctx.declare_event_output<double>("newTagger");
-  h_newTagger_2 = ctx.declare_event_output<double>("newTagger_2");
   h_is_btagevent = ctx.get_handle<bool>("is_btagevent");
   h_ST = ctx.get_handle<double>("ST");
 
   h_ST_weight = ctx.declare_event_output<double>("ST_weight");
 
   h_DNN_output = ctx.get_handle<double>("DNN_output");
+
+  TFile *f = new TFile("/nfs/dust/cms/user/flabe/TstarTstar/CMSSW_10_2_17/src/UHH2/TstarTstar/macros/files/bgest_purity.root");
+  bgest_purity = (TGraphAsymmErrors*)f->Get("purity");
 
 }
 
@@ -268,7 +277,7 @@ bool TstarTstarDNNModule::process(Event & event) {
     if(jet.btag_DeepCSV() > 0.8958) N_jets_btag_tight++;
   }
 
-
+  h_crosscheck->fill(event);
   event.weight = ST_weight * event.get(h_evt_weight);
   if(pass_btagcut) h_STreweighted->fill(event);
   event.weight = event.get(h_evt_weight);
@@ -338,6 +347,33 @@ bool TstarTstarDNNModule::process(Event & event) {
   double secondPart = 1 - (crystal_constant * crystalball_function(event.get(h_ST), crystal_alpha, crystal_n, crystal_sigma, crystal_mean));
   double newTagger = event.get(h_DNN_output) - secondPart;
   event.set(h_newTagger, newTagger);
+
+  // datadriven background estimation
+  if(is_datadriven_BG_run) {
+    if(debug) cout << "Doing datadriven BG estimation" << endl;
+    if(pass_btagcut) {
+      pass_btagcut = false; // in this running scheme, we won't use the data that actually would go into the SR or CR
+    } else {
+      pass_btagcut = true; // we will use this data however!
+      newTagger = -1; // for the moment, use all data for the CR
+
+      // definition of the transfer function
+      // NAME      VALUE            ERROR          SIZE      DERIVATIVE
+      // p0       -1.20025e+00   3.82700e-01   1.31302e-04   2.81236e-04
+      // p1        4.71172e-03   5.79365e-04   1.02640e-07   4.94329e-01
+      // p2       -3.70059e-07   2.01813e-07   6.21146e-11   1.00150e+03
+      double p0 = -6.71252e-01;
+      double p1 = 4.16795e-03;
+      double p2 = 1.86044e-07;
+      if(true) cout << "ST: " << event.get(h_ST) << endl;
+      double transfer_value = bgest_polynom(event.get(h_ST), p0, p1, p2);
+      if(true) cout << "transfer value: " << transfer_value << endl;
+      double purity_value = bgest_purity->Eval(event.get(h_ST));
+      if(true) cout << "purity: " << purity_value << endl;
+      event.weight *= transfer_value*purity_value;
+    }
+  }
+
   if(pass_btagcut) {
     h_DNN_newTagger->fill(event);
     if(newTagger > 0) {
@@ -353,39 +389,6 @@ bool TstarTstarDNNModule::process(Event & event) {
       h_newTagger_btagCR->fill(event);
     }
   }
-
-  if(debug) cout << "Defining CB function 2" << endl;
-
-  // Additional decorrelation through "varying cut" on DNN output
-  // this was calculated for *all* backgrounds
-  // 1  Constant     7.92068e-01   1.38647e-03   3.14187e-06   6.78017e-01
-  // 2  Mean         6.78022e+02   3.18304e+00  -2.66192e-03  -4.38386e-04
-  // 3  Sigma        3.87509e+02   1.45291e+01  -4.11479e-02   2.57801e-05
-  // 4  Alpha       -1.64682e-01   7.28599e-03   6.36423e-06  -3.80328e-01
-  // 5  N            5.60357e+05   1.58958e+05   1.93129e+01   4.50859e-10
-  double crystal_constant_2 = 7.92068e-01;
-  double crystal_mean_2 = 6.78022e+02;
-  double crystal_sigma_2 = 3.87509e+02;
-  double crystal_alpha_2 = -1.64682e-01;
-  double crystal_n_2 = 5.60357e+05;
-  double secondPart_2 = 1 - (crystal_constant_2 * crystalball_function(event.get(h_ST), crystal_alpha_2, crystal_n_2, crystal_sigma_2, crystal_mean_2));
-  double newTagger_2 = event.get(h_DNN_output) - secondPart_2;
-  event.set(h_newTagger_2, newTagger_2);
-  if(pass_btagcut) {
-    h_DNN_newTagger_2->fill(event);
-    if(newTagger_2 > 0) {
-      h_newTaggerSR_2->fill(event);
-    }
-    else {
-      h_newTaggerCR_2->fill(event);
-    }
-  }
-  else {
-    if(newTagger_2 > 0) {
-      h_newTagger_btagCR_2->fill(event);
-    }
-  }
-
 
   // testing tighter pt cut
   if(debug) cout << "testing tighter pt cut" << endl;

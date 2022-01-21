@@ -236,11 +236,11 @@ bool TstarTstarAnalysisModule::process(Event & event) {
   event.weight = event.get(h_evt_weight);
   if(debug) cout << "weights applied." << endl;
 
-  h_crosscheck->fill(event);
-
   // set lepton channel
   const bool muon_evt = (event.muons->size() == 1);
   event.set(h_flag_muonevent, int(muon_evt));
+
+  h_crosscheck->fill(event);
 
   // set primlep
   reco_primlep->process(event);

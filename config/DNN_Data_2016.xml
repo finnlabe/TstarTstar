@@ -141,9 +141,7 @@
             <Item Name="pileup_directory_data" Value="common/data/2016/MyDataPileupHistogram.root" />
 
             <!-- Some test configuration; see TstarTstarModule.cxx for how to access it: -->
-            <Item Name="TestKey" Value="TestKeyValue" />
-
-            <Item Name="UseTrigger" Value="false" />
+            <Item Name="use_data_for" Value="normal" />
 
         </UserConfig>
     </Cycle>

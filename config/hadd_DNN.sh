@@ -15,3 +15,7 @@ sframe_batch.py -a DNN_addSM_2018.xml
 sframe_batch.py -a DNN_Data_2016.xml
 sframe_batch.py -a DNN_Data_2017.xml
 sframe_batch.py -a DNN_Data_2018.xml
+
+sframe_batch.py -a DNN_DataDrivenBG_2016.xml
+sframe_batch.py -a DNN_DataDrivenBG_2017.xml
+sframe_batch.py -a DNN_DataDrivenBG_2018.xml
