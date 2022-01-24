@@ -37,219 +37,138 @@ class configContainer:
       self.userMail = '@'.join([self.userName, 'mail.desy.de']) # Avoid spam due to public code on GitHub
 
       self.yearVars['yearVersions'] = { # e.g. 'v3' in case  of 2016v3
+         'UL16preVFP': '',
+         'UL16postVFP': '',
          'UL17': '',
          'UL18': '',
       }
 
       # Set these values such that there are no more than 2,500 jobs per preselection. This way, you can submit two preselections in parallel to avoid going over 5,000 jobs (current user limit for NAF)
       self.yearVars['preselFileSplit'] = {
+         'UL16preVFP': '50',
+         'UL16postVFP': '50',
          'UL17': '50',
          'UL18': '50',
       }
 
       self.yearVars['targetLumis'] = {
+         'UL16preVFP': _YEARS['UL16preVFP'].get('lumi_pb'),
+         'UL16postVFP': _YEARS['UL16postVFP'].get('lumi_pb'),
          'UL17': _YEARS['UL17'].get('lumi_pb'),
          'UL18': _YEARS['UL18'].get('lumi_pb'),
       }
 
       self.yearVars['lumiFiles'] = {
+         'UL16preVFP': self.uhh2Dir+'common/UHH2-data/UL16preVFP/Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON_UL16preVFP_normtag.root',
+         'UL16postVFP': self.uhh2Dir+'common/UHH2-data/UL16postVFP/Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON_UL16postVFP_normtag.root',
          'UL17': self.uhh2Dir+'common/UHH2-data/UL17/Cert_294927-306462_13TeV_UL2017_Collisions17_GoldenJSON_normtag.root',
          'UL18': self.uhh2Dir+'common/UHH2-data/UL18/Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON_normtag.root',
       }
 
       self.yearVars['pileupFiles'] = {
          'mc': {
+            'UL16preVFP': self.uhh2Dir+'common/UHH2-data/UL16preVFP/MyMCPileupHistogram_UL16preVFP.root',
+            'UL16postVFP': self.uhh2Dir+'common/UHH2-data/UL16postVFP/MyMCPileupHistogram_UL16postVFP.root',
             'UL17': self.uhh2Dir+'common/UHH2-data/UL17/MyMCPileupHistogram_UL17.root',
             'UL18': self.uhh2Dir+'common/UHH2-data/UL18/MyMCPileupHistogram_UL18.root',
          },
          'data': {
+            'UL16preVFP': self.uhh2Dir+'common/UHH2-data/UL16preVFP/MyDataPileupHistogram_UL16preVFP.root',
+            'UL16postVFP': self.uhh2Dir+'common/UHH2-data/UL16postVFP/MyDataPileupHistogram_UL16postVFP.root',
             'UL17': self.uhh2Dir+'common/UHH2-data/UL17/MyDataPileupHistogram_UL17.root',
             'UL18': self.uhh2Dir+'common/UHH2-data/UL18/MyDataPileupHistogram_UL18.root',
          },
          'dataUp': {
+            'UL16preVFP': self.uhh2Dir+'common/UHH2-data/UL16preVFP/MyMCPileupHistogram_UL16preVFP_72383.root',
+            'UL16postVFP': self.uhh2Dir+'common/UHH2-data/UL16postVFP/MyMCPileupHistogram_UL16postVFP_72383.root',
             'UL17': self.uhh2Dir+'common/UHH2-data/UL17/MyDataPileupHistogram_UL17_72383.root',
             'UL18': self.uhh2Dir+'common/UHH2-data/UL18/MyDataPileupHistogram_UL18_72383.root',
          },
          'dataDown': {
+            'UL16preVFP': self.uhh2Dir+'common/UHH2-data/UL16preVFP/MyDataPileupHistogram_UL16preVFP_66017.root',
+            'UL16postVFP': self.uhh2Dir+'common/UHH2-data/UL16postVFP/MyDataPileupHistogram_UL16postVFP_66017.root',
             'UL17': self.uhh2Dir+'common/UHH2-data/UL17/MyDataPileupHistogram_UL17_66017.root',
             'UL18': self.uhh2Dir+'common/UHH2-data/UL18/MyDataPileupHistogram_UL18_66017.root',
          },
       }
 
-      self.yearVars['triggerSFFiles'] = {
-         'UL16preVFP': self.uhh2Dir+'common/UHH2-data/UL16preVFP/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_SingleMuonTriggers.root',
-         'UL16postVFP': self.uhh2Dir+'common/UHH2-data/UL16postVFP/Efficiencies_muon_generalTracks_Z_Run2016_UL_SingleMuonTriggers.root',
-         'UL17': self.uhh2Dir+'common/UHH2-data/UL17/Efficiencies_muon_generalTracks_Z_Run2017_UL_SingleMuonTriggers.root',
-         'UL18': self.uhh2Dir+'common/UHH2-data/UL18/Efficiencies_muon_generalTracks_Z_Run2018_UL_SingleMuonTriggers.root',
-      }
-      self.yearVars['triggerSFHists'] = {
-         'UL16preVFP': 'NUM_Mu50_or_TkMu50_DEN_CutBasedIdGlobalHighPt_and_TkIsoLoose_abseta_pt',
-         'UL16postVFP': 'NUM_Mu50_or_TkMu50_DEN_CutBasedIdGlobalHighPt_and_TkIsoLoose_abseta_pt',
-         'UL17': 'NUM_Mu50_or_OldMu100_or_TkMu100_DEN_CutBasedIdGlobalHighPt_and_TkIsoLoose_abseta_pt',
-         'UL18': 'NUM_Mu50_or_OldMu100_or_TkMu100_DEN_CutBasedIdGlobalHighPt_and_TkIsoLoose_abseta_pt',
-      }
-
-      self.yearVars['muonidSFFiles'] = {
-         'UL16preVFP': self.uhh2Dir+'common/UHH2-data/UL16preVFP/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ID.root',
-         'UL16postVFP': self.uhh2Dir+'common/UHH2-data/UL16postVFP/Efficiencies_muon_generalTracks_Z_Run2016_UL_ID.root',
-         'UL17': self.uhh2Dir+'common/UHH2-data/UL17/Efficiencies_muon_generalTracks_Z_Run2017_UL_ID.root',
-         'UL18': self.uhh2Dir+'common/UHH2-data/UL18/Efficiencies_muon_generalTracks_Z_Run2018_UL_ID.root',
-      }
-      self.yearVars['muonidSFHists'] = {
-         'UL16preVFP': 'NUM_TightID_DEN_TrackerMuons_abseta_pt',
-         'UL16postVFP': 'NUM_TightID_DEN_TrackerMuons_abseta_pt',
-         'UL17': 'NUM_TightID_DEN_TrackerMuons_abseta_pt',
-         'UL18': 'NUM_TightID_DEN_TrackerMuons_abseta_pt',
-      }
-
-      self.yearVars['deepjetMCEffFiles'] = {
-         'UL17': self.uhh2Dir+'LegacyTopTagging/Analysis/BTagMCEff/files/BTagMCEfficiencyHists_UL17.root',
-         'UL18': self.uhh2Dir+'LegacyTopTagging/Analysis/BTagMCEff/files/BTagMCEfficiencyHists_UL18.root',
-      }
-
-      self.yearVars['deepjetSFFiles'] = {
-         # 'UL17': self.uhh2Dir+'common/UHH2-data/UL17/DeepJet_106XUL17SF_WPonly.csv',
-         'UL17': self.uhh2Dir+'LegacyTopTagging/data/ScaleFactors/BTagging/DeepJet_106XUL17SF_WPonly_V2p1.csv',
-         'UL18': self.uhh2Dir+'common/UHH2-data/UL18/DeepJet_106XUL18SF_WPonly.csv',
-      }
-
       self.systematics = list()
 
-
    @staticmethod
-   def read_database(years: list):
+   def read_database_106X_v2(years: list, groups: list):
 
+      from sample_db import samplesDict
       used_samples = OrderedDict()
       for year in years:
-         used_samples[year] = list()
-         with open('database.csv', 'r') as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-               use_me = row['use_for_sf']=='True' and row['year']==year
-               if use_me:
-                  used_samples[year].append(sampleEntity('106X_v1', row))
+          temp = OrderedDict()
+          for group in groups:
+             temp[group] = list()
+             for k, v in samplesDict.items():
+                use_me_year = v.get('years') == None or year in v.get('years', [])
+
+                # block to group config files
+                use_me_group = False
+                if k.startswith("DATA"):
+                    if (group == "DATA"): use_me_group = True
+                elif k.startswith("TstarTstar"):
+                    if group == "Signal": use_me_group = True
+                else:
+                    if group == "SM": use_me_group = True
+                # end grouping block
+
+                if (use_me_year and use_me_group):
+                   sample_entity = sampleEntity((k, v, year,))
+                   if not os.path.isfile(sample_entity.xmlPath):
+                      print(colored('XML for sample  '+sample_entity.nickName+' ('+year+')  does not exist. Skipping this sample', 'red'))
+                      continue
+                   temp[group].append(sample_entity)
+          used_samples[year] = temp
       configContainer.used_samples = used_samples
-
-   @staticmethod
-   def read_database_106X_v2(years: list):
-
-      from database import samplesDict
-      used_samples = OrderedDict()
-      for year in years:
-         used_samples[year] = list()
-         for k, v in samplesDict.items():
-            use_me = v.get('years') == None or year in v.get('years', [])
-            if use_me:
-               sample_entity = sampleEntity('106X_v2', (k, v, year,))
-               if not os.path.isfile(sample_entity.xmlPath):
-                  print(colored('XML for sample  '+sample_entity.nickName+' ('+year+')  does not exist. Skipping this sample', 'red'))
-                  continue
-               used_samples[year].append(sample_entity)
-      configContainer.used_samples = used_samples
-
-   def setup_systematics(self, selection: str, year: str):
-
-      self.systematics.append(systEntity('jec', 'jecsmear_direction'))
-      self.systematics.append(systEntity('jer', 'jersmear_direction'))
-      if selection=='mainsel':
-         self.systematics.append(systEntity('mur', 'ScaleVariationMuR'))
-         self.systematics.append(systEntity('muf', 'ScaleVariationMuF'))
-         self.systematics.append(systEntity('murmuf', 'N/A')) # Need to access ScaleVariationMuR and ScaleVariationMuF in another way
-         self.systematics.append(systEntity('ps', 'SystDirection_PS', directions=['FSRup_2', 'FSRdown_2', 'ISRup_2', 'ISRdown_2']))
-         self.systematics.append(systEntity('pileup', 'SystDirection_Pileup'))
-         self.systematics.append(systEntity('prefiring', 'SystDirection_Prefiring'))
-         self.systematics.append(systEntity('muontrigger', 'SystDirection_MuonTrigger'))
-         self.systematics.append(systEntity('muonid', 'SystDirection_MuonID'))
-         # self.systematics.append(systEntity('muoniso', 'SystDirection_MuonIso'))
-         self.systematics.append(systEntity('btagging', 'SystDirection_BTag', directions=['up_bc', 'down_bc', 'up_udsg', 'down_udsg']))
-         self.systematics.append(systEntity('wp', 'SystDirection_WP'))
-         self.systematics.append(systEntity('tau21', 'SystDirection_Tau21'))
-         self.systematics.append(systEntity('toppt', 'SystDirection_TopPt', directions=['a_up', 'a_down', 'b_up', 'b_down']))
-
 
 class sampleEntity:
 
    '''Container to hold information about a data or MC sample, as read from CSV database'''
 
-   def __init__(self, ver, csvRow):
+   def __init__(self, csvRow):
 
-      if ver == '106X_v1':
-         self.year = csvRow['year']
-         self.is_data = True if csvRow['is_data']=='True' else False
-         self.nickName = csvRow['nick_name']
-         self.n_das = int(csvRow['n_das'])
-         self.n_pnfs = int(csvRow['n_pnfs'])
-         self.pnfs_sum_of_weights = float(self.n_pnfs) if csvRow['pnfs_sum_of_weights']=='-' else float(csvRow['pnfs_sum_of_weights'])
-         self.xs_gen = None if csvRow['xs_gen']=='-' else float(csvRow['xs_gen'])
-         self.xs_theo = None if csvRow['xs_theo']=='-' else float(csvRow['xs_theo'])
-         if not self.is_data and self.xs_gen==None and self.xs_theo==None:
-            sys.exit('No cross section given for sample labelled as simulation: '+self.nickName+' ('+self.year+')')
-         self.xsection = self.xs_gen if self.xs_theo==None else self.xs_theo
-         self.xmlPath = os.path.join(os.environ.get('CMSSW_BASE'), 'src/UHH2/LegacyTopTagging/config/datasets', csvRow['xml_path'])
-         self.lumi = 1. if self.is_data else self.pnfs_sum_of_weights/self.xsection
-
-      elif ver == '106X_v2':
-         k, v, year = csvRow
-         self.year = year
-         self.is_data = k.startswith('DATA_')
-         self.nickName = k
-         self.n_das = None
-         self.n_pnfs = None
-         self.pnfs_sum_of_weights = helper.get_nevt(v['db_name'], '13TeV', self.year)
-         self.xs_gen = None
-         self.xs_theo = None
-         self.lumi = 1. if self.is_data else helper.get_lumi(v['db_name'], '13TeV', self.year, kFactor=v.get('kfac', False), Corrections=v.get('corr', False))
-         self.xsection = self.pnfs_sum_of_weights / self.lumi
-         self.xmlPath = os.path.join(os.environ.get('CMSSW_BASE'), 'src/UHH2/common/UHH2-datasets', helper.get_xml(v['db_name'], '13TeV', self.year))
-
-      self.mainsel_versions = list()
-
-      # init mainsel_versions
-      merge_scenarios = ['FullyMerged', 'WMerged', 'QBMerged', 'NotMerged', 'Background'] # Need to be the same strings as in include/Constants.h to properly work
-      if self.nickName.startswith('ST_tW') or self.nickName.startswith('ST_tChannel') or self.nickName.startswith('ST_sChannel_had'): # in case we ever use the hadronicDecays s-channel sample
-         for m in merge_scenarios:
-            self.mainsel_versions.append('__'.join([self.nickName, m]))
-      elif self.nickName.startswith('TTbarToSemiLeptonic'):
-         for m in merge_scenarios:
-            if m=='Background': continue
-            self.mainsel_versions.append('__'.join([self.nickName, m]))
-      # else:
-      self.mainsel_versions.append('__'.join([self.nickName, 'AllMergeScenarios']))
-
-
-class systEntity:
-
-   '''Container to hold information about a systematic uncertainty'''
-
-   def __init__(self, shortName: str, ctxName: str, defaultValue='nominal', directions=['up', 'down']):
-
-      self.shortName = shortName
-      self.ctxName = ctxName
-      self.defaultValue = defaultValue
-      self.directions = directions
+      k, v, year = csvRow
+      self.year = year
+      self.is_data = k.startswith('DATA_')
+      self.nickName = k
+      self.n_das = None
+      self.n_pnfs = None
+      self.pnfs_sum_of_weights = helper.get_nevt(v['db_name'], '13TeV', self.year)
+      self.xs_gen = None
+      self.xs_theo = None
+      self.lumi = 1. if self.is_data else helper.get_lumi(v['db_name'], '13TeV', self.year, kFactor=v.get('kfac', False), Corrections=v.get('corr', False))
+      self.xsection = self.pnfs_sum_of_weights / self.lumi
+      self.xmlPath = os.path.join(os.environ.get('CMSSW_BASE'), 'src/UHH2/common/UHH2-datasets', helper.get_xml(v['db_name'], '13TeV', self.year))
 
 
 class xmlCreator:
 
    '''Creates XML files for SFrame'''
 
-   def __init__(self, selection: str, year: str):
+   def __init__(self, step: str, year: str, group: str):
 
       confCon = configContainer()
       self.uhh2Dir = confCon.uhh2Dir
       self.userName = confCon.userName
       self.userMail = confCon.userMail
       self.yearVars = confCon.yearVars
-      self.sample_list = confCon.used_samples[year]
-      confCon.setup_systematics(selection, year)
+      self.sample_list = confCon.used_samples[year][group]
       self.systematics = confCon.systematics
 
-      if selection not in ['Preselection', 'Selection']:
+      if step not in ['Preselection', 'Selection', 'Analysis', 'DNN']:
          sys.exit('Given value of argument "selection" not valid. Abort.')
-      self.selection = selection
-      self.is_mainsel = True if selection=='Selection' else False
+      self.step = step
+      self.is_presel = True if step=='Preselection' else False
+      if (step == "Preselection"): self.analysisModule = "TstarTstarPreselectionModule"
+      elif (step == "Selection"): self.analysisModule = "TstarTstarSelectionModule"
+      elif (step == "Analysis"): self.analysisModule = "TstarTstarAnalysisModule"
+      elif (step == "DNN"): self.analysisModule = "TstarTstarDNNModule"
 
-      if year not in ['UL17', 'UL18']:
+      if year not in ['UL16preVFP', 'UL16postVFP', 'UL17', 'UL18']:
          sys.exit('Given value of argument "year" not valid. Abort.')
       self.year = year
       self.yearVersion = self.yearVars['yearVersions'][year]
@@ -258,15 +177,13 @@ class xmlCreator:
       if not os.path.isdir(self.outputDirBase):
          sys.exit('Warning: Make sure to create output directory via "ln -s". Abort.')
 
-      self.xmlFileName = '_'.join(['parsedConfigFile', self.selection, self.year])+'.xml'
-      self.xmlFilePathBase = self.uhh2Dir+'TstarTstar/config/'+'_'.join(['config', self.selection, self.year])+'/'
+      self.xmlFileName = '_'.join(['parsedConfigFile', self.step, self.year, group])+'.xml'
+      self.xmlFilePathBase = self.uhh2Dir+'TstarTstar/config/'+'_'.join(['config', self.step, self.year])+'/'
       os.makedirs(self.xmlFilePathBase, exist_ok=True)
       self.xmlFilePath = self.xmlFilePathBase+self.xmlFileName
-      self.workdirName = '_'.join(['workdir', self.selection, self.year])
+      self.workdirName = '_'.join(['workdir', self.step, self.year, group])
 
       self.write_xml_successful = False
-      self.systXmlFilePaths = list()
-      self.systWorkdirNames = list()
 
 
    def write_xml(self):
@@ -277,25 +194,25 @@ class xmlCreator:
          file.write('''<!DOCTYPE JobConfiguration PUBLIC "" "JobConfig.dtd"[\n''')
          file.write('''\n''')
          file.write('''<!ENTITY TargetLumi "'''+str(self.yearVars['targetLumis'][self.year])+'''">\n''')
-         if self.is_mainsel:
-            file.write('''<!ENTITY PRESELdir "'''+(self.outputDirBase+'presel/'+self.year+'/nominal/')+'''">\n''')
-            file.write('''<!ENTITY PRESELfilename "uhh2.AnalysisModuleRunner">\n''')
-         file.write('''<!ENTITY OUTPUTdir "'''+(self.outputDirBase+self.selection+'/'+self.year+'/nominal/')+'''">\n''')
+         if not self.is_presel:
+            file.write('''<!ENTITY INPUTdir "'''+(self.outputDirBase+'presel/'+self.year)+'''">\n''')
+            file.write('''<!ENTITY INPUTfilename "uhh2.AnalysisModuleRunner">\n''')
+         file.write('''<!ENTITY OUTPUTdir "'''+(self.outputDirBase+self.step+'/'+self.year)+'''">\n''')
          file.write('''<!ENTITY b_Cacheable "False">\n''')
          file.write('''<!ENTITY NEVT "-1">\n''')
          file.write('''<!ENTITY YEARsuffix "_'''+self.year+self.yearVersion+'''">\n''')
          file.write('''<!ENTITY PROOFdir "/nfs/dust/cms/user/'''+self.userName+'''/.proof2">\n''')
          file.write('''\n''')
          for s in self.sample_list:
-            if self.is_mainsel:
-               file.write('''<!ENTITY '''+s.nickName+''' "&PRESELdir;/&PRESELfilename;'''+('.DATA.' if s.is_data else '.MC.')+s.nickName+'''&YEARsuffix;.root">\n''')
+            if not self.is_presel:
+               file.write('''<!ENTITY '''+s.nickName+''' "&INPUTdir;/&INPUTfilename;'''+('.DATA.' if s.is_data else '.MC.')+s.nickName+'''&YEARsuffix;.root">\n''')
             else:
                file.write('''<!ENTITY '''+s.nickName+''' SYSTEM "'''+s.xmlPath+'''">\n''')
          file.write('''\n''')
          file.write(''']>\n''')
          file.write('''\n''')
          file.write('''<!--\n''')
-         file.write('''<ConfigParse NEventsBreak="'''+('500000' if self.is_mainsel else '0')+'''" FileSplit="'''+('0' if self.is_mainsel else self.yearVars['preselFileSplit'][self.year])+'''" AutoResubmit="5"/>\n''')
+         file.write('''<ConfigParse NEventsBreak="'''+('500000' if not self.is_presel else '0')+'''" FileSplit="'''+('0' if not self.is_presel else self.yearVars['preselFileSplit'][self.year])+'''" AutoResubmit="5"/>\n''')
          file.write('''<ConfigSGE RAM="4" DISK="3" Mail="'''+self.userMail+'''" Notification="as" Workdir="'''+self.workdirName+'''"/>\n''')
          file.write('''-->\n''')
          file.write('''\n''')
@@ -306,11 +223,10 @@ class xmlCreator:
          file.write('''<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="&OUTPUTdir;/" PostFix="" TargetLumi="&TargetLumi;">\n''')
          file.write('''\n''')
          for s in self.sample_list:
-            if self.is_mainsel:
-               for v in s.mainsel_versions:
-                  file.write('''<InputData Lumi="'''+str(s.lumi)+'''" NEventsMax="&NEVT;" Type="'''+('DATA' if s.is_data else 'MC')+'''" Version="'''+v+'''&YEARsuffix;" Cacheable="&b_Cacheable;"> <In FileName="&'''+s.nickName+''';" Lumi="0.0"/> <InputTree Name="AnalysisTree"/> <OutputTree Name="AnalysisTree"/> </InputData>\n''')
-            else:
-               file.write('''<InputData Lumi="'''+str(s.lumi)+'''" NEventsMax="&NEVT;" Type="'''+('DATA' if s.is_data else 'MC')+'''" Version="'''+s.nickName+'''&YEARsuffix;" Cacheable="&b_Cacheable;"> &'''+s.nickName+'''; <InputTree Name="AnalysisTree"/> <OutputTree Name="AnalysisTree"/> </InputData>\n''')
+             if self.is_presel:
+                 file.write('''<InputData Lumi="'''+str(s.lumi)+'''" NEventsMax="&NEVT;" Type="'''+('DATA' if s.is_data else 'MC')+'''" Version="'''+s.nickName+'''&YEARsuffix;" Cacheable="&b_Cacheable;"> &'''+s.nickName+'''; <InputTree Name="AnalysisTree"/> <OutputTree Name="AnalysisTree"/> </InputData>\n''')
+             else:
+                 file.write('''<InputData Lumi="'''+str(s.lumi)+'''" NEventsMax="&NEVT;" Type="'''+('DATA' if s.is_data else 'MC')+'''" Version="'''+s.nickName+'''&YEARsuffix;" Cacheable="&b_Cacheable;"> <In FileName="&'''+s.nickName+''';" Lumi="0.0"/> <InputTree Name="AnalysisTree"/> <OutputTree Name="AnalysisTree"/> </InputData>\n''')
          file.write('''\n''')
          file.write('''<UserConfig>\n''')
          file.write('''\n''')
@@ -324,38 +240,16 @@ class xmlCreator:
          file.write('''<Item Name="GenTopJetCollection" Value="hotvrGen"/>\n''')
          file.write('''<Item Name="GenParticleCollection" Value="GenParticles"/>\n''')
          file.write('''<Item Name="GenInfoName" Value="genInfo"/>\n''')
-         #file.write('''<Item Name="additionalBranches" Value="jetsAk8PuppiSubstructure_SoftDropPuppi genjetsAk8SubstructureSoftDrop"/>\n''')
          file.write('''\n''')
          file.write('''<Item Name="lumi_file" Value="'''+self.yearVars['lumiFiles'][self.year]+'''"/>\n''')
          file.write('''<Item Name="lumihists_lumi_per_bin" Value="500."/>\n''')
          file.write('''\n''')
-         #file.write('''<Item Name="MuonIDScaleFactorFile" Value="'''+self.yearVars['muonidSFFiles'][self.year]+'''"/>\n''')
-         #file.write('''<Item Name="MuonIDScaleFactorHist" Value="'''+self.yearVars['muonidSFHists'][self.year]+'''"/>\n''')
-         #file.write('''<Item Name="TriggerScaleFactorFile" Value="'''+self.yearVars['triggerSFFiles'][self.year]+'''"/>\n''')
-         #file.write('''<Item Name="TriggerScaleFactorHist" Value="'''+self.yearVars['triggerSFHists'][self.year]+'''"/>\n''')
-         file.write('''\n''')
          file.write('''<Item Name="pileup_directory" Value="'''+self.yearVars['pileupFiles']['mc'][self.year]+'''"/>\n''')
          file.write('''<Item Name="pileup_directory_data" Value="'''+self.yearVars['pileupFiles']['data'][self.year]+'''"/>\n''')
-         # if self.is_mainsel:
-         #    file.write('''<Item Name="pileup_directory_data_up" Value="'''+self.yearVars['pileupFiles']['dataUp'][self.year]+'''"/>\n''')
-         #    file.write('''<Item Name="pileup_directory_data_down" Value="'''+self.yearVars['pileupFiles']['dataDown'][self.year]+'''"/>\n''')
-         #    file.write('''\n''')
-         #    file.write('''<Item Name="BTagMCEffFile" Value="'''+self.yearVars['deepjetMCEffFiles'][self.year]+'''"/>\n''')
-         #    file.write('''<Item Name="BTagScaleFactorFile" Value="'''+self.yearVars['deepjetSFFiles'][self.year]+'''"/>\n''')
-         #    file.write('''\n''')
-         #    file.write('''<Item Name="VJetsReweighting_do_EWK" Value="true"/>\n''')
-         #    file.write('''<Item Name="VJetsReweighting_do_QCD_EWK" Value="false"/>\n''')
-         #    file.write('''<Item Name="VJetsReweighting_do_QCD_NLO" Value="true"/>\n''')
-         #    file.write('''<Item Name="VJetsReweighting_do_QCD_NNLO" Value="false"/>\n''')
-         file.write('''\n''')
-         # file.write('''<!-- Keys for systematic uncertainties -->\n''')
-         # for syst in self.systematics:
-         #    if syst.shortName == 'murmuf': continue
-         #    file.write('''<Item Name="'''+syst.ctxName+'''" Value="'''+syst.defaultValue+'''"/>\n''')
          file.write('''\n''')
          file.write('''<!-- Tell AnalysisModuleRunner NOT to use the MC event weight from SFrame; rather let MCLumiWeight (called via CommonModules) calculate the MC event weight. The MC event weight assigned by MCLumiWeight is InputData.Lumi / Cycle.TargetLumi. -->\n''')
          file.write('''<Item Name="use_sframe_weight" Value="false"/>\n''')
-         file.write('''<Item Name="AnalysisModule" Value="'''+('TstarTstarSelectionModule' if self.is_mainsel else 'TstarTstarPreselectionModule')+'''"/>\n''')
+         file.write('''<Item Name="AnalysisModule" Value="'''+self.analysisModule+'''"/>\n''')
          file.write('''<Item Name="uhh2Dir" Value="'''+self.uhh2Dir+'''"/>\n''')
          file.write('''\n''')
          file.write('''<!-- Switch for debugging of the central AnalysisModule -->\n''')
@@ -371,51 +265,6 @@ class xmlCreator:
       print('Created '+self.xmlFilePath)
 
       return self.xmlFilePath
-
-
-   def write_systematics_xml(self, syst: systEntity):
-
-      if not self.write_xml_successful:
-         sys.exit('xmlCreator::write_xml() not called. Danger of parsing potentially outdated XML file. Exit.')
-
-      for direction in syst.directions:
-         systXmlFilePath = self.xmlFilePath.replace('.xml', '_')+'_'.join(['syst', syst.shortName, direction])+'.xml'
-         systWorkdirName = self.workdirName+'_'+'_'.join(['syst', syst.shortName, direction])
-         infile = open(self.xmlFilePath, 'r')
-         with open(systXmlFilePath, 'w') as outfile:
-            for line in infile:
-               newline = line
-               if newline.startswith('<!ENTITY PRESELdir') and (syst.shortName == 'jec' or syst.shortName == 'jer'):
-                  newline = newline.replace('/nominal/', '/'+'_'.join(['syst', syst.shortName, direction])+'/')
-               if newline.startswith('<!ENTITY OUTPUTdir'):
-                  newline = newline.replace('/nominal/', '/'+'_'.join(['syst', syst.shortName, direction])+'/')
-               # if newline.startswith('<ConfigSGE'):
-               #    newline = newline.replace('"/>', '_'+'_'.join(['syst', syst.shortName, direction])+'"/>')
-               if self.workdirName in newline:
-                  newline = newline.replace(self.workdirName, systWorkdirName)
-               if newline.startswith('<InputData') and 'Type="DATA"' in newline:
-                  continue # skip data for systematics
-               if syst.shortName != 'murmuf' and newline.startswith('<Item Name="'+syst.ctxName):
-                  newline = newline.replace(syst.defaultValue, direction)
-               if syst.shortName == 'murmuf' and newline.startswith('<Item Name="ScaleVariationMu'):
-                  newline = newline.replace(syst.defaultValue, direction)
-               outfile.write(newline)
-         infile.close()
-
-         print('Created '+systXmlFilePath)
-
-         self.systXmlFilePaths.append(systXmlFilePath)
-         self.systWorkdirNames.append(systWorkdirName)
-
-
-   def write_all_systematics_xmls(self):
-
-      for syst in self.systematics:
-
-         self.write_systematics_xml(syst)
-
-      return self.systXmlFilePaths
-
 
    def write_bash_scripts(self):
 
@@ -444,8 +293,8 @@ class xmlCreator:
 
 if __name__=='__main__':
 
-   selections = ['presel', 'mainsel']
-   years = ['UL17', 'UL18']
+   selections = ['Preselection', 'Selection', 'Analysis', 'DNN']
+   years = ['UL16preVFP','UL16postVFP','UL17', 'UL18']
 
    if not sys.argv[1:]: sys.exit('No arguments provided. Exit.')
    parser = argparse.ArgumentParser()
@@ -477,13 +326,11 @@ if __name__=='__main__':
    print('  Selections: '+', '.join(str(x) for x in args.selections))
    print('  Years: '+', '.join(str(x) for x in args.years))
 
-   # configContainer.read_database(args.years)
-   configContainer.read_database_106X_v2(args.years)
+   groups = ['DATA', 'Signal', 'SM']
+   configContainer.read_database_106X_v2(args.years, groups)
 
    for selection in args.selections:
       for year in args.years:
-         x = xmlCreator(selection, year)
-         x.write_xml()
-         if args.syst:
-            x.write_all_systematics_xmls()
-            x.write_bash_scripts()
+          for group in groups:
+             x = xmlCreator(selection, year, group)
+             x.write_xml()
