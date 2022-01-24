@@ -15,7 +15,7 @@ sys.path.append(os.path.join(os.environ.get('CMSSW_BASE'), 'src/UHH2/common/UHH2
 from CrossSectionHelper import MCSampleValuesHelper
 helper = MCSampleValuesHelper()
 
-sys.path.append(os.path.join(os.environ.get('CMSSW_BASE'), 'src/UHH2/TstarTstar'))
+sys.path.append(os.path.join(os.environ.get('CMSSW_BASE'), 'src/UHH2/TstarTstar/config'))
 from constants import _YEARS
 
 
