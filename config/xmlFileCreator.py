@@ -92,6 +92,13 @@ class configContainer:
          },
       }
 
+      self.yearVars['lumiFiles'] = {
+         'UL16preVFP': '',
+         'UL16postVFP': '',
+         'UL17': self.uhh2Dir+'HOTVR/data/TopTaggingScaleFactors_RunIISummer19UL17_PUPPIv15.root',
+         'UL18': self.uhh2Dir+'HOTVR/data/TopTaggingScaleFactors_RunIISummer19UL18_PUPPIv15.root',
+      }
+
       self.systematics = list()
 
    @staticmethod
