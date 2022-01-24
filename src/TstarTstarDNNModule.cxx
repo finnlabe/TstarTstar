@@ -139,6 +139,9 @@ private:
 
 TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
 
+  // setting debug from xml file
+  if(ctx.get("debug", "<not set>") == "true") debug = true;
+
   // debug message
   if(debug) {
     cout << "Hello World from TstarTstarDNNModule!" << endl;

@@ -118,6 +118,9 @@ private:
 
 TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
 
+  // setting debug from xml file
+  if(ctx.get("debug", "<not set>") == "true") debug = true;
+
   // debug status message
   if(debug) {
     cout << "Hello World from TstarTstarPreselectionModule!" << endl;

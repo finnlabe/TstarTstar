@@ -123,6 +123,9 @@ private:
 
 TstarTstarAnalysisModule::TstarTstarAnalysisModule(Context & ctx){
 
+  // setting debug from xml file
+  if(ctx.get("debug", "<not set>") == "true") debug = true;
+
   // debug messagt
   if(debug) {
     cout << "Hello World from TstarTstarAnalysisModule!" << endl;
