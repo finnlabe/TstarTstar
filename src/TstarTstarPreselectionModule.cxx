@@ -139,6 +139,10 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
     if(ctx.get("dataset_version").find("2016") != std::string::npos) year = "2016";
     else if(ctx.get("dataset_version").find("2017") != std::string::npos) year = "2017";
     else if(ctx.get("dataset_version").find("2018") != std::string::npos) year = "2018";
+    else if(ctx.get("dataset_version").find("UL16preVFP") != std::string::npos) year = "UL16preVFP";
+    else if(ctx.get("dataset_version").find("UL16postVFP") != std::string::npos) year = "UL16postVFP";
+    else if(ctx.get("dataset_version").find("UL17") != std::string::npos) year = "UL17";
+    else if(ctx.get("dataset_version").find("UL18") != std::string::npos) year = "UL18";
     else throw "No year found in dataset name!";
   }
   if(debug) cout << "Year is " << year << "." << endl;
@@ -198,6 +202,7 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   if(is_MC){
     // Prepare GEN
     ttgenprod.reset(new TTbarGenProducer(ctx, "ttbargen", false));
+    if(debug) cout << "TTbarGenProducer done" << endl;
   }
 
   // ###### 2. set up selections ######

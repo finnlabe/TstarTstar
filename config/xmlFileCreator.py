@@ -92,11 +92,16 @@ class configContainer:
          },
       }
 
-      self.yearVars['lumiFiles'] = {
+      self.yearVars['HOTVRSFs'] = {
          'UL16preVFP': '',
          'UL16postVFP': '',
          'UL17': self.uhh2Dir+'HOTVR/data/TopTaggingScaleFactors_RunIISummer19UL17_PUPPIv15.root',
          'UL18': self.uhh2Dir+'HOTVR/data/TopTaggingScaleFactors_RunIISummer19UL18_PUPPIv15.root',
+      }
+
+      self.additionalBranches = {
+         'Presselection': "",
+         'Selection': "is_muevt evt_weight is_triggered is_highpt",
       }
 
       self.systematics = list()
@@ -165,15 +170,24 @@ class xmlCreator:
       self.yearVars = confCon.yearVars
       self.sample_list = confCon.used_samples[year][group]
       self.systematics = confCon.systematics
+      self.additionalBranches = confCon.additionalBranches
 
       if step not in ['Preselection', 'Selection', 'Analysis', 'DNN']:
          sys.exit('Given value of argument "selection" not valid. Abort.')
       self.step = step
       self.is_presel = True if step=='Preselection' else False
-      if (step == "Preselection"): self.analysisModule = "TstarTstarPreselectionModule"
-      elif (step == "Selection"): self.analysisModule = "TstarTstarSelectionModule"
-      elif (step == "Analysis"): self.analysisModule = "TstarTstarAnalysisModule"
-      elif (step == "DNN"): self.analysisModule = "TstarTstarDNNModule"
+      if (step == "Preselection"):
+          self.previousFolder = "none"
+          self.analysisModule = "TstarTstarPreselectionModule"
+      elif (step == "Selection"):
+          self.previousFolder = "Preselection"
+          self.analysisModule = "TstarTstarSelectionModule"
+      elif (step == "Analysis"):
+          self.previousFolder = "Selection"
+          self.analysisModule = "TstarTstarAnalysisModule"
+      elif (step == "DNN"):
+          self.previousFolder = "Analysis"
+          self.analysisModule = "TstarTstarDNNModule"
 
       if year not in ['UL16preVFP', 'UL16postVFP', 'UL17', 'UL18']:
          sys.exit('Given value of argument "year" not valid. Abort.')
@@ -202,7 +216,7 @@ class xmlCreator:
          file.write('''\n''')
          file.write('''<!ENTITY TargetLumi "'''+str(self.yearVars['targetLumis'][self.year])+'''">\n''')
          if not self.is_presel:
-            file.write('''<!ENTITY INPUTdir "'''+(self.outputDirBase+'presel/'+self.year)+'''">\n''')
+            file.write('''<!ENTITY INPUTdir "'''+(self.outputDirBase+self.previousFolder+'/'+self.year)+'''">\n''')
             file.write('''<!ENTITY INPUTfilename "uhh2.AnalysisModuleRunner">\n''')
          file.write('''<!ENTITY OUTPUTdir "'''+(self.outputDirBase+self.step+'/'+self.year)+'''">\n''')
          file.write('''<!ENTITY b_Cacheable "False">\n''')
@@ -240,6 +254,7 @@ class xmlCreator:
          file.write('''<Item Name="PrimaryVertexCollection" Value="offlineSlimmedPrimaryVertices"/>\n''')
          file.write('''<Item Name="METName" Value="slimmedMETs"/>\n''')
          file.write('''<Item Name="ElectronCollection" Value="slimmedElectronsUSER"/>\n''')
+         file.write('''<Item Name="PhotonCollection" Value="slimmedPhotonsUSER"/>\n''')
          file.write('''<Item Name="MuonCollection" Value="slimmedMuonsUSER"/>\n''')
          file.write('''<Item Name="JetCollection" Value="jetsAk4Puppi"/>\n''')
          file.write('''<Item Name="GenJetCollection" Value="slimmedGenJets"/>\n''')
@@ -247,6 +262,9 @@ class xmlCreator:
          file.write('''<Item Name="GenTopJetCollection" Value="hotvrGen"/>\n''')
          file.write('''<Item Name="GenParticleCollection" Value="GenParticles"/>\n''')
          file.write('''<Item Name="GenInfoName" Value="genInfo"/>\n''')
+         file.write('''\n''')
+         if not (self.additionalBranches[self.step] == ""):
+             file.write('''<Item Name="additionalBranches" Value="'''+self.additionalBranches[self.step]+'''"/>\n''')
          file.write('''\n''')
          file.write('''<Item Name="lumi_file" Value="'''+self.yearVars['lumiFiles'][self.year]+'''"/>\n''')
          file.write('''<Item Name="lumihists_lumi_per_bin" Value="500."/>\n''')
@@ -258,6 +276,11 @@ class xmlCreator:
          file.write('''<Item Name="use_sframe_weight" Value="false"/>\n''')
          file.write('''<Item Name="AnalysisModule" Value="'''+self.analysisModule+'''"/>\n''')
          file.write('''<Item Name="uhh2Dir" Value="'''+self.uhh2Dir+'''"/>\n''')
+         if(self.step == "Selection"):
+             file.write('''\n''')
+             file.write('''<!-- scale factor configuration -->\n''')
+             file.write('''<Item Name="HOTVRTopTagSFs" Value="'''+self.yearVars['HOTVRSFs'][self.year]+'''"/>\n''')
+             file.write('''<Item Name="SF_path" Value="/nfs/dust/cms/user/flabe/TstarTstar/CMSSW_10_2_17/src/UHH2/TstarTstar/factors/" />\n''')
          file.write('''\n''')
          file.write('''<!-- Switch for debugging of the central AnalysisModule -->\n''')
          file.write('''<Item Name="debug" Value="false"/>\n''')

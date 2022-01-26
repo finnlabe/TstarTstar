@@ -129,9 +129,6 @@ samplesDict = {
     'Diboson_WZ': {
         'db_name': 'WZ',
     },
-    'Diboson_ZZ': {
-        'db_name': 'ZZ',
-    },
     #_________________________________________________
     'QCD_HT50to100': {
         'db_name': 'QCD_HT50to100',

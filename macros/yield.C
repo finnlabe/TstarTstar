@@ -4,7 +4,10 @@
 // Run it with following command:
 // root -l -q yield.C
 
-void yield(TString filename, TString year = ""){
+void yield(){
+
+  TString filename = "TTbar";
+  TString year = "2018";
 
   // Reuseable buffers
   TFile *input;

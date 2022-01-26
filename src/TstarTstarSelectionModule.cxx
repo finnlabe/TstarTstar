@@ -168,6 +168,10 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
     if(ctx.get("dataset_version").find("2016") != std::string::npos) year = "2016";
     else if(ctx.get("dataset_version").find("2017") != std::string::npos) year = "2017";
     else if(ctx.get("dataset_version").find("2018") != std::string::npos) year = "2018";
+    else if(ctx.get("dataset_version").find("UL16preVFP") != std::string::npos) year = "UL16preVFP";
+    else if(ctx.get("dataset_version").find("UL16postVFP") != std::string::npos) year = "UL16postVFP";
+    else if(ctx.get("dataset_version").find("UL17") != std::string::npos) year = "UL17";
+    else if(ctx.get("dataset_version").find("UL18") != std::string::npos) year = "UL18";
     else throw "No year found in dataset name!";
   }
   if(debug) cout << "Year is " << year << "." << endl;
@@ -191,11 +195,14 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   // 2D cut
   twodcut_sel.reset(new TwoDCut(0.4, 25.0));  // The same as in Z'->ttbar semileptonic
 
+  if(debug) cout << "Setting up HOTVR scale." << endl;
   // HOTVR scale
   topjetID = AndId<TopJet>(HOTVRTopTag(), Tau32Groomed(0.56)); // Top Tag that is used later
   HadronicTopFinder.reset(new HadronicTop(ctx));
-  HOTVRScale.reset(new HOTVRScaleFactor(ctx, topjetID));
+  if(debug) cout << "HERE?" << endl;
+  //HOTVRScale.reset(new HOTVRScaleFactor(ctx, topjetID));
 
+  if(debug) cout << "Setting up lepton scale." << endl;
   // lepton scale
   // electron
   if(year == "2016") {
@@ -206,7 +213,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
     ScaleFactor_ele_ID.reset(new MCElecScaleFactor(ctx, SF_path+"/electrons/2017_ElectronMVA90.root", 0., "id"));
     ScaleFactor_ele_ID_noiso.reset(new MCElecScaleFactor(ctx, SF_path+"/electrons/2017_ElectronMVA90noiso.root", 0., "id"));
   }
-  else if(year == "2018") {
+  else if(year == "2018" || year == "UL18") {
     ScaleFactor_ele_ID.reset(new MCElecScaleFactor(ctx, SF_path+"/electrons/2018_ElectronMVA90.root", 0., "id"));
     ScaleFactor_ele_ID_noiso.reset(new MCElecScaleFactor(ctx, SF_path+"/electrons/2018_ElectronMVA90noiso.root", 0., "id"));
   }
@@ -223,7 +230,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
     ScaleFactor_muon_ID.reset(new MCMuonScaleFactor(ctx, SF_path+"/muons/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ID.root", "NUM_TightID_DEN_TrackerMuons_abseta_pt", 0., "id", false));
     ScaleFactor_muon_iso.reset(new MCMuonScaleFactor(ctx, SF_path+"/muons/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ISO.root", "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", 0., "isolation", false));
   }
-  else if(year == "2018") {
+  else if(year == "2018" || year == "UL18") {
     ScaleFactor_muon_ID.reset(new MCMuonScaleFactor(ctx, SF_path+"/muons/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ID.root", "NUM_TightID_DEN_TrackerMuons_abseta_pt", 0., "id", false));
     ScaleFactor_muon_iso.reset(new MCMuonScaleFactor(ctx, SF_path+"/muons/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ISO.root", "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", 0., "isolation", false));
   }
@@ -534,7 +541,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
 
     // HOTVR
     HadronicTopFinder->process(event);
-    HOTVRScale->process(event);
+    //HOTVRScale->process(event);
 
     if(debug) std::cout << "Done HOTVR scale" << endl;
 
