@@ -129,8 +129,10 @@ class configContainer:
                 # end grouping block
 
                 if (use_me_year and use_me_group):
+
                    sample_entity = sampleEntity((k, v, year,))
                    if not os.path.isfile(sample_entity.xmlPath):
+                      # mabe this was split manually?
                       print(colored('XML for sample  '+sample_entity.nickName+' ('+year+')  does not exist. Skipping this sample', 'red'))
                       continue
                    temp[group].append(sample_entity)

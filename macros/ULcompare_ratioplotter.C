@@ -18,9 +18,9 @@ void ULcompare_ratioplotter(){
   gStyle->SetPalette(55);
 
   gStyle->SetPadTopMargin(0.1);
-  gStyle->SetPadBottomMargin(0.13);
-  gStyle->SetPadLeftMargin(0.18);
-  gStyle->SetPadRightMargin(0.17);
+  gStyle->SetPadBottomMargin(0.4);
+  gStyle->SetPadLeftMargin(0.12);
+  gStyle->SetPadRightMargin(0.1);
 
   gROOT->ForceStyle();
   Double_t w = 800;
@@ -31,13 +31,22 @@ void ULcompare_ratioplotter(){
   TString EOYpath = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/2018/hadded/";
   TString ULpath = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/UL18/hadded/";
   TString filename = "uhh2.AnalysisModuleRunner.MC."+sample+".root";
-  TString histname = "pt_ST";
+  TString histname = "pt_ST_fullrange";
   TString label = "S_{T}";
 
   TString folder = "AfterST";
 
   TCanvas *canvas = new TCanvas("canvas", "c", w, h);
-  canvas->SetLogy();
+
+  TPad *pad1 = new TPad("pad1", "The pad 80% of the height",0.0,0.35,1.0,1.0);
+  TPad *pad2 = new TPad("pad2", "The pad 20% of the height",0.0,0.0,1.0,0.35);
+  pad1->Draw();
+  pad2->Draw();
+  pad1->cd();
+  pad1->SetLogy();
+
+  pad1->SetBottomMargin(0);
+  pad2->SetTopMargin(0);
 
   TFile *input_EOY = TFile::Open(EOYpath+filename);
   TFile *input_UL = TFile::Open(ULpath+filename);
@@ -47,8 +56,14 @@ void ULcompare_ratioplotter(){
   if(!hist_num) std::cout << "Numerator does not exist!" << std::endl;
   if(!hist_denom) std::cout << "Denominator does not exist!" << std::endl;
 
+  TH1D* hist_num_clone = (TH1D*) hist_num->Clone();
+
   hist_num->SetTitle("");
-  hist_num->GetXaxis()->SetTitle(label);
+  hist_num->GetXaxis()->SetTickLength(0);
+  hist_num->GetXaxis()->SetLabelOffset(999);
+  hist_num->GetYaxis()->SetTitleOffset(0.75);
+  hist_num->GetYaxis()->SetLabelSize(0.075);
+  hist_num->GetYaxis()->SetTitleSize(0.075);
   hist_num->GetYaxis()->SetTitle("events");
   hist_num->SetMarkerStyle(20);
   hist_num->SetMarkerColor(1);
@@ -63,17 +78,28 @@ void ULcompare_ratioplotter(){
   gStyle->SetLegendTextSize(0.05);
   legend->AddEntry(hist_num,"UL","l");
   legend->AddEntry(hist_denom,"EOY","l");
+  legend->SetBorderSize(0);
   legend->Draw();
 
-  canvas->SaveAs("plots/ULcomparison_"+histname+"_"+sample+".pdf");
+  pad2->cd();
 
-  canvas->SetLogy(false);
 
   // plot ratio
-  hist_num->Divide(hist_denom);
-  hist_num->GetYaxis()->SetTitle("ratio");
-  hist_num->SetLineColor(2);
-  hist_num->Draw("hist");
-  canvas->SaveAs("plots/STratio_"+histname+"_"+sample+".pdf");
+  hist_num_clone->Divide(hist_denom);
+  hist_num_clone->SetTitle("");
+  hist_num_clone->GetXaxis()->SetTitle("S_{T} [GeV]");
+  hist_num_clone->GetYaxis()->SetTitle("ratio");
+  hist_num_clone->SetLineColor(2);
+
+  // axis styline
+  hist_num_clone->GetXaxis()->SetLabelSize(0.1);
+  hist_num_clone->GetXaxis()->SetTitleSize(0.15);
+  hist_num_clone->GetYaxis()->SetLabelSize(0.1);
+  hist_num_clone->GetYaxis()->SetNdivisions(505);
+  hist_num_clone->GetYaxis()->SetTitleOffset(0.);
+  hist_num_clone->GetYaxis()->SetTitleSize(10);
+
+  hist_num_clone->Draw("");
+  canvas->SaveAs("plots/ULcomparison_"+histname+"_"+sample+".pdf");
 
 }
