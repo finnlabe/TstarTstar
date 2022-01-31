@@ -15,9 +15,12 @@ void fill_reweighted(TH1F* hReweight,TH1F* hReweight_up,TH1F* hReweight_down, TF
   TTreeReader tReader("AnalysisTree", f);
   TTreeReaderValue<double> preWeight(tReader, "evt_weight");
   TTreeReaderValue<double> recoST(tReader, "ST");
+  TTreeReaderValue<TString> regionReader(tReader, "region");
 
   while (tReader.Next()) {
     double ST = (*recoST);
+    TString region = (*regionReader);
+    if(region != "CR2") continue;
 
     double x[1] = { ST };
     double err_1[1], err_2[1];
@@ -145,7 +148,7 @@ void backgroundEstimation(){
 
   // calculate ratio histogram
   TGraphAsymmErrors ratio = TGraphAsymmErrors();
-  ratio.Divide(histSR, hist_btagCR_nontop, "pois");
+  ratio.Divide(histSR, hist_btagCR, "pois");
 
   // fit function to ratio histogram
   TF1 *fit = new TF1("fit", "pol 1", 500, 6000);
@@ -157,15 +160,16 @@ void backgroundEstimation(){
   TFitResultPtr r_2 = ratio.Fit("fit2", "NS", "", 500, 6000);
   (TVirtualFitter::GetFitter())->GetConfidenceIntervals(hint2, 0.68);
 
-  const int nbins = 16;
-  double bins[nbins] = {500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1750, 2000, 2500, 3000, 6000};
+  const int nbins = 34;
+  double bins[nbins] = {0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500,
+    2600, 2700, 2800, 2900, 3000, 3250, 4000, 6000};
   TH1F *hReweight_fit_M = new TH1F("reweight_fit", "_reweight_fit", nbins-1, bins);
   TH1F *hReweight_fit_M_up = new TH1F("reweight_fit_up", "_reweight_fit", nbins-1, bins);
   TH1F *hReweight_fit_M_down = new TH1F("reweight_fit_down", "_reweight_fit", nbins-1, bins);
   hReweight_fit_M->Sumw2();
   hReweight_fit_M_up->Sumw2();
   hReweight_fit_M_down->Sumw2();
-  //fill_reweighted(hReweight_fit_M, hReweight_fit_M_up, hReweight_fit_M_down, fit, fit2, r_1, r_2, path + fileprefix+ "DATA.DATA.root", 1);
+  fill_reweighted(hReweight_fit_M, hReweight_fit_M_up, hReweight_fit_M_down, fit, fit2, r_1, r_2, path + fileprefix+ "DATA.DATA.root", 1);
 
   for (int i = 0; i < top_backgrounds.size(); ++i){
     TString fName = path + fileprefix + "MC." + top_backgrounds.at(i) + ".root";
@@ -205,7 +209,7 @@ void backgroundEstimation(){
   ratio.GetXaxis()->SetTitle("S_{T} [GeV]");
   ratio.GetXaxis()->SetNdivisions(505);
   ratio.GetYaxis()->SetTitle("ratio");
-  ratio.GetYaxis()->SetRangeUser(1, 80);
+  ratio.GetYaxis()->SetRangeUser(1, 35);
   ratio.SetTitle("");
 
   ratio.Draw("");

@@ -122,7 +122,7 @@ private:
   uhh2::Event::Handle<double> h_ST;
   uhh2::Event::Handle<bool> h_DoAddInputs;
   uhh2::Event::Handle<double> h_newTagger;
-  uhh2::Event::Handle<double> h_newTagger_2;
+  uhh2::Event::Handle<TString> h_region;
 
 
   // ###### other parameters ######
@@ -239,6 +239,7 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_newTagger = ctx.declare_event_output<double>("newTagger");
   h_is_btagevent = ctx.get_handle<bool>("is_btagevent");
   h_ST = ctx.get_handle<double>("ST");
+  h_region = ctx.declare_event_output<TString>("region");
 
   h_ST_weight = ctx.declare_event_output<double>("ST_weight");
 
@@ -254,6 +255,9 @@ bool TstarTstarDNNModule::process(Event & event) {
 
   // debug message
   if(debug){cout << endl << "TstarTstarDNNModule: Starting to process event (runid, eventid) = (" << event.run << ", " << event.event << "); weight = " << event.weight << endl;}
+
+  // fixing poitential empty handle
+  event.set(h_region,"not set");
 
   // reapply weights
   event.weight = event.get(h_evt_weight);
@@ -381,15 +385,18 @@ bool TstarTstarDNNModule::process(Event & event) {
     h_DNN_newTagger->fill(event);
     if(newTagger > 0) {
       h_newTaggerSR->fill(event);
+      event.set(h_region, "SR");
       h_SFVariations->fill(event);
     }
     else {
       h_newTaggerCR->fill(event);
+      event.set(h_region,"CR1");
     }
   }
   else {
     if(newTagger > 0) {
       h_newTagger_btagCR->fill(event);
+      event.set(h_region,"CR2");
     }
   }
 

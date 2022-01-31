@@ -88,14 +88,16 @@ private:
   unique_ptr<Selection> triggerPFHT_sel;
 
   // ###### Histograms ######
-  std::unique_ptr<Hists> h_beginSel,            h_btagcut,             h_2Dcut,               h_dRcut,               h_STcut            ;
-  std::unique_ptr<Hists> h_beginSel_gen,        h_btagcut_gen,         h_2Dcut_gen,           h_dRcut_gen,           h_STcut_gen        ;
-  std::unique_ptr<Hists> h_beginSel_ele,        h_btagcut_ele,         h_2Dcut_ele,           h_dRcut_ele,           h_STcut_ele        ;
-  std::unique_ptr<Hists> h_beginSel_ele_lowpt,  h_btagcut_ele_lowpt,   h_2Dcut_ele_lowpt,     h_dRcut_ele_lowpt,     h_STcut_ele_lowpt  ;
-  std::unique_ptr<Hists> h_beginSel_ele_highpt, h_btagcut_ele_highpt,  h_2Dcut_ele_highpt,    h_dRcut_ele_highpt,    h_STcut_ele_highpt ;
-  std::unique_ptr<Hists> h_beginSel_mu,         h_btagcut_mu,          h_2Dcut_mu,            h_dRcut_mu,            h_STcut_mu         ;
-  std::unique_ptr<Hists> h_beginSel_mu_lowpt,   h_btagcut_mu_lowpt,    h_2Dcut_mu_lowpt,      h_dRcut_mu_lowpt,      h_STcut_mu_lowpt   ;
-  std::unique_ptr<Hists> h_beginSel_mu_highpt,  h_btagcut_mu_highpt,   h_2Dcut_mu_highpt,     h_dRcut_mu_highpt,     h_STcut_mu_highpt  ;
+  std::unique_ptr<Hists> h_beginSel,            h_btagcut,             h_2Dcut,               h_dRcut,               h_STcut            , h_corrections;
+  std::unique_ptr<Hists> h_beginSel_gen,        h_btagcut_gen,         h_2Dcut_gen,           h_dRcut_gen,           h_STcut_gen        , h_corrections_gen;
+  std::unique_ptr<Hists> h_beginSel_ele,        h_btagcut_ele,         h_2Dcut_ele,           h_dRcut_ele,           h_STcut_ele        , h_corrections_ele;
+  std::unique_ptr<Hists> h_beginSel_ele_lowpt,  h_btagcut_ele_lowpt,   h_2Dcut_ele_lowpt,     h_dRcut_ele_lowpt,     h_STcut_ele_lowpt  , h_corrections_ele_lowpt;
+  std::unique_ptr<Hists> h_beginSel_ele_highpt, h_btagcut_ele_highpt,  h_2Dcut_ele_highpt,    h_dRcut_ele_highpt,    h_STcut_ele_highpt , h_corrections_ele_highpt;
+  std::unique_ptr<Hists> h_beginSel_mu,         h_btagcut_mu,          h_2Dcut_mu,            h_dRcut_mu,            h_STcut_mu         , h_corrections_mu;
+  std::unique_ptr<Hists> h_beginSel_mu_lowpt,   h_btagcut_mu_lowpt,    h_2Dcut_mu_lowpt,      h_dRcut_mu_lowpt,      h_STcut_mu_lowpt   , h_corrections_mu_lowpt;
+  std::unique_ptr<Hists> h_beginSel_mu_highpt,  h_btagcut_mu_highpt,   h_2Dcut_mu_highpt,     h_dRcut_mu_highpt,     h_STcut_mu_highpt  , h_corrections_mu_highpt;
+  std::unique_ptr<Hists> h_beginSel_nobtag,     h_btagcut_nobtag,      h_2Dcut_nobtag,        h_dRcut_nobtag,        h_STcut_nobtag     , h_corrections_nobtag;
+
 
   std::unique_ptr<Hists> h_afterSelection_gen, h_afterSelection_genmatch;
   std::unique_ptr<Hists> h_afterSelection, h_afterHEMcleaning, h_afterHEMcleaning_ele, h_afterHEMcleaning_mu;
@@ -308,6 +310,17 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   h_STcut_mu.reset(new TstarTstarHists(ctx, "AfterST_mu"));
   h_STcut_mu_lowpt.reset(new TstarTstarHists(ctx, "AfterST_mu_lowpt"));
   h_STcut_mu_highpt.reset(new TstarTstarHists(ctx, "AfterST_mu_highpt"));
+  h_STcut_nobtag.reset(new TstarTstarHists(ctx, "AfterST_nobtag"));
+
+  h_corrections.reset(new TstarTstarHists(ctx, "AfterCorrections"));
+  h_corrections_gen.reset(new TstarTstarGenHists(ctx, "AfterCorrections_gen"));
+  h_corrections_ele.reset(new TstarTstarHists(ctx, "AfterCorrections_ele"));
+  h_corrections_ele_lowpt.reset(new TstarTstarHists(ctx, "AfterCorrections_ele_lowpt"));
+  h_corrections_ele_highpt.reset(new TstarTstarHists(ctx, "AfterCorrections_ele_highpt"));
+  h_corrections_mu.reset(new TstarTstarHists(ctx, "AfterCorrections_mu"));
+  h_corrections_mu_lowpt.reset(new TstarTstarHists(ctx, "AfterCorrections_mu_lowpt"));
+  h_corrections_mu_highpt.reset(new TstarTstarHists(ctx, "AfterCorrections_mu_highpt"));
+  h_corrections_nobtag.reset(new TstarTstarHists(ctx, "AfterCorrections_nobtag"));
 
   h_afterSelection.reset(new TstarTstarHists(ctx, "AfterSel"));
   h_afterSelection_gen.reset(new TstarTstarGenHists(ctx, "AfterSel_gen"));
@@ -530,7 +543,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
       }
       if(debug) cout << "Passed ST cut." << endl;
     } else {
-      // TODO control region plots here!
+      h_STcut_nobtag->fill(event);
     }
 
     if(debug) std::cout << "Done ST" << endl;
@@ -573,6 +586,24 @@ bool TstarTstarSelectionModule::process(Event & event) {
 
     if(debug) std::cout << "Done Lepton ID, ISO SFs" << endl;
 
+    if(pass_btagcut && is_triggered) { // only fill these for btag cut passes
+      // hists
+      h_corrections->fill(event);
+      h_corrections_gen->fill(event);
+      if(event.get(h_is_muevt)){
+        h_corrections_mu->fill(event);
+        if(event.muons->at(0).pt()<=60) h_STcut_mu_lowpt->fill(event);
+        else h_corrections_mu_highpt->fill(event);
+      }
+      else {
+        h_corrections_ele->fill(event);
+        if(event.electrons->at(0).pt()<=120) h_STcut_ele_lowpt->fill(event);
+        else h_corrections_ele_highpt->fill(event);
+      }
+      if(debug) cout << "Passed ST cut." << endl;
+    } else {
+      h_corrections_nobtag->fill(event);
+    }
 
     // #######################
     // ### Trigger studies ###
