@@ -16,6 +16,7 @@
 #include "UHH2/common/include/TTbarGen.h"
 #include "UHH2/common/include/MCWeight.h"
 #include <UHH2/common/include/DetectorCleaning.h>
+#include "UHH2/common/include/JetIds.h"
 
 // TstarTstar stuff
 #include "UHH2/TstarTstar/include/ModuleBASE.h"
@@ -245,7 +246,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   h_weight_sfmu_isolation_up = ctx.get_handle<float>("weight_sfmu_isolation_up");
 
   // b-tagging SFs
-  ScaleFactor_btagging.reset(new MCBTagScaleFactor(ctx, BTag::algo::DEEPCSV, BTag::wp::WP_LOOSE)); // should be enough like this
+  //ScaleFactor_btagging.reset(new MCBTagScaleFactor(ctx, BTag::algo::DEEPCSV, BTag::wp::WP_LOOSE)); // should be enough like this
 
   // HEM issue
   HEMCleaner.reset(new HEMCleanerSelection(ctx, "jets", "topjets"));
@@ -398,9 +399,11 @@ bool TstarTstarSelectionModule::process(Event & event) {
   if(debug) std::cout << "Starting selection" << endl;
 
   // ###### Btag Selection ######
+  BTag bJetID = BTag(BTag::algo::DEEPJET, BTag::wp::WP_LOOSE);
   bool pass_btagcut = false;
   for (const auto & jet: *event.jets){
-    if(jet.btag_DeepCSV() > 0.2219) pass_btagcut = true; // TODO replace this by proper method!!!
+    //if(jet.btag_DeepJet() > 0.2219) pass_btagcut = true; // TODO replace this by proper method!!!
+    if(bJetID(jet, event)) pass_btagcut = true;
   }
   event.set(h_is_btagevent,pass_btagcut);
   if(pass_btagcut && is_triggered) {
@@ -594,7 +597,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
     if(debug) std::cout << "Done Lepton ID, ISO SFs" << endl;
 
     // b-tagging sfs
-    ScaleFactor_btagging->process(event);
+    //ScaleFactor_btagging->process(event);
 
     if(pass_btagcut && is_triggered) { // only fill these for btag cut passes
       // hists

@@ -150,12 +150,12 @@ bool NeuralNetworkInputCreator::createInputs(Event& event) {
   double maxbtag = 0.;
   Jet btaggedjet;
   for (const auto & jet : *event.jets) {
-      if(jet.btag_DeepCSV() > maxbtag) btaggedjet = jet;
+      if(jet.btag_DeepJet() > maxbtag) btaggedjet = jet;
   }
   values.push_back(btaggedjet.pt());
   values.push_back(btaggedjet.eta());
   values.push_back(btaggedjet.phi());
-  values.push_back(btaggedjet.btag_DeepCSV());
+  values.push_back(btaggedjet.btag_DeepJet());
 
   // MET
   values.push_back(event.met->pt());
