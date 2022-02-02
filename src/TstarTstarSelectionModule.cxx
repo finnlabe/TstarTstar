@@ -69,6 +69,7 @@ private:
   std::unique_ptr<AnalysisModule> ScaleFactor_ele_ID;
   std::unique_ptr<AnalysisModule> ScaleFactor_ele_ID_noiso;
   std::unique_ptr<AnalysisModule> ScaleFactor_ele_trigger;
+  std::unique_ptr<AnalysisModule> ScaleFactor_btagging;
 
   // selections
   unique_ptr<Selection> twodcut_sel;
@@ -97,7 +98,7 @@ private:
   std::unique_ptr<Hists> h_beginSel_mu_lowpt,   h_btagcut_mu_lowpt,    h_2Dcut_mu_lowpt,      h_dRcut_mu_lowpt,      h_STcut_mu_lowpt   , h_corrections_mu_lowpt;
   std::unique_ptr<Hists> h_beginSel_mu_highpt,  h_btagcut_mu_highpt,   h_2Dcut_mu_highpt,     h_dRcut_mu_highpt,     h_STcut_mu_highpt  , h_corrections_mu_highpt;
   std::unique_ptr<Hists> h_beginSel_nobtag,     h_btagcut_nobtag,      h_2Dcut_nobtag,        h_dRcut_nobtag,        h_STcut_nobtag     , h_corrections_nobtag;
-
+  std::unique_ptr<Hists> h_STcut_nobtag_ele, h_corrections_nobtag_ele;
 
   std::unique_ptr<Hists> h_afterSelection_gen, h_afterSelection_genmatch;
   std::unique_ptr<Hists> h_afterSelection, h_afterHEMcleaning, h_afterHEMcleaning_ele, h_afterHEMcleaning_mu;
@@ -243,6 +244,9 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   h_weight_sfmu_isolation_down = ctx.get_handle<float>("weight_sfmu_isolation_down");
   h_weight_sfmu_isolation_up = ctx.get_handle<float>("weight_sfmu_isolation_up");
 
+  // b-tagging SFs
+  ScaleFactor_btagging.reset(new MCBTagScaleFactor(ctx, BTag::algo::DEEPCSV, BTag::wp::WP_LOOSE)); // should be enough like this
+
   // HEM issue
   HEMCleaner.reset(new HEMCleanerSelection(ctx, "jets", "topjets"));
 
@@ -311,6 +315,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   h_STcut_mu_lowpt.reset(new TstarTstarHists(ctx, "AfterST_mu_lowpt"));
   h_STcut_mu_highpt.reset(new TstarTstarHists(ctx, "AfterST_mu_highpt"));
   h_STcut_nobtag.reset(new TstarTstarHists(ctx, "AfterST_nobtag"));
+  h_STcut_nobtag_ele.reset(new TstarTstarHists(ctx, "AfterST_nobtag_ele"));
 
   h_corrections.reset(new TstarTstarHists(ctx, "AfterCorrections"));
   h_corrections_gen.reset(new TstarTstarGenHists(ctx, "AfterCorrections_gen"));
@@ -321,6 +326,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   h_corrections_mu_lowpt.reset(new TstarTstarHists(ctx, "AfterCorrections_mu_lowpt"));
   h_corrections_mu_highpt.reset(new TstarTstarHists(ctx, "AfterCorrections_mu_highpt"));
   h_corrections_nobtag.reset(new TstarTstarHists(ctx, "AfterCorrections_nobtag"));
+  h_corrections_nobtag_ele.reset(new TstarTstarHists(ctx, "AfterCorrections_nobtag_ele"));
 
   h_afterSelection.reset(new TstarTstarHists(ctx, "AfterSel"));
   h_afterSelection_gen.reset(new TstarTstarGenHists(ctx, "AfterSel_gen"));
@@ -394,7 +400,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
   // ###### Btag Selection ######
   bool pass_btagcut = false;
   for (const auto & jet: *event.jets){
-    if(jet.btag_DeepCSV() > 0.2219) pass_btagcut = true;
+    if(jet.btag_DeepCSV() > 0.2219) pass_btagcut = true; // TODO replace this by proper method!!!
   }
   event.set(h_is_btagevent,pass_btagcut);
   if(pass_btagcut && is_triggered) {
@@ -544,6 +550,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
       if(debug) cout << "Passed ST cut." << endl;
     } else {
       h_STcut_nobtag->fill(event);
+      if(!event.get(h_is_muevt)) h_STcut_nobtag_ele->fill(event);
     }
 
     if(debug) std::cout << "Done ST" << endl;
@@ -586,6 +593,9 @@ bool TstarTstarSelectionModule::process(Event & event) {
 
     if(debug) std::cout << "Done Lepton ID, ISO SFs" << endl;
 
+    // b-tagging sfs
+    ScaleFactor_btagging->process(event);
+
     if(pass_btagcut && is_triggered) { // only fill these for btag cut passes
       // hists
       h_corrections->fill(event);
@@ -603,6 +613,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
       if(debug) cout << "Passed ST cut." << endl;
     } else {
       h_corrections_nobtag->fill(event);
+      if(!event.get(h_is_muevt)) h_corrections_nobtag_ele->fill(event);
     }
 
     // #######################
