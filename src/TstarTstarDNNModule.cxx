@@ -83,7 +83,7 @@ private:
 
 
   // ##### Histograms #####
-  std::unique_ptr<Hists> h_topcheck, h_topcheck_reweighted, h_AfterDNNcut_06_UGLYFIX;
+  std::unique_ptr<Hists> h_topcheck, h_topcheck_reweighted, h_AfterDNNcut_06_UGLYFIX, h_NotDNNcut_06_UGLYFIX;
   std::unique_ptr<Hists> h_STreweighted, h_crosscheck;
 
   std::unique_ptr<Hists> h_newTaggerSR, h_newTaggerCR, h_newTagger_btagCR;
@@ -203,6 +203,7 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   **/
 
   h_AfterDNNcut_06_UGLYFIX.reset(new TstarTstarHists(ctx, "AfterDNNcut_06_UGLYFIX"));
+  h_NotDNNcut_06_UGLYFIX.reset(new TstarTstarHists(ctx, "NotDNNcut_06_UGLYFIX"));
 
   /**
   h_BtagControl_AfterDNNcut_02.reset(new TstarTstarHists(ctx, "AfterDNNcut_02_BtagControl"));
@@ -300,6 +301,7 @@ bool TstarTstarDNNModule::process(Event & event) {
 
   if(debug) cout << "Done DNN include" << endl;
   if(event.get(h_DNN_output) > 0.6) h_AfterDNNcut_06_UGLYFIX->fill(event);
+  else h_NotDNNcut_06_UGLYFIX->fill(event);
 
   if(debug) cout << "Start filling hists" << endl;
   // hists
