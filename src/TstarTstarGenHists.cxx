@@ -453,9 +453,7 @@ TstarTstarMergedHists::TstarTstarMergedHists(Context & ctx, const string & dirna
   book<TH1F>("Merge_tHad", "Merge_tHad gen", 4, 0, 4);
 
   bool is_tgtg = false;
-  bool is_tgtgamma = false;
   if(ctx.get("channel") == "tgtg") is_tgtg = true;
-  if(ctx.get("channel") == "tgtgamma") is_tgtgamma = true;
 
   if(is_tgtg) h_recohyp_tstartstar_best_ = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_tgtg_best");
 
