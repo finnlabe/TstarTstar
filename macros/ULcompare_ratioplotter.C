@@ -26,15 +26,16 @@ void ULcompare_ratioplotter(){
   Double_t w = 800;
   Double_t h = 600;
 
-  TString sample = "TTbar";
+  TString sample = "DATA.DATA";
 
-  TString EOYpath = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/2018/hadded/";
-  TString ULpath = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/UL18/hadded/";
-  TString filename = "uhh2.AnalysisModuleRunner.MC."+sample+".root";
-  TString histname = "pt_ST_fullrange";
-  TString label = "S_{T}";
+  TString beforePath = "/nfs/dust/cms/user/flabe/TstarTstar/data/Preselection/2018/hadded/";
+  TString afterPath = "/nfs/dust/cms/user/flabe/TstarTstar/data/Preselection/UL18/hadded/";
+  TString filename = "uhh2.AnalysisModuleRunner."+sample+".root";
+  TString histname = "N_jets";
+  TString label = "N(AK4 jets)";
 
-  TString folder = "AfterST";
+  TString beforeFolder = "AfterLepSel_ele";
+  TString afterFolder = "AfterLepSel_ele";
 
   TCanvas *canvas = new TCanvas("canvas", "c", w, h);
 
@@ -48,11 +49,11 @@ void ULcompare_ratioplotter(){
   pad1->SetBottomMargin(0);
   pad2->SetTopMargin(0);
 
-  TFile *input_EOY = TFile::Open(EOYpath+filename);
-  TFile *input_UL = TFile::Open(ULpath+filename);
+  TFile *input_EOY = TFile::Open(beforePath+filename);
+  TFile *input_UL = TFile::Open(afterPath+filename);
 
-  TH1D *hist_num = (TH1D*)input_UL->Get(folder+"/"+histname); //histogram
-  TH1D *hist_denom = (TH1D*)input_EOY->Get(folder+"/"+histname); //histogram
+  TH1D *hist_num = (TH1D*)input_UL->Get(afterFolder+"/"+histname); //histogram
+  TH1D *hist_denom = (TH1D*)input_EOY->Get(beforeFolder+"/"+histname); //histogram
   if(!hist_num) std::cout << "Numerator does not exist!" << std::endl;
   if(!hist_denom) std::cout << "Denominator does not exist!" << std::endl;
 
@@ -87,7 +88,7 @@ void ULcompare_ratioplotter(){
   // plot ratio
   hist_num_clone->Divide(hist_denom);
   hist_num_clone->SetTitle("");
-  hist_num_clone->GetXaxis()->SetTitle("S_{T} [GeV]");
+  hist_num_clone->GetXaxis()->SetTitle(label);
   hist_num_clone->GetYaxis()->SetTitle("ratio");
   hist_num_clone->SetLineColor(2);
 
@@ -100,6 +101,6 @@ void ULcompare_ratioplotter(){
   hist_num_clone->GetYaxis()->SetTitleSize(10);
 
   hist_num_clone->Draw("");
-  canvas->SaveAs("plots/ULcomparison_"+histname+"_"+sample+".pdf");
+  canvas->SaveAs("plots/ULcomparison_"+histname+"_"+beforeFolder+"_"+sample+".pdf");
 
 }

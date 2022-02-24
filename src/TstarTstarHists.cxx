@@ -4,7 +4,7 @@
 #include "UHH2/TstarTstar/include/ReconstructionTstarHypothesis.h"
 #include "UHH2/core/include/Event.h"
 #include "UHH2/HOTVR/include/HOTVRIds.h"
-
+#include "UHH2/common/include/JetIds.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -38,6 +38,7 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   book<TH1F>("N_jets_btag_loose", "N_{AK4 jets, deepCSV > 0.22}", 20, 0, 20);
   book<TH1F>("N_jets_btag_medium", "N_{AK4 jets, deepCSV > 0.63}", 20, 0, 20);
   book<TH1F>("N_jets_btag_tight", "N_{AK4 jets, deepCSV > 0.90}", 20, 0, 20);
+  book<TH1F>("DeepJetscore", "deepJet output", 20, 0, 1);
 
   book<TH1F>("N_AK8jets", "N_{AK8 jets}", 20, 0, 20);
   book<TH1F>("N_toptagged_AK8jets", "N_{toptagged AK8 jets}", 20, 0, 20);
@@ -183,18 +184,24 @@ void TstarTstarHists::fill(const Event & event){
   std::vector<Jet>* jets = event.jets;
   int Njets = jets->size();
   hist("N_jets")->Fill(Njets, weight);
+
+  // b-tag
+  BTag bJetID_loose = BTag(BTag::algo::DEEPJET, BTag::wp::WP_LOOSE);
+  BTag bJetID_medium = BTag(BTag::algo::DEEPJET, BTag::wp::WP_MEDIUM);
+  BTag bJetID_tight = BTag(BTag::algo::DEEPJET, BTag::wp::WP_TIGHT);
+
   int N_jets_btag_loose = 0;
   int N_jets_btag_medium = 0;
   int N_jets_btag_tight = 0;
   for(const auto & jet : *event.jets) {
-    if(jet.btag_DeepCSV() > 0.2219) N_jets_btag_loose++;
-    if(jet.btag_DeepCSV() > 0.6324) N_jets_btag_medium++;
-    if(jet.btag_DeepCSV() > 0.8958) N_jets_btag_tight++;
+    if(bJetID_loose(jet, event)) N_jets_btag_loose++;
+    if(bJetID_medium(jet, event)) N_jets_btag_medium++;
+    if(bJetID_tight(jet, event)) N_jets_btag_tight++;
+    hist("DeepJetscore")->Fill(jet.btag_DeepJet(), weight);
   }
   hist("N_jets_btag_loose")->Fill(N_jets_btag_loose, weight);
   hist("N_jets_btag_medium")->Fill(N_jets_btag_medium, weight);
   hist("N_jets_btag_tight")->Fill(N_jets_btag_tight, weight);
-
   if(!event.isRealData)  hist("N_PU")->Fill(event.genInfo->pileup_TrueNumInteractions(), weight);
 
   if(Njets>=1){

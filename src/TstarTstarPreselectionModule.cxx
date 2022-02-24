@@ -190,6 +190,7 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   // AK4 Jets
   common->switch_jetlepcleaner();
   common->switch_jetPtSorter();
+  //common->disable_metfilters();
   double jet_pt(30.);
   common->set_jet_id(AndId<Jet>(PtEtaCut(jet_pt, 2.5), JetPFID(JetPFID::WP_TIGHT_PUPPI)));
   if(debug) cout << "Jets done" << endl;

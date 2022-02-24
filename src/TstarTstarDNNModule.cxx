@@ -86,7 +86,7 @@ private:
   std::unique_ptr<Hists> h_topcheck, h_topcheck_reweighted, h_AfterDNNcut_06_UGLYFIX, h_NotDNNcut_06_UGLYFIX;
   std::unique_ptr<Hists> h_STreweighted, h_crosscheck;
 
-  std::unique_ptr<Hists> h_newTaggerSR, h_newTaggerCR, h_newTagger_btagCR;
+  std::unique_ptr<Hists> h_newTaggerSR, h_newTaggerCR, h_newTagger_btagCR, h_newTagger_btagCR_ele;
 
   std::unique_ptr<Hists> h_AfterDNNcut_02, h_AfterDNNcut_03, h_AfterDNNcut_04, h_AfterDNNcut_05, h_AfterDNNcut_06, h_AfterDNNcut_07, h_AfterDNNcut_08;
   std::unique_ptr<Hists> h_notDNNcut_02,   h_notDNNcut_03,   h_notDNNcut_04,   h_notDNNcut_05,   h_notDNNcut_06,   h_notDNNcut_07,   h_notDNNcut_08;
@@ -121,6 +121,7 @@ private:
   uhh2::Event::Handle<bool> h_do_masspoint;
   uhh2::Event::Handle<double> h_ST;
   uhh2::Event::Handle<bool> h_DoAddInputs;
+  uhh2::Event::Handle<bool> h_is_mu;
   uhh2::Event::Handle<double> h_newTagger;
   uhh2::Event::Handle<TString> h_region;
 
@@ -182,6 +183,7 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_newTaggerSR.reset(new TstarTstarHists(ctx, "newTaggerSR"));
   h_newTaggerCR.reset(new TstarTstarHists(ctx, "newTaggerCR"));
   h_newTagger_btagCR.reset(new TstarTstarHists(ctx, "newTagger_btagCR"));
+  h_newTagger_btagCR_ele.reset(new TstarTstarHists(ctx, "newTagger_btagCR_ele"));
 
   h_SFVariations.reset(new TstarTstarVariationHists(ctx, "SFVariations"));
 
@@ -239,6 +241,7 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_DoAddInputs = ctx.declare_event_output<bool>("doAddInputs");
   h_newTagger = ctx.declare_event_output<double>("newTagger");
   h_is_btagevent = ctx.get_handle<bool>("is_btagevent");
+  h_is_mu = ctx.get_handle<bool>("is_muevt");
   h_ST = ctx.get_handle<double>("ST");
   h_region = ctx.declare_event_output<TString>("region");
 
@@ -398,6 +401,7 @@ bool TstarTstarDNNModule::process(Event & event) {
   else {
     if(newTagger > 0) {
       h_newTagger_btagCR->fill(event);
+      if(!event.get(h_is_mu)) h_newTagger_btagCR_ele->fill(event);
       event.set(h_region,"CR2");
     }
   }

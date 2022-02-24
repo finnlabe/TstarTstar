@@ -1,5 +1,6 @@
 #include <iostream>
 #include <memory>
+#include <chrono>
 
 // TODO clean. Do i need all those?
 // UHH2 stuff
@@ -108,6 +109,8 @@ private:
   std::unique_ptr<Hists> h_trigger, h_trigger_mu, h_trigger_ele;
   std::unique_ptr<Hists> h_trigger_gen;
 
+  std::unique_ptr<Hists> h_beforeBcorrections, h_afterBcorrections, h_dRcut_nobtag_ele;
+
   // ###### Handles ######
   uhh2::Event::Handle<FlavorParticle> h_primlep;
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
@@ -140,10 +143,51 @@ private:
   TString year;
   TopJetId topjetID;
 
+  // b-tagging handles to try to fix memory leak
+  uhh2::Event::Handle<float> h_weight_btagdisc_central;
+  uhh2::Event::Handle<float> h_weight_btagdisc_jesup;
+  uhh2::Event::Handle<float> h_weight_btagdisc_jesdown;
+  uhh2::Event::Handle<float> h_weight_btagdisc_lfup;
+  uhh2::Event::Handle<float> h_weight_btagdisc_lfdown;
+  uhh2::Event::Handle<float> h_weight_btagdisc_hfup;
+  uhh2::Event::Handle<float> h_weight_btagdisc_hfdown;
+  uhh2::Event::Handle<float> h_weight_btagdisc_hfstats1up;
+  uhh2::Event::Handle<float> h_weight_btagdisc_hfstats1down;
+  uhh2::Event::Handle<float> h_weight_btagdisc_hfstats2up;
+  uhh2::Event::Handle<float> h_weight_btagdisc_hfstats2down;
+  uhh2::Event::Handle<float> h_weight_btagdisc_lfstats1up;
+  uhh2::Event::Handle<float> h_weight_btagdisc_lfstats1down;
+  uhh2::Event::Handle<float> h_weight_btagdisc_lfstats2up;
+  uhh2::Event::Handle<float> h_weight_btagdisc_lfstats2down;
+  uhh2::Event::Handle<float> h_weight_btagdisc_cferr1up;
+  uhh2::Event::Handle<float> h_weight_btagdisc_cferr1down;
+  uhh2::Event::Handle<float> h_weight_btagdisc_cferr2up;
+  uhh2::Event::Handle<float> h_weight_btagdisc_cferr2down;
+
 };
 
 
-TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
+TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx):
+  h_weight_btagdisc_central (ctx.declare_event_output<float>("weight_btagdisc_central")),
+  h_weight_btagdisc_jesup (ctx.declare_event_output<float>("weight_btagdisc_jesup")),
+  h_weight_btagdisc_jesdown (ctx.declare_event_output<float>("weight_btagdisc_jesdown")),
+  h_weight_btagdisc_lfup (ctx.declare_event_output<float>("weight_btagdisc_lfup")),
+  h_weight_btagdisc_lfdown (ctx.declare_event_output<float>("weight_btagdisc_lfdown")),
+  h_weight_btagdisc_hfup (ctx.declare_event_output<float>("weight_btagdisc_hfup")),
+  h_weight_btagdisc_hfdown (ctx.declare_event_output<float>("weight_btagdisc_hfdown")),
+  h_weight_btagdisc_hfstats1up (ctx.declare_event_output<float>("weight_btagdisc_hfstats1up")),
+  h_weight_btagdisc_hfstats1down (ctx.declare_event_output<float>("weight_btagdisc_hfstats1down")),
+  h_weight_btagdisc_hfstats2up (ctx.declare_event_output<float>("weight_btagdisc_hfstats2up")),
+  h_weight_btagdisc_hfstats2down (ctx.declare_event_output<float>("weight_btagdisc_hfstats2down")),
+  h_weight_btagdisc_lfstats1up (ctx.declare_event_output<float>("weight_btagdisc_lfstats1up")),
+  h_weight_btagdisc_lfstats1down (ctx.declare_event_output<float>("weight_btagdisc_lfstats1down")),
+  h_weight_btagdisc_lfstats2up (ctx.declare_event_output<float>("weight_btagdisc_lfstats2up")),
+  h_weight_btagdisc_lfstats2down (ctx.declare_event_output<float>("weight_btagdisc_lfstats2down")),
+  h_weight_btagdisc_cferr1up (ctx.declare_event_output<float>("weight_btagdisc_cferr1up")),
+  h_weight_btagdisc_cferr1down (ctx.declare_event_output<float>("weight_btagdisc_cferr1down")),
+  h_weight_btagdisc_cferr2up (ctx.declare_event_output<float>("weight_btagdisc_cferr2up")),
+  h_weight_btagdisc_cferr2down (ctx.declare_event_output<float>("weight_btagdisc_cferr2down"))
+{
 
   // setting debug from xml file
   if(ctx.get("debug", "<not set>") == "true") debug = true;
@@ -206,7 +250,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   if(debug) cout << "HERE?" << endl;
   //HOTVRScale.reset(new HOTVRScaleFactor(ctx, topjetID));
 
-  if(debug) cout << "Setting up lepton scale." << endl;
+  if(debug) cout << "Setting up electron scale." << endl;
   // lepton scale
   // electron
   if(year == "2016") {
@@ -224,6 +268,8 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   h_weight_sfele_id = ctx.get_handle<float>("weight_sfelec_id");
   h_weight_sfele_id_down = ctx.get_handle<float>("weight_sfelec_id_down");
   h_weight_sfele_id_up = ctx.get_handle<float>("weight_sfelec_id_up");
+
+  if(debug) cout << "Setting up muon scale." << endl;
 
   // muons
   if(year == "2016") {
@@ -245,8 +291,12 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   h_weight_sfmu_isolation_down = ctx.get_handle<float>("weight_sfmu_isolation_down");
   h_weight_sfmu_isolation_up = ctx.get_handle<float>("weight_sfmu_isolation_up");
 
+  if(debug) cout << "Setting up btagging scale." << endl;
+
   // b-tagging SFs
-  //ScaleFactor_btagging.reset(new MCBTagScaleFactor(ctx, BTag::algo::DEEPCSV, BTag::wp::WP_LOOSE)); // should be enough like this
+  ScaleFactor_btagging.reset(new MCBTagDiscriminantReweighting(ctx, BTag::algo::DEEPJET)); // should be enough like this
+
+  if(debug) cout << "Setting up HEM fix." << endl;
 
   // HEM issue
   HEMCleaner.reset(new HEMCleanerSelection(ctx, "jets", "topjets"));
@@ -329,6 +379,9 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
   h_corrections_nobtag.reset(new TstarTstarHists(ctx, "AfterCorrections_nobtag"));
   h_corrections_nobtag_ele.reset(new TstarTstarHists(ctx, "AfterCorrections_nobtag_ele"));
 
+  h_beforeBcorrections.reset(new TstarTstarHists(ctx, "BeforeBCorrections"));
+  h_afterBcorrections.reset(new TstarTstarHists(ctx, "AfterBCorrections"));
+
   h_afterSelection.reset(new TstarTstarHists(ctx, "AfterSel"));
   h_afterSelection_gen.reset(new TstarTstarGenHists(ctx, "AfterSel_gen"));
   h_afterSelection_genmatch.reset(new TstarTstarGenRecoMatchedHists(ctx, "AfterSel_genmatch"));
@@ -358,6 +411,31 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx){
 
 
 bool TstarTstarSelectionModule::process(Event & event) {
+
+  auto time_start = std::chrono::system_clock::now();
+
+  std::cout << "Muon event: " << event.get(h_is_muevt) << std::endl;
+
+  // try to find memory leak
+  event.set(h_weight_btagdisc_central,1.);
+  event.set(h_weight_btagdisc_jesup,1.);
+  event.set(h_weight_btagdisc_jesdown,1.);
+  event.set(h_weight_btagdisc_lfup,1.);
+  event.set(h_weight_btagdisc_lfdown,1.);
+  event.set(h_weight_btagdisc_hfup,1.);
+  event.set(h_weight_btagdisc_hfdown,1.);
+  event.set(h_weight_btagdisc_hfstats1up,1.);
+  event.set(h_weight_btagdisc_hfstats1down,1.);
+  event.set(h_weight_btagdisc_hfstats2up,1.);
+  event.set(h_weight_btagdisc_hfstats2down,1.);
+  event.set(h_weight_btagdisc_lfstats1up,1.);
+  event.set(h_weight_btagdisc_lfstats1down,1.);
+  event.set(h_weight_btagdisc_lfstats2up,1.);
+  event.set(h_weight_btagdisc_lfstats2down,1.);
+  event.set(h_weight_btagdisc_cferr1up,1.);
+  event.set(h_weight_btagdisc_cferr1down,1.);
+  event.set(h_weight_btagdisc_cferr2up,1.);
+  event.set(h_weight_btagdisc_cferr2down,1.);
 
   // debug status message
   if(debug) cout << "TstarTstarSelectionModule: Starting to process event (runid, eventid) = (" << event.run << ", " << event.event << "); weight = " << event.weight << endl;
@@ -392,6 +470,15 @@ bool TstarTstarSelectionModule::process(Event & event) {
     }
   }
 
+  auto time_beforebtagSF = std::chrono::system_clock::now();
+
+  if(is_triggered && !event.get(h_is_muevt)) h_beforeBcorrections->fill(event);
+
+  // b-tagging sfs
+  ScaleFactor_btagging->process(event);
+  auto time_afterbtagSF = std::chrono::system_clock::now();
+
+  if(is_triggered && !event.get(h_is_muevt)) h_afterBcorrections->fill(event);
 
   // #################
   // ### Selection ###
@@ -427,7 +514,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
   }
 
   if(debug) std::cout << "Done b-tag" << endl;
-
+  auto time_afterbtagsel = std::chrono::system_clock::now();
 
     // ###### Lepton-2Dcut ######
     // if(debug) std::cout << "Start 2D cut" << endl;
@@ -506,10 +593,11 @@ bool TstarTstarSelectionModule::process(Event & event) {
       }
       if(debug) cout << "Passed dR cut." << endl;
     } else {
-      // btagging reverse region plots
+      // for later
     }
 
     if(debug) std::cout << "Done dR" << endl;
+    auto time_afterdR = std::chrono::system_clock::now();
 
 
     // ST cut to reduce computation time (and file sizes)
@@ -552,11 +640,15 @@ bool TstarTstarSelectionModule::process(Event & event) {
       }
       if(debug) cout << "Passed ST cut." << endl;
     } else {
-      h_STcut_nobtag->fill(event);
-      if(!event.get(h_is_muevt)) h_STcut_nobtag_ele->fill(event);
+      if (is_triggered) {
+        h_STcut_nobtag->fill(event);
+        if(!event.get(h_is_muevt)) h_STcut_nobtag_ele->fill(event);
+      }
     }
 
     if(debug) std::cout << "Done ST" << endl;
+
+    auto time_afterST = std::chrono::system_clock::now();
 
     // ######################
     // ### Scale Factors! ###
@@ -596,9 +688,6 @@ bool TstarTstarSelectionModule::process(Event & event) {
 
     if(debug) std::cout << "Done Lepton ID, ISO SFs" << endl;
 
-    // b-tagging sfs
-    //ScaleFactor_btagging->process(event);
-
     if(pass_btagcut && is_triggered) { // only fill these for btag cut passes
       // hists
       h_corrections->fill(event);
@@ -615,9 +704,13 @@ bool TstarTstarSelectionModule::process(Event & event) {
       }
       if(debug) cout << "Passed ST cut." << endl;
     } else {
-      h_corrections_nobtag->fill(event);
-      if(!event.get(h_is_muevt)) h_corrections_nobtag_ele->fill(event);
+      if(is_triggered) {
+        h_corrections_nobtag->fill(event);
+        if(!event.get(h_is_muevt)) h_corrections_nobtag_ele->fill(event);
+      }
     }
+
+    auto time_afterSFs = std::chrono::system_clock::now();
 
     // #######################
     // ### Trigger studies ###
@@ -654,6 +747,27 @@ bool TstarTstarSelectionModule::process(Event & event) {
 
     // at the moment control region ends here!
     // if(pass_btagcut) return true;
+    auto time_afterAll = std::chrono::system_clock::now();
+
+    // timing output
+    std::chrono::duration<double> elapsed_seconds_beforebtagSF = time_beforebtagSF-time_start;
+    std::chrono::duration<double> elapsed_seconds_afterbtagSF = time_afterbtagSF-time_start;
+    std::chrono::duration<double> elapsed_seconds_afterbtagsel = time_afterbtagsel-time_start;
+    std::chrono::duration<double> elapsed_seconds_afterdR = time_afterdR-time_start;
+    std::chrono::duration<double> elapsed_seconds_afterST = time_afterST-time_start;
+    std::chrono::duration<double> elapsed_seconds_afterSFs = time_afterSFs-time_start;
+    std::chrono::duration<double> elapsed_seconds_afterAll = time_afterAll-time_start;
+
+    if(debug) {
+      std::cout << "Time before btag SF: " << elapsed_seconds_beforebtagSF.count() << "s\n";
+      std::cout << "Time after btag SF: " << elapsed_seconds_afterbtagSF.count() << "s\n";
+      std::cout << "Time after btag sel: " << elapsed_seconds_afterbtagsel.count() << "s\n";
+      std::cout << "Time after dR sel: " << elapsed_seconds_afterdR.count() << "s\n";
+      std::cout << "Time after ST sel: " << elapsed_seconds_afterST.count() << "s\n";
+      std::cout << "Time after all SFs: " << elapsed_seconds_afterSFs.count() << "s\n";
+      std::cout << "Time after everything: " << elapsed_seconds_afterAll.count() << "s\n";
+      std::cout << "###########" << std::endl << std::endl;
+    }
     return true;
 
 }
