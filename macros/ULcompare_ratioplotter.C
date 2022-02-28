@@ -26,16 +26,16 @@ void ULcompare_ratioplotter(){
   Double_t w = 800;
   Double_t h = 600;
 
-  TString sample = "DATA.DATA";
+  TString sample = "MC.TTbar";
 
-  TString beforePath = "/nfs/dust/cms/user/flabe/TstarTstar/data/Preselection/2018/hadded/";
-  TString afterPath = "/nfs/dust/cms/user/flabe/TstarTstar/data/Preselection/UL18/hadded/";
+  TString beforePath = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/2018/hadded/";
+  TString afterPath = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/UL18/hadded/";
   TString filename = "uhh2.AnalysisModuleRunner."+sample+".root";
-  TString histname = "N_jets";
-  TString label = "N(AK4 jets)";
+  TString histname = "pt_ST_fullrange";
+  TString label = "S_{T} [GeV]";
 
-  TString beforeFolder = "AfterLepSel_ele";
-  TString afterFolder = "AfterLepSel_ele";
+  TString beforeFolder = "crosscheck";
+  TString afterFolder = "crosscheck";
 
   TCanvas *canvas = new TCanvas("canvas", "c", w, h);
 
