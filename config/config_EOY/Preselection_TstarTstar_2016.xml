@@ -6,20 +6,20 @@
 
 <!ENTITY OUTPUTdir           "/nfs/dust/cms/user/flabe/TstarTstar/data/Preselection/2016/">
 
-<!ENTITY TstarTstarToTgluonTgluon_M-700_Run2016v3   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-700.xml">
-<!ENTITY TstarTstarToTgluonTgluon_M-800_Run2016v3   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-800.xml">
-<!ENTITY TstarTstarToTgluonTgluon_M-900_Run2016v3   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-900.xml">
-<!ENTITY TstarTstarToTgluonTgluon_M-1000_Run2016v3   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-1000.xml">
-<!ENTITY TstarTstarToTgluonTgluon_M-1100_Run2016v3   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-1100.xml">
-<!ENTITY TstarTstarToTgluonTgluon_M-1200_Run2016v3   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-1200.xml">
-<!ENTITY TstarTstarToTgluonTgluon_M-1300_Run2016v3   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-1300.xml">
-<!ENTITY TstarTstarToTgluonTgluon_M-1400_Run2016v3   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-1400.xml">
-<!ENTITY TstarTstarToTgluonTgluon_M-1500_Run2016v3   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-1500.xml">
-<!ENTITY TstarTstarToTgluonTgluon_M-1600_Run2016v3   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-1600.xml">
-<!ENTITY TstarTstarToTgluonTgluon_M-1700_Run2016v3   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2016v3/TstarTstar/TstarTstarToTgluonTgluon_M-1700_TuneCUETP8M1_13TeV-madgraph-pythia_Summer16_v1.xml">
-<!ENTITY TstarTstarToTgluonTgluon_M-1900_Run2016v3   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2016v3/TstarTstar/TstarTstarToTgluonTgluon_M-1900_TuneCUETP8M1_13TeV-madgraph-pythia_Summer16_v1.xml">
-<!ENTITY TstarTstarToTgluonTgluon_M-1800_Run2016v3   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2016v3/TstarTstar/TstarTstarToTgluonTgluon_M-1800_TuneCUETP8M1_13TeV-madgraph-pythia_Summer16_v1.xml">
-<!ENTITY TstarTstarToTgluonTgluon_M-2000_Run2016v3   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v2/2016v3/TstarTstar/TstarTstarToTgluonTgluon_M-2000_TuneCUETP8M1_13TeV-madgraph-pythia_Summer16_v1.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-700_Run2016v3   SYSTEM  "../../../common/UHH2-datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-700.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-800_Run2016v3   SYSTEM  "../../../common/UHH2-datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-800.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-900_Run2016v3   SYSTEM  "../../../common/UHH2-datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-900.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-1000_Run2016v3   SYSTEM  "../../../common/UHH2-datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-1000.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-1100_Run2016v3   SYSTEM  "../../../common/UHH2-datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-1100.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-1200_Run2016v3   SYSTEM  "../../../common/UHH2-datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-1200.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-1300_Run2016v3   SYSTEM  "../../../common/UHH2-datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-1300.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-1400_Run2016v3   SYSTEM  "../../../common/UHH2-datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-1400.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-1500_Run2016v3   SYSTEM  "../../../common/UHH2-datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-1500.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-1600_Run2016v3   SYSTEM  "../../../common/UHH2-datasets/RunII_102X_v1/2016v3/TstarTstar/MC_TstarTstarToTgluonTgluon_M-1600.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-1700_Run2016v3   SYSTEM  "../../../common/UHH2-datasets/RunII_102X_v2/2016v3/TstarTstar/TstarTstarToTgluonTgluon_M-1700_TuneCUETP8M1_13TeV-madgraph-pythia_Summer16_v1.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-1900_Run2016v3   SYSTEM  "../../../common/UHH2-datasets/RunII_102X_v2/2016v3/TstarTstar/TstarTstarToTgluonTgluon_M-1900_TuneCUETP8M1_13TeV-madgraph-pythia_Summer16_v1.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-1800_Run2016v3   SYSTEM  "../../../common/UHH2-datasets/RunII_102X_v2/2016v3/TstarTstar/TstarTstarToTgluonTgluon_M-1800_TuneCUETP8M1_13TeV-madgraph-pythia_Summer16_v1.xml">
+<!ENTITY TstarTstarToTgluonTgluon_M-2000_Run2016v3   SYSTEM  "../../../common/UHH2-datasets/RunII_102X_v2/2016v3/TstarTstar/TstarTstarToTgluonTgluon_M-2000_TuneCUETP8M1_13TeV-madgraph-pythia_Summer16_v1.xml">
 
 ]>
 

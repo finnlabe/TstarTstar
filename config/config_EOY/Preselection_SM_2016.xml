@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE JobConfiguration PUBLIC "" "JobConfig.dtd" [
 
-<!ENTITY TT_TuneCUETP8M2T4                                      SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2016v3/MC_TT_TuneCUETP8M2T4.xml">
-<!ENTITY ST_tW_top_NoFullyHadronicDecays_P8M1_PUMoriond17       SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2016v3/MC_ST_tW_top_NoFullyHadronicDecays_P8M1_PUMoriond17.xml">
-<!ENTITY ST_tW_antitop_NoFullyHadronicDecays_P8M1_PUMoriond17   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2016v3/MC_ST_tW_antitop_NoFullyHadronicDecays_P8M1_PUMoriond17.xml">
-<!ENTITY ST_s-channel_leptonDecays                              SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2016v3/MC_ST_s-channel_leptonDecays.xml">
-<!ENTITY ST_t-channel_top_inclusiveDecays                       SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2016v3/MC_ST_t-channel_top_inclusiveDecays.xml">
-<!ENTITY ST_t-channel_antitop_inclusiveDecays                   SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2016v3/MC_ST_t-channel_antitop_inclusiveDecays.xml">
-<!ENTITY WJetsToLNu_Pt-100To250                                 SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2016v3/MC_WJetsToLNu_Pt-100To250.xml">
-<!ENTITY WJetsToLNu_Pt-250To400                                 SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2016v3/MC_WJetsToLNu_Pt-250To400.xml">
-<!ENTITY WJetsToLNu_Pt-400To600                                 SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2016v3/MC_WJetsToLNu_Pt-400To600.xml">
-<!ENTITY WJetsToLNu_Pt-600ToInf                                 SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2016v3/MC_WJetsToLNu_Pt-600ToInf.xml">
-<!ENTITY WWToLNuQQ                                              SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2016v3/MC_WWToLNuQQ.xml">
-<!ENTITY WZToLNu2Q                                              SYSTEM  "../../common/UHH2-datasets/RunII_102X_v1/2016v3/MC_WZToLNu2Q.xml">
+<!ENTITY TT_TuneCUETP8M2T4                                      SYSTEM  "../../../common/UHH2-datasets/RunII_102X_v1/2016v3/MC_TT_TuneCUETP8M2T4.xml">
+<!ENTITY ST_tW_top_NoFullyHadronicDecays_P8M1_PUMoriond17       SYSTEM  "../../../common/UHH2-datasets/RunII_102X_v1/2016v3/MC_ST_tW_top_NoFullyHadronicDecays_P8M1_PUMoriond17.xml">
+<!ENTITY ST_tW_antitop_NoFullyHadronicDecays_P8M1_PUMoriond17   SYSTEM  "../../../common/UHH2-datasets/RunII_102X_v1/2016v3/MC_ST_tW_antitop_NoFullyHadronicDecays_P8M1_PUMoriond17.xml">
+<!ENTITY ST_s-channel_leptonDecays                              SYSTEM  "../../../common/UHH2-datasets/RunII_102X_v1/2016v3/MC_ST_s-channel_leptonDecays.xml">
+<!ENTITY ST_t-channel_top_inclusiveDecays                       SYSTEM  "../../../common/UHH2-datasets/RunII_102X_v1/2016v3/MC_ST_t-channel_top_inclusiveDecays.xml">
+<!ENTITY ST_t-channel_antitop_inclusiveDecays                   SYSTEM  "../../../common/UHH2-datasets/RunII_102X_v1/2016v3/MC_ST_t-channel_antitop_inclusiveDecays.xml">
+<!ENTITY WJetsToLNu_Pt-100To250                                 SYSTEM  "../../../common/UHH2-datasets/RunII_102X_v1/2016v3/MC_WJetsToLNu_Pt-100To250.xml">
+<!ENTITY WJetsToLNu_Pt-250To400                                 SYSTEM  "../../../common/UHH2-datasets/RunII_102X_v1/2016v3/MC_WJetsToLNu_Pt-250To400.xml">
+<!ENTITY WJetsToLNu_Pt-400To600                                 SYSTEM  "../../../common/UHH2-datasets/RunII_102X_v1/2016v3/MC_WJetsToLNu_Pt-400To600.xml">
+<!ENTITY WJetsToLNu_Pt-600ToInf                                 SYSTEM  "../../../common/UHH2-datasets/RunII_102X_v1/2016v3/MC_WJetsToLNu_Pt-600ToInf.xml">
+<!ENTITY WWToLNuQQ                                              SYSTEM  "../../../common/UHH2-datasets/RunII_102X_v1/2016v3/MC_WWToLNuQQ.xml">
+<!ENTITY WZToLNu2Q                                              SYSTEM  "../../../common/UHH2-datasets/RunII_102X_v1/2016v3/MC_WZToLNu2Q.xml">
 
 <!ENTITY OUTPUTdir "/nfs/dust/cms/user/flabe/TstarTstar/data/Preselection/2016/">
 ]>
@@ -32,13 +32,13 @@
 
         <!-- Verion attribute must have year in it, same as used in ntuple config, e.g. 2018, 2016v3, etc -->
 
-
+<!--
 	<InputData Lumi="92260.16399" NEventsMax="-1" Type="MC" Version="TT_TuneCUETP8M2T4_2016v3" Cacheable="False">
 	  &TT_TuneCUETP8M2T4;
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
-
+-->
 	<InputData Lumi="442296.4019" NEventsMax="-1" Type="MC" Version="ST_tW_top_NoFullyHadronicDecays_P8M1_PUMoriond17_2016v3" Cacheable="False">
 	  &ST_tW_top_NoFullyHadronicDecays_P8M1_PUMoriond17;
           <InputTree Name="AnalysisTree" />
@@ -92,7 +92,7 @@
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
-
+<!--
 	<InputData Lumi="173102.3861" NEventsMax="-1" Type="MC" Version="WWToLNuQQ_2016v3" Cacheable="False">
 	  &WWToLNuQQ;
           <InputTree Name="AnalysisTree" />
@@ -104,6 +104,7 @@
           <InputTree Name="AnalysisTree" />
           <OutputTree Name="AnalysisTree" />
         </InputData>
+-->
 
 
         <UserConfig>
