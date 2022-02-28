@@ -39,6 +39,7 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   book<TH1F>("N_jets_btag_medium", "N_{AK4 jets, deepCSV > 0.63}", 20, 0, 20);
   book<TH1F>("N_jets_btag_tight", "N_{AK4 jets, deepCSV > 0.90}", 20, 0, 20);
   book<TH1F>("DeepJetscore", "deepJet output", 20, 0, 1);
+  book<TH1F>("DeepJetscore_firstJet", "deepJet output first jet", 20, 0, 1);
 
   book<TH1F>("N_AK8jets", "N_{AK8 jets}", 20, 0, 20);
   book<TH1F>("N_toptagged_AK8jets", "N_{toptagged AK8 jets}", 20, 0, 20);
@@ -199,6 +200,8 @@ void TstarTstarHists::fill(const Event & event){
     if(bJetID_tight(jet, event)) N_jets_btag_tight++;
     hist("DeepJetscore")->Fill(jet.btag_DeepJet(), weight);
   }
+  if(event.jets->size()>0) hist("DeepJetscore_firstJet")->Fill(event.jets->at(0).btag_DeepJet(), weight);
+
   hist("N_jets_btag_loose")->Fill(N_jets_btag_loose, weight);
   hist("N_jets_btag_medium")->Fill(N_jets_btag_medium, weight);
   hist("N_jets_btag_tight")->Fill(N_jets_btag_tight, weight);
