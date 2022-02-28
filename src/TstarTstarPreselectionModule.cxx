@@ -174,7 +174,7 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   ElectronId eleID_lowpt = ElectronTagID(Electron::mvaEleID_Fall17_iso_V2_wp90);
   ElectronId eleID_highpt = ElectronTagID(Electron::mvaEleID_Fall17_noIso_V2_wp90);
   //ElectronId eleID_highpt = AndId<Electron>(ElectronTagID(Electron::mvaEleID_Fall17_noIso_V2_wp90), Electron_MINIIso(0.1, "pf-weight"));
-  double electron_pt_lowpt(30.);
+  double electron_pt_lowpt(40.);
   double electron_pt_highpt(120.);
   common->set_electron_id(OrId<Electron>( AndId<Electron>(PtEtaSCCut(electron_pt_lowpt, 2.4), eleID_lowpt, EleMaxPtCut(120.)),  AndId<Electron>(PtEtaSCCut(electron_pt_highpt, 2.4), eleID_highpt)));
   if(debug) cout << "Electrons done" << endl;
@@ -182,7 +182,7 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   // Muon
   MuonId muID_lowpt = AndId<Muon>(MuonID(Muon::CutBasedIdTight), MuonID(Muon::PFIsoTight));
   MuonId muID_highpt = MuonID(Muon::CutBasedIdTight);
-  double muon_pt_lowpt(27.);
+  double muon_pt_lowpt(30.);
   double muon_pt_highpt(60.);
   common->set_muon_id(OrId<Muon>( AndId<Muon>(PtEtaCut(muon_pt_lowpt, 2.4), muID_lowpt, MuMaxPtCut(60.)), AndId<Muon>(PtEtaCut(muon_pt_highpt, 2.4), muID_highpt)));
   if(debug) cout << "Muons done" << endl;
