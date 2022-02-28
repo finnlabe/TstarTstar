@@ -726,6 +726,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
 
     // Fixing the HEM issue
     if(!HEMCleaner->passes(event)) return false;
+    if(is_MC) event.weight *= 0.913282; // TODO this will need to be changed once full SingleMuon is available
 
     if(pass_btagcut) { // fill these also for "non-triggered" events to have a comparison
       h_afterHEMcleaning->fill(event);
