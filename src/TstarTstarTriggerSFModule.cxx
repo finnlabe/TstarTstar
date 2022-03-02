@@ -113,9 +113,9 @@ TstarTstarTriggerSFModule::TstarTstarTriggerSFModule(uhh2::Context& ctx){
   year_18 = false;
   year = extract_year(ctx);
 
-  if(year == Year::is2016v3) year_16 = true;
-  else if(year == Year::is2017v2) year_17 = true;
-  else if(year == Year::is2018) year_18 = true;
+  if(year == Year::is2016v3 or year == Year::isUL16preVFP or year == Year::isUL16postVFP) year_16 = true;
+  else if(year == Year::is2017v2 or year == Year::isUL17) year_17 = true;
+  else if(year == Year::is2018 or year == Year::isUL18) year_18 = true;
   else throw runtime_error("In PostSelectionModule: This Event is not from 2016v3, 2017v2 or 2018!");
 
   isMC = (ctx.get("dataset_type") == "MC");

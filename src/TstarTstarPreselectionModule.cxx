@@ -380,6 +380,7 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   if(pass_trigger_SingleMu_highpt && (event.muons->size() >= 1)){if(event.muons->at(0).pt()>60) pass_trigger = true; }
   if(pass_trigger_SingleEle_lowpt && (event.electrons->size() >= 1)){if(event.electrons->at(0).pt()<=120)pass_trigger = true; }
   if(pass_trigger_SingleEle_highpt && (event.electrons->size() >= 1)){if(event.electrons->at(0).pt()>120)pass_trigger = true; }
+  if(isTriggerSFMeasurement) pass_trigger = pass_trigger_SingleMu_lowpt or pass_trigger_SingleMu_highpt;
   event.set(h_is_triggered, pass_trigger);
 
   if(debug) std::cout << "Passed trigger logic with final " << pass_trigger << std::endl;

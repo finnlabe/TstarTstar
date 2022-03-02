@@ -100,7 +100,7 @@ class configContainer:
       }
 
       self.additionalBranches = {
-         'Presselection': "",
+         'Preselection': "",
          'Selection': "is_muevt evt_weight is_triggered is_highpt",
          'Analysis': "is_muevt evt_weight neutrino is_btagevent weight_sfmu_id weight_sfmu_id_down weight_sfmu_id_up weight_sfmu_isolation weight_sfmu_isolation_down weight_sfmu_isolation_up weight_sfelec_id weight_sfelec_id_down weight_sfelec_id_up TopTagSF TopTagSF_down TopTagSF_merged_down TopTagSF_merged_up TopTagSF_non_down TopTagSF_non_up TopTagSF_semi_up TopTagSF_semi_down TopTagSF_up",
          'DNN': "is_btagevent is_muevt evt_weight ST_weight DNN_Inputs neutrino TstarTstar_Hyp_gHOTVR TstarTstar_Hyp_gAK4 ST weight_sfmu_id weight_sfmu_id_down weight_sfmu_id_up weight_sfmu_isolation weight_sfmu_isolation_down weight_sfmu_isolation_up weight_sfelec_id weight_sfelec_id_down weight_sfelec_id_up TopTagSF TopTagSF_down TopTagSF_merged_down TopTagSF_merged_up TopTagSF_non_down TopTagSF_non_up TopTagSF_semi_up TopTagSF_semi_down TopTagSF_up"
@@ -151,6 +151,7 @@ class sampleEntity:
       self.year = year
       self.is_data = k.startswith('DATA_')
       self.nickName = k
+      if(self.is_data): self.nickName = k[5:] # removing the DATA_ prefix
       self.n_das = None
       self.n_pnfs = None
       self.pnfs_sum_of_weights = helper.get_nevt(v['db_name'], '13TeV', self.year)

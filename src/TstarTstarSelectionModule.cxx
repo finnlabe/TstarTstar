@@ -414,8 +414,6 @@ bool TstarTstarSelectionModule::process(Event & event) {
 
   auto time_start = std::chrono::system_clock::now();
 
-  std::cout << "Muon event: " << event.get(h_is_muevt) << std::endl;
-
   // try to find memory leak
   event.set(h_weight_btagdisc_central,1.);
   event.set(h_weight_btagdisc_jesup,1.);

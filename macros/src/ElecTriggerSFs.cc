@@ -18,11 +18,9 @@ Int_t run;
 Int_t lumi;
 Int_t eventnr;
 bool passed, passed_elec, passed_photon;
-bool debug = false;
+bool debug = true;
 TString weighttag;
 TString year, year_v;
-
-TString fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/TriggerSF/";
 
 //vector<double> pt_bins = {55, 75, 95, 115, 135, 155, 175, 200, 300, 1500};
 vector<double> pt_bins = {55, 75, 95, 115, 135, 155, 175, 200, 250, 300, 400, 500};
@@ -62,10 +60,14 @@ int main(int argc, char* argv[]){
   gErrorIgnoreLevel = kWarning;
 
   year = argv[1];
-  if(year.EqualTo("2016")){year_v = "_2016v3"; lumi_plot = 35.9;}
-  else if(year.EqualTo("2017")){year_v = "_2017v2"; lumi_plot = 41.5;}
-  else if(year.EqualTo("2018")){year_v = "_2018"; lumi_plot = 59.74;}
-  else throw runtime_error("I need the correct year; 2016, 2017 or 2018");
+  TString fdir;
+  if(year.EqualTo("2016")){year_v = "_2016v3"; lumi_plot = 35.9; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/TriggerSF/";}
+  else if(year.EqualTo("2017")){year_v = "_2017v2"; lumi_plot = 41.5; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/TriggerSF/";}
+  else if(year.EqualTo("2018")){year_v = "_2018"; lumi_plot = 59.74; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/TriggerSF/";}
+  else if(year.EqualTo("UL16")){year_v = "_UL16"; lumi_plot = 0.0; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/ULTriggerSF/";}
+  else if(year.EqualTo("UL17")){year_v = "_UL17"; lumi_plot = 0.0; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/ULTriggerSF/";}
+  else if(year.EqualTo("UL18")){year_v = "_UL18"; lumi_plot = 59.8; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/ULTriggerSF/";}
+  else throw runtime_error("I need the correct year; 2016, 2017, 2018, UL16, UL17 or UL18");
 
   if(argc == 2){
     cout << "Calculate ElecTrigger SF for "+year+" dependent on pt and eta..." << endl << endl;
@@ -186,12 +188,12 @@ int main(int argc, char* argv[]){
   vector<vector<TH1F*>> h_pt_time, h_eta_time;
   vector<TFile*> f_time;
 
-  TFile *f_data=new TFile(fdir+"uhh2.AnalysisModuleRunner.DATA.SingleMuon2018_RunD"+year_v+".root");
+  TFile *f_data=new TFile(fdir+"uhh2.AnalysisModuleRunner.DATA.SingleMuon"+year_v+".root");
   fill_pteta((TTree *) f_data->Get("AnalysisTree"), h_pt_data, h_eta_data);
   fill_control((TTree *) f_data->Get("AnalysisTree"), h_pt_data_control, h_eta_data_control);
 
   // claculating MC trigger efficiency in ttbar MC
-  TFile *f_tt=new TFile(fdir+"uhh2.AnalysisModuleRunner.MC.TTToDiLeptonic"+year_v+".root");
+  TFile *f_tt=new TFile(fdir+"uhh2.AnalysisModuleRunner.MC.TTbarTo2L2Nu"+year_v+".root");
   fill_pteta((TTree *) f_tt->Get("AnalysisTree"), h_pt_mc, h_eta_mc);
   fill_control((TTree *) f_tt->Get("AnalysisTree"), h_pt_tt, h_eta_tt);
   fill_control((TTree *) f_tt->Get("AnalysisTree"), h_pt_mc_control, h_eta_mc_control);
@@ -281,12 +283,18 @@ int main(int argc, char* argv[]){
   // for(int i=1; i<=h_pt_mc[1]->GetNbinsX();i++) cout << "\t" << h_pt_mc[1]->GetBinContent(i);
   // cout << endl;
 
+  if(debug) std::cout << "got effi data" << std::endl;
+
   TGraphAsymmErrors* h_effi_pt_mc = new TGraphAsymmErrors(h_pt_mc[1], h_pt_mc[0],"cl=0.683 b(1,1) mode");
+  if(debug) std::cout << "A" << std::endl;
   // TGraphAsymmErrors* h_effi_pt_mc_elec = new TGraphAsymmErrors(h_pt_mc[4], h_pt_mc[0],"cl=0.683 b(1,1) mode");
   // TGraphAsymmErrors* h_effi_pt_mc_photon = new TGraphAsymmErrors(h_pt_mc[5], h_pt_mc[0],"cl=0.683 b(1,1) mode");
   TGraphAsymmErrors* h_effi_eta_mc = new TGraphAsymmErrors(h_eta_mc[1], h_eta_mc[0],"cl=0.683 b(1,1) mode");
+  if(debug) std::cout << "B" << std::endl;
   TGraphAsymmErrors* h_effi_eta_lowpt_mc = new TGraphAsymmErrors(h_eta_mc[3], h_eta_mc[2],"cl=0.683 b(1,1) mode");
+  if(debug) std::cout << "C" << std::endl;
   TGraphAsymmErrors* h_effi_eta_midpt_mc = new TGraphAsymmErrors(h_eta_mc[5], h_eta_mc[4],"cl=0.683 b(1,1) mode");
+  if(debug) std::cout << "D" << std::endl;
   TGraphAsymmErrors* h_effi_eta_highpt_mc = new TGraphAsymmErrors(h_eta_mc[7], h_eta_mc[6],"cl=0.683 b(1,1) mode");
 
   if(debug) cout << "Plot efficiency graphs ... " << endl;
