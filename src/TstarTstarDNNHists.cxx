@@ -20,7 +20,7 @@ TstarTstarDNNHists::TstarTstarDNNHists(Context & ctx, const string & dirname): H
 
   // book all histograms here
   book<TH1F>("DNN_output", "DNN output", 20, 0, 1);
-  book<TH1F>("newTagger", "decorrelated tagger", 20, -1, 1);
+  book<TH1F>("newTagger", "DDT score", 20, -1, 1);
   book<TH1F>("DNN_output_noWeights", "DNN output NO WEIGHTS", 20, 0, 1);
   DNN_2D_ST = book<TH2D>("2D_DNN_ST", "DNN output against ST", 40, 0, 4000, 50, 0, 1);
   newTagger_2D_ST = book<TH2D>("2D_newTagger_ST", "DNN_{DDT} against ST", 40, 0, 4000, 50, -1, 1);
