@@ -8,27 +8,18 @@ using namespace std;
 Double_t pt;
 Double_t eta;
 Double_t weight;
-Double_t weight_sfpt;
-Double_t weight_sfeta;
-Double_t weight_sfetapt;
-Double_t weight_sfetaptUP;
-Double_t weight_sfetaptDOWN;
 Double_t lumi_plot;
 Int_t run;
 Int_t lumi;
 Int_t eventnr;
 bool passed, passed_elec, passed_photon;
-bool debug = true;
+bool debug = false;
 TString weighttag;
 TString year, year_v;
 
 //vector<double> pt_bins = {55, 75, 95, 115, 135, 155, 175, 200, 300, 1500};
 vector<double> pt_bins = {55, 75, 95, 115, 135, 155, 175, 200, 250, 300, 400, 500};
 vector<double> pt_bins_control;
-// vector<double> pt_bins = {55, 75, 95, 115, 120, 130, 140, 150, 160, 170, 180, 190, 200, 220, 240, 260, 280, 300, 1500};
-// vector<double> pt_bins = {55, 65, 75, 85, 95, 105, 115, 120, 130, 140, 150, 160, 170, 180, 190, 200, 220, 240, 260, 280, 300, 1500};
-// vector<double> pt_bins;
-// vector<double> eta_bins = {-2.5, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0, 2.5};
 vector<double> eta_bins = {-2.5, -2.0, -1.566, -1.444, -0.8, 0.0, 0.8, 1.444, 1.566, 2.0, 2.5};
 
 // filling hists
@@ -72,32 +63,6 @@ int main(int argc, char* argv[]){
   if(argc == 2){
     cout << "Calculate ElecTrigger SF for "+year+" dependent on pt and eta..." << endl << endl;
     weighttag = "weight";
-  }
-  else if(argc == 3){
-    if(strcmp(argv[2], "pt") == 0){
-      cout << "Cross check: apply pt SF and calculate again..." << endl << endl;
-      weighttag = "weight_sfpt";
-    }
-    else if(strcmp(argv[2], "eta") == 0){
-      cout << "Cross check: apply eta SF and calculate again..." << endl << endl;
-      weighttag = "weight_sfeta";
-    }
-    else if(strcmp(argv[2], "etapt") == 0){
-      cout << "Cross check: apply eta (pt binned) SF and calculate again..." << endl << endl;
-      weighttag = "weight_sfetapt";
-    }
-    else if(strcmp(argv[2], "etaptup") == 0){
-      cout << "Cross check: apply eta (pt binned) SF (UP variation) and calculate again..." << endl << endl;
-      weighttag = "weight_sfetaptUP";
-    }
-    else if(strcmp(argv[2], "etaptdown") == 0){
-      cout << "Cross check: apply eta (pt binned) SF (DOWN variation) and calculate again..." << endl << endl;
-      weighttag = "weight_sfetaptDOWN";
-    }
-    else{
-      cout << "[ERROR] no valid option selected!" << endl;
-      return 0;
-    }
   }
 
   // ===========================================================================
@@ -204,8 +169,6 @@ int main(int argc, char* argv[]){
   PlotHist(h_pt_data[1], "p_{T}", "data_pt_pass");
   PlotHist(h_pt_data[2], "p_{T}", "data_pt_fail_highpt");
   PlotHist(h_pt_data[3], "p_{T}", "data_pt_pass_highpt");
-  // PlotHist(h_pt_data[4], "p_{T}", "data_pt_elec");
-  // PlotHist(h_pt_data[5], "p_{T}", "data_pt_photon");
   PlotHist(h_eta_data[0], "#eta", "data_eta_all");
   PlotHist(h_eta_data[1], "#eta", "data_eta_pass");
   PlotHist(h_eta_data[2], "#eta", "data_eta_lowpt_all");

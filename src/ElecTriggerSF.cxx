@@ -20,7 +20,7 @@ ElecTriggerSF::ElecTriggerSF(uhh2::Context & ctx, std::string var_, TString pe, 
     return;
   }
 
-  TString dir = "/nfs/dust/cms/user/paaschal/UHH2_102X_v2/CMSSW_10_2_17/src/UHH2/MTopJet/ScaleFactors/Electrons/";
+  TString dir = "/nfs/dust/cms/user/flabe/TstarTstar/CMSSW_10_2_17/src/UHH2/TstarTstar/factors/electrons/";
   TString filename = dir + "ElecTriggerSF"+year+".root";
   TFile *file = new TFile(filename);
 

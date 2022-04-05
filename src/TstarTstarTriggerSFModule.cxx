@@ -125,25 +125,12 @@ TstarTstarTriggerSFModule::TstarTstarTriggerSFModule(uhh2::Context& ctx){
   h_eta = ctx.declare_event_output<double>("eta");
   h_pt = ctx.declare_event_output<double>("pt");
   h_weight = ctx.declare_event_output<double>("weight");
-  h_weight_SFpt = ctx.declare_event_output<double>("weight_sfpt");
-  h_weight_SFeta = ctx.declare_event_output<double>("weight_sfeta");
-  h_weight_SFetapt = ctx.declare_event_output<double>("weight_sfetapt");
-  h_weight_SFetaptUP = ctx.declare_event_output<double>("weight_sfetaptUP");
-  h_weight_SFetaptDOWN = ctx.declare_event_output<double>("weight_sfetaptDOWN");
   h_passed = ctx.declare_event_output<bool>("passed");
-  h_passed_elec = ctx.declare_event_output<bool>("passed_elec");
-  h_passed_photon = ctx.declare_event_output<bool>("passed_photon");
   h_run = ctx.declare_event_output<int>("run");
   h_lumi = ctx.declare_event_output<int>("lumi");
   h_eventnr = ctx.declare_event_output<int>("eventnr");
 
   if(debug) cout << "Define Trigger ... " << endl;
-  // define Trigger
-  // trigger_mu_A = uhh2::make_unique<TriggerSelection>("HLT_Mu24_v*");
-  // if(year == Year::is2017v2) trigger_mu_A = uhh2::make_unique<TriggerSelection>("HLT_Mu27_v*");
-  // trigger_mu_B = uhh2::make_unique<TriggerSelection>("HLT_TkMu24_v*");
-  trigger_mu_A = uhh2::make_unique<TriggerSelection>("HLT_Mu50_v*");
-  trigger_mu_B = uhh2::make_unique<TriggerSelection>("HLT_TkMu50_v*");
   if(year_16)      trigger_el_A = uhh2::make_unique<TriggerSelection>("HLT_Ele27_WPTight_Gsf_v*");
   else if(year_17) trigger_el_A = uhh2::make_unique<TriggerSelection>("HLT_Ele35_WPTight_Gsf_v*");
   else if(year_18) trigger_el_A = uhh2::make_unique<TriggerSelection>("HLT_Ele32_WPTight_Gsf_v*");
@@ -151,16 +138,6 @@ TstarTstarTriggerSFModule::TstarTstarTriggerSFModule(uhh2::Context& ctx){
   if(year_16) trigger_el_C = uhh2::make_unique<TriggerSelection>("HLT_Photon175_v*");
   else        trigger_el_C = uhh2::make_unique<TriggerSelection>("HLT_Photon200_v*");
 
-  // Scale Factors
-  TString syear;
-  if(year_16) syear = "2016";
-  if(year_17) syear = "2017";
-  if(year_18) syear = "2018";
-  ele_trigger_SFpt.reset(new ElecTriggerSF(ctx, "nominal", "pt", syear));
-  ele_trigger_SFeta.reset(new ElecTriggerSF(ctx, "nominal", "eta", syear));
-  ele_trigger_SFetapt.reset(new ElecTriggerSF(ctx, "nominal", "eta_ptbins", syear));
-  ele_trigger_SFetaptUP.reset(new ElecTriggerSF(ctx, "up", "eta_ptbins", syear));
-  ele_trigger_SFetaptDOWN.reset(new ElecTriggerSF(ctx, "down", "eta_ptbins", syear));
 
   h_pass.reset(new ElectronHists(ctx, "pass_Elec"));
   h_all.reset(new ElectronHists(ctx, "all_Elec"));
@@ -173,73 +150,25 @@ bool TstarTstarTriggerSFModule::process(uhh2::Event& event){
   if(debug) cout << " ----------------- NewEvent ---------------- " << endl;
   if(debug) cout << " ------------------------------------------- " << endl;
 
-  /* *********** Trigger *********** */
-  if(debug) cout << "Trigger... " << endl;
-
-  // only use high-pt muon region!
-  if(event.muons->at(0).pt() < 60) return false;
-
-  if(year == Year::is2016v3){
-    if(!isMC && event.run < 274954){
-      if(!trigger_mu_A->passes(event)) return false;
-    }
-    else{
-      if( !(trigger_mu_A->passes(event) || trigger_mu_B->passes(event)) ) return false;
-    }
-  }
-  if(year == Year::is2017v2){
-    if(!trigger_mu_A->passes(event)) return false;
-  }
-  if(year == Year::is2018){
-    if(!trigger_mu_A->passes(event)) return false;
-  }
-
   // fill hists with all events
   h_all->fill(event);
 
   // HERE FILL PT AND ETA HISTS FOR PASSING AND NOT PASSING ELEC TRIGGER
   if(debug) cout << "Start Fill ... " << endl;
-  bool passed_elec_trigger = true;
+  bool passed_elec_trigger = false;
   if(year == Year::is2016v3)  passed_elec_trigger = (trigger_el_B->passes(event) || trigger_el_C->passes(event));
   if(year == Year::is2017v2){
     // for MC event.run=1
     if(!isMC && event.run <= 299329) passed_elec_trigger = (trigger_el_A->passes(event) || trigger_el_C->passes(event));
     else                             passed_elec_trigger = (trigger_el_B->passes(event) || trigger_el_C->passes(event));
   }
-  if(year == Year::is2018)  passed_elec_trigger = (trigger_el_A->passes(event) || trigger_el_B->passes(event) || trigger_el_C->passes(event));
-
-  /* Additional studies for kink in data at 200 GeV */
-  bool pass_elec_only = true; bool pass_photon_only = true;
-  if(year == Year::is2016v3){
-    pass_elec_only = trigger_el_B->passes(event);
-    pass_photon_only = trigger_el_C->passes(event);
-  }
-  if(year == Year::is2017v2){
-    // for MC event.run=1
-    if(!isMC && event.run <= 299329){
-      pass_elec_only = trigger_el_A->passes(event);
-      pass_photon_only = trigger_el_C->passes(event);
-    }
-    else{
-      pass_elec_only = trigger_el_B->passes(event);
-      pass_photon_only = trigger_el_C->passes(event);
-    }
-  }
-  if(year == Year::is2018){
-    pass_elec_only = trigger_el_B->passes(event);
-    pass_photon_only = trigger_el_C->passes(event);
-  }
-
-  // bool passed_elec_trigger = false;
-  // if(pass_elec1) passed_elec_trigger = (trigger_el_A->passes(event) || trigger_el_C->passes(event)); // noHighTrigger
+  if(year == Year::is2018 or year == Year::isUL18)  passed_elec_trigger = (trigger_el_A->passes(event) || trigger_el_B->passes(event) || trigger_el_C->passes(event));
 
   if(debug) cout << "Set after Trigger pass... " << endl;
   event.set(h_pt, event.electrons->at(0).pt());
   event.set(h_eta, event.electrons->at(0).eta());
   event.set(h_weight, event.weight);
   event.set(h_passed, passed_elec_trigger);
-  event.set(h_passed_elec, pass_elec_only);
-  event.set(h_passed_photon, pass_photon_only);
 
   int run = 0;
   int lumi = 0;
@@ -255,30 +184,6 @@ bool TstarTstarTriggerSFModule::process(uhh2::Event& event){
   event.set(h_run, run);
   event.set(h_lumi, lumi);
   event.set(h_eventnr, eventnr);
-
-  if(debug) cout << "Apply SFs ... " << endl;
-  // now apply SF and store weight after SF
-  // first store raw weight
-  double wraw = event.weight;
-  // use pt SF and store new weight
-  ele_trigger_SFpt->process(event);
-  event.set(h_weight_SFpt, event.weight);
-  event.weight = wraw;
-  // reset weight and do eta SF
-  ele_trigger_SFeta->process(event);
-  event.set(h_weight_SFeta, event.weight);
-  event.weight = wraw;
-  // reset weight and do eta_ptbin SF
-  ele_trigger_SFetapt->process(event);
-  event.set(h_weight_SFetapt, event.weight);
-  event.weight = wraw;
-  // up variation
-  ele_trigger_SFetaptUP->process(event);
-  event.set(h_weight_SFetaptUP, event.weight);
-  event.weight = wraw;
-  // down variation
-  ele_trigger_SFetaptDOWN->process(event);
-  event.set(h_weight_SFetaptDOWN, event.weight);
 
   if(passed_elec_trigger){
     // fill pass histograms

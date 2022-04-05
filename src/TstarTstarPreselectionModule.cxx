@@ -81,7 +81,7 @@ private:
   // full hists
   std::unique_ptr<Hists> h_nocuts,     h_common,        h_trigger,        h_lepsel,        h_jetsel,        h_fatjetsel,        h_METsel;
   std::unique_ptr<Hists> h_nocuts_gen, h_common_gen,    h_trigger_gen,    h_lepsel_gen,    h_jetsel_gen,    h_fatjetsel_gen,    h_METsel_gen;
-  std::unique_ptr<LuminosityHists>     lumihist_common, lumihist_trigger, lumihist_lepsel, lumihist_jetsel, lumihist_fatjetsel, lumihist_METsel;
+  std::unique_ptr<LuminosityHists> lumihist_common, lumihist_trigger, lumihist_lepsel, lumihist_jetsel, lumihist_fatjetsel, lumihist_METsel;
 
   // electron channel
   std::unique_ptr<Hists> h_lepsel_ele,        h_jetsel_ele,        h_fatjetsel_ele,        h_METsel_ele;
@@ -159,13 +159,13 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
 
   // ###### 1. set up modules ######
   if(debug) cout << "Setting up modules" << endl;
+
   // CommonModules
   common.reset(new CommonModules());
-  common->switch_metcorrection();
   if(debug) cout << "Common done" << endl;
 
   // HOTVR jets
-  HOTVRCorr.reset(new HOTVRJetCorrectionModule(ctx)); // crashes
+  HOTVRCorr.reset(new HOTVRJetCorrectionModule(ctx));
   TopJetId topjetID = AndId<TopJet>(HOTVRTopTag(), Tau32Groomed(0.56)); // Top Tag that is used later
   HOTVRcleaner.reset(new TopJetCleaner(ctx, PtEtaCut(150.0, 2.5)));
   if(debug) cout << "HOTVR done" << endl;
@@ -173,7 +173,6 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   // Electron
   ElectronId eleID_lowpt = ElectronTagID(Electron::mvaEleID_Fall17_iso_V2_wp90);
   ElectronId eleID_highpt = ElectronTagID(Electron::mvaEleID_Fall17_noIso_V2_wp90);
-  //ElectronId eleID_highpt = AndId<Electron>(ElectronTagID(Electron::mvaEleID_Fall17_noIso_V2_wp90), Electron_MINIIso(0.1, "pf-weight"));
   double electron_pt_lowpt(40.);
   double electron_pt_highpt(120.);
   common->set_electron_id(OrId<Electron>( AndId<Electron>(PtEtaSCCut(electron_pt_lowpt, 2.4), eleID_lowpt, EleMaxPtCut(120.)),  AndId<Electron>(PtEtaSCCut(electron_pt_highpt, 2.4), eleID_highpt)));
@@ -181,7 +180,7 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
 
   // Muon
   MuonId muID_lowpt = AndId<Muon>(MuonID(Muon::CutBasedIdTight), MuonID(Muon::PFIsoTight));
-  MuonId muID_highpt = MuonID(Muon::CutBasedIdTight);
+  MuonId muID_highpt = MuonID(Muon::CutBasedIdGlobalHighPt);
   double muon_pt_lowpt(30.);
   double muon_pt_highpt(60.);
   common->set_muon_id(OrId<Muon>( AndId<Muon>(PtEtaCut(muon_pt_lowpt, 2.4), muID_lowpt, MuMaxPtCut(60.)), AndId<Muon>(PtEtaCut(muon_pt_highpt, 2.4), muID_highpt)));
@@ -190,7 +189,7 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   // AK4 Jets
   common->switch_jetlepcleaner();
   common->switch_jetPtSorter();
-  //common->disable_metfilters();
+
   double jet_pt(30.);
   common->set_jet_id(AndId<Jet>(PtEtaCut(jet_pt, 2.5), JetPFID(JetPFID::WP_TIGHT_PUPPI)));
   if(debug) cout << "Jets done" << endl;
@@ -214,25 +213,25 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   if(is_MC || !data_isMu) {
     // The following exist for both 2016 and 2017
     // until 120 GeV, except for 2017B, there for whole range
-    if(year == "2016") trg_ele_low.reset(new TriggerSelection("HLT_Ele27_WPTight_Gsf_v*"));
-    else if (year == "2017") trg_ele_low.reset(new TriggerSelection("HLT_Ele35_WPTight_Gsf_v*"));
+    if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") trg_ele_low.reset(new TriggerSelection("HLT_Ele27_WPTight_Gsf_v*"));
+    else if (year == "2017" || year == "UL17") trg_ele_low.reset(new TriggerSelection("HLT_Ele35_WPTight_Gsf_v*"));
     else trg_ele_low.reset(new TriggerSelection("HLT_Ele32_WPTight_Gsf_v*"));
     // above 120 GeV
-    if(year == "2016") trg_pho.reset(new TriggerSelection("HLT_Photon175_v*"));
+    if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") trg_pho.reset(new TriggerSelection("HLT_Photon175_v*"));
     else trg_pho.reset(new TriggerSelection("HLT_Photon200_v*"));
     if(!data_is2017B) trg_ele_high.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
     else trg_ele_high.reset(new TriggerSelection("HLT_Ele35_WPTight_Gsf_v*"));
   }
   if(is_MC || data_isMu){
     // below 60 GeV
-    if(year == "2017") trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu27_v*"));
+    if(year == "2017" || year == "UL17") trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu27_v*"));
     else trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu24_v*"));
-    if(year == "2016") trg_mu_low_2.reset(new TriggerSelection("HLT_IsoTkMu24_v*"));
+    if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") trg_mu_low_2.reset(new TriggerSelection("HLT_IsoTkMu24_v*"));
     // above 60 GeV
     trg_mu_high_1.reset(new TriggerSelection("HLT_Mu50_v*"));
-    if(year != "2016") {if(!data_is2017B) trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu100_v*"));}
+    if(year != "2016" || year == "UL16preVFP" || year == "UL16postVFP") {if(!data_is2017B) trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu100_v*"));}
     else if(!data_is2016B) trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu50_v*"));
-    if(year != "2016" && !data_is2017B) trg_mu_high_3.reset(new TriggerSelection("HLT_OldMu100_v*"));
+    if((year != "2016" || year == "UL16preVFP" || year == "UL16postVFP") && !data_is2017B) trg_mu_high_3.reset(new TriggerSelection("HLT_OldMu100_v*"));
   }
 
   // ###### 3. set up hists ######
@@ -356,7 +355,7 @@ bool TstarTstarPreselectionModule::process(Event & event) {
 
   // muon
   if(is_MC || data_isMu) {
-    if (year == "2016") {
+    if (year == "2016" || year == "UL16preVFP" || year == "UL16postVFP" ) {
       pass_trigger_SingleMu_lowpt = (trg_mu_low_1->passes(event) || trg_mu_low_2->passes(event));
       if(data_is2016B) pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event));
       else pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event) || trg_mu_high_2->passes(event));
@@ -378,9 +377,9 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   // end main logic
   if(pass_trigger_SingleMu_lowpt && (event.muons->size() >= 1)){if(event.muons->at(0).pt()<=60) pass_trigger = true; }
   if(pass_trigger_SingleMu_highpt && (event.muons->size() >= 1)){if(event.muons->at(0).pt()>60) pass_trigger = true; }
-  if(pass_trigger_SingleEle_lowpt && (event.electrons->size() >= 1)){if(event.electrons->at(0).pt()<=120)pass_trigger = true; }
-  if(pass_trigger_SingleEle_highpt && (event.electrons->size() >= 1)){if(event.electrons->at(0).pt()>120)pass_trigger = true; }
-  if(isTriggerSFMeasurement) pass_trigger = pass_trigger_SingleMu_lowpt or pass_trigger_SingleMu_highpt;
+  if(pass_trigger_SingleEle_lowpt && (event.electrons->size() >= 1)){if(event.electrons->at(0).pt()<=120) pass_trigger = true; }
+  if(pass_trigger_SingleEle_highpt && (event.electrons->size() >= 1)){if(event.electrons->at(0).pt()>120) pass_trigger = true; }
+  if(isTriggerSFMeasurement) pass_trigger = pass_trigger_SingleMu_lowpt || pass_trigger_SingleMu_highpt;
   event.set(h_is_triggered, pass_trigger);
 
   if(debug) std::cout << "Passed trigger logic with final " << pass_trigger << std::endl;

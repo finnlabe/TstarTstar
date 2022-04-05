@@ -9,6 +9,7 @@ from collections import OrderedDict
 import argparse
 from itertools import permutations
 from termcolor import colored
+import shutil
 
 # to include CrossSectionHelper:
 sys.path.append(os.path.join(os.environ.get('CMSSW_BASE'), 'src/UHH2/common/UHH2-datasets'))
@@ -99,12 +100,17 @@ class configContainer:
          'UL18': self.uhh2Dir+'HOTVR/data/TopTaggingScaleFactors_RunIISummer19UL18_PUPPIv15.root',
       }
 
+      # everything will be passed through until the end, so just put the new ones!
       self.additionalBranches = {
          'Preselection': "",
-         'Selection': "is_muevt evt_weight is_triggered is_highpt",
-         'Analysis': "is_muevt evt_weight neutrino is_btagevent weight_sfmu_id weight_sfmu_id_down weight_sfmu_id_up weight_sfmu_isolation weight_sfmu_isolation_down weight_sfmu_isolation_up weight_sfelec_id weight_sfelec_id_down weight_sfelec_id_up TopTagSF TopTagSF_down TopTagSF_merged_down TopTagSF_merged_up TopTagSF_non_down TopTagSF_non_up TopTagSF_semi_up TopTagSF_semi_down TopTagSF_up",
-         'DNN': "is_btagevent is_muevt evt_weight ST_weight DNN_Inputs neutrino TstarTstar_Hyp_gHOTVR TstarTstar_Hyp_gAK4 ST weight_sfmu_id weight_sfmu_id_down weight_sfmu_id_up weight_sfmu_isolation weight_sfmu_isolation_down weight_sfmu_isolation_up weight_sfelec_id weight_sfelec_id_down weight_sfelec_id_up TopTagSF TopTagSF_down TopTagSF_merged_down TopTagSF_merged_up TopTagSF_non_down TopTagSF_non_up TopTagSF_semi_up TopTagSF_semi_down TopTagSF_up"
+         'Selection': "is_muevt evt_weight is_triggered is_highpt weight_pu weight_pu_up weight_pu_down prefiringWeight prefiringWeightDown prefiringWeightUp",
+         'Analysis': "neutrino is_btagevent weight_sfmu_id weight_sfmu_id_down weight_sfmu_id_up weight_sfmu_isolation weight_sfmu_isolation_down weight_sfmu_isolation_up weight_sfelec_id weight_sfelec_id_down weight_sfelec_id_up TopTagSF TopTagSF_down TopTagSF_merged_down TopTagSF_merged_up TopTagSF_non_down TopTagSF_non_up TopTagSF_semi_up TopTagSF_semi_down TopTagSF_up weight_btagdisc_central weight_btagdisc_jesup weight_btagdisc_jesdown weight_btagdisc_lfup weight_btagdisc_lfdown weight_btagdisc_hfup weight_btagdisc_hfdown weight_btagdisc_hfstats1up weight_btagdisc_hfstats1down weight_btagdisc_hfstats2up weight_btagdisc_hfstats2down weight_btagdisc_lfstats1up weight_btagdisc_lfstats1down weight_btagdisc_lfstats2up weight_btagdisc_lfstats2down weight_btagdisc_cferr1up weight_btagdisc_cferr1down weight_btagdisc_cferr2up weight_btagdisc_cferr2down",
+         'DNN': "ST_weight DNN_Inputs TstarTstar_Hyp_gHOTVR TstarTstar_Hyp_gAK4 ST"
       }
+
+      self.additionalBranches["Selection"] = self.additionalBranches["Selection"]+" "+self.additionalBranches["Preselection"]
+      self.additionalBranches["Analysis"] = self.additionalBranches["Analysis"]+" "+self.additionalBranches["Selection"]
+      self.additionalBranches["DNN"] = self.additionalBranches["DNN"]+" "+self.additionalBranches["Analysis"]
 
       self.systematics = list()
 
@@ -208,6 +214,8 @@ class xmlCreator:
       os.makedirs(self.xmlFilePathBase, exist_ok=True)
       self.xmlFilePath = self.xmlFilePathBase+self.xmlFileName
       self.workdirName = '_'.join(['workdir', self.step, self.year, group])
+
+      shutil.copyfile(self.uhh2Dir+"/TstarTstar/config/JobConfig.dtd", self.xmlFilePathBase+"/JobConfig.dtd")
 
       self.write_xml_successful = False
 
