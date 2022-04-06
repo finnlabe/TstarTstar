@@ -70,7 +70,7 @@ void backgroundEstimation(){
   TString subpath_SR="newTaggerCR";
   TString subpath_CR="newTagger_btagCR";
   TString histname="pt_ST_rebinned";
-  TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/";
+  TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/UL18/hadded/";
   TString fileprefix = "uhh2.AnalysisModuleRunner.";
 
   TH1D *histSR;

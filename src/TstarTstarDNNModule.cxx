@@ -18,7 +18,6 @@
 #include "UHH2/TstarTstar/include/TstarTstarSelections.h"
 #include "UHH2/TstarTstar/include/TstarTstarHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarDNNHists.h"
-#include "UHH2/TstarTstar/include/TstarTstarVariationHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarDNNInputHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarRecoTstarHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarAllGenHists.h"
@@ -28,6 +27,7 @@
 #include "UHH2/TstarTstar/include/ReconstructionTstarHypothesis.h"
 #include "UHH2/TstarTstar/include/TstarTstarGenMatch.h"
 #include "UHH2/TstarTstar/include/NeuralNetworkModules.h"
+#include "UHH2/TstarTstar/include/TstarTstarSignalRegionHists.h"
 
 // other
 #include "UHH2/HOTVR/include/HOTVRIds.h"
@@ -100,7 +100,7 @@ private:
 
   std::unique_ptr<Hists> h_highLepton, h_highLepton_AfterDNNcut_06, h_highLepton_notDNNcut_06;
 
-  std::unique_ptr<Hists> h_SFVariations;
+  std::unique_ptr<Hists> h_SignalRegion_total, h_SignalRegion_mu, h_SignalRegion_ele;
 
   // ###### Control switches ######
   bool debug = false;
@@ -185,8 +185,6 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_newTagger_btagCR.reset(new TstarTstarHists(ctx, "newTagger_btagCR"));
   h_newTagger_btagCR_ele.reset(new TstarTstarHists(ctx, "newTagger_btagCR_ele"));
 
-  h_SFVariations.reset(new TstarTstarVariationHists(ctx, "SFVariations"));
-
   /**
   h_AfterDNNcut_02.reset(new TstarTstarHists(ctx, "AfterDNNcut_02"));
   h_notDNNcut_02.reset(new TstarTstarHists(ctx, "notDNNcut_02"));
@@ -234,6 +232,10 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_DNN_reweighted.reset(new TstarTstarDNNHists(ctx, "DNN_reweighted"));
 
   h_AfterDNN.reset(new TstarTstarHists(ctx, "AfterDNN"));
+
+  h_SignalRegion_total.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_total"));
+  h_SignalRegion_mu.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_mu"));
+  h_SignalRegion_ele.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_ele"));
 
   // ###### 4. init handles ######
   h_evt_weight = ctx.get_handle<double>("evt_weight");
@@ -391,7 +393,9 @@ bool TstarTstarDNNModule::process(Event & event) {
     if(newTagger > 0) {
       h_newTaggerSR->fill(event);
       event.set(h_region, "SR");
-      h_SFVariations->fill(event);
+      h_SignalRegion_total->fill(event);
+      if(event.get(h_is_mu)) h_SignalRegion_mu->fill(event);
+      else h_SignalRegion_ele->fill(event);
     }
     else {
       h_newTaggerCR->fill(event);
