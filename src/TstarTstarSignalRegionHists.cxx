@@ -137,8 +137,8 @@ void TstarTstarSignalRegionHists::fill(const Event & event){
   hist("pt_ST_nominal")->Fill(st, weight);
 
   // pu
-  hist("pt_ST_puUp")->Fill(st, event.get(h_weight_puUp)*weight/event.get(h_weight_puNominal));
-  hist("pt_ST_puDown")->Fill(st, event.get(h_weight_puDown)*weight/event.get(h_weight_puNominal));
+  //hist("pt_ST_puUp")->Fill(st, event.get(h_weight_puUp)*weight/event.get(h_weight_puNominal));
+  //hist("pt_ST_puDown")->Fill(st, event.get(h_weight_puDown)*weight/event.get(h_weight_puNominal));
 
   // prefiring
   hist("pt_ST_prefiringUp")->Fill(st, event.get(h_prefiringWeightUp)*weight/event.get(h_prefiringWeightNominal));
