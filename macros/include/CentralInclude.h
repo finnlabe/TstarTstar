@@ -28,6 +28,7 @@
 #include "TLegendEntry.h"
 #include <TMath.h>
 #include <TMatrix.h>
+#include <TMatrixD.h>
 #include <TMatrixDSym.h>
 #include <TMatrixDSymEigen.h>
 #include <TMultiGraph.h>
@@ -73,6 +74,9 @@ typedef map<TString, MapVI> MapVII;
 typedef map<TString, MapVII> MapVIII;
 
 typedef map<TString, TString> MapTS;
+typedef map<TString, MapTS> Map2TS;
+typedef map<TString, Map2TS> Map3TS;
+typedef map<TString, Map3TS> Map4TS;
 typedef map<TString, VecTS> MapVecTS;
 
 typedef map<TString, double> MapD;
@@ -84,6 +88,11 @@ typedef map<TString, TH1F*> MapH;
 typedef map<TString, MapH> MapHH;
 typedef map<TString, MapHH> MapHHH;
 typedef map<TString, MapHHH> MapHHHH;
+
+// typedef map<TString, TMatrixD> MapM;
+// typedef map<TString, MapM> MapMM;
+// typedef map<TString, MapMM> MapMMM;
+// typedef map<TString, MapMMM> MapMMMM;
 
 typedef map<TString, THStack*> MapStack;
 typedef map<TString, MapStack> Map2Stack;
@@ -116,7 +125,7 @@ void SetupGlobalStyle()
 {
   // general appearance and style
 
-  // gROOT->SetStyle("Plain");
+  gROOT->SetStyle("Plain");
   gStyle->SetOptStat(0);
   gStyle -> SetPadTickX(1);
   gStyle -> SetPadTickY(1);
@@ -147,7 +156,7 @@ void SetupGlobalStyle()
 
   gStyle->SetLegendBorderSize(0);
 
-  // gStyle->UseCurrentStyle();
+  gStyle->UseCurrentStyle();
 
 }
 

@@ -50,18 +50,6 @@ This header contains many outdated functions and should be reorganized.
 // =====================================================================================
 
 // -------------------------------------------------------------------------------------------
-// tuple<vector<double>, vector<double>> get_bin_content_and_error(TH1F* hist){
-//   vector<double> bin_error_v, bin_content_v;
-//   for(unsigned int bin=1; bin<hist->GetNbinsX()+1; bin++){
-//     bin_error_v.push_back(hist->GetBinError(bin));
-//     bin_content_v.push_back(hist->GetBinContent(bin));
-//   }
-//
-//   return {bin_content_v, bin_error_v};
-//   // return {{}, {}};
-// }
-
-// -------------------------------------------------------------------------------------------
 vector<int> bins_upper_limit(TH1F* hist, double limit){
   vector<int> bin_pass_v;
   for(int bin=1; bin <= hist->GetNbinsX(); bin++){
@@ -132,7 +120,7 @@ vector<TH1F*> RebinVector(vector<TH1F*> hists, int rebin){
 // ===                                                                               ===
 // =====================================================================================
 
-// -------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------- uncorrelated
 TH1F* Normalize(TH1F* hist){
   TH1F* norm = (TH1F*) hist->Clone();
   int nbins = hist->GetXaxis()->GetNbins();
@@ -409,7 +397,7 @@ TH1F* GetRatio(TH1F* h1, TH1F* h2, bool equal){
     double E1 = h1->GetBinError(i);
     double E2 = h2->GetBinError(i);
     if(N1==0 || N2==0){
-      if(equal) ratio->SetBinContent(i, 0);
+      if(equal) ratio->SetBinContent(i, 1);
       else      ratio->SetBinContent(i, 1);
 
       ratio->SetBinError(i, 0);
