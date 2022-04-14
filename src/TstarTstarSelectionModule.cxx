@@ -17,6 +17,7 @@
 #include "UHH2/common/include/MCWeight.h"
 #include <UHH2/common/include/DetectorCleaning.h>
 #include "UHH2/common/include/JetIds.h"
+#include "UHH2/common/include/LeptonScaleFactors.h"
 
 // TstarTstar stuff
 #include "UHH2/TstarTstar/include/ModuleBASE.h"
@@ -65,13 +66,24 @@ private:
   // scale factors
   std::unique_ptr<AnalysisModule> HadronicTopFinder;
   std::unique_ptr<AnalysisModule> HOTVRScale;
-  std::unique_ptr<AnalysisModule> ScaleFactor_muon_ID;
-  std::unique_ptr<AnalysisModule> ScaleFactor_muon_iso;
-  std::unique_ptr<AnalysisModule> ScaleFactor_muon_trigger;
-  std::unique_ptr<AnalysisModule> ScaleFactor_ele_ID;
-  std::unique_ptr<AnalysisModule> ScaleFactor_ele_ID_noiso;
-  std::unique_ptr<AnalysisModule> ScaleFactor_ele_trigger;
   std::unique_ptr<AnalysisModule> ScaleFactor_btagging;
+
+  // I'll add an "dummy" version here to be used on the "wrong" channel
+  std::unique_ptr<AnalysisModule> sf_muon_iso;
+  std::unique_ptr<AnalysisModule> sf_muon_ID_lowpt;
+  std::unique_ptr<AnalysisModule> sf_muon_ID_highpt;
+  std::unique_ptr<AnalysisModule> sf_muon_trigger_lowpt;
+  std::unique_ptr<AnalysisModule> sf_muon_trigger_highpt;
+  std::unique_ptr<AnalysisModule> sf_muon_iso_DUMMY;
+  std::unique_ptr<AnalysisModule> sf_muon_ID_DUMMY;
+  std::unique_ptr<AnalysisModule> sf_muon_trigger_DUMMY;
+
+  std::unique_ptr<AnalysisModule> sf_ele_ID_lowpt;
+  std::unique_ptr<AnalysisModule> sf_ele_ID_highpt;
+  std::unique_ptr<AnalysisModule> sf_ele_reco;
+  std::unique_ptr<AnalysisModule> sf_ele_ID_DUMMY;
+  std::unique_ptr<AnalysisModule> sf_ele_reco_DUMMY;
+  // std::unique_ptr<AnalysisModule> sf_ele_trigger; // TODO add
 
   // selections
   unique_ptr<Selection> twodcut_sel;
@@ -121,23 +133,6 @@ private:
   uhh2::Event::Handle<double> h_ST;
   uhh2::Event::Handle<bool> h_is_triggered;
   uhh2::Event::Handle<bool> h_is_btagevent;
-
-  // SF handles
-  uhh2::Event::Handle<float> h_weight_sfmu_id;
-  uhh2::Event::Handle<float> h_weight_sfmu_id_down;
-  uhh2::Event::Handle<float> h_weight_sfmu_id_up;
-  uhh2::Event::Handle<float> h_weight_sfmu_isolation;
-  uhh2::Event::Handle<float> h_weight_sfmu_isolation_down;
-  uhh2::Event::Handle<float> h_weight_sfmu_isolation_up;
-  uhh2::Event::Handle<float> h_weight_sfmu_trigger;
-  uhh2::Event::Handle<float> h_weight_sfmu_trigger_down;
-  uhh2::Event::Handle<float> h_weight_sfmu_trigger_up;
-  uhh2::Event::Handle<float> h_weight_sfele_id;
-  uhh2::Event::Handle<float> h_weight_sfele_id_down;
-  uhh2::Event::Handle<float> h_weight_sfele_id_up;
-  uhh2::Event::Handle<float> h_weight_sfele_trigger;
-  uhh2::Event::Handle<float> h_weight_sfele_trigger_down;
-  uhh2::Event::Handle<float> h_weight_sfele_trigger_up;
 
   // ###### Control Switches ######
   bool debug = false;
@@ -257,55 +252,26 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx):
   //HOTVRScale.reset(new HOTVRScaleFactor(ctx, topjetID));
 
   if(debug) cout << "Setting up electron scale." << endl;
-  // lepton scale
-  // electron
-  if(year == "2016") {
-    ScaleFactor_ele_ID.reset(new MCElecScaleFactor(ctx, SF_path+"/electrons/2016LegacyReReco_ElectronMVA90_Fall17V2.root", 0., "id"));
-    ScaleFactor_ele_ID_noiso.reset(new MCElecScaleFactor(ctx, SF_path+"/electrons/2016LegacyReReco_ElectronMVA90noiso_Fall17V2.root", 0., "id"));
-  }
-  else if(year == "2017") {
-    ScaleFactor_ele_ID.reset(new MCElecScaleFactor(ctx, SF_path+"/electrons/2017_ElectronMVA90.root", 0., "id"));
-    ScaleFactor_ele_ID_noiso.reset(new MCElecScaleFactor(ctx, SF_path+"/electrons/2017_ElectronMVA90noiso.root", 0., "id"));
-  }
-  else if(year == "2018" || year == "UL18") {
-    ScaleFactor_ele_ID.reset(new MCElecScaleFactor(ctx, SF_path+"/electrons/2018_ElectronMVA90.root", 0., "id"));
-    ScaleFactor_ele_ID_noiso.reset(new MCElecScaleFactor(ctx, SF_path+"/electrons/2018_ElectronMVA90noiso.root", 0., "id"));
-    ScaleFactor_ele_trigger.reset(new ElecTriggerSF(ctx, "nominal", "eta_ptbins", "UL18"));
-  }
-  h_weight_sfele_id = ctx.get_handle<float>("weight_sfelec_id");
-  h_weight_sfele_id_down = ctx.get_handle<float>("weight_sfelec_id_down");
-  h_weight_sfele_id_up = ctx.get_handle<float>("weight_sfelec_id_up");
-  h_weight_sfele_trigger = ctx.get_handle<float>("weight_sfelec_trigger");
-  h_weight_sfele_trigger_down = ctx.get_handle<float>("weight_sfelec_trigger_down");
-  h_weight_sfele_trigger_up = ctx.get_handle<float>("weight_sfelec_trigger_up");
+
+  sf_ele_reco.reset( new uhh2::ElectronRecoScaleFactors(ctx) );
+  sf_ele_reco_DUMMY.reset(new uhh2::ElectronRecoScaleFactors(ctx, boost::none, boost::none, boost::none, boost::none, true) );
+
+  sf_ele_ID_lowpt.reset(new uhh2::ElectronIdScaleFactors(ctx, Electron::mvaEleID_Fall17_iso_V2_wp90) );
+  sf_ele_ID_highpt.reset( new uhh2::ElectronIdScaleFactors(ctx, Electron::mvaEleID_Fall17_noIso_V2_wp90) );
+  sf_ele_ID_DUMMY.reset( new uhh2::ElectronIdScaleFactors(ctx, boost::none, boost::none, boost::none, boost::none, true) );
 
   if(debug) cout << "Setting up muon scale." << endl;
 
-  // muons
-  if(year == "2016") {
-    ScaleFactor_muon_ID.reset(new MCMuonScaleFactor(ctx, SF_path+"/muons/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ID.root", "NUM_TightID_DEN_TrackerMuons_abseta_pt", 0., "id", false));
-    ScaleFactor_muon_iso.reset(new MCMuonScaleFactor(ctx, SF_path+"/muons/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ISO.root", "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", 0., "isolation", false));
-    ScaleFactor_muon_trigger.reset(new MCMuonScaleFactor(ctx, SF_path+"/muons/Efficiencies_muon-combined-Run2016BtoH_Run2017BtoF_Run2018AtoD.root", "SF_2016_var", 0., "trigger", true));
-  }
-  else if(year == "2017") {
-    ScaleFactor_muon_ID.reset(new MCMuonScaleFactor(ctx, SF_path+"/muons/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ID.root", "NUM_TightID_DEN_TrackerMuons_abseta_pt", 0., "id", false));
-    ScaleFactor_muon_iso.reset(new MCMuonScaleFactor(ctx, SF_path+"/muons/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ISO.root", "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", 0., "isolation", false));
-    ScaleFactor_muon_trigger.reset(new MCMuonScaleFactor(ctx, SF_path+"/muons/Efficiencies_muon-combined-Run2016BtoH_Run2017BtoF_Run2018AtoD.root", "SF_2017_var", 0., "trigger", true));
-  }
-  else if(year == "2018" || year == "UL18") {
-    ScaleFactor_muon_ID.reset(new MCMuonScaleFactor(ctx, SF_path+"/muons/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ID.root", "NUM_TightID_DEN_TrackerMuons_abseta_pt", 0., "id", false));
-    ScaleFactor_muon_iso.reset(new MCMuonScaleFactor(ctx, SF_path+"/muons/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ISO.root", "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", 0., "isolation", false));
-    ScaleFactor_muon_trigger.reset(new MCMuonScaleFactor(ctx, SF_path+"/muons/Efficiencies_muon-combined-Run2016BtoH_Run2017BtoF_Run2018AtoD.root", "SF_2018_var", 0., "trigger", true));
-  }
-  h_weight_sfmu_id = ctx.get_handle<float>("weight_sfmu_id");
-  h_weight_sfmu_id_down = ctx.get_handle<float>("weight_sfmu_id_down");
-  h_weight_sfmu_id_up = ctx.get_handle<float>("weight_sfmu_id_up");
-  h_weight_sfmu_isolation = ctx.get_handle<float>("weight_sfmu_isolation");
-  h_weight_sfmu_isolation_down = ctx.get_handle<float>("weight_sfmu_isolation_down");
-  h_weight_sfmu_isolation_up = ctx.get_handle<float>("weight_sfmu_isolation_up");
-  h_weight_sfmu_trigger = ctx.get_handle<float>("weight_sfmu_trigger");
-  h_weight_sfmu_trigger_down = ctx.get_handle<float>("weight_sfmu_trigger_down");
-  h_weight_sfmu_trigger_up = ctx.get_handle<float>("weight_sfmu_trigger_up");
+  sf_muon_ID_lowpt.reset( new uhh2::MuonIdScaleFactors(ctx, Muon::CutBasedIdTight) );
+  sf_muon_ID_highpt.reset( new uhh2::MuonIdScaleFactors(ctx, Muon::CutBasedIdGlobalHighPt) );
+  sf_muon_ID_DUMMY.reset( new uhh2::MuonIdScaleFactors(ctx, boost::none, boost::none, boost::none, boost::none, true) );
+
+  sf_muon_iso.reset( new uhh2::MuonIsoScaleFactors(ctx, Muon::PFIsoTight, Muon::CutBasedIdTight) ); // only for low pt
+  sf_muon_iso_DUMMY.reset( new uhh2::MuonIsoScaleFactors(ctx, boost::none, boost::none, boost::none, boost::none, boost::none, true) );
+
+  sf_muon_trigger_lowpt.reset( new uhh2::MuonTriggerScaleFactors(ctx, false) );
+  sf_muon_trigger_highpt.reset( new uhh2::MuonTriggerScaleFactors(ctx, true) );
+  sf_muon_trigger_DUMMY.reset( new uhh2::MuonTriggerScaleFactors(ctx, boost::none, boost::none, boost::none, boost::none, boost::none, true) );
 
   if(debug) cout << "Setting up btagging scale." << endl;
 
@@ -562,50 +528,10 @@ bool TstarTstarSelectionModule::process(Event & event) {
   if(debug) std::cout << "We have electrons: " << event.electrons->size() << endl;
   if(debug) std::cout << "is_muevt is: " << event.get(h_is_muevt) << endl;
 
-  /**
-  // ###### dR cut to suppress QCD ######
-  FlavorParticle primary_lepton = event.get(h_primlep);
-  double min_deltaR = 999;
-  for(auto &jet : *event.jets){
-    double cur_deltaR = deltaR(jet, primary_lepton);
-    if(cur_deltaR < min_deltaR) min_deltaR = cur_deltaR;
-  }
-  bool pass_dR = false;
-  if(event.get(h_is_muevt)){
-    if(event.muons->at(0).pt()<=60) pass_dR = min_deltaR > 0.4;
-    else pass_dR = min_deltaR > 0.2;
-  }
-  else {
-    if(event.electrons->at(0).pt()<=120) pass_dR = min_deltaR > 0.4;
-    else pass_dR = min_deltaR > 0.2;
-  }
-  if(!pass_dR) return false;
-
-  if(pass_btagcut && is_triggered) { // only fill these for btag cut passes
-    // hists
-    h_dRcut->fill(event);
-    h_dRcut_gen->fill(event);
-    if(event.get(h_is_muevt)){
-      h_dRcut_mu->fill(event);
-      if(event.muons->at(0).pt()<=60) h_dRcut_mu_lowpt->fill(event);
-      else h_dRcut_mu_highpt->fill(event);
-    }
-    else {
-      h_dRcut_ele->fill(event);
-      if(event.electrons->at(0).pt()<=120) h_dRcut_ele_lowpt->fill(event);
-      else h_dRcut_ele_highpt->fill(event);
-    }
-    if(debug) cout << "Passed dR cut." << endl;
-  } else {
-    // for later
-  }
-  **/
-
   if(debug) std::cout << "Done dR" << endl;
 
-
   // ST cut to reduce computation time (and file sizes)
-  // Neutrin reconstruction
+  // Neutrino reconstruction
   const Particle& lepton = event.get(h_primlep); // Primary Lepton has to be set
   std::vector<LorentzVector> neutrinos = NeutrinoReconstruction(lepton.v4(), event.met->v4());
   if(debug) std::cout << "We have this many neutrino options: " << neutrinos.size() << std::endl;
@@ -664,38 +590,35 @@ bool TstarTstarSelectionModule::process(Event & event) {
 
   // lepton SFs
   if(event.get(h_is_muevt)){
-    ScaleFactor_muon_ID->process(event);
-    if(!event.get(h_is_highpt)) ScaleFactor_muon_iso->process(event);
-    else {
-      event.set(h_weight_sfmu_isolation, 1.);
-      event.set(h_weight_sfmu_isolation_down, 1.);
-      event.set(h_weight_sfmu_isolation_up, 1.);
-    }
-    event.set(h_weight_sfele_id, 1.);
-    event.set(h_weight_sfele_id_down, 1.);
-    event.set(h_weight_sfele_id_up, 1.);
-    event.set(h_weight_sfele_trigger, 1.);
-    event.set(h_weight_sfele_trigger_down, 1.);
-    event.set(h_weight_sfele_trigger_up, 1.);
 
-    event.set(h_weight_sfmu_trigger, 1.);
-    event.set(h_weight_sfmu_trigger_down, 1.);
-    event.set(h_weight_sfmu_trigger_up, 1.);
+    if(event.get(h_is_highpt)) {
+      sf_muon_ID_highpt->process(event);
+      sf_muon_iso_DUMMY->process(event);
+      sf_muon_trigger_lowpt->process(event);
+    } else {
+      sf_muon_iso->process(event);
+      sf_muon_ID_lowpt->process(event);
+      sf_muon_trigger_highpt->process(event);
+    }
+
+    sf_ele_reco_DUMMY->process(event);
+    sf_ele_ID_DUMMY->process(event);
+
   }
   else {
-    if(event.get(h_is_highpt)) ScaleFactor_ele_ID_noiso->process(event);
-    ScaleFactor_ele_ID->process(event);
 
-    // fixing empty handles
-    event.set(h_weight_sfmu_id, 1.);
-    event.set(h_weight_sfmu_id_down, 1.);
-    event.set(h_weight_sfmu_id_up, 1.);
-    event.set(h_weight_sfmu_isolation, 1.);
-    event.set(h_weight_sfmu_isolation_down, 1.);
-    event.set(h_weight_sfmu_isolation_up, 1.);
-    event.set(h_weight_sfmu_trigger, 1.);
-    event.set(h_weight_sfmu_trigger_down, 1.);
-    event.set(h_weight_sfmu_trigger_up, 1.);
+    sf_ele_reco->process(event);
+
+    if(event.get(h_is_highpt)) {
+      sf_ele_ID_highpt->process(event);
+    } else {
+      sf_ele_ID_highpt->process(event);
+    }
+
+    sf_muon_ID_DUMMY->process(event);
+    sf_muon_iso_DUMMY->process(event);
+    sf_muon_trigger_DUMMY->process(event);
+
   }
 
   if(debug) std::cout << "Done Lepton ID, ISO SFs" << endl;
@@ -720,14 +643,6 @@ bool TstarTstarSelectionModule::process(Event & event) {
       h_corrections_nobtag->fill(event);
       if(!event.get(h_is_muevt)) h_corrections_nobtag_ele->fill(event);
     }
-  }
-
-  if(event.get(h_is_muevt)){
-    event.set(h_weight_sfmu_trigger, 1.);
-    event.set(h_weight_sfmu_trigger_down, 1.);
-    event.set(h_weight_sfmu_trigger_up, 1.);
-  } else {
-    ScaleFactor_ele_trigger->process(event);
   }
 
   if(pass_btagcut && is_triggered) { // only fill these for btag cut passes
