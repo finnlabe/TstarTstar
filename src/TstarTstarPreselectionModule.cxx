@@ -182,8 +182,8 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   MuonId muID_lowpt = AndId<Muon>(MuonID(Muon::CutBasedIdTight), MuonID(Muon::PFIsoTight));
   MuonId muID_highpt = MuonID(Muon::CutBasedIdGlobalHighPt);
   double muon_pt_lowpt(30.);
-  double muon_pt_highpt(60.);
-  common->set_muon_id(OrId<Muon>( AndId<Muon>(PtEtaCut(muon_pt_lowpt, 2.4), muID_lowpt, MuMaxPtCut(60.)), AndId<Muon>(PtEtaCut(muon_pt_highpt, 2.4), muID_highpt)));
+  double muon_pt_highpt(55.);
+  common->set_muon_id(OrId<Muon>( AndId<Muon>(PtEtaCut(muon_pt_lowpt, 2.4), muID_lowpt, MuMaxPtCut(55.)), AndId<Muon>(PtEtaCut(muon_pt_highpt, 2.4), muID_highpt)));
   if(debug) cout << "Muons done" << endl;
 
   // AK4 Jets
@@ -223,11 +223,11 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
     else trg_ele_high.reset(new TriggerSelection("HLT_Ele35_WPTight_Gsf_v*"));
   }
   if(is_MC || data_isMu){
-    // below 60 GeV
+    // below 55 GeV
     if(year == "2017" || year == "UL17") trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu27_v*"));
     else trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu24_v*"));
     if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") trg_mu_low_2.reset(new TriggerSelection("HLT_IsoTkMu24_v*"));
-    // above 60 GeV
+    // above 55 GeV
     trg_mu_high_1.reset(new TriggerSelection("HLT_Mu50_v*"));
     if(year != "2016" || year == "UL16preVFP" || year == "UL16postVFP") {if(!data_is2017B) trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu100_v*"));}
     else if(!data_is2016B) trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu50_v*"));
@@ -375,8 +375,8 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   }
 
   // end main logic
-  if(pass_trigger_SingleMu_lowpt && (event.muons->size() >= 1)){if(event.muons->at(0).pt()<=60) pass_trigger = true; }
-  if(pass_trigger_SingleMu_highpt && (event.muons->size() >= 1)){if(event.muons->at(0).pt()>60) pass_trigger = true; }
+  if(pass_trigger_SingleMu_lowpt && (event.muons->size() >= 1)){if(event.muons->at(0).pt()<=55) pass_trigger = true; }
+  if(pass_trigger_SingleMu_highpt && (event.muons->size() >= 1)){if(event.muons->at(0).pt()>55) pass_trigger = true; }
   if(pass_trigger_SingleEle_lowpt && (event.electrons->size() >= 1)){if(event.electrons->at(0).pt()<=120) pass_trigger = true; }
   if(pass_trigger_SingleEle_highpt && (event.electrons->size() >= 1)){if(event.electrons->at(0).pt()>120) pass_trigger = true; }
   if(isTriggerSFMeasurement) pass_trigger = pass_trigger_SingleMu_lowpt || pass_trigger_SingleMu_highpt;
@@ -408,7 +408,7 @@ bool TstarTstarPreselectionModule::process(Event & event) {
 
   // set is_highpt
   if(event.get(h_is_muevt)){
-    if(event.muons->at(0).pt()<=60) event.set(h_is_highpt, false);
+    if(event.muons->at(0).pt()<=55) event.set(h_is_highpt, false);
     else event.set(h_is_highpt, true);
   }
   else {
@@ -423,7 +423,7 @@ bool TstarTstarPreselectionModule::process(Event & event) {
     lumihist_lepsel->fill(event);
     if(event.get(h_is_muevt)){
       h_lepsel_mu->fill(event);
-      if(event.muons->at(0).pt()<=60) h_lepsel_mu_lowpt->fill(event);
+      if(event.muons->at(0).pt()<=55) h_lepsel_mu_lowpt->fill(event);
       else h_lepsel_mu_highpt->fill(event);
     }
     else {
@@ -446,7 +446,7 @@ bool TstarTstarPreselectionModule::process(Event & event) {
     lumihist_jetsel->fill(event);
     if(event.get(h_is_muevt)){
       h_jetsel_mu->fill(event);
-      if(event.muons->at(0).pt()<=60) h_jetsel_mu_lowpt->fill(event);
+      if(event.muons->at(0).pt()<=55) h_jetsel_mu_lowpt->fill(event);
       else h_jetsel_mu_highpt->fill(event);
     }
     else {
@@ -468,7 +468,7 @@ bool TstarTstarPreselectionModule::process(Event & event) {
     lumihist_fatjetsel->fill(event);
     if(event.get(h_is_muevt)){
       h_fatjetsel_mu->fill(event);
-      if(event.muons->at(0).pt()<=60) h_fatjetsel_mu_lowpt->fill(event);
+      if(event.muons->at(0).pt()<=55) h_fatjetsel_mu_lowpt->fill(event);
       else h_fatjetsel_mu_highpt->fill(event);
     }
     else {
@@ -491,7 +491,7 @@ bool TstarTstarPreselectionModule::process(Event & event) {
     lumihist_METsel->fill(event);
     if(event.get(h_is_muevt)){
       h_METsel_mu->fill(event);
-      if(event.muons->at(0).pt()<=60) h_METsel_mu_lowpt->fill(event);
+      if(event.muons->at(0).pt()<=55) h_METsel_mu_lowpt->fill(event);
       else h_METsel_mu_highpt->fill(event);
     }
     else {
