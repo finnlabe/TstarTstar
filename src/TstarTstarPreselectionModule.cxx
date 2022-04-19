@@ -102,6 +102,8 @@ private:
   uhh2::Event::Handle<double> h_evt_weight;
   uhh2::Event::Handle<bool> h_is_triggered;
 
+  uhh2::Event::Handle<bool> h_MC_isfake2017B;
+
   // ##### Control switches #####
   bool debug = false;
 
@@ -111,6 +113,7 @@ private:
   bool data_isMu = false;
   bool data_is2017B = false;
   bool data_is2016B = false;
+  bool MC_isfake2017B = false;
   bool isTriggerSFMeasurement = false;
 
 };
@@ -165,7 +168,7 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   if(debug) cout << "Common done" << endl;
 
   // HOTVR jets
-  HOTVRCorr.reset(new HOTVRJetCorrectionModule(ctx));
+  if(year != "UL17") HOTVRCorr.reset(new HOTVRJetCorrectionModule(ctx));
   TopJetId topjetID = AndId<TopJet>(HOTVRTopTag(), Tau32Groomed(0.56)); // Top Tag that is used later
   HOTVRcleaner.reset(new TopJetCleaner(ctx, PtEtaCut(150.0, 2.5)));
   if(debug) cout << "HOTVR done" << endl;
@@ -194,6 +197,8 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   common->set_jet_id(AndId<Jet>(PtEtaCut(jet_pt, 2.5), JetPFID(JetPFID::WP_TIGHT_PUPPI)));
   if(debug) cout << "Jets done" << endl;
 
+  if(year == "UL17") common->disable_jersmear();
+
   // init common
   common->init(ctx);
   if(debug) cout << "Common init done" << endl;
@@ -219,7 +224,7 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
     // above 120 GeV
     if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") trg_pho.reset(new TriggerSelection("HLT_Photon175_v*"));
     else trg_pho.reset(new TriggerSelection("HLT_Photon200_v*"));
-    if(!data_is2017B) trg_ele_high.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
+    if(!(data_is2017B || MC_isfake2017B)) trg_ele_high.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
     else trg_ele_high.reset(new TriggerSelection("HLT_Ele35_WPTight_Gsf_v*"));
   }
   if(is_MC || data_isMu){
@@ -229,9 +234,9 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
     if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") trg_mu_low_2.reset(new TriggerSelection("HLT_IsoTkMu24_v*"));
     // above 55 GeV
     trg_mu_high_1.reset(new TriggerSelection("HLT_Mu50_v*"));
-    if(year != "2016" || year == "UL16preVFP" || year == "UL16postVFP") {if(!data_is2017B) trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu100_v*"));}
+    if(year != "2016" || year == "UL16preVFP" || year == "UL16postVFP") {if(!(data_is2017B || MC_isfake2017B)) trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu100_v*"));}
     else if(!data_is2016B) trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu50_v*"));
-    if((year != "2016" || year == "UL16preVFP" || year == "UL16postVFP") && !data_is2017B) trg_mu_high_3.reset(new TriggerSelection("HLT_OldMu100_v*"));
+    if((year != "2016" || year == "UL16preVFP" || year == "UL16postVFP") && !(data_is2017B || MC_isfake2017B)) trg_mu_high_3.reset(new TriggerSelection("HLT_OldMu100_v*"));
   }
 
   // ###### 3. set up hists ######
@@ -306,6 +311,8 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   if(IsTriggerSFMeasurement == "True") isTriggerSFMeasurement = true;
   if(isTriggerSFMeasurement) std::cout << "Changing the lepton requirement as this is Electron trigger SF measurement run!" << std::endl;
 
+  h_MC_isfake2017B = ctx.declare_event_output<bool>("MC_isfake2017B");
+
 }
 
 
@@ -330,7 +337,7 @@ bool TstarTstarPreselectionModule::process(Event & event) {
 
   // ###### common modules, corrections & cleaning ######
   if(!(common->process(event))) return false;
-  if(!(HOTVRCorr->process(event))) return false;
+  if(year != "UL17") if(!(HOTVRCorr->process(event))) return false;
   if(!(HOTVRcleaner->process(event))) return false;
 
   if(debug) cout<<"common modules done"<<endl;
@@ -353,6 +360,19 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   bool pass_trigger_SingleEle_highpt = false;
   // main logic
 
+  if(year == "UL17" && is_MC) {
+    // in UL17 we need to fake 11.6% (run B part) to a different trigger
+    std::srand(std::time(nullptr));
+
+    float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    if(r < 0.116) MC_isfake2017B = true;
+
+    event.set(h_MC_isfake2017B, MC_isfake2017B);
+
+  } else {
+    event.set(h_MC_isfake2017B, false);
+  }
+
   // muon
   if(is_MC || data_isMu) {
     if (year == "2016" || year == "UL16preVFP" || year == "UL16postVFP" ) {
@@ -361,7 +381,7 @@ bool TstarTstarPreselectionModule::process(Event & event) {
       else pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event) || trg_mu_high_2->passes(event));
     } else {
       pass_trigger_SingleMu_lowpt = trg_mu_low_1->passes(event);
-      if(data_is2017B) pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event));
+      if(data_is2017B || MC_isfake2017B) pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event));
       else pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event) || trg_mu_high_2->passes(event) || trg_mu_high_3->passes(event));
     }
     if(debug) std::cout << "Passed muon trigger logic" << std::endl;

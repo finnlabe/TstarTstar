@@ -103,7 +103,7 @@ class configContainer:
       # everything will be passed through until the end, so just put the new ones!
       self.additionalBranches = {
          'Preselection': "",
-         'Selection': "is_muevt evt_weight is_triggered is_highpt weight_pu weight_pu_up weight_pu_down prefiringWeight prefiringWeightDown prefiringWeightUp",
+         'Selection': "MC_isfake2017B is_muevt evt_weight is_triggered is_highpt weight_pu weight_pu_up weight_pu_down prefiringWeight prefiringWeightDown prefiringWeightUp",
          'Analysis': "neutrino is_btagevent weight_sfmu_id weight_sfmu_id_down weight_sfmu_id_up weight_sfmu_isolation weight_sfmu_isolation_down weight_sfmu_isolation_up weight_sfelec_id weight_sfelec_id_down weight_sfelec_id_up TopTagSF TopTagSF_down TopTagSF_merged_down TopTagSF_merged_up TopTagSF_non_down TopTagSF_non_up TopTagSF_semi_up TopTagSF_semi_down TopTagSF_up weight_btagdisc_central weight_btagdisc_jesup weight_btagdisc_jesdown weight_btagdisc_lfup weight_btagdisc_lfdown weight_btagdisc_hfup weight_btagdisc_hfdown weight_btagdisc_hfstats1up weight_btagdisc_hfstats1down weight_btagdisc_hfstats2up weight_btagdisc_hfstats2down weight_btagdisc_lfstats1up weight_btagdisc_lfstats1down weight_btagdisc_lfstats2up weight_btagdisc_lfstats2down weight_btagdisc_cferr1up weight_btagdisc_cferr1down weight_btagdisc_cferr2up weight_btagdisc_cferr2down",
          'DNN': "ST_weight DNN_Inputs TstarTstar_Hyp_gHOTVR TstarTstar_Hyp_gAK4 ST"
       }
@@ -294,7 +294,6 @@ class xmlCreator:
              file.write('''<!-- scale factor configuration -->\n''')
              file.write('''<Item Name="HOTVRTopTagSFs" Value="'''+self.yearVars['HOTVRSFs'][self.year]+'''"/>\n''')
              file.write('''<Item Name="SF_path" Value="/nfs/dust/cms/user/flabe/TstarTstar/CMSSW_10_2_17/src/UHH2/TstarTstar/factors/" />\n''')
-             file.write('''<Item Name="BTagCalibration" Value="/nfs/dust/cms/user/flabe/TstarTstar/CMSSW_10_2_17/src/UHH2/TstarTstar/factors/btag/reshaping_deepJet_106XUL18_v2.csv" />\n''')
              file.write('''<Item Name="NLOCorrections" Value = "/nfs/dust/cms/user/deleokse/RunII_102X_v2/CMSSW_10_2_17/src/UHH2/ZprimeSemiLeptonic/data/" />''')
          file.write('''\n''')
          file.write('''<!-- Switch for debugging of the central AnalysisModule -->\n''')
