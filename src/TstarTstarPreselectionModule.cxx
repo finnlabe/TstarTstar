@@ -157,8 +157,8 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   if(!is_MC) data_isMu = (ctx.get("dataset_version").find("SingleMuon") != std::string::npos);
 
   // check this specific run as it has error
-  if(!is_MC) data_is2017B = (ctx.get("dataset_version").find("SingleElectron2017_RunB") != std::string::npos) || (ctx.get("dataset_version").find("SingleMuon2017_RunB") != std::string::npos);
-  if(!is_MC) data_is2016B = (ctx.get("dataset_version").find("SingleElectron2016_RunB") != std::string::npos) || (ctx.get("dataset_version").find("SingleMuon2016_RunB") != std::string::npos);
+  if(!is_MC) data_is2017B = (ctx.get("dataset_version").find("SingleElectron_RunB_UL17") != std::string::npos) || (ctx.get("dataset_version").find("SingleMuon_RunB_UL17") != std::string::npos);
+  if(!is_MC) data_is2016B = (ctx.get("dataset_version").find("SingleElectron_RunB_UL16preVFP") != std::string::npos) || (ctx.get("dataset_version").find("SingleMuon_RunB_UL16preVFP") != std::string::npos);
 
   // ###### 1. set up modules ######
   if(debug) cout << "Setting up modules" << endl;
