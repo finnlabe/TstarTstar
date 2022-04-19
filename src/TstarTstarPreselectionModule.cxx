@@ -215,28 +215,47 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   met_sel.reset(new METCut  (50.,1e9));
 
   // trigger selections
-  if(is_MC || !data_isMu) {
-    // The following exist for both 2016 and 2017
-    // until 120 GeV, except for 2017B, there for whole range
-    if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") trg_ele_low.reset(new TriggerSelection("HLT_Ele27_WPTight_Gsf_v*"));
-    else if (year == "2017" || year == "UL17") trg_ele_low.reset(new TriggerSelection("HLT_Ele35_WPTight_Gsf_v*"));
-    else trg_ele_low.reset(new TriggerSelection("HLT_Ele32_WPTight_Gsf_v*"));
-    // above 120 GeV
-    if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") trg_pho.reset(new TriggerSelection("HLT_Photon175_v*"));
-    else trg_pho.reset(new TriggerSelection("HLT_Photon200_v*"));
-    if(!(data_is2017B || MC_isfake2017B)) trg_ele_high.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
-    else trg_ele_high.reset(new TriggerSelection("HLT_Ele35_WPTight_Gsf_v*"));
+  if(is_MC || data_isMu) {
+
+    // low pt triggers
+    if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
+      trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu24_v*"));
+      trg_mu_low_2.reset(new TriggerSelection("HLT_IsoTkMu24_v*"));
+      trg_mu_high_1.reset(new TriggerSelection("HLT_Mu50_v*"));
+      trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu50_v*"));
+    }
+    else if(year == "2017" || year == "UL17") {
+      trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu27_v*"));
+      trg_mu_high_1.reset(new TriggerSelection("HLT_Mu50_v*"));
+      trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu100_v*"));
+      trg_mu_high_3.reset(new TriggerSelection("HLT_OldMu100_v*"));
+    }
+    else if(year == "2018" || year == "UL18") {
+      trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu24_v*"));
+      trg_mu_high_1.reset(new TriggerSelection("HLT_Mu50_v*"));
+      trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu100_v*"));
+      trg_mu_high_3.reset(new TriggerSelection("HLT_OldMu100_v*"));
+    }
   }
-  if(is_MC || data_isMu){
-    // below 55 GeV
-    if(year == "2017" || year == "UL17") trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu27_v*"));
-    else trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu24_v*"));
-    if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") trg_mu_low_2.reset(new TriggerSelection("HLT_IsoTkMu24_v*"));
-    // above 55 GeV
-    trg_mu_high_1.reset(new TriggerSelection("HLT_Mu50_v*"));
-    if(year != "2016" || year == "UL16preVFP" || year == "UL16postVFP") {if(!(data_is2017B || MC_isfake2017B)) trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu100_v*"));}
-    else if(!data_is2016B) trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu50_v*"));
-    if((year != "2016" || year == "UL16preVFP" || year == "UL16postVFP") && !(data_is2017B || MC_isfake2017B)) trg_mu_high_3.reset(new TriggerSelection("HLT_OldMu100_v*"));
+  if(is_MC || !data_isMu){
+
+    // low pt triggers
+    if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
+      trg_ele_low.reset(new TriggerSelection("HLT_Ele27_WPTight_Gsf_v*"));
+      trg_ele_high.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
+      trg_pho.reset(new TriggerSelection("HLT_Photon175_v*"));
+    }
+    else if(year == "2017" || year == "UL17") {
+      trg_ele_low.reset(new TriggerSelection("HLT_Ele35_WPTight_Gsf_v*"));
+      trg_ele_high.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
+      trg_pho.reset(new TriggerSelection("HLT_Photon200_v*"));
+    }
+    else if(year == "2018" || year == "UL18") {
+      trg_ele_low.reset(new TriggerSelection("HLT_Ele32_WPTight_Gsf_v*"));
+      trg_ele_high.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
+      trg_pho.reset(new TriggerSelection("HLT_Photon200_v*"));
+    }
+
   }
 
   // ###### 3. set up hists ######
@@ -352,14 +371,6 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   // ### Selection ###
   // #################
 
-  // ###### Trigger selection ######
-  bool pass_trigger = false;
-  bool pass_trigger_SingleMu_lowpt = false;
-  bool pass_trigger_SingleMu_highpt = false;
-  bool pass_trigger_SingleEle_lowpt = false;
-  bool pass_trigger_SingleEle_highpt = false;
-  // main logic
-
   if(year == "UL17" && is_MC) {
     // in UL17 we need to fake 11.6% (run B part) to a different trigger
     std::srand(std::time(nullptr));
@@ -373,24 +384,38 @@ bool TstarTstarPreselectionModule::process(Event & event) {
     event.set(h_MC_isfake2017B, false);
   }
 
+  // ###### Trigger selection ######
+  bool pass_trigger = false;
+  bool pass_trigger_SingleMu_lowpt = false;
+  bool pass_trigger_SingleMu_highpt = false;
+  bool pass_trigger_SingleEle_lowpt = false;
+  bool pass_trigger_SingleEle_highpt = false;
+
   // muon
   if(is_MC || data_isMu) {
-    if (year == "2016" || year == "UL16preVFP" || year == "UL16postVFP" ) {
+
+    if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
       pass_trigger_SingleMu_lowpt = (trg_mu_low_1->passes(event) || trg_mu_low_2->passes(event));
-      if(data_is2016B) pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event));
-      else pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event) || trg_mu_high_2->passes(event));
-    } else {
+      pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event) || trg_mu_high_2->passes(event));
+    }
+    else if(year == "2017" || year == "UL17") {
       pass_trigger_SingleMu_lowpt = trg_mu_low_1->passes(event);
-      if(data_is2017B || MC_isfake2017B) pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event));
+      if(data_is2017B || MC_isfake2017B) pass_trigger_SingleMu_highpt = trg_mu_high_1->passes(event);
       else pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event) || trg_mu_high_2->passes(event) || trg_mu_high_3->passes(event));
     }
+    else if(year == "2018" || year == "UL18") {
+      pass_trigger_SingleMu_lowpt = trg_mu_low_1->passes(event);
+      pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event) || trg_mu_high_2->passes(event) || trg_mu_high_3->passes(event));
+    }
+
     if(debug) std::cout << "Passed muon trigger logic" << std::endl;
   }
 
   // electron
   if(is_MC || !data_isMu) {
     pass_trigger_SingleEle_lowpt = trg_ele_low->passes(event);
-    pass_trigger_SingleEle_highpt = (trg_ele_high->passes(event) || trg_pho->passes(event));
+    if(data_is2017B || MC_isfake2017B) pass_trigger_SingleEle_highpt = (trg_ele_low->passes(event) || trg_pho->passes(event));
+    else pass_trigger_SingleEle_highpt = (trg_ele_high->passes(event) || trg_pho->passes(event));
     if(debug) std::cout << "Passed electron trigger logic" << std::endl;
   }
 
