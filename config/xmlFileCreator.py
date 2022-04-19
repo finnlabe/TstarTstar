@@ -30,7 +30,6 @@ class configContainer:
    yearVars = dict()
    used_samples = OrderedDict()
 
-
    def __init__(self):
 
       self.userName = os.environ.get('USER')
@@ -172,7 +171,7 @@ class xmlCreator:
 
    '''Creates XML files for SFrame'''
 
-   def __init__(self, step: str, year: str, group: str):
+   def __init__(self, step: str, year: str, group: str, variationDirections):
 
       confCon = configContainer()
       self.uhh2Dir = confCon.uhh2Dir
@@ -182,6 +181,8 @@ class xmlCreator:
       self.sample_list = confCon.used_samples[year][group]
       self.systematics = confCon.systematics
       self.additionalBranches = confCon.additionalBranches
+      self.jersmear_direction = variationDirections["jersmear"]
+      self.jecsmear_direction = variationDirections["jecsmear"]
 
       if step not in ['Preselection', 'Selection', 'Analysis', 'DNN']:
          sys.exit('Given value of argument "selection" not valid. Abort.')
@@ -289,8 +290,10 @@ class xmlCreator:
          file.write('''<Item Name="use_sframe_weight" Value="false"/>\n''')
          file.write('''<Item Name="AnalysisModule" Value="'''+self.analysisModule+'''"/>\n''')
          file.write('''<Item Name="uhh2Dir" Value="'''+self.uhh2Dir+'''"/>\n''')
+         file.write('''\n''')
+         file.write('''<Item Name="jersmear_direction" Value="'''+ self.jersmear_direction+'''"/>\n''')
+         file.write('''<Item Name="jecsmear_direction" Value="'''+ self.jecsmear_direction+'''"/>\n''')
          if(self.step == "Selection"):
-             file.write('''\n''')
              file.write('''<!-- scale factor configuration -->\n''')
              file.write('''<Item Name="HOTVRTopTagSFs" Value="'''+self.yearVars['HOTVRSFs'][self.year]+'''"/>\n''')
              file.write('''<Item Name="SF_path" Value="/nfs/dust/cms/user/flabe/TstarTstar/CMSSW_10_2_17/src/UHH2/TstarTstar/factors/" />\n''')
@@ -339,14 +342,18 @@ if __name__=='__main__':
 
    selections = ['Preselection', 'Selection', 'Analysis', 'DNN']
    years = ['UL16preVFP','UL16postVFP','UL17', 'UL18']
+   jersmear_directions = ['nominal', 'up', 'down']
+   jecsmear_directions = ['nominal', 'up', 'down']
 
    if not sys.argv[1:]: sys.exit('No arguments provided. Exit.')
    parser = argparse.ArgumentParser()
    parser.add_argument('--all', action='store_true', help='Create XML files for all selections and years.')
-   parser.add_argument('--syst', action='store_true', help='Create XML files for systematic uncertainties. Will also create bash scripts with lists of SFrameBatch/run_local.py commands.')
    parser.add_argument('-s', '--selections', choices=selections, nargs='*', default=[])
    parser.add_argument('-y', '--years', choices=years, nargs='*', default=[])
    parser.add_argument('-a', '--auto-complete', action='store_true', help='Auto-complete arguments if not all arguments for selections and years are given.')
+   parser.add_argument('--jer', choices=jersmear_directions, nargs=1, default = ["nominal"])
+   parser.add_argument('--jec', choices=jecsmear_directions, nargs=1, default = ["nominal"])
+
    args = parser.parse_args(sys.argv[1:])
 
    if(args.all == True):
@@ -373,8 +380,13 @@ if __name__=='__main__':
    groups = ['DATA', 'Signal', 'SM']
    configContainer.read_database_106X_v2(args.years, groups)
 
+   # setting jec, jer directions
+   directions = {}
+   directions["jecsmear"] = args.jec[0]
+   directions["jersmear"] = args.jer[0]
+
    for selection in args.selections:
       for year in args.years:
           for group in groups:
-             x = xmlCreator(selection, year, group)
+             x = xmlCreator(selection, year, group, directions)
              x.write_xml()
