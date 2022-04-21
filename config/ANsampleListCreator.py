@@ -73,9 +73,9 @@ class sampleEntity:
       self.nickName = k
       self.pnfs_sum_of_weights = helper.get_nevt(v['db_name'], '13TeV', self.year)
       self.xs = helper.get_xs(v['db_name'], '13TeV', self.year)
-      self.xs_source = ""
+      self.xs_source = helper.get_xs(v['db_name'], '13TeV', self.year, "Source")
       self.br = helper.get_br(v['db_name'], '13TeV', self.year)
-      self.br_source = ""
+      self.br_source = helper.get_br(v['db_name'], '13TeV', self.year, "Source")
       self.lumi = helper.get_lumi(v['db_name'], '13TeV', self.year, kFactor=v.get('kfac', False), Corrections=v.get('corr', False))
       self.xsection = self.pnfs_sum_of_weights / self.lumi
       self.xmlPath = os.path.join(os.environ.get('CMSSW_BASE'), 'src/UHH2/common/UHH2-datasets', helper.get_xml(v['db_name'], '13TeV', self.year))
@@ -122,7 +122,9 @@ class tableCreator:
                   print("Had: "+campaign)
                   print("Found: "+s.xmlSource.split("/")[2].replace("_", "\\_"))
               file.write('''} & $'''+str(s.pnfs_sum_of_weights)+'''$ & $'''+str(s.xs)+'''$ & ''')
-              if( not s.xs_source == ""): file.write('''$\\sigma$ from \\href{'''+s.xs_source+'''}{here}''')
+              if( not s.xs_source == ""):
+                  if(s.xs_source[:4] == "http"): file.write('''$\\sigma$ taken from \\href{'''+s.xs_source+'''}{here}.''')
+                  else: file.write('''$\\sigma$ obtained using '''+s.xs_source+'''.''')
               else: file.write(''' - ''')
               file.write(''' \\\\ \n''')
           file.write('''\\hline\n''')
