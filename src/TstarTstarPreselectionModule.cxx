@@ -113,7 +113,6 @@ private:
   bool data_isMu = false;
   bool data_is2017B = false;
   bool data_is2016B = false;
-  bool MC_isfake2017B = false;
   bool isTriggerSFMeasurement = false;
 
 };
@@ -186,7 +185,7 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   MuonId muID_highpt = MuonID(Muon::CutBasedIdGlobalHighPt);
   double muon_pt_lowpt(30.);
   double muon_pt_highpt(55.);
-  common->set_muon_id(OrId<Muon>( AndId<Muon>(PtEtaCut(muon_pt_lowpt, 2.4), muID_lowpt, MuMaxPtCut(55.)), AndId<Muon>(PtEtaCut(muon_pt_highpt, 2.4), muID_highpt)));
+  common->set_muon_id(OrId<Muon>( AndId<Muon>(PtEtaCut(muon_pt_lowpt, 2.4), muID_lowpt, MuMaxPtCut(muon_pt_highpt)), AndId<Muon>(PtEtaCut(muon_pt_highpt, 2.4), muID_highpt)));
   if(debug) cout << "Muons done" << endl;
 
   // AK4 Jets
@@ -332,6 +331,9 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
 
   h_MC_isfake2017B = ctx.declare_event_output<bool>("MC_isfake2017B");
 
+  std::srand(std::time(nullptr));
+
+
 }
 
 
@@ -371,14 +373,15 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   // ### Selection ###
   // #################
 
+  bool MC_isfake2017B = false;
   if(year == "UL17" && is_MC) {
     // in UL17 we need to fake 11.6% (run B part) to a different trigger
-    std::srand(std::time(nullptr));
 
     float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     if(r < 0.116) MC_isfake2017B = true;
 
     event.set(h_MC_isfake2017B, MC_isfake2017B);
+    if(debug && MC_isfake2017B) std::cout << "This MC event was set to be part of a fake 2017B run. r was " << r << "." << std::endl;
 
   } else {
     event.set(h_MC_isfake2017B, false);
@@ -468,12 +471,12 @@ bool TstarTstarPreselectionModule::process(Event & event) {
     lumihist_lepsel->fill(event);
     if(event.get(h_is_muevt)){
       h_lepsel_mu->fill(event);
-      if(event.muons->at(0).pt()<=55) h_lepsel_mu_lowpt->fill(event);
+      if(event.get(h_is_highpt)) h_lepsel_mu_lowpt->fill(event);
       else h_lepsel_mu_highpt->fill(event);
     }
     else {
       h_lepsel_ele->fill(event);
-      if(event.electrons->at(0).pt()<=120) h_lepsel_ele_lowpt->fill(event);
+      if(event.get(h_is_highpt)) h_lepsel_ele_lowpt->fill(event);
       else h_lepsel_ele_highpt->fill(event);
     }
   }
@@ -491,12 +494,12 @@ bool TstarTstarPreselectionModule::process(Event & event) {
     lumihist_jetsel->fill(event);
     if(event.get(h_is_muevt)){
       h_jetsel_mu->fill(event);
-      if(event.muons->at(0).pt()<=55) h_jetsel_mu_lowpt->fill(event);
+      if(event.get(h_is_highpt)) h_jetsel_mu_lowpt->fill(event);
       else h_jetsel_mu_highpt->fill(event);
     }
     else {
       h_jetsel_ele->fill(event);
-      if(event.electrons->at(0).pt()<=120) h_jetsel_ele_lowpt->fill(event);
+      if(event.get(h_is_highpt)) h_jetsel_ele_lowpt->fill(event);
       else h_jetsel_ele_highpt->fill(event);
     }
     if(debug) cout << "Filled hists after fatjetsel" << endl;
@@ -513,12 +516,12 @@ bool TstarTstarPreselectionModule::process(Event & event) {
     lumihist_fatjetsel->fill(event);
     if(event.get(h_is_muevt)){
       h_fatjetsel_mu->fill(event);
-      if(event.muons->at(0).pt()<=55) h_fatjetsel_mu_lowpt->fill(event);
+      if(event.get(h_is_highpt)) h_fatjetsel_mu_lowpt->fill(event);
       else h_fatjetsel_mu_highpt->fill(event);
     }
     else {
       h_fatjetsel_ele->fill(event);
-      if(event.electrons->at(0).pt()<=120) h_fatjetsel_ele_lowpt->fill(event);
+      if(event.get(h_is_highpt)) h_fatjetsel_ele_lowpt->fill(event);
       else h_fatjetsel_ele_highpt->fill(event);
     }
     if(debug) cout << "Filled hists after fatjetsel" << endl;
@@ -536,12 +539,12 @@ bool TstarTstarPreselectionModule::process(Event & event) {
     lumihist_METsel->fill(event);
     if(event.get(h_is_muevt)){
       h_METsel_mu->fill(event);
-      if(event.muons->at(0).pt()<=55) h_METsel_mu_lowpt->fill(event);
+      if(event.get(h_is_highpt)) h_METsel_mu_lowpt->fill(event);
       else h_METsel_mu_highpt->fill(event);
     }
     else {
       h_METsel_ele->fill(event);
-      if(event.electrons->at(0).pt()<=120) h_METsel_ele_lowpt->fill(event);
+      if(event.get(h_is_highpt)) h_METsel_ele_lowpt->fill(event);
       else h_METsel_ele_highpt->fill(event);
     }
     if(debug) cout<<"Filled hists after MET"<<endl;
