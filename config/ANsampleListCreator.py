@@ -144,7 +144,6 @@ if __name__=='__main__':
 
    years = ['UL16preVFP','UL16postVFP','UL17', 'UL18']
 
-   if not sys.argv[1:]: sys.exit('No arguments provided. Exit.')
    parser = argparse.ArgumentParser()
    parser.add_argument('-y', '--years', choices=years, nargs='*', default=years)
 
