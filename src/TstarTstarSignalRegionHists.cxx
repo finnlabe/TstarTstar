@@ -26,27 +26,24 @@ TstarTstarSignalRegionHists::TstarTstarSignalRegionHists(Context & ctx, const st
   h_prefiringWeightDown = ctx.get_handle<float>("prefiringWeightDown");
 
   // all the b-tagging stuff
-  h_weight_btagdiscNominal = ctx.get_handle<float>("weight_btagdisc_central");
+  h_weight_btagdiscNominal = ctx.get_handle<float>("weight_btagdisc__central");
 
-  h_weight_btagdisc_jesUp = ctx.get_handle<float>("weight_btagdisc_jes_up");
-  h_weight_btagdisc_jesDown = ctx.get_handle<float>("weight_btagdisc_jes_down");
-  h_weight_btagdisc_lfUp = ctx.get_handle<float>("weight_btagdisc_lf_up");
-  h_weight_btagdisc_lfDown = ctx.get_handle<float>("weight_btagdisc_lf_down");
-  h_weight_btagdisc_hfUp = ctx.get_handle<float>("weight_btagdisc_hf_up");
-  h_weight_btagdisc_hfDown = ctx.get_handle<float>("weight_btagdisc_hf_down");
-  h_weight_btagdisc_hfstats1Up = ctx.get_handle<float>("weight_btagdisc_hfstats1_up");
-  h_weight_btagdisc_hfstats1Down = ctx.get_handle<float>("weight_btagdisc_hfstats1_down");
-  h_weight_btagdisc_hfstats2Up = ctx.get_handle<float>("weight_btagdisc_hfstats2_up");
-  h_weight_btagdisc_hfstats2Down = ctx.get_handle<float>("weight_btagdisc_hfstats2_down");
-  h_weight_btagdisc_lfstats1Up = ctx.get_handle<float>("weight_btagdisc_lfstats1_up");
-  h_weight_btagdisc_lfstats1Down = ctx.get_handle<float>("weight_btagdisc_lfstats1_down");
-  h_weight_btagdisc_lfstats2Up = ctx.get_handle<float>("weight_btagdisc_lfstats2_up");
-  h_weight_btagdisc_lfstats2Down = ctx.get_handle<float>("weight_btagdisc_lfstats2_down");
-  h_weight_btagdisc_cferr1Up = ctx.get_handle<float>("weight_btagdisc_cferr1_up");
-  h_weight_btagdisc_cferr1Down = ctx.get_handle<float>("weight_btagdisc_cferr1_down");
-  h_weight_btagdisc_cferr2Up = ctx.get_handle<float>("weight_btagdisc_cferr2_up");
-  h_weight_btagdisc_cferr2Down = ctx.get_handle<float>("weight_btagdisc_cferr2_down");
-
+  h_weight_btagdisc_lfUp = ctx.get_handle<float>("weight_btagdisc__lf_up");
+  h_weight_btagdisc_lfDown = ctx.get_handle<float>("weight_btagdisc__lf_up");
+  h_weight_btagdisc_hfUp = ctx.get_handle<float>("weight_btagdisc__hf_up");
+  h_weight_btagdisc_hfDown = ctx.get_handle<float>("weight_btagdisc__hf_up");
+  h_weight_btagdisc_hfstats1Up = ctx.get_handle<float>("weight_btagdisc__hfstats1_up");
+  h_weight_btagdisc_hfstats1Down = ctx.get_handle<float>("weight_btagdisc__hfstats1_up");
+  h_weight_btagdisc_hfstats2Up = ctx.get_handle<float>("weight_btagdisc__hfstats2_up");
+  h_weight_btagdisc_hfstats2Down = ctx.get_handle<float>("weight_btagdisc__hfstats2_up");
+  h_weight_btagdisc_lfstats1Up = ctx.get_handle<float>("weight_btagdisc__lfstats1_up");
+  h_weight_btagdisc_lfstats1Down = ctx.get_handle<float>("weight_btagdisc__lfstats1_up");
+  h_weight_btagdisc_lfstats2Up = ctx.get_handle<float>("weight_btagdisc__lfstats2_up");
+  h_weight_btagdisc_lfstats2Down = ctx.get_handle<float>("weight_btagdisc__lfstats2_up");
+  h_weight_btagdisc_cferr1Up = ctx.get_handle<float>("weight_btagdisc__cferr1_up");
+  h_weight_btagdisc_cferr1Down = ctx.get_handle<float>("weight_btagdisc__cferr1_up");
+  h_weight_btagdisc_cferr2Up = ctx.get_handle<float>("weight_btagdisc__cferr2_up");
+  h_weight_btagdisc_cferr2Down = ctx.get_handle<float>("weight_btagdisc__cferr2_down");
 
   // lepton stuff
   h_weight_sfelec_idNominal = ctx.get_handle<float>("weight_sfelec_id");
@@ -61,9 +58,9 @@ TstarTstarSignalRegionHists::TstarTstarSignalRegionHists(Context & ctx, const st
   h_weight_sfmu_idUp = ctx.get_handle<float>("weight_sfmu_id_up");
   h_weight_sfmu_idDown = ctx.get_handle<float>("weight_sfmu_id_down");
 
-  h_weight_sfmu_isolationNominal = ctx.get_handle<float>("weight_sfmu_isolation");
-  h_weight_sfmu_isolationUp = ctx.get_handle<float>("weight_sfmu_isolation_up");
-  h_weight_sfmu_isolationDown = ctx.get_handle<float>("weight_sfmu_isolation_down");
+  h_weight_sfmu_isoNominal = ctx.get_handle<float>("weight_sfmu_iso");
+  h_weight_sfmu_isoUp = ctx.get_handle<float>("weight_sfmu_iso_up");
+  h_weight_sfmu_isoDown = ctx.get_handle<float>("weight_sfmu_iso_down");
 
   h_weight_sfmu_triggerNominal = ctx.get_handle<float>("weight_sfmu_trigger");
   h_weight_sfmu_triggerUp = ctx.get_handle<float>("weight_sfmu_trigger_up");
@@ -90,8 +87,8 @@ TstarTstarSignalRegionHists::TstarTstarSignalRegionHists(Context & ctx, const st
   book<TH1F>("pt_ST_sfelec_triggerDown", "S_{T} [GeV]", nbins-1, bins);
   book<TH1F>("pt_ST_sfmu_idUp", "S_{T} [GeV]", nbins-1, bins);
   book<TH1F>("pt_ST_sfmu_idDown", "S_{T} [GeV]", nbins-1, bins);
-  book<TH1F>("pt_ST_sfmu_isolationUp", "S_{T} [GeV]", nbins-1, bins);
-  book<TH1F>("pt_ST_sfmu_isolationDown", "S_{T} [GeV]", nbins-1, bins);
+  book<TH1F>("pt_ST_sfmu_isoUp", "S_{T} [GeV]", nbins-1, bins);
+  book<TH1F>("pt_ST_sfmu_isoDown", "S_{T} [GeV]", nbins-1, bins);
   book<TH1F>("pt_ST_sfmu_triggerUp", "S_{T} [GeV]", nbins-1, bins);
   book<TH1F>("pt_ST_sfmu_triggerDown", "S_{T} [GeV]", nbins-1, bins);
 
@@ -132,9 +129,6 @@ void TstarTstarSignalRegionHists::fill(const Event & event){
   double btagging_total_Down = 0;
   double btagging_nominal_weight = event.get(h_weight_btagdiscNominal);
   {
-    btagging_total_Up += pow( event.get(h_weight_btagdisc_jesUp) - btagging_nominal_weight , 2);
-    btagging_total_Down += pow( event.get(h_weight_btagdisc_jesDown) - btagging_nominal_weight , 2);
-
     btagging_total_Up += pow( event.get(h_weight_btagdisc_lfUp) - btagging_nominal_weight , 2);
     btagging_total_Down += pow( event.get(h_weight_btagdisc_lfDown) - btagging_nominal_weight , 2);
 
@@ -177,11 +171,11 @@ void TstarTstarSignalRegionHists::fill(const Event & event){
   hist("pt_ST_sfmu_idUp")->Fill(st, event.get(h_weight_sfmu_idUp)*weight/event.get(h_weight_sfmu_idNominal));
   hist("pt_ST_sfmu_idDown")->Fill(st, event.get(h_weight_sfmu_idDown)*weight/event.get(h_weight_sfmu_idNominal));
 
-  // sfmu_isolation
-  hist("pt_ST_sfmu_isolationUp")->Fill(st, event.get(h_weight_sfmu_isolationUp)*weight/event.get(h_weight_sfmu_isolationNominal));
-  hist("pt_ST_sfmu_isolationDown")->Fill(st, event.get(h_weight_sfmu_isolationDown)*weight/event.get(h_weight_sfmu_isolationNominal));
+  // sfmu_iso
+  hist("pt_ST_sfmu_isoUp")->Fill(st, event.get(h_weight_sfmu_isoUp)*weight/event.get(h_weight_sfmu_isoNominal));
+  hist("pt_ST_sfmu_isoDown")->Fill(st, event.get(h_weight_sfmu_isoDown)*weight/event.get(h_weight_sfmu_isoNominal));
 
-  // sfmu_isolation
+  // sfmu_iso
   //hist("pt_ST_sfmu_triggerUp")->Fill(st, event.get(h_weight_sfmu_triggerUp)*weight/event.get(h_weight_sfmu_triggerNominal));
   //hist("pt_ST_sfmu_triggerDown")->Fill(st, event.get(h_weight_sfmu_triggerDown)*weight/event.get(h_weight_sfmu_triggerNominal));
 
