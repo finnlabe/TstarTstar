@@ -133,6 +133,7 @@ private:
   uhh2::Event::Handle<double> h_ST;
   uhh2::Event::Handle<bool> h_is_triggered;
   uhh2::Event::Handle<bool> h_is_btagevent;
+  uhh2::Event::Handle<bool> h_MC_isfake2017B;
 
   // ###### Control Switches ######
   bool debug = false;
@@ -144,51 +145,10 @@ private:
   TString year;
   TopJetId topjetID;
 
-  // b-tagging handles to try to fix memory leak
-  uhh2::Event::Handle<float> h_weight_btagdisc_central;
-  uhh2::Event::Handle<float> h_weight_btagdisc_jesup;
-  uhh2::Event::Handle<float> h_weight_btagdisc_jesdown;
-  uhh2::Event::Handle<float> h_weight_btagdisc_lfup;
-  uhh2::Event::Handle<float> h_weight_btagdisc_lfdown;
-  uhh2::Event::Handle<float> h_weight_btagdisc_hfup;
-  uhh2::Event::Handle<float> h_weight_btagdisc_hfdown;
-  uhh2::Event::Handle<float> h_weight_btagdisc_hfstats1up;
-  uhh2::Event::Handle<float> h_weight_btagdisc_hfstats1down;
-  uhh2::Event::Handle<float> h_weight_btagdisc_hfstats2up;
-  uhh2::Event::Handle<float> h_weight_btagdisc_hfstats2down;
-  uhh2::Event::Handle<float> h_weight_btagdisc_lfstats1up;
-  uhh2::Event::Handle<float> h_weight_btagdisc_lfstats1down;
-  uhh2::Event::Handle<float> h_weight_btagdisc_lfstats2up;
-  uhh2::Event::Handle<float> h_weight_btagdisc_lfstats2down;
-  uhh2::Event::Handle<float> h_weight_btagdisc_cferr1up;
-  uhh2::Event::Handle<float> h_weight_btagdisc_cferr1down;
-  uhh2::Event::Handle<float> h_weight_btagdisc_cferr2up;
-  uhh2::Event::Handle<float> h_weight_btagdisc_cferr2down;
-
 };
 
 
-TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx):
-  h_weight_btagdisc_central (ctx.declare_event_output<float>("weight_btagdisc_central")),
-  h_weight_btagdisc_jesup (ctx.declare_event_output<float>("weight_btagdisc_jesup")),
-  h_weight_btagdisc_jesdown (ctx.declare_event_output<float>("weight_btagdisc_jesdown")),
-  h_weight_btagdisc_lfup (ctx.declare_event_output<float>("weight_btagdisc_lfup")),
-  h_weight_btagdisc_lfdown (ctx.declare_event_output<float>("weight_btagdisc_lfdown")),
-  h_weight_btagdisc_hfup (ctx.declare_event_output<float>("weight_btagdisc_hfup")),
-  h_weight_btagdisc_hfdown (ctx.declare_event_output<float>("weight_btagdisc_hfdown")),
-  h_weight_btagdisc_hfstats1up (ctx.declare_event_output<float>("weight_btagdisc_hfstats1up")),
-  h_weight_btagdisc_hfstats1down (ctx.declare_event_output<float>("weight_btagdisc_hfstats1down")),
-  h_weight_btagdisc_hfstats2up (ctx.declare_event_output<float>("weight_btagdisc_hfstats2up")),
-  h_weight_btagdisc_hfstats2down (ctx.declare_event_output<float>("weight_btagdisc_hfstats2down")),
-  h_weight_btagdisc_lfstats1up (ctx.declare_event_output<float>("weight_btagdisc_lfstats1up")),
-  h_weight_btagdisc_lfstats1down (ctx.declare_event_output<float>("weight_btagdisc_lfstats1down")),
-  h_weight_btagdisc_lfstats2up (ctx.declare_event_output<float>("weight_btagdisc_lfstats2up")),
-  h_weight_btagdisc_lfstats2down (ctx.declare_event_output<float>("weight_btagdisc_lfstats2down")),
-  h_weight_btagdisc_cferr1up (ctx.declare_event_output<float>("weight_btagdisc_cferr1up")),
-  h_weight_btagdisc_cferr1down (ctx.declare_event_output<float>("weight_btagdisc_cferr1down")),
-  h_weight_btagdisc_cferr2up (ctx.declare_event_output<float>("weight_btagdisc_cferr2up")),
-  h_weight_btagdisc_cferr2down (ctx.declare_event_output<float>("weight_btagdisc_cferr2down"))
-{
+TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
 
   // setting debug from xml file
   if(ctx.get("debug", "<not set>") == "true") debug = true;
@@ -229,7 +189,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx):
   if(!is_MC) data_isMu = (ctx.get("dataset_version").find("SingleMuon") != std::string::npos);
 
   // check this specific run for trigger
-  if(!is_MC) data_is2017B = (ctx.get("dataset_version").find("SingleElectron2017_RunB") != std::string::npos);
+  if(!is_MC) data_is2017B = (ctx.get("dataset_version").find("SingleElectron_RunB_UL17") != std::string::npos) || (ctx.get("dataset_version").find("SingleMuon_RunB_UL17") != std::string::npos);
 
   // ###### 1. Set up modules ######
   // ttbar on GEN
@@ -270,7 +230,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx):
   sf_muon_iso_DUMMY.reset( new uhh2::MuonIsoScaleFactors(ctx, boost::none, boost::none, boost::none, boost::none, boost::none, true) );
 
   sf_muon_trigger_lowpt.reset( new uhh2::MuonTriggerScaleFactors(ctx, false) );
-  sf_muon_trigger_highpt.reset( new uhh2::MuonTriggerScaleFactors(ctx, true) );
+  sf_muon_trigger_highpt.reset( new uhh2::MuonTriggerScaleFactors(ctx, true, false) );
   sf_muon_trigger_DUMMY.reset( new uhh2::MuonTriggerScaleFactors(ctx, boost::none, boost::none, boost::none, boost::none, boost::none, true) );
 
   if(debug) cout << "Setting up btagging scale." << endl;
@@ -385,34 +345,19 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx):
   h_is_triggered = ctx.get_handle<bool>("is_triggered");
   h_is_btagevent = ctx.declare_event_output<bool>("is_btagevent");
 
+  h_MC_isfake2017B = ctx.get_handle<bool>("MC_isfake2017B");
+
 }
 
 
 bool TstarTstarSelectionModule::process(Event & event) {
 
-  // try to find memory leak
-  event.set(h_weight_btagdisc_central,1.);
-  event.set(h_weight_btagdisc_jesup,1.);
-  event.set(h_weight_btagdisc_jesdown,1.);
-  event.set(h_weight_btagdisc_lfup,1.);
-  event.set(h_weight_btagdisc_lfdown,1.);
-  event.set(h_weight_btagdisc_hfup,1.);
-  event.set(h_weight_btagdisc_hfdown,1.);
-  event.set(h_weight_btagdisc_hfstats1up,1.);
-  event.set(h_weight_btagdisc_hfstats1down,1.);
-  event.set(h_weight_btagdisc_hfstats2up,1.);
-  event.set(h_weight_btagdisc_hfstats2down,1.);
-  event.set(h_weight_btagdisc_lfstats1up,1.);
-  event.set(h_weight_btagdisc_lfstats1down,1.);
-  event.set(h_weight_btagdisc_lfstats2up,1.);
-  event.set(h_weight_btagdisc_lfstats2down,1.);
-  event.set(h_weight_btagdisc_cferr1up,1.);
-  event.set(h_weight_btagdisc_cferr1down,1.);
-  event.set(h_weight_btagdisc_cferr2up,1.);
-  event.set(h_weight_btagdisc_cferr2down,1.);
-
   // debug status message
   if(debug) cout << "TstarTstarSelectionModule: Starting to process event (runid, eventid) = (" << event.run << ", " << event.event << "); weight = " << event.weight << endl;
+
+  if(debug && event.get(h_MC_isfake2017B)) cout << "This MC event was randomly assigned to 2017 Run B handling" << endl;
+
+  if(debug && event.get(h_is_highpt)) cout << "The event is classified as having high pt" << std::endl;
 
   // reapply event weights from handle
   event.weight = event.get(h_evt_weight);
@@ -434,12 +379,12 @@ bool TstarTstarSelectionModule::process(Event & event) {
     h_beginSel_gen->fill(event);
     if(event.get(h_is_muevt)){
       h_beginSel_mu->fill(event);
-      if(event.muons->at(0).pt()<=60) h_beginSel_mu_lowpt->fill(event);
+      if(event.get(h_is_highpt)) h_beginSel_mu_lowpt->fill(event);
       else h_beginSel_mu_highpt->fill(event);
     }
     else {
       h_beginSel_ele->fill(event);
-      if(event.electrons->at(0).pt()<=120) h_beginSel_ele_lowpt->fill(event);
+      if(event.get(h_is_highpt)) h_beginSel_ele_lowpt->fill(event);
       else h_beginSel_ele_highpt->fill(event);
     }
   }
@@ -470,12 +415,12 @@ bool TstarTstarSelectionModule::process(Event & event) {
     h_btagcut_gen->fill(event);
     if(event.get(h_is_muevt)){
       h_btagcut_mu->fill(event);
-      if(event.muons->at(0).pt()<=60) h_btagcut_mu_lowpt->fill(event);
+      if(event.get(h_is_highpt)) h_btagcut_mu_lowpt->fill(event);
       else h_btagcut_mu_highpt->fill(event);
     }
     else {
       h_btagcut_ele->fill(event);
-      if(event.electrons->at(0).pt()<=120) h_btagcut_ele_lowpt->fill(event);
+      if(event.get(h_is_highpt)) h_btagcut_ele_lowpt->fill(event);
       else h_btagcut_ele_highpt->fill(event);
     }
     if(debug) cout << "Passed btag selection cut." << endl;
@@ -504,9 +449,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
     ele.set_tag(Electron::twodcut_pTrel, pTrel);
   }
   const bool pass_twodcut = twodcut_sel->passes(event);
-  if(event.muons->size()==1){if(event.muons->at(0).pt()>60) pass_2D = pass_twodcut;}
-  else if(event.electrons->size()==1){if(event.electrons->at(0).pt()>120) pass_2D = pass_twodcut;}
-  else std::cout << "How did this happen???" << endl;
+  if(event.get(h_is_highpt)) pass_2D = pass_twodcut;
   if(!pass_2D) return false;
 
   // hists
@@ -514,12 +457,12 @@ bool TstarTstarSelectionModule::process(Event & event) {
   h_2Dcut_gen->fill(event);
   if(event.get(h_is_muevt)){
     h_2Dcut_mu->fill(event);
-    if(event.muons->at(0).pt()<=60) h_2Dcut_mu_lowpt->fill(event);
+    if(event.get(h_is_highpt)) h_2Dcut_mu_lowpt->fill(event);
     else h_2Dcut_mu_highpt->fill(event);
   }
   else {
     h_2Dcut_ele->fill(event);
-    if(event.electrons->at(0).pt()<=120) h_2Dcut_ele_lowpt->fill(event);
+    if(event.get(h_is_highpt)) h_2Dcut_ele_lowpt->fill(event);
     else h_2Dcut_ele_highpt->fill(event);
   }
   if(debug) cout << "Passed 2D cut." << endl;
@@ -560,12 +503,12 @@ bool TstarTstarSelectionModule::process(Event & event) {
     h_STcut_gen->fill(event);
     if(event.get(h_is_muevt)){
       h_STcut_mu->fill(event);
-      if(event.muons->at(0).pt()<=60) h_STcut_mu_lowpt->fill(event);
+      if(event.get(h_is_highpt)) h_STcut_mu_lowpt->fill(event);
       else h_STcut_mu_highpt->fill(event);
     }
     else {
       h_STcut_ele->fill(event);
-      if(event.electrons->at(0).pt()<=120) h_STcut_ele_lowpt->fill(event);
+      if(event.get(h_is_highpt)) h_STcut_ele_lowpt->fill(event);
       else h_STcut_ele_highpt->fill(event);
     }
     if(debug) cout << "Passed ST cut." << endl;
@@ -587,86 +530,6 @@ bool TstarTstarSelectionModule::process(Event & event) {
   //HOTVRScale->process(event);
 
   if(debug) std::cout << "Done HOTVR scale" << endl;
-
-  // lepton SFs
-  if(event.get(h_is_muevt)){
-
-    if(event.get(h_is_highpt)) {
-      sf_muon_ID_highpt->process(event);
-      sf_muon_iso_DUMMY->process(event);
-      sf_muon_trigger_lowpt->process(event);
-    } else {
-      sf_muon_iso->process(event);
-      sf_muon_ID_lowpt->process(event);
-      sf_muon_trigger_highpt->process(event);
-    }
-
-    sf_ele_reco_DUMMY->process(event);
-    sf_ele_ID_DUMMY->process(event);
-
-  }
-  else {
-
-    sf_ele_reco->process(event);
-
-    if(event.get(h_is_highpt)) {
-      sf_ele_ID_highpt->process(event);
-    } else {
-      sf_ele_ID_highpt->process(event);
-    }
-
-    sf_muon_ID_DUMMY->process(event);
-    sf_muon_iso_DUMMY->process(event);
-    sf_muon_trigger_DUMMY->process(event);
-
-  }
-
-  if(debug) std::cout << "Done Lepton ID, ISO SFs" << endl;
-
-  if(pass_btagcut && is_triggered) { // only fill these for btag cut passes
-    // hists
-    h_corrections->fill(event);
-    h_corrections_gen->fill(event);
-    if(event.get(h_is_muevt)){
-      h_corrections_mu->fill(event);
-      if(event.muons->at(0).pt()<=60) h_corrections_mu_lowpt->fill(event);
-      else h_corrections_mu_highpt->fill(event);
-    }
-    else {
-      h_corrections_ele->fill(event);
-      if(event.electrons->at(0).pt()<=120) h_corrections_ele_lowpt->fill(event);
-      else h_corrections_ele_highpt->fill(event);
-    }
-    if(debug) cout << "Passed ST cut." << endl;
-  } else {
-    if(is_triggered) {
-      h_corrections_nobtag->fill(event);
-      if(!event.get(h_is_muevt)) h_corrections_nobtag_ele->fill(event);
-    }
-  }
-
-  if(pass_btagcut && is_triggered) { // only fill these for btag cut passes
-    // hists
-    h_triggercorrections->fill(event);
-    h_triggercorrections_gen->fill(event);
-    if(event.get(h_is_muevt)){
-      h_triggercorrections_mu->fill(event);
-      if(event.muons->at(0).pt()<=60) h_triggercorrections_mu_lowpt->fill(event);
-      else h_triggercorrections_mu_highpt->fill(event);
-    }
-    else {
-      h_triggercorrections_ele->fill(event);
-      if(event.electrons->at(0).pt()<=120) h_triggercorrections_ele_lowpt->fill(event);
-      else h_triggercorrections_ele_highpt->fill(event);
-    }
-    if(debug) cout << "Passed ST cut." << endl;
-  } else {
-    if(is_triggered) {
-      h_triggercorrections_nobtag->fill(event);
-      if(event.get(h_is_muevt)) h_triggercorrections_ele->fill(event);
-      else h_triggercorrections_ele->fill(event);
-    }
-  }
 
   // #######################
   // ### Trigger studies ###
@@ -692,6 +555,86 @@ bool TstarTstarSelectionModule::process(Event & event) {
   }
 
   if(!is_triggered) return false; // now finally reject all non-triggered!
+
+  // lepton SFs
+  if(event.get(h_is_muevt)){
+
+    if(event.get(h_is_highpt)) {
+      sf_muon_ID_highpt->process(event);
+      sf_muon_iso_DUMMY->process(event);
+      sf_muon_trigger_highpt->process(event);
+    } else {
+      sf_muon_ID_lowpt->process(event);
+      sf_muon_iso->process(event);
+      sf_muon_trigger_lowpt->process(event);
+    }
+
+    sf_ele_reco_DUMMY->process(event);
+    sf_ele_ID_DUMMY->process(event);
+
+  }
+  else {
+
+    sf_ele_reco->process(event);
+
+    if(event.get(h_is_highpt)) {
+      sf_ele_ID_highpt->process(event);
+    } else {
+      sf_ele_ID_lowpt->process(event);
+    }
+
+    sf_muon_ID_DUMMY->process(event);
+    sf_muon_iso_DUMMY->process(event);
+    sf_muon_trigger_DUMMY->process(event);
+
+  }
+
+  if(debug) std::cout << "Done Lepton ID, ISO SFs" << endl;
+
+  if(pass_btagcut && is_triggered) { // only fill these for btag cut passes
+    // hists
+    h_corrections->fill(event);
+    h_corrections_gen->fill(event);
+    if(event.get(h_is_muevt)){
+      h_corrections_mu->fill(event);
+      if(event.get(h_is_highpt)) h_corrections_mu_lowpt->fill(event);
+      else h_corrections_mu_highpt->fill(event);
+    }
+    else {
+      h_corrections_ele->fill(event);
+      if(event.get(h_is_highpt)) h_corrections_ele_lowpt->fill(event);
+      else h_corrections_ele_highpt->fill(event);
+    }
+    if(debug) cout << "Passed ST cut." << endl;
+  } else {
+    if(is_triggered) {
+      h_corrections_nobtag->fill(event);
+      if(!event.get(h_is_muevt)) h_corrections_nobtag_ele->fill(event);
+    }
+  }
+
+  if(pass_btagcut && is_triggered) { // only fill these for btag cut passes
+    // hists
+    h_triggercorrections->fill(event);
+    h_triggercorrections_gen->fill(event);
+    if(event.get(h_is_muevt)){
+      h_triggercorrections_mu->fill(event);
+      if(event.get(h_is_highpt)) h_triggercorrections_mu_lowpt->fill(event);
+      else h_triggercorrections_mu_highpt->fill(event);
+    }
+    else {
+      h_triggercorrections_ele->fill(event);
+      if(event.get(h_is_highpt)) h_triggercorrections_ele_lowpt->fill(event);
+      else h_triggercorrections_ele_highpt->fill(event);
+    }
+    if(debug) cout << "Passed ST cut." << endl;
+  } else {
+    if(is_triggered) {
+      h_triggercorrections_nobtag->fill(event);
+      if(event.get(h_is_muevt)) h_triggercorrections_ele->fill(event);
+      else h_triggercorrections_ele->fill(event);
+    }
+  }
 
   if(pass_btagcut) { // only fill these for btag cut passes
     // some final plot for comparison
