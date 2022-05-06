@@ -6,6 +6,7 @@
 template<class T, size_t N>
 constexpr size_t size(T (&)[N]) { return N; }
 
+
 // stolen from alex :)
 void fill_reweighted(TH1F* hReweight,TH1F* hReweight_up,TH1F* hReweight_down, TF1* fitfun1, TF1* fitfun2,  TFitResultPtr r1, TFitResultPtr r2, const TString &fname, const double &weightSign) {
 
@@ -70,7 +71,7 @@ void backgroundEstimation(){
   TString subpath_SR="newTaggerCR";
   TString subpath_CR="newTagger_btagCR";
   TString histname="pt_ST_rebinned";
-  TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/UL18/hadded/";
+  TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/UL17/hadded/";
   TString fileprefix = "uhh2.AnalysisModuleRunner.";
 
   TH1D *histSR;
@@ -151,14 +152,19 @@ void backgroundEstimation(){
   ratio.Divide(histSR, hist_btagCR, "pois");
 
   // fit function to ratio histogram
-  TF1 *fit = new TF1("fit", "pol 1", 500, 6000);
+  //TF1 *fit = new TF1("fit", "[0] - exp(-[1]*x)", 500, 6000);
+  TF1 *fit = new TF1("fit", "[0] * exp(- (x-[1])^2 / (2*[2]^2) ) + [3] * x", 500, 6000);
+  fit->SetParameters(1, 2.5e+03, 2.5e+03, 1e-6);
+  //TF1 *fit = new TF1("fit", "gaus", 500, 6000);
   TH1D *hint1 = new TH1D("hint", "Fit 1 with conf.band", 100, 0, 10000);
-  TF1 *fit2 = new TF1("fit2", "pol 2", 500, 6000);
+  TF1 *fit2 = new TF1("fit2", "landau", 500, 6000);
   TH1D *hint2 = new TH1D("hint", "Fit 2 with conf.band", 100, 0, 10000);
   TFitResultPtr r_1 = ratio.Fit("fit", "NS", "", 500, 6000);
   (TVirtualFitter::GetFitter())->GetConfidenceIntervals(hint1, 0.68);
   TFitResultPtr r_2 = ratio.Fit("fit2", "NS", "", 500, 6000);
   (TVirtualFitter::GetFitter())->GetConfidenceIntervals(hint2, 0.68);
+
+  TF1 *testfunc = new TF1("testfunc", "4.04724 * TMath::Landau(x, 2.80624e+03, 1.30542e+03)", 500, 6000);
 
   const int nbins = 34;
   double bins[nbins] = {0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500,
@@ -209,13 +215,16 @@ void backgroundEstimation(){
   ratio.GetXaxis()->SetTitle("S_{T} [GeV]");
   ratio.GetXaxis()->SetNdivisions(505);
   ratio.GetYaxis()->SetTitle("ratio");
-  ratio.GetYaxis()->SetRangeUser(1, 35);
+  ratio.GetYaxis()->SetRangeUser(0, 2);
   ratio.SetTitle("");
 
   ratio.Draw("");
   fit->Draw("same");
   fit2->SetLineColor(4);
   fit2->Draw("same");
+  testfunc->SetLineColor(6);
+  testfunc->SetLineWidth(20);
+  //testfunc->Draw("same");
 
   hint1->SetLineColor(2);
   hint1->SetFillColorAlpha(2,0.3);
