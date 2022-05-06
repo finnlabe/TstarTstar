@@ -64,6 +64,10 @@ double bgest_polynom(double x, double p0, double p1, double p2) {
   return p0 + p1 * x + p2 * x * x;
 }
 
+double bgest_landau(double x, double p0, double p1, double p2) {
+  return p0 * TMath::Landau(x, p1, p2);
+}
+
 /** \brief Module for the T*T*->ttbar gg MC based study
  *
  * This is the central class which calls other AnalysisModules, Hists or Selection classes.
@@ -86,7 +90,7 @@ private:
   std::unique_ptr<Hists> h_topcheck, h_topcheck_reweighted, h_AfterDNNcut_06_UGLYFIX, h_NotDNNcut_06_UGLYFIX;
   std::unique_ptr<Hists> h_STreweighted, h_crosscheck;
 
-  std::unique_ptr<Hists> h_newTaggerSR, h_newTaggerCR, h_newTagger_btagCR, h_newTagger_btagCR_ele;
+  std::unique_ptr<Hists> h_newTaggerSR, h_newTaggerCR, h_newTagger_btagCR, h_newTagger_btagCR_DNNSR;
 
   std::unique_ptr<Hists> h_AfterDNNcut_02, h_AfterDNNcut_03, h_AfterDNNcut_04, h_AfterDNNcut_05, h_AfterDNNcut_06, h_AfterDNNcut_07, h_AfterDNNcut_08;
   std::unique_ptr<Hists> h_notDNNcut_02,   h_notDNNcut_03,   h_notDNNcut_04,   h_notDNNcut_05,   h_notDNNcut_06,   h_notDNNcut_07,   h_notDNNcut_08;
@@ -158,7 +162,13 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   // MC or real data
   is_MC = ctx.get("dataset_type") == "MC";
 
-  if(!is_MC) is_datadriven_BG_run = ctx.get("use_data_for") == "background_extrapolation"; // get which running mode to use for data
+  if(!is_MC) is_datadriven_BG_run = ctx.get("use_data_for", "regular") == "background_extrapolation"; // get which running mode to use for data
+  if(is_datadriven_BG_run) {
+    TString background_estimation_purity_filepath = ctx.get("background_estimation_purity_file");
+    TFile *f = new TFile(background_estimation_purity_filepath);
+    if(!f) throw std::runtime_error("ERROR: cant open background estimation purity at "+ctx.get("background_estimation_purity_file"));
+    bgest_purity = (TGraphAsymmErrors*)f->Get("purity");
+  }
 
   if(is_MC) {
     is_TTbar = (ctx.get("dataset_version").find("TT") != std::string::npos);
@@ -183,7 +193,7 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_newTaggerSR.reset(new TstarTstarHists(ctx, "newTaggerSR"));
   h_newTaggerCR.reset(new TstarTstarHists(ctx, "newTaggerCR"));
   h_newTagger_btagCR.reset(new TstarTstarHists(ctx, "newTagger_btagCR"));
-  h_newTagger_btagCR_ele.reset(new TstarTstarHists(ctx, "newTagger_btagCR_ele"));
+  h_newTagger_btagCR_DNNSR.reset(new TstarTstarHists(ctx, "newTagger_btagCR_ele"));
 
   /**
   h_AfterDNNcut_02.reset(new TstarTstarHists(ctx, "AfterDNNcut_02"));
@@ -250,9 +260,6 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_ST_weight = ctx.declare_event_output<double>("ST_weight");
 
   h_DNN_output = ctx.get_handle<double>("DNN_output");
-
-  TFile *f = new TFile("/nfs/dust/cms/user/flabe/TstarTstar/CMSSW_10_2_17/src/UHH2/TstarTstar/macros/files/bgest_purity.root");
-  bgest_purity = (TGraphAsymmErrors*)f->Get("purity");
 
 }
 
@@ -371,42 +378,46 @@ bool TstarTstarDNNModule::process(Event & event) {
       pass_btagcut = true; // we will use this data however!
       newTagger = -1; // for the moment, use all data for the CR
 
-      // definition of the transfer function
-      // NAME      VALUE            ERROR          SIZE      DERIVATIVE
-      // p0       -1.20025e+00   3.82700e-01   1.31302e-04   2.81236e-04
-      // p1        4.71172e-03   5.79365e-04   1.02640e-07   4.94329e-01
-      // p2       -3.70059e-07   2.01813e-07   6.21146e-11   1.00150e+03
-      double p0 = -6.71252e-01;
-      double p1 = 4.16795e-03;
-      double p2 = 1.86044e-07;
+//      NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE
+//   1  Constant     4.04724e+00   7.42280e-02   9.90911e-05   5.63080e-04
+//   2  MPV          2.80624e+03   1.34157e+02   4.67698e-02  -1.72843e-06
+//   3  Sigma        1.30542e+03   8.57501e+01   1.02664e-05   9.03556e-03
+      double p0 = 4.04724e+00;
+      double p1 = 2.80624e+03;
+      double p2 = 1.30542e+03;
       if(true) cout << "ST: " << event.get(h_ST) << endl;
-      double transfer_value = bgest_polynom(event.get(h_ST), p0, p1, p2);
+      //double transfer_value = bgest_polynom(event.get(h_ST), p0, p1, p2);
+      double transfer_value = bgest_landau(event.get(h_ST), p0, p1, p2);
       if(true) cout << "transfer value: " << transfer_value << endl;
       double purity_value = bgest_purity->Eval(event.get(h_ST));
       if(true) cout << "purity: " << purity_value << endl;
       event.weight *= transfer_value*purity_value;
+      //event.weight *= transfer_value;
     }
   }
 
   if(pass_btagcut) {
     h_DNN_newTagger->fill(event);
     if(newTagger > 0) {
-      h_newTaggerSR->fill(event);
-      event.set(h_region, "SR");
-      h_SignalRegion_total->fill(event);
-      if(event.get(h_is_mu)) h_SignalRegion_mu->fill(event);
-      else h_SignalRegion_ele->fill(event);
+      if(is_MC /* blinding */) {
+        h_newTaggerSR->fill(event);
+        event.set(h_region, "SR");
+        h_SignalRegion_total->fill(event);
+        if(event.get(h_is_mu)) h_SignalRegion_mu->fill(event);
+        else h_SignalRegion_ele->fill(event);
+      }
+
     }
     else {
       h_newTaggerCR->fill(event);
-      event.set(h_region,"CR1");
+      event.set(h_region,"VR");
     }
   }
   else {
+    h_newTagger_btagCR->fill(event);
     if(newTagger > 0) {
-      h_newTagger_btagCR->fill(event);
-      if(!event.get(h_is_mu)) h_newTagger_btagCR_ele->fill(event);
-      event.set(h_region,"CR2");
+      h_newTagger_btagCR_DNNSR->fill(event);
+      event.set(h_region,"CR");
     }
   }
 
