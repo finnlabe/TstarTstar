@@ -111,6 +111,7 @@ private:
   TString year;
   bool is_MC;
   bool data_isMu = false;
+  bool data_isPhoton = false;
   bool data_is2017B = false;
   bool data_is2016B = false;
   bool isTriggerSFMeasurement = false;
@@ -154,10 +155,11 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
 
   // muon channel for DATA
   if(!is_MC) data_isMu = (ctx.get("dataset_version").find("SingleMuon") != std::string::npos);
+  if(!is_MC) data_isPhoton = (ctx.get("dataset_version").find("SinglePhoton") != std::string::npos);
 
   // check this specific run as it has error
-  if(!is_MC) data_is2017B = (ctx.get("dataset_version").find("SingleElectron_RunB_UL17") != std::string::npos) || (ctx.get("dataset_version").find("SingleMuon_RunB_UL17") != std::string::npos);
-  if(!is_MC) data_is2016B = (ctx.get("dataset_version").find("SingleElectron_RunB_UL16preVFP") != std::string::npos) || (ctx.get("dataset_version").find("SingleMuon_RunB_UL16preVFP") != std::string::npos);
+  if(!is_MC) data_is2017B = (ctx.get("dataset_version").find("SingleElectron_RunB_UL17") != std::string::npos) || (ctx.get("dataset_version").find("SingleMuon_RunB_UL17") != std::string::npos) || (ctx.get("dataset_version").find("SinglePhoton_RunB_UL17") != std::string::npos);
+  if(!is_MC) data_is2016B = (ctx.get("dataset_version").find("SingleElectron_RunB_UL16preVFP") != std::string::npos) || (ctx.get("dataset_version").find("SingleMuon_RunB_UL16preVFP") != std::string::npos) || (ctx.get("dataset_version").find("SinglePhoton_RunB_UL16preVFP") != std::string::npos);
 
   // ###### 1. set up modules ######
   if(debug) cout << "Setting up modules" << endl;
@@ -242,12 +244,12 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
     if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
       trg_ele_low.reset(new TriggerSelection("HLT_Ele27_WPTight_Gsf_v*"));
       trg_ele_high.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
-      trg_pho.reset(new TriggerSelection("HLT_Photon175_v*"));
+      if(data_isPhoton) trg_pho.reset(new TriggerSelection("HLT_Photon175_v*"));
     }
     else if(year == "2017" || year == "UL17") {
       trg_ele_low.reset(new TriggerSelection("HLT_Ele35_WPTight_Gsf_v*"));
       trg_ele_high.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
-      trg_pho.reset(new TriggerSelection("HLT_Photon200_v*"));
+      if(data_isPhoton) trg_pho.reset(new TriggerSelection("HLT_Photon200_v*"));
     }
     else if(year == "2018" || year == "UL18") {
       trg_ele_low.reset(new TriggerSelection("HLT_Ele32_WPTight_Gsf_v*"));
@@ -417,8 +419,17 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   // electron
   if(is_MC || !data_isMu) {
     pass_trigger_SingleEle_lowpt = trg_ele_low->passes(event);
-    if(data_is2017B || MC_isfake2017B) pass_trigger_SingleEle_highpt = (trg_ele_low->passes(event) || trg_pho->passes(event));
-    else pass_trigger_SingleEle_highpt = (trg_ele_high->passes(event) || trg_pho->passes(event));
+    if(data_is2017B || MC_isfake2017B) {
+      if(data_isPhoton) pass_trigger_SingleEle_highpt = (!trg_ele_low->passes(event) && trg_pho->passes(event));
+      else pass_trigger_SingleEle_highpt = trg_ele_low->passes(event);
+    }
+    else if (year == "UL18") {
+      pass_trigger_SingleEle_highpt = (trg_ele_high->passes(event) || trg_pho->passes(event));
+    }
+    else {
+      if (data_isPhoton) pass_trigger_SingleEle_highpt = (!trg_ele_high->passes(event) && trg_pho->passes(event));
+      else pass_trigger_SingleEle_highpt = trg_ele_high->passes(event);
+    }
     if(debug) std::cout << "Passed electron trigger logic" << std::endl;
   }
 
