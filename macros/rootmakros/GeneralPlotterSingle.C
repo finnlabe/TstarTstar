@@ -5,17 +5,17 @@
 // root -l -b -q GeneralPlotterSingle.C
 
 void GeneralPlotterSingle(TString channel = "tgtg", TString masspoint="1600", TString subpath="NoCuts_GEN", TString histname="Pt_tstar_gen"){
-  
+
   Double_t w = 800;
   Double_t h = 600;
 
-  TString path = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/RunII_2016_MuonHihjPtId_mvaPhoIDwp90Fall17_nonIsoandIsoHLT_addTTBarRECO/"+channel+"/";
+  TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/";
   TString filename = "uhh2.AnalysisModuleRunner.MC.MC_TstarTstarTo";
   if(channel == "tgtg"){filename += "TgluonTgluon";}
   else if(channel == "tgtgamma"){filename += "TgammaTgluon";}
   else {cout<<"Channel invalid!"<<endl;}
   filename += "_M-"+masspoint+"_Run2016v3.root";
-  
+
   TCanvas *c1_hist = new TCanvas("chist", "c", w, h);
 
   TFile *input = TFile::Open(path+filename);

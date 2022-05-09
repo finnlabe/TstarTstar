@@ -26,15 +26,15 @@ void backgroundEstimation_ratioplotter(){
   Double_t w = 800;
   Double_t h = 600;
 
-  TString MCpath = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/";
+  TString MCpath = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/UL17/hadded/";
   TString filename_base = "uhh2.AnalysisModuleRunner.MC.";
   std::vector<TString> samples_to_replace = {"WJets", "QCD", "VV"};
   TString MCfolder = "newTaggerCR";
   TString MChistname = "pt_ST_rebinned";
 
-  TString datadrivenPath = "/nfs/dust/cms/user/flabe/TstarTstar/CMSSW_10_2_17/src/UHH2/TstarTstar/macros/";
-  TString datadrivenFilename = "uhh2.AnalysisModuleRunner.MC.Other.root";
-  TString datadrivenFolder = "reco";
+  TString datadrivenPath = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/UL17/hadded/";
+  TString datadrivenFilename = "uhh2.AnalysisModuleRunner.DATA.datadrivenBG.root";
+  TString datadrivenFolder = "newTaggerCR";
   TString datadrivenHistname = "pt_ST_rebinned";
 
   TString label = "S_{T}";

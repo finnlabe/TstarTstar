@@ -234,6 +234,7 @@ void backgroundEstimation(){
   hint2->Draw("e3 same");
 
   // draw Lumi text
+  /**
   TString infotext = TString::Format("%3.0f fb^{-1} (%d TeV)", 138., 13);
   TLatex *text = new TLatex(3.5, 24, infotext);
   text->SetNDC();
@@ -243,6 +244,7 @@ void backgroundEstimation(){
   text->SetY(1);
   text->SetTextSize(0.045);
   text->Draw();
+  **/
 
   // draw CMS Work in Progress text
   TString cmstext = "CMS";
@@ -274,7 +276,7 @@ void backgroundEstimation(){
 
   purity.Draw("AP");
 
-  text->Draw();
+  //text->Draw();
   text2->Draw();
   text3->Draw();
 

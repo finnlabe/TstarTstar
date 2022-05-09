@@ -10,16 +10,15 @@ void DNNeff(TString suffix = ""){
   TFile *input;
   TH1D *hist;
 
-  TString pathReco = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Analysis/hadded/";
-  TString pathDNN = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/DNN/hadded/";
+  TString pathDNN = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/";
   TString fileprefix = "uhh2.AnalysisModuleRunner.MC.";
   TString histname = "N_jets";
 
   // Defining Samples
-  std::vector<TString> signalSamples = {"TstarTstar_M-700", "TstarTstar_M-1600"};
+  std::vector<TString> signalSamples = {"TstarTstar_M-700", "TstarTstar_M-1600", "TstarTstar_M-2000"};
   std::vector<TString> BGSamples = {"TTbar", "ST", "WJets", "QCD"};
 
-  std::vector<TString> signal_labels = {"T* M-700", "T* M-1600"};
+  std::vector<TString> signal_labels = {"T* M-700", "T* M-1600", "T* M-2000"};
   std::vector<TString> BG_labels = {"TTbar", "ST", "WJets", "QCD"};
 
   // ########################
@@ -31,13 +30,13 @@ void DNNeff(TString suffix = ""){
   std::vector<double> initial_BG;
   double initial_BG_sum = 0;
   for(const auto & sample : signalSamples){
-    input = TFile::Open(pathReco+fileprefix+sample+".root");
-    hist = (TH1D*)input->Get("beforeReco/"+histname);
+    input = TFile::Open(pathDNN+fileprefix+sample+".root");
+    hist = (TH1D*)input->Get("crosscheck/"+histname);
     initial_signal.push_back(hist->Integral());
   }
   for(const auto & sample : BGSamples){
-    input = TFile::Open(pathReco+fileprefix+sample+".root");
-    hist = (TH1D*)input->Get("beforeReco/"+histname);
+    input = TFile::Open(pathDNN+fileprefix+sample+".root");
+    hist = (TH1D*)input->Get("crosscheck/"+histname);
     initial_BG.push_back(hist->Integral());
     initial_BG_sum += hist->Integral();
   }
@@ -48,12 +47,12 @@ void DNNeff(TString suffix = ""){
   double result_BG_sum = 0;
   for(const auto & sample : signalSamples){
     input = TFile::Open(pathDNN+fileprefix+sample+".root");
-    hist = (TH1D*)input->Get("AfterDNNcut_04/"+histname);
+    hist = (TH1D*)input->Get("newTaggerSR/"+histname);
     result_signal.push_back(hist->Integral());
   }
   for(const auto & sample : BGSamples){
     input = TFile::Open(pathDNN+fileprefix+sample+".root");
-    hist = (TH1D*)input->Get("AfterDNNcut_04/"+histname);
+    hist = (TH1D*)input->Get("newTaggerSR/"+histname);
     result_BG.push_back(hist->Integral());
     result_BG_sum += hist->Integral();
   }

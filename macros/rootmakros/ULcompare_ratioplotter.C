@@ -26,12 +26,12 @@ void ULcompare_ratioplotter(){
   Double_t w = 800;
   Double_t h = 600;
 
-  TString sample = "MC.TTbar";
+  TString sample = "MC.WJets";
 
-  TString beforePath = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/2018/hadded/";
-  TString afterPath = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/UL18/hadded/";
+  TString beforePath = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/2017/hadded/";
+  TString afterPath = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/UL17/hadded/";
   TString filename = "uhh2.AnalysisModuleRunner."+sample+".root";
-  TString histname = "pt_ST_fullrange";
+  TString histname = "pt_ST_rebinned";
   TString label = "S_{T} [GeV]";
 
   TString beforeFolder = "crosscheck";

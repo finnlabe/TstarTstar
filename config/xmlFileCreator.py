@@ -43,7 +43,7 @@ class configContainer:
          'UL18': '',
       }
 
-      # Set these values such that there are no more than 2,500 jobs per preselection. This way, you can submit two preselections in parallel to avoid going over 5,000 jobs (current user limit for NAF)
+      # Set these values such that there are no more than 2,500 jobs per Preselection. This way, you can submit two Preselections in parallel to avoid going over 5,000 jobs (current user limit for NAF)
       self.yearVars['preselFileSplit'] = {
          'UL16preVFP': '50',
          'UL16postVFP': '50',
@@ -104,12 +104,14 @@ class configContainer:
          'Preselection': "",
          'Selection': "MC_isfake2017B is_muevt evt_weight is_triggered is_highpt weight_pu weight_pu_up weight_pu_down prefiringWeight prefiringWeightDown prefiringWeightUp",
          'Analysis': "neutrino is_btagevent weight_sfmu_id weight_sfmu_id_down weight_sfmu_id_up weight_sfmu_iso weight_sfmu_iso_down weight_sfmu_iso_up weight_sfelec_id weight_sfelec_id_down weight_sfelec_id_up weight_sfelec_reco weight_sfelec_reco_down weight_sfelec_reco_up weight_btagdisc__central weight_btagdisc__lf_up weight_btagdisc__lf_down weight_btagdisc__hf_up weight_btagdisc__hf_down weight_btagdisc__hfstats1_up weight_btagdisc__hfstats1_down weight_btagdisc__hfstats2_up weight_btagdisc__hfstats2_down weight_btagdisc__lfstats1_up weight_btagdisc__lfstats1_down weight_btagdisc__lfstats2_up weight_btagdisc__lfstats2_down weight_btagdisc__cferr1_up weight_btagdisc__cferr1_down weight_btagdisc__cferr2_up weight_btagdisc__cferr2_down",
-         'DNN': "ST_weight DNN_Inputs TstarTstar_Hyp_gHOTVR TstarTstar_Hyp_gAK4 ST"
+         'DNN': "ST_weight DNN_Inputs TstarTstar_Hyp_gHOTVR TstarTstar_Hyp_gAK4 ST STHOTVR",
+         'DNN_datadriven': "",
       }
 
       self.additionalBranches["Selection"] = self.additionalBranches["Selection"]+" "+self.additionalBranches["Preselection"]
       self.additionalBranches["Analysis"] = self.additionalBranches["Analysis"]+" "+self.additionalBranches["Selection"]
       self.additionalBranches["DNN"] = self.additionalBranches["DNN"]+" "+self.additionalBranches["Analysis"]
+      self.additionalBranches["DNN_datadriven"] = self.additionalBranches["DNN_datadriven"]+" "+self.additionalBranches["DNN"]
 
       self.systematics = list()
 
@@ -184,10 +186,9 @@ class xmlCreator:
       self.jersmear_direction = variationDirections["jersmear"]
       self.jecsmear_direction = variationDirections["jecsmear"]
 
-      if step not in ['Preselection', 'Selection', 'Analysis', 'DNN']:
+      if step not in ['Preselection', 'Selection', 'Analysis', 'DNN', "DNN_datadriven"]:
          sys.exit('Given value of argument "selection" not valid. Abort.')
       self.step = step
-      self.is_presel = True if step=='Preselection' else False
       if (step == "Preselection"):
           self.previousFolder = "none"
           self.analysisModule = "TstarTstarPreselectionModule"
@@ -197,7 +198,7 @@ class xmlCreator:
       elif (step == "Analysis"):
           self.previousFolder = "Selection"
           self.analysisModule = "TstarTstarAnalysisModule"
-      elif (step == "DNN"):
+      elif (step == "DNN" or step == "DNN_datadriven"):
           self.previousFolder = "Analysis"
           self.analysisModule = "TstarTstarDNNModule"
 
@@ -229,7 +230,7 @@ class xmlCreator:
          file.write('''<!DOCTYPE JobConfiguration PUBLIC "" "JobConfig.dtd"[\n''')
          file.write('''\n''')
          file.write('''<!ENTITY TargetLumi "'''+str(self.yearVars['targetLumis'][self.year])+'''">\n''')
-         if not self.is_presel:
+         if not (self.step == "Preselection"):
             file.write('''<!ENTITY INPUTdir "'''+(self.outputDirBase+self.previousFolder+'/'+self.year)+'''">\n''')
             file.write('''<!ENTITY INPUTfilename "uhh2.AnalysisModuleRunner">\n''')
          file.write('''<!ENTITY OUTPUTdir "'''+(self.outputDirBase+self.step+'/'+self.year)+'''">\n''')
@@ -239,7 +240,7 @@ class xmlCreator:
          file.write('''<!ENTITY PROOFdir "/nfs/dust/cms/user/'''+self.userName+'''/.proof2">\n''')
          file.write('''\n''')
          for s in self.sample_list:
-            if not self.is_presel:
+            if not (self.step == "Preselection"):
                file.write('''<!ENTITY '''+s.nickName+''' "&INPUTdir;/&INPUTfilename;'''+('.DATA.' if s.is_data else '.MC.')+s.nickName+'''&YEARsuffix;.root">\n''')
             else:
                file.write('''<!ENTITY '''+s.nickName+''' SYSTEM "'''+s.xmlPath+'''">\n''')
@@ -247,7 +248,7 @@ class xmlCreator:
          file.write(''']>\n''')
          file.write('''\n''')
          file.write('''<!--\n''')
-         file.write('''<ConfigParse NEventsBreak="'''+('500000' if not self.is_presel else '0')+'''" FileSplit="'''+('0' if not self.is_presel else self.yearVars['preselFileSplit'][self.year])+'''" AutoResubmit="5"/>\n''')
+         file.write('''<ConfigParse NEventsBreak="'''+('500000' if not (self.step == "Preselection") else '0')+'''" FileSplit="'''+('0' if not (self.step == "Preselection") else self.yearVars['preselFileSplit'][self.year])+'''" AutoResubmit="5"/>\n''')
          file.write('''<ConfigSGE RAM="4" DISK="3" Mail="'''+self.userMail+'''" Notification="as" Workdir="'''+self.workdirName+'''"/>\n''')
          file.write('''-->\n''')
          file.write('''\n''')
@@ -258,7 +259,7 @@ class xmlCreator:
          file.write('''<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="&OUTPUTdir;/" PostFix="" TargetLumi="&TargetLumi;">\n''')
          file.write('''\n''')
          for s in self.sample_list:
-             if self.is_presel:
+             if(self.step == "Preselection"):
                  file.write('''<InputData Lumi="'''+str(s.lumi)+'''" NEventsMax="&NEVT;" Type="'''+('DATA' if s.is_data else 'MC')+'''" Version="'''+s.nickName+'''&YEARsuffix;" Cacheable="&b_Cacheable;"> &'''+s.nickName+'''; <InputTree Name="AnalysisTree"/> <OutputTree Name="AnalysisTree"/> </InputData>\n''')
              else:
                  file.write('''<InputData Lumi="'''+str(s.lumi)+'''" NEventsMax="&NEVT;" Type="'''+('DATA' if s.is_data else 'MC')+'''" Version="'''+s.nickName+'''&YEARsuffix;" Cacheable="&b_Cacheable;"> <In FileName="&'''+s.nickName+''';" Lumi="0.0"/> <InputTree Name="AnalysisTree"/> <OutputTree Name="AnalysisTree"/> </InputData>\n''')
@@ -298,6 +299,9 @@ class xmlCreator:
              file.write('''<Item Name="HOTVRTopTagSFs" Value="'''+self.yearVars['HOTVRSFs'][self.year]+'''"/>\n''')
              file.write('''<Item Name="SF_path" Value="/nfs/dust/cms/user/flabe/TstarTstar/CMSSW_10_2_17/src/UHH2/TstarTstar/factors/" />\n''')
              file.write('''<Item Name="NLOCorrections" Value = "/nfs/dust/cms/user/deleokse/RunII_102X_v2/CMSSW_10_2_17/src/UHH2/ZprimeSemiLeptonic/data/" />''')
+         if(self.step == "DNN_datadriven"):
+             file.write('''<Item Name="use_data_for" Value="background_extrapolation"/>\n''')
+             file.write('''<Item Name="background_estimation_purity_file" Value="'''+self.uhh2Dir+'''TstarTstar/macros/rootmakros/files/bgest_purity.root"/>\n''')
          file.write('''\n''')
          file.write('''<!-- Switch for debugging of the central AnalysisModule -->\n''')
          file.write('''<Item Name="debug" Value="false"/>\n''')
@@ -340,7 +344,7 @@ class xmlCreator:
 
 if __name__=='__main__':
 
-   selections = ['Preselection', 'Selection', 'Analysis', 'DNN']
+   selections = ['Preselection', 'Selection', 'Analysis', 'DNN', 'DNN_datadriven']
    years = ['UL16preVFP','UL16postVFP','UL17', 'UL18']
    jersmear_directions = ['nominal', 'up', 'down']
    jecsmear_directions = ['nominal', 'up', 'down']
@@ -387,6 +391,10 @@ if __name__=='__main__':
 
    for selection in args.selections:
       for year in args.years:
-          for group in groups:
-             x = xmlCreator(selection, year, group, directions)
-             x.write_xml()
+          if(selection == "DNN_datadriven"):
+              x = xmlCreator(selection, year, "DATA", directions)
+              x.write_xml()
+          else:
+              for group in groups:
+                 x = xmlCreator(selection, year, group, directions)
+                 x.write_xml()

@@ -77,6 +77,34 @@ samplesDict = {
         'db_name': 'EGamma_RunD',
         'years': ['UL18']
     },
+    'DATA_SinglePhoton_RunB': {
+        'db_name': 'SinglePhoton_RunB',
+        'years': ['UL16preVFP', 'UL17']
+    },
+    'DATA_SinglePhoton_RunC': {
+        'db_name': 'SinglePhoton_RunC',
+        'years': ['UL16preVFP', 'UL17']
+    },
+    'DATA_SinglePhoton_RunD': {
+        'db_name': 'SinglePhoton_RunD',
+        'years': ['UL16preVFP', 'UL17']
+    },
+    'DATA_SinglePhoton_RunE': {
+        'db_name': 'SinglePhoton_RunE',
+        'years': ['UL16preVFP', 'UL17']
+    },
+    'DATA_SinglePhoton_RunF': {
+        'db_name': 'SinglePhoton_RunF',
+        'years': ['UL16preVFP', 'UL16postVFP', 'UL17']
+    },
+    'DATA_SinglePhoton_RunG': {
+        'db_name': 'SinglePhoton_RunG',
+        'years': ['UL16postVFP']
+    },
+    'DATA_SinglePhoton_RunH': {
+        'db_name': 'SinglePhoton_RunH',
+        'years': ['UL16postVFP']
+    },
     #_________________________________________________
     'TTbarToSemiLeptonic': {
         'db_name': 'TTToSemiLeptonic',
