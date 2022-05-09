@@ -22,6 +22,7 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
 
   h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
   h_ST = ctx.get_handle<double>("ST");
+  h_STHOTVR = ctx.get_handle<double>("STHOTVR");
 
   h_tstartstar_hyp_gHOTVR = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_Hyp_gHOTVR");
   h_tstartstar_hyp_gAK4 = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_Hyp_gAK4");
@@ -102,11 +103,14 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   book<TH1F>("pt_HTlep", "H_{T} + p_{T} (#ell) [GeV]", 40, 0, 4000);
   book<TH1F>("pt_ST", "S_{T} [GeV]", 40, 0, 4000);
   book<TH1F>("pt_ST_fullrange", "S_{T} [GeV]", 60, 0, 6000);
+  book<TH1F>("pt_ST_HOTVR", "S_{T} HOTVR [GeV]", 40, 0, 4000);
+  book<TH1F>("pt_ST_HOTVR_fullrange", "S_{T} HOTVR [GeV]", 60, 0, 6000);
 
   const int nbins = 34;
   double bins[nbins] = {0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500,
     2600, 2700, 2800, 2900, 3000, 3250, 4000, 6000};
   book<TH1F>("pt_ST_rebinned", "S_{T} [GeV]", nbins-1, bins);
+  book<TH1F>("pt_ST_HOTVR_rebinned", "S_{T} HOTVR [GeV]", nbins-1, bins);
 
   book<TH1F>("pt_asym12", "#Delta p_{T} (jet 1, jet 2) [GeV]", 20, 0, 2000);
   book<TH1F>("pt_asym13", "#Delta p_{T} (jet 1, jet 3) [GeV]", 20, 0, 2000);
@@ -317,7 +321,7 @@ void TstarTstarHists::fill(const Event & event){
   if(debug) cout << "Finished filling MET observables." << endl;
 
   double st = 0.;
-  for(const auto & jet : *event.topjets) st += jet.pt();
+  for(const auto & jet : *event.jets) st += jet.pt();
   if(st > 4000) hist("pt_HT")->Fill(3999.9, weight);
   else hist("pt_HT")->Fill(st, weight);
 
@@ -333,6 +337,15 @@ void TstarTstarHists::fill(const Event & event){
     hist("pt_ST_fullrange")->Fill(st, weight);
     if(st > 6000) hist("pt_ST_rebinned")->Fill(5999.9, weight);
     else hist("pt_ST_rebinned")->Fill(st, weight);
+  } catch(...) {}
+
+  try {
+    st = event.get(h_STHOTVR);
+    if(st > 4000) hist("pt_ST_HOTVR")->Fill(3999.9, weight);
+    else hist("pt_ST_HOTVR")->Fill(st, weight);
+    hist("pt_ST_HOTVR_fullrange")->Fill(st, weight);
+    if(st > 6000) hist("pt_ST_HOTVR_rebinned")->Fill(5999.9, weight);
+    else hist("pt_ST_HOTVR_rebinned")->Fill(st, weight);
   } catch(...) {}
 
   // p_T asymmetry

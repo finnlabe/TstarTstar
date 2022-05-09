@@ -131,6 +131,7 @@ private:
   uhh2::Event::Handle<double> h_evt_weight;
   uhh2::Event::Handle<LorentzVector> h_neutrino;
   uhh2::Event::Handle<double> h_ST;
+  uhh2::Event::Handle<double> h_STHOTVR;
   uhh2::Event::Handle<bool> h_is_triggered;
   uhh2::Event::Handle<bool> h_is_btagevent;
   uhh2::Event::Handle<bool> h_MC_isfake2017B;
@@ -342,6 +343,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
   h_neutrino = ctx.declare_event_output<LorentzVector>("neutrino");
   h_ST = ctx.declare_event_output<double>("ST");
+  h_STHOTVR = ctx.declare_event_output<double>("STHOTVR");
   h_is_triggered = ctx.get_handle<bool>("is_triggered");
   h_is_btagevent = ctx.declare_event_output<bool>("is_btagevent");
 
@@ -488,11 +490,16 @@ bool TstarTstarSelectionModule::process(Event & event) {
 
   // st calculation
   double st = 0.;
-  for(const auto & jet : *event.topjets) st += jet.pt();
   for(const auto & lepton : *event.electrons) st += lepton.pt();
   for(const auto & lepton : *event.muons) st += lepton.pt();
   st += event.met->pt();
+  double stHOTVR = st;
+
+  for(const auto & jet : *event.jets) st += jet.pt();
+  for(const auto & jet : *event.topjets) stHOTVR += jet.pt();
+
   event.set(h_ST, st);
+  event.set(h_STHOTVR, stHOTVR);
 
   // st cut
   if(st < 500) return false;
