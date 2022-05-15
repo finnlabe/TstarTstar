@@ -78,6 +78,7 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   // leptons
   book<TH1F>("N_mu", "N^{#mu}", 10, 0, 10);
   book<TH1F>("pt_mu", "p_{T}^{#mu} [GeV/c]", 50, 0, 1000);
+  book<TH1F>("pt_mu_low", "p_{T}^{#mu} [GeV/c]", 50, 0, 100);
   book<TH1F>("eta_mu", "#eta^{#mu}", 50, -5.2, 5.2);
   book<TH1F>("reliso_mu", "#mu rel. Iso", 40, 0, 0.5);
 
@@ -254,6 +255,7 @@ void TstarTstarHists::fill(const Event & event){
   hist("N_mu")->Fill(Nmuons, weight);
   for (const Muon & thismu : *event.muons){
       hist("pt_mu")->Fill(thismu.pt(), weight);
+      hist("pt_mu_low")->Fill(thismu.pt(), weight);
       hist("eta_mu")->Fill(thismu.eta(), weight);
       hist("reliso_mu")->Fill(thismu.relIso(), weight);
   }

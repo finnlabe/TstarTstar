@@ -393,6 +393,7 @@ bool TstarTstarDNNModule::process(Event & event) {
       if(true) cout << "purity: " << purity_value << endl;
       event.weight *= transfer_value*purity_value;
       //event.weight *= transfer_value;
+
     }
   }
 
