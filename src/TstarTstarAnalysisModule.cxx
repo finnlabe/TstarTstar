@@ -91,6 +91,7 @@ private:
   uhh2::Event::Handle<double> h_evt_weight;
   uhh2::Event::Handle<FlavorParticle> h_primlep;
   uhh2::Event::Handle<double> h_ST;
+  uhh2::Event::Handle<double> h_STHOTVR;
   uhh2::Event::Handle<LorentzVector> h_neutrino;
   uhh2::Event::Handle<bool> h_is_btagevent;
 
@@ -202,12 +203,13 @@ TstarTstarAnalysisModule::TstarTstarAnalysisModule(Context & ctx){
   h_is_btagevent = ctx.get_handle<bool>("is_btagevent");
 
   if(is_MC) h_ttbargen = ctx.get_handle<TTbarGen>("ttbargen");
+  h_ST = ctx.get_handle<double>("ST");
+  h_STHOTVR = ctx.get_handle<double>("STHOTVR");
 
   // DNN output
   if(outputDNNvalues){
     DNN_InputWriter.reset(new NeuralNetworkInputWriter(ctx));
     h_do_masspoint = ctx.get_handle<bool>("do_masspoint");
-    h_ST = ctx.declare_event_output<double>("ST");
     h_ST_weight = ctx.declare_event_output<double>("ST_weight");
   }
 
@@ -287,13 +289,7 @@ bool TstarTstarAnalysisModule::process(Event & event) {
     DNN_InputWriter->process(event);
     if(debug) cout << "plot inputs" << endl;
     if(event.get(h_is_btagevent)) h_DNN_Inputs->fill(event);
-    double st = 0.;
-    for(const auto & jet : *event.topjets) st += jet.pt();
-    for(const auto & lepton : *event.electrons) st += lepton.pt();
-    for(const auto & lepton : *event.muons) st += lepton.pt();
-    LorentzVector neutrino = event.get(h_neutrino);
-    st += neutrino.pt();
-    event.set(h_ST, st);
+    double st = event.get(h_ST);
     double ST_weight = 1;
     if(is_TTbar){
       if(st > 4000) st = 3999;
