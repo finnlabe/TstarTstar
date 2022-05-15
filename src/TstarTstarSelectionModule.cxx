@@ -28,6 +28,7 @@
 #include "UHH2/TstarTstar/include/TstarTstarRecoTstarHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarReconstructionModules.h"
 #include "UHH2/TstarTstar/include/ElecTriggerSF.h"
+#include "UHH2/TstarTstar/include/TstarTstarScaleFactors.h"
 
 // other stuff
 #include "UHH2/HOTVR/include/HOTVRIds.h"
@@ -67,8 +68,19 @@ private:
   std::unique_ptr<AnalysisModule> HadronicTopFinder;
   std::unique_ptr<AnalysisModule> HOTVRScale;
   std::unique_ptr<AnalysisModule> ScaleFactor_btagging;
+  std::unique_ptr<AnalysisModule> ScaleFactor_NNLO;
 
-  // I'll add an "dummy" version here to be used on the "wrong" channel
+  // trigger selections
+  std::unique_ptr<Selection> trg_ele_low;
+  std::unique_ptr<Selection> trg_pho;
+  std::unique_ptr<Selection> trg_ele_high;
+  std::unique_ptr<Selection> trg_mu_low_1;
+  std::unique_ptr<Selection> trg_mu_low_2;
+  std::unique_ptr<Selection> trg_mu_high_1;
+  std::unique_ptr<Selection> trg_mu_high_2;
+  std::unique_ptr<Selection> trg_mu_high_3;
+
+  // lepton SFs
   std::unique_ptr<AnalysisModule> sf_muon_iso;
   std::unique_ptr<AnalysisModule> sf_muon_ID_lowpt;
   std::unique_ptr<AnalysisModule> sf_muon_ID_highpt;
@@ -90,38 +102,23 @@ private:
   unique_ptr<Selection> toptagevt_sel;
   unique_ptr<HEMCleanerSelection> HEMCleaner;
 
-  // triggers
-  // TODO clean this
-  unique_ptr<Selection> triggerSingleJet450_sel;
-  unique_ptr<Selection> triggerSingleLeptonEle1_sel;
-  unique_ptr<Selection> triggerSingleLeptonEle2_sel;
-  unique_ptr<Selection> triggerSingleLeptonEle3_sel;
-  unique_ptr<Selection> triggerSingleLeptonMu1_sel;
-  unique_ptr<Selection> triggerSingleLeptonMu2_sel;
-  unique_ptr<Selection> triggerSingleLeptonMu3_sel;
-  unique_ptr<Selection> triggerHT1_sel, triggerHT2_sel, triggerHT3_sel, triggerHT4_sel, triggerHT5_sel,  triggerHT6_sel;
-  unique_ptr<Selection> triggerPFHT_sel;
-
   // ###### Histograms ######
-  std::unique_ptr<Hists> h_beginSel,            h_btagcut,             h_2Dcut,               h_dRcut,               h_STcut            , h_corrections,              h_triggercorrections;
-  std::unique_ptr<Hists> h_beginSel_gen,        h_btagcut_gen,         h_2Dcut_gen,           h_dRcut_gen,           h_STcut_gen        , h_corrections_gen,          h_triggercorrections_gen;
-  std::unique_ptr<Hists> h_beginSel_ele,        h_btagcut_ele,         h_2Dcut_ele,           h_dRcut_ele,           h_STcut_ele        , h_corrections_ele,          h_triggercorrections_ele;
-  std::unique_ptr<Hists> h_beginSel_ele_lowpt,  h_btagcut_ele_lowpt,   h_2Dcut_ele_lowpt,     h_dRcut_ele_lowpt,     h_STcut_ele_lowpt  , h_corrections_ele_lowpt,    h_triggercorrections_ele_lowpt;
-  std::unique_ptr<Hists> h_beginSel_ele_highpt, h_btagcut_ele_highpt,  h_2Dcut_ele_highpt,    h_dRcut_ele_highpt,    h_STcut_ele_highpt , h_corrections_ele_highpt,   h_triggercorrections_ele_highpt;
-  std::unique_ptr<Hists> h_beginSel_mu,         h_btagcut_mu,          h_2Dcut_mu,            h_dRcut_mu,            h_STcut_mu         , h_corrections_mu,           h_triggercorrections_mu;
-  std::unique_ptr<Hists> h_beginSel_mu_lowpt,   h_btagcut_mu_lowpt,    h_2Dcut_mu_lowpt,      h_dRcut_mu_lowpt,      h_STcut_mu_lowpt   , h_corrections_mu_lowpt,     h_triggercorrections_mu_lowpt;
-  std::unique_ptr<Hists> h_beginSel_mu_highpt,  h_btagcut_mu_highpt,   h_2Dcut_mu_highpt,     h_dRcut_mu_highpt,     h_STcut_mu_highpt  , h_corrections_mu_highpt,    h_triggercorrections_mu_highpt;
-  std::unique_ptr<Hists> h_beginSel_nobtag,     h_btagcut_nobtag,      h_2Dcut_nobtag,        h_dRcut_nobtag,        h_STcut_nobtag     , h_corrections_nobtag,       h_triggercorrections_nobtag;
-  std::unique_ptr<Hists> h_STcut_nobtag_ele, h_corrections_nobtag_ele,  h_triggercorrections_nobtag_ele, h_triggercorrections_nobtag_mu;
+  std::unique_ptr<Hists> h_beginSel,            h_btagcut,             h_2Dcut,               h_dRcut,               h_STcut            ,    h_trigger,            h_corrections, h_MUcorrections              ;
+  std::unique_ptr<Hists> h_beginSel_gen,        h_btagcut_gen,         h_2Dcut_gen,           h_dRcut_gen,           h_STcut_gen        ,    h_trigger_gen,        h_corrections_gen          ;
+  std::unique_ptr<Hists> h_beginSel_ele,        h_btagcut_ele,         h_2Dcut_ele,           h_dRcut_ele,           h_STcut_ele        ,    h_trigger_ele,        h_corrections_ele, h_MUcorrections_ele          ;
+  std::unique_ptr<Hists> h_beginSel_ele_lowpt,  h_btagcut_ele_lowpt,   h_2Dcut_ele_lowpt,     h_dRcut_ele_lowpt,     h_STcut_ele_lowpt  ,    h_trigger_ele_lowpt,  h_corrections_ele_lowpt, h_MUcorrections_ele_lowpt    ;
+  std::unique_ptr<Hists> h_beginSel_ele_highpt, h_btagcut_ele_highpt,  h_2Dcut_ele_highpt,    h_dRcut_ele_highpt,    h_STcut_ele_highpt ,    h_trigger_ele_highpt, h_corrections_ele_highpt, h_MUcorrections_ele_highpt   ;
+  std::unique_ptr<Hists> h_beginSel_mu,         h_btagcut_mu,          h_2Dcut_mu,            h_dRcut_mu,            h_STcut_mu         ,    h_trigger_mu,         h_corrections_mu, h_MUcorrections_mu           ;
+  std::unique_ptr<Hists> h_beginSel_mu_lowpt,   h_btagcut_mu_lowpt,    h_2Dcut_mu_lowpt,      h_dRcut_mu_lowpt,      h_STcut_mu_lowpt   ,    h_trigger_mu_lowpt,   h_corrections_mu_lowpt, h_MUcorrections_mu_lowpt     ;
+  std::unique_ptr<Hists> h_beginSel_mu_highpt,  h_btagcut_mu_highpt,   h_2Dcut_mu_highpt,     h_dRcut_mu_highpt,     h_STcut_mu_highpt  ,    h_trigger_mu_highpt,  h_corrections_mu_highpt, h_MUcorrections_mu_highpt    ;
+  std::unique_ptr<Hists> h_beginSel_nobtag,     h_btagcut_nobtag,      h_2Dcut_nobtag,        h_dRcut_nobtag,        h_STcut_nobtag     ,    h_trigger_nobtag,     h_corrections_nobtag, h_MUcorrections_nobtag       ;
+  std::unique_ptr<Hists> h_STcut_nobtag_ele, h_corrections_nobtag_ele;
 
-  std::unique_ptr<Hists> h_afterSelection_gen, h_afterSelection_genmatch;
-  std::unique_ptr<Hists> h_afterSelection, h_afterHEMcleaning, h_afterHEMcleaning_ele, h_afterHEMcleaning_mu;
+  std::unique_ptr<Hists> h_afterHEMcleaning, h_afterHEMcleaning_ele, h_afterHEMcleaning_mu;
 
-  // TODO better trigger plots!
-  std::unique_ptr<Hists> h_trigger, h_trigger_mu, h_trigger_ele;
-  std::unique_ptr<Hists> h_trigger_gen;
+  std::unique_ptr<Hists> h_afterNNLO, h_afterNNLO_ele, h_afterNNLO_mu;
 
-  std::unique_ptr<Hists> h_beforeBcorrections, h_afterBcorrections, h_dRcut_nobtag_ele;
+  std::unique_ptr<Hists> h_beforeBcorrections, h_afterBcorrections;
 
   // ###### Handles ######
   uhh2::Event::Handle<FlavorParticle> h_primlep;
@@ -132,9 +129,9 @@ private:
   uhh2::Event::Handle<LorentzVector> h_neutrino;
   uhh2::Event::Handle<double> h_ST;
   uhh2::Event::Handle<double> h_STHOTVR;
-  uhh2::Event::Handle<bool> h_is_triggered;
   uhh2::Event::Handle<bool> h_is_btagevent;
   uhh2::Event::Handle<bool> h_MC_isfake2017B;
+  uhh2::Event::Handle<bool> h_MC_isfake2016B;
 
   // ###### Control Switches ######
   bool debug = false;
@@ -143,8 +140,9 @@ private:
   bool is_MC;
   bool data_isMu = false;
   bool data_is2017B = false;
+  bool data_isPhoton = false;
+  bool isTriggerSFMeasurement = false;
   TString year;
-  TopJetId topjetID;
 
 };
 
@@ -186,11 +184,16 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   }
   if(debug) cout << "Year is " << year << "." << endl;
 
-  // muon channel for DATA
+  // channel for DATA
   if(!is_MC) data_isMu = (ctx.get("dataset_version").find("SingleMuon") != std::string::npos);
+  if(!is_MC) data_isPhoton = (ctx.get("dataset_version").find("SinglePhoton") != std::string::npos);
+  if(data_isMu) std::cout << "This is a muon data sample" << std::endl;
+  else if(data_isPhoton) std::cout << "This is a photon data sample" << std::endl;
+  else if(!is_MC) std::cout << "This is an electron data sample" << std::endl;
 
   // check this specific run for trigger
-  if(!is_MC) data_is2017B = (ctx.get("dataset_version").find("SingleElectron_RunB_UL17") != std::string::npos) || (ctx.get("dataset_version").find("SingleMuon_RunB_UL17") != std::string::npos);
+  if(!is_MC) data_is2017B = (ctx.get("dataset_version").find("SingleElectron_RunB_UL17") != std::string::npos) || (ctx.get("dataset_version").find("SingleMuon_RunB_UL17") != std::string::npos) || (ctx.get("dataset_version").find("SinglePhoton_RunB_UL17") != std::string::npos);
+  if(data_is2017B) std::cout << "This data sample is from 2017 Run B" << std::endl;
 
   // ###### 1. Set up modules ######
   // ttbar on GEN
@@ -199,18 +202,62 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   // primary lepton
   reco_primlep.reset(new PrimaryLepton(ctx));
 
+  // trigger selections
+  if(is_MC || data_isMu) {
+    std::cout << "Setting up muon triggers" << std::endl;
+
+    // low pt triggers
+    if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
+      trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu24_v*"));
+      trg_mu_low_2.reset(new TriggerSelection("HLT_IsoTkMu24_v*"));
+      trg_mu_high_1.reset(new TriggerSelection("HLT_Mu50_v*"));
+      trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu50_v*"));
+    }
+    else if(year == "2017" || year == "UL17") {
+      trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu27_v*"));
+      trg_mu_high_1.reset(new TriggerSelection("HLT_Mu50_v*"));
+      trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu100_v*"));
+      trg_mu_high_3.reset(new TriggerSelection("HLT_OldMu100_v*"));
+    }
+    else if(year == "2018" || year == "UL18") {
+      trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu24_v*"));
+      trg_mu_high_1.reset(new TriggerSelection("HLT_Mu50_v*"));
+      trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu100_v*"));
+      trg_mu_high_3.reset(new TriggerSelection("HLT_OldMu100_v*"));
+    }
+  }
+  if(is_MC || !data_isMu){
+    std::cout << "Setting up ele triggers" << std::endl;
+
+    // low pt triggers
+    if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
+      trg_ele_low.reset(new TriggerSelection("HLT_Ele27_WPTight_Gsf_v*"));
+      trg_ele_high.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
+      if(is_MC || data_isPhoton) trg_pho.reset(new TriggerSelection("HLT_Photon175_v*"));
+    }
+    else if(year == "2017" || year == "UL17") {
+      trg_ele_low.reset(new TriggerSelection("HLT_Ele35_WPTight_Gsf_v*"));
+      trg_ele_high.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
+      if(is_MC || data_isPhoton) trg_pho.reset(new TriggerSelection("HLT_Photon200_v*"));
+    }
+    else if(year == "2018" || year == "UL18") {
+      trg_ele_low.reset(new TriggerSelection("HLT_Ele32_WPTight_Gsf_v*"));
+      trg_ele_high.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
+      trg_pho.reset(new TriggerSelection("HLT_Photon200_v*"));
+    }
+
+  }
 
   // ###### 2. set up selections ######
   if(debug) cout << "Setting up Selections." << endl;
+
   // 2D cut
   twodcut_sel.reset(new TwoDCut(0.4, 25.0));  // The same as in Z'->ttbar semileptonic
 
   if(debug) cout << "Setting up HOTVR scale." << endl;
+
   // HOTVR scale
-  topjetID = AndId<TopJet>(HOTVRTopTag(), Tau32Groomed(0.56)); // Top Tag that is used later
   HadronicTopFinder.reset(new HadronicTop(ctx));
-  if(debug) cout << "HERE?" << endl;
-  //HOTVRScale.reset(new HOTVRScaleFactor(ctx, topjetID));
 
   if(debug) cout << "Setting up electron scale." << endl;
 
@@ -244,6 +291,10 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   // HEM issue
   HEMCleaner.reset(new HEMCleanerSelection(ctx, "jets", "topjets"));
 
+  if(debug) cout << "Setting up NNLO correction." << endl;
+
+  // NNLO corrections
+  ScaleFactor_NNLO.reset(new NLOCorrections(ctx));
 
   // ###### 3. Set up Hists ######
   if(debug) cout << "Setting up Hists." << endl;
@@ -294,6 +345,16 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   h_STcut_nobtag.reset(new TstarTstarHists(ctx, "AfterST_nobtag"));
   h_STcut_nobtag_ele.reset(new TstarTstarHists(ctx, "AfterST_nobtag_ele"));
 
+  h_trigger.reset(new TstarTstarHists(ctx, "AfterTrigger"));
+  h_trigger_gen.reset(new TstarTstarGenHists(ctx, "AfterTrigger_gen"));
+  h_trigger_ele.reset(new TstarTstarHists(ctx, "AfterTrigger_ele"));
+  h_trigger_ele_lowpt.reset(new TstarTstarHists(ctx, "AfterTrigger_ele_lowpt"));
+  h_trigger_ele_highpt.reset(new TstarTstarHists(ctx, "AfterTrigger_ele_highpt"));
+  h_trigger_mu.reset(new TstarTstarHists(ctx, "AfterTrigger_mu"));
+  h_trigger_mu_lowpt.reset(new TstarTstarHists(ctx, "AfterTrigger_mu_lowpt"));
+  h_trigger_mu_highpt.reset(new TstarTstarHists(ctx, "AfterTrigger_mu_highpt"));
+  h_trigger_nobtag.reset(new TstarTstarHists(ctx, "AfterTrigger_nobtag"));
+
   h_corrections.reset(new TstarTstarHists(ctx, "AfterCorrections"));
   h_corrections_gen.reset(new TstarTstarGenHists(ctx, "AfterCorrections_gen"));
   h_corrections_ele.reset(new TstarTstarHists(ctx, "AfterCorrections_ele"));
@@ -305,36 +366,25 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   h_corrections_nobtag.reset(new TstarTstarHists(ctx, "AfterCorrections_nobtag"));
   h_corrections_nobtag_ele.reset(new TstarTstarHists(ctx, "AfterCorrections_nobtag_ele"));
 
-  h_triggercorrections.reset(new TstarTstarHists(ctx, "AfterTriggerSFs"));
-  h_triggercorrections_gen.reset(new TstarTstarGenHists(ctx, "AfterTriggerSFs_gen"));
-  h_triggercorrections_ele.reset(new TstarTstarHists(ctx, "AfterTriggerSFs_ele"));
-  h_triggercorrections_ele_lowpt.reset(new TstarTstarHists(ctx, "AfterTriggerSFs_ele_lowpt"));
-  h_triggercorrections_ele_highpt.reset(new TstarTstarHists(ctx, "AfterTriggerSFs_ele_highpt"));
-  h_triggercorrections_mu.reset(new TstarTstarHists(ctx, "AfterTriggerSFs_mu"));
-  h_triggercorrections_mu_lowpt.reset(new TstarTstarHists(ctx, "AfterTriggerSFs_mu_lowpt"));
-  h_triggercorrections_mu_highpt.reset(new TstarTstarHists(ctx, "AfterTriggerSFs_mu_highpt"));
-  h_triggercorrections_nobtag.reset(new TstarTstarHists(ctx, "AfterTriggerSFs_nobtag"));
-  h_triggercorrections_nobtag_ele.reset(new TstarTstarHists(ctx, "AfterTriggerSFs_nobtag_ele"));
-  h_triggercorrections_nobtag_mu.reset(new TstarTstarHists(ctx, "AfterTriggerSFs_nobtag_mu"));
+  h_MUcorrections.reset(new TstarTstarHists(ctx, "AfterMUCorrections"));
+  h_MUcorrections_ele.reset(new TstarTstarHists(ctx, "AfterMUCorrections_ele"));
+  h_MUcorrections_ele_lowpt.reset(new TstarTstarHists(ctx, "AfterMUCorrections_ele_lowpt"));
+  h_MUcorrections_ele_highpt.reset(new TstarTstarHists(ctx, "AfterMUCorrections_ele_highpt"));
+  h_MUcorrections_mu.reset(new TstarTstarHists(ctx, "AfterMUCorrections_mu"));
+  h_MUcorrections_mu_lowpt.reset(new TstarTstarHists(ctx, "AfterMUCorrections_mu_lowpt"));
+  h_MUcorrections_mu_highpt.reset(new TstarTstarHists(ctx, "AfterMUCorrections_mu_highpt"));
+  h_MUcorrections_nobtag.reset(new TstarTstarHists(ctx, "AfterMUCorrections_nobtag"));
 
+  h_afterNNLO.reset(new TstarTstarHists(ctx, "AfterNNLO"));
+  h_afterNNLO_ele.reset(new TstarTstarHists(ctx, "AfterNNLO_ele"));
+  h_afterNNLO_mu.reset(new TstarTstarHists(ctx, "AfterNNLO_mu"));
 
   h_beforeBcorrections.reset(new TstarTstarHists(ctx, "BeforeBCorrections"));
   h_afterBcorrections.reset(new TstarTstarHists(ctx, "AfterBCorrections"));
 
-  h_afterSelection.reset(new TstarTstarHists(ctx, "AfterSel"));
-  h_afterSelection_gen.reset(new TstarTstarGenHists(ctx, "AfterSel_gen"));
-  h_afterSelection_genmatch.reset(new TstarTstarGenRecoMatchedHists(ctx, "AfterSel_genmatch"));
-
   h_afterHEMcleaning.reset(new TstarTstarHists(ctx, "AfterHEMcleaning"));
   h_afterHEMcleaning_ele.reset(new TstarTstarHists(ctx, "AfterHEMcleaning_ele"));
   h_afterHEMcleaning_mu.reset(new TstarTstarHists(ctx, "AfterHEMcleaning_mu"));
-
-  // TODO
-  h_trigger.reset(new TstarTstarHists(ctx, "TriggerXcheck"));
-  h_trigger_mu.reset(new TstarTstarHists(ctx, "TriggerXcheck_mu"));
-  h_trigger_ele.reset(new TstarTstarHists(ctx, "TriggerXcheck_ele"));
-  h_trigger_gen.reset(new TstarTstarGenHists(ctx, "TriggerXcheck_gen"));
-
 
   // ###### 4. Init Handles ######
   h_is_muevt = ctx.get_handle<bool>("is_muevt");
@@ -344,11 +394,12 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   h_neutrino = ctx.declare_event_output<LorentzVector>("neutrino");
   h_ST = ctx.declare_event_output<double>("ST");
   h_STHOTVR = ctx.declare_event_output<double>("STHOTVR");
-  h_is_triggered = ctx.get_handle<bool>("is_triggered");
   h_is_btagevent = ctx.declare_event_output<bool>("is_btagevent");
 
   h_MC_isfake2017B = ctx.get_handle<bool>("MC_isfake2017B");
 
+  string IsTriggerSFMeasurement = ctx.get("IsTriggerSFMeasurement", "False");
+  if(IsTriggerSFMeasurement == "True") isTriggerSFMeasurement = true;
 }
 
 
@@ -364,7 +415,6 @@ bool TstarTstarSelectionModule::process(Event & event) {
   // reapply event weights from handle
   event.weight = event.get(h_evt_weight);
   if(debug) cout << "weights applied." << endl;
-  bool is_triggered = event.get(h_is_triggered);
 
   // Fill ttgen object for correct matching check, etc
   if(is_MC) ttgenprod->process(event);
@@ -375,28 +425,26 @@ bool TstarTstarSelectionModule::process(Event & event) {
   if(debug) std::cout << "Got primary lepton" << endl;
 
   // hists before anything happened
-  if(is_triggered) {
-    if(debug) std::cout << "Fill Crosscheck hists" << endl;
-    h_beginSel->fill(event);
-    h_beginSel_gen->fill(event);
-    if(event.get(h_is_muevt)){
-      h_beginSel_mu->fill(event);
-      if(event.get(h_is_highpt)) h_beginSel_mu_lowpt->fill(event);
-      else h_beginSel_mu_highpt->fill(event);
-    }
-    else {
-      h_beginSel_ele->fill(event);
-      if(event.get(h_is_highpt)) h_beginSel_ele_lowpt->fill(event);
-      else h_beginSel_ele_highpt->fill(event);
-    }
+  if(debug) std::cout << "Fill Crosscheck hists" << endl;
+  h_beginSel->fill(event);
+  h_beginSel_gen->fill(event);
+  if(event.get(h_is_muevt)){
+    h_beginSel_mu->fill(event);
+    if(event.get(h_is_highpt)) h_beginSel_mu_highpt->fill(event);
+    else h_beginSel_mu_lowpt->fill(event);
+  }
+  else {
+    h_beginSel_ele->fill(event);
+    if(event.get(h_is_highpt)) h_beginSel_ele_highpt->fill(event);
+    else h_beginSel_ele_lowpt->fill(event);
   }
 
-  if(is_triggered && !event.get(h_is_muevt)) h_beforeBcorrections->fill(event);
+  h_beforeBcorrections->fill(event);
 
   // b-tagging sfs
   ScaleFactor_btagging->process(event);
 
-  if(is_triggered && !event.get(h_is_muevt)) h_afterBcorrections->fill(event);
+  h_afterBcorrections->fill(event);
 
   // #################
   // ### Selection ###
@@ -407,23 +455,22 @@ bool TstarTstarSelectionModule::process(Event & event) {
   BTag bJetID = BTag(BTag::algo::DEEPJET, BTag::wp::WP_LOOSE);
   bool pass_btagcut = false;
   for (const auto & jet: *event.jets){
-    //if(jet.btag_DeepJet() > 0.2219) pass_btagcut = true; // TODO replace this by proper method!!!
     if(bJetID(jet, event)) pass_btagcut = true;
   }
   event.set(h_is_btagevent,pass_btagcut);
-  if(pass_btagcut && is_triggered) {
+  if(pass_btagcut) {
     // hists
     h_btagcut->fill(event);
     h_btagcut_gen->fill(event);
     if(event.get(h_is_muevt)){
       h_btagcut_mu->fill(event);
-      if(event.get(h_is_highpt)) h_btagcut_mu_lowpt->fill(event);
-      else h_btagcut_mu_highpt->fill(event);
+      if(event.get(h_is_highpt)) h_btagcut_mu_highpt->fill(event);
+      else h_btagcut_mu_lowpt->fill(event);
     }
     else {
       h_btagcut_ele->fill(event);
-      if(event.get(h_is_highpt)) h_btagcut_ele_lowpt->fill(event);
-      else h_btagcut_ele_highpt->fill(event);
+      if(event.get(h_is_highpt)) h_btagcut_ele_highpt->fill(event);
+      else h_btagcut_ele_lowpt->fill(event);
     }
     if(debug) cout << "Passed btag selection cut." << endl;
   } // end of pass_btag = true
@@ -459,13 +506,13 @@ bool TstarTstarSelectionModule::process(Event & event) {
   h_2Dcut_gen->fill(event);
   if(event.get(h_is_muevt)){
     h_2Dcut_mu->fill(event);
-    if(event.get(h_is_highpt)) h_2Dcut_mu_lowpt->fill(event);
-    else h_2Dcut_mu_highpt->fill(event);
+    if(event.get(h_is_highpt)) h_2Dcut_mu_highpt->fill(event);
+    else h_2Dcut_mu_lowpt->fill(event);
   }
   else {
     h_2Dcut_ele->fill(event);
-    if(event.get(h_is_highpt)) h_2Dcut_ele_lowpt->fill(event);
-    else h_2Dcut_ele_highpt->fill(event);
+    if(event.get(h_is_highpt)) h_2Dcut_ele_highpt->fill(event);
+    else h_2Dcut_ele_lowpt->fill(event);
   }
   if(debug) cout << "Passed 2D cut." << endl;
 
@@ -504,64 +551,156 @@ bool TstarTstarSelectionModule::process(Event & event) {
   // st cut
   if(st < 500) return false;
 
-  if(pass_btagcut && is_triggered) { // only fill these for btag cut passes
+  if(pass_btagcut) { // only fill these for btag cut passes
     // hists
     h_STcut->fill(event);
     h_STcut_gen->fill(event);
     if(event.get(h_is_muevt)){
       h_STcut_mu->fill(event);
-      if(event.get(h_is_highpt)) h_STcut_mu_lowpt->fill(event);
-      else h_STcut_mu_highpt->fill(event);
+      if(event.get(h_is_highpt)) h_STcut_mu_highpt->fill(event);
+      else h_STcut_mu_lowpt->fill(event);
     }
     else {
       h_STcut_ele->fill(event);
-      if(event.get(h_is_highpt)) h_STcut_ele_lowpt->fill(event);
-      else h_STcut_ele_highpt->fill(event);
+      if(event.get(h_is_highpt)) h_STcut_ele_highpt->fill(event);
+      else h_STcut_ele_lowpt->fill(event);
     }
     if(debug) cout << "Passed ST cut." << endl;
   } else {
-    if (is_triggered) {
-      h_STcut_nobtag->fill(event);
-      if(!event.get(h_is_muevt)) h_STcut_nobtag_ele->fill(event);
-    }
+    h_STcut_nobtag->fill(event);
+    if(!event.get(h_is_muevt)) h_STcut_nobtag_ele->fill(event);
   }
 
   if(debug) std::cout << "Done ST" << endl;
+
+  // ###### Trigger selection ######
+  bool pass_trigger = false;
+  bool pass_trigger_SingleMu_lowpt = false;
+  bool pass_trigger_SingleMu_highpt = false;
+  bool pass_trigger_SingleEle_lowpt = false;
+  bool pass_trigger_SingleEle_highpt = false;
+
+  if( (is_MC && event.get(h_is_muevt)) || data_isMu ) {
+    if(debug) std::cout << "Entered muon trigger logic" << std::endl;
+
+    if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
+      pass_trigger_SingleMu_lowpt = (trg_mu_low_1->passes(event) || trg_mu_low_2->passes(event));
+      pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event) || trg_mu_high_2->passes(event));
+    }
+    else if(year == "2017" || year == "UL17") {
+      pass_trigger_SingleMu_lowpt = trg_mu_low_1->passes(event);
+      if(data_is2017B || event.get(h_MC_isfake2017B)) pass_trigger_SingleMu_highpt = trg_mu_high_1->passes(event);
+      else pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event) || trg_mu_high_2->passes(event) || trg_mu_high_3->passes(event));
+    }
+    else if(year == "2018" || year == "UL18") {
+      pass_trigger_SingleMu_lowpt = trg_mu_low_1->passes(event);
+      pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event) || trg_mu_high_2->passes(event) || trg_mu_high_3->passes(event));
+    }
+
+    if(debug) std::cout << "Passed muon trigger logic" << std::endl;
+  }
+  else if ( (is_MC && !event.get(h_is_muevt)) || !data_isMu ){
+    if(debug) std::cout << "Entered electron trigger logic" << std::endl;
+
+    if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
+
+      if(!data_isPhoton) pass_trigger_SingleEle_lowpt = trg_ele_low->passes(event);
+
+      if(is_MC) {
+        pass_trigger_SingleEle_highpt = (trg_ele_high->passes(event) || trg_pho->passes(event));
+      } else {
+        if (data_isPhoton) pass_trigger_SingleEle_highpt = (!trg_ele_high->passes(event) && trg_pho->passes(event));
+        else pass_trigger_SingleEle_highpt = trg_ele_high->passes(event);
+      }
+
+    }
+    else if(year == "2017" || year == "UL17") {
+      if(debug) std::cout << "Here" << std::endl;
+      if(!data_isPhoton) pass_trigger_SingleEle_lowpt = trg_ele_low->passes(event);
+
+      if(debug) std::cout << "Here2" << std::endl;
+      if(is_MC) {
+        if (event.get(h_MC_isfake2017B)) pass_trigger_SingleEle_highpt = (trg_ele_low->passes(event) || trg_pho->passes(event));
+        else pass_trigger_SingleEle_highpt = (trg_ele_high->passes(event) || trg_pho->passes(event));
+      } else {
+        if (data_is2017B) {
+          if(debug) std::cout << "Here3" << std::endl;
+          if(data_isPhoton) pass_trigger_SingleEle_highpt = (!trg_ele_low->passes(event) && trg_pho->passes(event));
+          else pass_trigger_SingleEle_highpt = trg_ele_low->passes(event);
+        } else {
+          if(data_isPhoton) pass_trigger_SingleEle_highpt = (!trg_ele_high->passes(event) && trg_pho->passes(event));
+          else pass_trigger_SingleEle_highpt = trg_ele_high->passes(event);
+        }
+      }
+
+    }
+    else if(year == "2018" || year == "UL18") {
+      pass_trigger_SingleEle_lowpt = trg_ele_low->passes(event);
+      pass_trigger_SingleEle_highpt = (trg_ele_high->passes(event) || trg_pho->passes(event));
+    }
+
+    if(debug) std::cout << "Passed electron trigger logic" << std::endl;
+  }
+
+  // end main logic
+  if(pass_trigger_SingleMu_lowpt && event.get(h_is_muevt)){if(!event.get(h_is_highpt)) pass_trigger = true; }
+  if(pass_trigger_SingleMu_highpt && event.get(h_is_muevt)){if(event.get(h_is_highpt)) pass_trigger = true; }
+  if(pass_trigger_SingleEle_lowpt && !event.get(h_is_muevt)){if(!event.get(h_is_highpt)) pass_trigger = true; }
+  if(pass_trigger_SingleEle_highpt && !event.get(h_is_muevt)){if(event.get(h_is_highpt)) pass_trigger = true; }
+  if(isTriggerSFMeasurement) pass_trigger = pass_trigger_SingleMu_lowpt || pass_trigger_SingleMu_highpt;
+
+  if(!pass_trigger) return false;
+
+  if(pass_btagcut) { // only fill these for btag cut passes
+    // hists
+    h_trigger->fill(event);
+    h_trigger_gen->fill(event);
+    if(event.get(h_is_muevt)){
+      h_trigger_mu->fill(event);
+      if(event.get(h_is_highpt)) h_trigger_mu_highpt->fill(event);
+      else h_trigger_mu_lowpt->fill(event);
+    }
+    else {
+      h_trigger_ele->fill(event);
+      if(event.get(h_is_highpt)) h_trigger_ele_highpt->fill(event);
+      else h_trigger_ele_lowpt->fill(event);
+    }
+  } else {
+    h_trigger_nobtag->fill(event);
+  }
 
   // ######################
   // ### Scale Factors! ###
   // ######################
 
   // HOTVR
-  HadronicTopFinder->process(event);
+  //HadronicTopFinder->process(event);
   //HOTVRScale->process(event);
 
-  if(debug) std::cout << "Done HOTVR scale" << endl;
-
-  // #######################
-  // ### Trigger studies ###
-  // #######################
-
-  if(pass_btagcut) { // fill these also for "non-triggered" events to have a comparison
-    h_trigger->fill(event);
-    h_trigger_gen->fill(event);
-    if(event.get(h_is_muevt)) h_trigger_mu->fill(event);
-    else h_trigger_ele->fill(event);
-    if(debug) cout<<"Filled hists after Trigger"<<endl;
-  }
+  //f(debug) std::cout << "Done HOTVR scale" << endl;
 
   // Fixing the HEM issue
   if(!HEMCleaner->passes(event)) return false;
-  if(is_MC) event.weight *= 0.913282; // TODO this will need to be changed once full SingleMuon is available
+  if(is_MC && year == "UL18") event.weight *= 0.938463;
 
-  if(pass_btagcut) { // fill these also for "non-triggered" events to have a comparison
+  if(pass_btagcut) {
     h_afterHEMcleaning->fill(event);
     if(event.get(h_is_muevt)) h_afterHEMcleaning_mu->fill(event);
     else h_afterHEMcleaning_ele->fill(event);
     if(debug) cout<<"Filled hists HEM fix"<<endl;
   }
 
-  if(!is_triggered) return false; // now finally reject all non-triggered!
+  // NNLO corrections
+  ScaleFactor_NNLO->process(event);
+
+  if(pass_btagcut) {
+    h_afterNNLO->fill(event);
+    if(event.get(h_is_muevt)) h_afterNNLO_mu->fill(event);
+    else h_afterNNLO_ele->fill(event);
+    if(debug) cout<<"Filled hists HEM fix"<<endl;
+  }
+
+  if(debug) cout << "NNLO corrections done" << std::endl;
 
   // lepton SFs
   if(event.get(h_is_muevt)){
@@ -579,8 +718,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
     sf_ele_reco_DUMMY->process(event);
     sf_ele_ID_DUMMY->process(event);
 
-  }
-  else {
+  } else {
 
     sf_ele_reco->process(event);
 
@@ -598,58 +736,23 @@ bool TstarTstarSelectionModule::process(Event & event) {
 
   if(debug) std::cout << "Done Lepton ID, ISO SFs" << endl;
 
-  if(pass_btagcut && is_triggered) { // only fill these for btag cut passes
+  if(pass_btagcut) { // only fill these for btag cut passes
     // hists
     h_corrections->fill(event);
     h_corrections_gen->fill(event);
     if(event.get(h_is_muevt)){
       h_corrections_mu->fill(event);
-      if(event.get(h_is_highpt)) h_corrections_mu_lowpt->fill(event);
-      else h_corrections_mu_highpt->fill(event);
+      if(event.get(h_is_highpt)) h_corrections_mu_highpt->fill(event);
+      else h_corrections_mu_lowpt->fill(event);
     }
     else {
       h_corrections_ele->fill(event);
-      if(event.get(h_is_highpt)) h_corrections_ele_lowpt->fill(event);
-      else h_corrections_ele_highpt->fill(event);
+      if(event.get(h_is_highpt)) h_corrections_ele_highpt->fill(event);
+      else h_corrections_ele_lowpt->fill(event);
     }
-    if(debug) cout << "Passed ST cut." << endl;
   } else {
-    if(is_triggered) {
-      h_corrections_nobtag->fill(event);
-      if(!event.get(h_is_muevt)) h_corrections_nobtag_ele->fill(event);
-    }
-  }
-
-  if(pass_btagcut && is_triggered) { // only fill these for btag cut passes
-    // hists
-    h_triggercorrections->fill(event);
-    h_triggercorrections_gen->fill(event);
-    if(event.get(h_is_muevt)){
-      h_triggercorrections_mu->fill(event);
-      if(event.get(h_is_highpt)) h_triggercorrections_mu_lowpt->fill(event);
-      else h_triggercorrections_mu_highpt->fill(event);
-    }
-    else {
-      h_triggercorrections_ele->fill(event);
-      if(event.get(h_is_highpt)) h_triggercorrections_ele_lowpt->fill(event);
-      else h_triggercorrections_ele_highpt->fill(event);
-    }
-    if(debug) cout << "Passed ST cut." << endl;
-  } else {
-    if(is_triggered) {
-      h_triggercorrections_nobtag->fill(event);
-      if(event.get(h_is_muevt)) h_triggercorrections_ele->fill(event);
-      else h_triggercorrections_ele->fill(event);
-    }
-  }
-
-  if(pass_btagcut) { // only fill these for btag cut passes
-    // some final plot for comparison
-    h_afterSelection->fill(event);
-    h_afterSelection_gen->fill(event);
-    h_afterSelection_genmatch->fill(event);
-  } else {
-    //h_nobtagcontrolregion->fill();
+    h_corrections_nobtag->fill(event);
+    if(!event.get(h_is_muevt)) h_corrections_nobtag_ele->fill(event);
   }
 
   return true;
