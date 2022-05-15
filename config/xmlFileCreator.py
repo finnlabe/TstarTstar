@@ -298,7 +298,7 @@ class xmlCreator:
              file.write('''<!-- scale factor configuration -->\n''')
              file.write('''<Item Name="HOTVRTopTagSFs" Value="'''+self.yearVars['HOTVRSFs'][self.year]+'''"/>\n''')
              file.write('''<Item Name="SF_path" Value="/nfs/dust/cms/user/flabe/TstarTstar/CMSSW_10_2_17/src/UHH2/TstarTstar/factors/" />\n''')
-             file.write('''<Item Name="NLOCorrections" Value = "/nfs/dust/cms/user/deleokse/RunII_102X_v2/CMSSW_10_2_17/src/UHH2/ZprimeSemiLeptonic/data/" />''')
+             file.write('''<Item Name="NLOCorrections" Value = "/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/sfs/nnlo" />''')
          if(self.step == "DNN_datadriven"):
              file.write('''<Item Name="use_data_for" Value="background_extrapolation"/>\n''')
              file.write('''<Item Name="background_estimation_purity_file" Value="'''+self.uhh2Dir+'''TstarTstar/macros/rootmakros/files/bgest_purity.root"/>\n''')
