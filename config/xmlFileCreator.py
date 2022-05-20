@@ -102,9 +102,9 @@ class configContainer:
       # everything will be passed through until the end, so just put the new ones!
       self.additionalBranches = {
          'Preselection': "",
-         'Selection': "MC_isfake2017B is_muevt evt_weight is_triggered is_highpt weight_pu weight_pu_up weight_pu_down prefiringWeight prefiringWeightDown prefiringWeightUp",
-         'Analysis': "neutrino is_btagevent weight_sfmu_id weight_sfmu_id_down weight_sfmu_id_up weight_sfmu_iso weight_sfmu_iso_down weight_sfmu_iso_up weight_sfelec_id weight_sfelec_id_down weight_sfelec_id_up weight_sfelec_reco weight_sfelec_reco_down weight_sfelec_reco_up weight_btagdisc__central weight_btagdisc__lf_up weight_btagdisc__lf_down weight_btagdisc__hf_up weight_btagdisc__hf_down weight_btagdisc__hfstats1_up weight_btagdisc__hfstats1_down weight_btagdisc__hfstats2_up weight_btagdisc__hfstats2_down weight_btagdisc__lfstats1_up weight_btagdisc__lfstats1_down weight_btagdisc__lfstats2_up weight_btagdisc__lfstats2_down weight_btagdisc__cferr1_up weight_btagdisc__cferr1_down weight_btagdisc__cferr2_up weight_btagdisc__cferr2_down",
-         'DNN': "ST_weight DNN_Inputs TstarTstar_Hyp_gHOTVR TstarTstar_Hyp_gAK4 ST STHOTVR",
+         'Selection': "MC_isfake2017B is_muevt evt_weight is_highpt weight_pu weight_pu_up weight_pu_down prefiringWeight prefiringWeightDown prefiringWeightUp",
+         'Analysis': "neutrino is_btagevent weight_sfmu_id weight_sfmu_id_down weight_sfmu_id_up weight_sfmu_iso weight_sfmu_iso_down weight_sfmu_iso_up weight_sfelec_id weight_sfelec_id_down weight_sfelec_id_up weight_sfelec_reco weight_sfelec_reco_down weight_sfelec_reco_up weight_btagdisc__central weight_btagdisc__lf_up weight_btagdisc__lf_down weight_btagdisc__hf_up weight_btagdisc__hf_down weight_btagdisc__hfstats1_up weight_btagdisc__hfstats1_down weight_btagdisc__hfstats2_up weight_btagdisc__hfstats2_down weight_btagdisc__lfstats1_up weight_btagdisc__lfstats1_down weight_btagdisc__lfstats2_up weight_btagdisc__lfstats2_down weight_btagdisc__cferr1_up weight_btagdisc__cferr1_down weight_btagdisc__cferr2_up weight_btagdisc__cferr2_down ST STHOTVR",
+         'DNN': "ST_weight DNN_Inputs TstarTstar_Hyp_gHOTVR TstarTstar_Hyp_gAK4",
          'DNN_datadriven': "",
       }
 
@@ -116,9 +116,10 @@ class configContainer:
       self.systematics = list()
 
    @staticmethod
-   def read_database_106X_v2(years: list, groups: list):
+   def read_database_106X_v2(years: list, groups: list, triggerEff = False):
 
-      from sample_db import samplesDict
+      if(triggerEff): from sample_db_triggerEff import samplesDict
+      else: from sample_db import samplesDict
       used_samples = OrderedDict()
       for year in years:
           temp = OrderedDict()
@@ -173,7 +174,7 @@ class xmlCreator:
 
    '''Creates XML files for SFrame'''
 
-   def __init__(self, step: str, year: str, group: str, variationDirections):
+   def __init__(self, step: str, year: str, group: str, variationDirections, isTriggerEff):
 
       confCon = configContainer()
       self.uhh2Dir = confCon.uhh2Dir
@@ -185,6 +186,7 @@ class xmlCreator:
       self.additionalBranches = confCon.additionalBranches
       self.jersmear_direction = variationDirections["jersmear"]
       self.jecsmear_direction = variationDirections["jecsmear"]
+      self.isTriggerEff = isTriggerEff
 
       if step not in ['Preselection', 'Selection', 'Analysis', 'DNN', "DNN_datadriven"]:
          sys.exit('Given value of argument "selection" not valid. Abort.')
@@ -201,6 +203,7 @@ class xmlCreator:
       elif (step == "DNN" or step == "DNN_datadriven"):
           self.previousFolder = "Analysis"
           self.analysisModule = "TstarTstarDNNModule"
+      if(self.isTriggerEff): self.previousFolder += "_TriggerEff"
 
       if year not in ['UL16preVFP', 'UL16postVFP', 'UL17', 'UL18']:
          sys.exit('Given value of argument "year" not valid. Abort.')
@@ -212,10 +215,12 @@ class xmlCreator:
          sys.exit('Warning: Make sure to create output directory via "ln -s". Abort.')
 
       self.xmlFileName = '_'.join(['parsedConfigFile', self.step, self.year, group])+'.xml'
-      self.xmlFilePathBase = self.uhh2Dir+'TstarTstar/config/'+'_'.join(['config', self.step, self.year])+'/'
+      if(self.isTriggerEff): self.xmlFilePathBase = self.uhh2Dir+'TstarTstar/config/'+'_'.join(['config', self.step, "TriggerEff", self.year])+'/'
+      else: self.xmlFilePathBase = self.uhh2Dir+'TstarTstar/config/'+'_'.join(['config', self.step, self.year])+'/'
       os.makedirs(self.xmlFilePathBase, exist_ok=True)
       self.xmlFilePath = self.xmlFilePathBase+self.xmlFileName
-      self.workdirName = '_'.join(['workdir', self.step, self.year, group])
+      if(self.isTriggerEff): self.workdirName = '_'.join(['workdir', self.step, "TriggerEff", self.year, group])
+      else: self.workdirName = '_'.join(['workdir', self.step, self.year, group])
 
       shutil.copyfile(self.uhh2Dir+"/TstarTstar/config/JobConfig.dtd", self.xmlFilePathBase+"/JobConfig.dtd")
 
@@ -233,7 +238,8 @@ class xmlCreator:
          if not (self.step == "Preselection"):
             file.write('''<!ENTITY INPUTdir "'''+(self.outputDirBase+self.previousFolder+'/'+self.year)+'''">\n''')
             file.write('''<!ENTITY INPUTfilename "uhh2.AnalysisModuleRunner">\n''')
-         file.write('''<!ENTITY OUTPUTdir "'''+(self.outputDirBase+self.step+'/'+self.year)+'''">\n''')
+         if(self.isTriggerEff):file.write('''<!ENTITY OUTPUTdir "'''+(self.outputDirBase+self.step+'_TriggerEff/'+self.year)+'''">\n''')
+         else: file.write('''<!ENTITY OUTPUTdir "'''+(self.outputDirBase+self.step+'/'+self.year)+'''">\n''')
          file.write('''<!ENTITY b_Cacheable "False">\n''')
          file.write('''<!ENTITY NEVT "-1">\n''')
          file.write('''<!ENTITY YEARsuffix "_'''+self.year+self.yearVersion+'''">\n''')
@@ -302,6 +308,7 @@ class xmlCreator:
          if(self.step == "DNN_datadriven"):
              file.write('''<Item Name="use_data_for" Value="background_extrapolation"/>\n''')
              file.write('''<Item Name="background_estimation_purity_file" Value="'''+self.uhh2Dir+'''TstarTstar/macros/rootmakros/files/bgest_purity.root"/>\n''')
+         if(self.isTriggerEff): file.write('''<Item Name="IsTriggerSFMeasurement" Value="True"/>\n''')
          file.write('''\n''')
          file.write('''<!-- Switch for debugging of the central AnalysisModule -->\n''')
          file.write('''<Item Name="debug" Value="false"/>\n''')
@@ -357,6 +364,7 @@ if __name__=='__main__':
    parser.add_argument('-a', '--auto-complete', action='store_true', help='Auto-complete arguments if not all arguments for selections and years are given.')
    parser.add_argument('--jer', choices=jersmear_directions, nargs=1, default = ["nominal"])
    parser.add_argument('--jec', choices=jecsmear_directions, nargs=1, default = ["nominal"])
+   parser.add_argument('--triggerEff', action='store_true')
 
    args = parser.parse_args(sys.argv[1:])
 
@@ -382,7 +390,8 @@ if __name__=='__main__':
    print('  Years: '+', '.join(str(x) for x in args.years))
 
    groups = ['DATA', 'Signal', 'SM']
-   configContainer.read_database_106X_v2(args.years, groups)
+
+   configContainer.read_database_106X_v2(args.years, groups, args.triggerEff)
 
    # setting jec, jer directions
    directions = {}
@@ -396,5 +405,5 @@ if __name__=='__main__':
               x.write_xml()
           else:
               for group in groups:
-                 x = xmlCreator(selection, year, group, directions)
+                 x = xmlCreator(selection, year, group, directions, args.triggerEff)
                  x.write_xml()

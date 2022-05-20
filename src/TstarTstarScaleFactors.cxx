@@ -39,9 +39,9 @@ NLOCorrections::NLOCorrections(uhh2::Context& ctx) {
   is2016 = FindInString("UL16", dataset_version);
 
   //TODO it's arbitrary.
-  is_Wjets  = FindInString("MC_WJets",dataset_version);
-  is_Znn    = FindInString("MC_DY_inv",dataset_version);
-  is_DY     = FindInString("MC_DY",dataset_version) && !is_Znn;
+  is_Wjets  = FindInString("WJets",dataset_version);
+  is_Znn    = FindInString("DY_inv",dataset_version);
+  is_DY     = FindInString("DY",dataset_version) && !is_Znn;
   is_Zjets  = is_DY || is_Znn;
 
   std::string folder_ = ctx.get("NLOCorrections")+"/"; //TODO better name

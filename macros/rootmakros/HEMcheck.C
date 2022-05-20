@@ -5,7 +5,7 @@ void HEMcheck(){
   TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/UL18/hadded";
   TString sample = "DATA.DATA";
 
-  TString beforeFolder = "TriggerXcheck";
+  TString beforeFolder = "AfterTrigger";
   TString afterFolder = "AfterHEMcleaning";
 
   TString histname = "N_jets";

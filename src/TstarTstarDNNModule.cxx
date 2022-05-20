@@ -106,6 +106,8 @@ private:
 
   std::unique_ptr<Hists> h_SignalRegion_total, h_SignalRegion_mu, h_SignalRegion_ele;
 
+  std::unique_ptr<Hists> h_ttbarCR_v1, h_ttbarCR_v2, h_ttbarCR_v3;
+
   // ###### Control switches ######
   bool debug = false;
   bool do_masspoint = false;
@@ -246,6 +248,10 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_SignalRegion_total.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_total"));
   h_SignalRegion_mu.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_mu"));
   h_SignalRegion_ele.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_ele"));
+
+  h_ttbarCR_v1.reset(new TstarTstarHists(ctx, "ttbarCR_v1"));
+  h_ttbarCR_v2.reset(new TstarTstarHists(ctx, "ttbarCR_v2"));
+  h_ttbarCR_v3.reset(new TstarTstarHists(ctx, "ttbarCR_v3"));
 
   // ###### 4. init handles ######
   h_evt_weight = ctx.get_handle<double>("evt_weight");
@@ -412,6 +418,37 @@ bool TstarTstarDNNModule::process(Event & event) {
     else {
       h_newTaggerCR->fill(event);
       event.set(h_region,"VR");
+
+      // a subsest of this will be used as a (to-test) ttbar CR
+
+      // HOTVR top tag
+      TopJetId topjetID = AndId<TopJet>(HOTVRTopTag(), Tau32Groomed(0.56)); // Top Tag that is used later
+      bool passHOTVRtoptag = false;
+      for (const auto & jet: *event.topjets){
+        if(topjetID(jet, event)) passHOTVRtoptag = true;
+      }
+
+      if(passHOTVRtoptag) {
+
+        // tighter b-tag selection
+        // ###### Btag Selection ######
+        BTag bJetID_loose = BTag(BTag::algo::DEEPJET, BTag::wp::WP_LOOSE);
+        BTag bJetID_tight = BTag(BTag::algo::DEEPJET, BTag::wp::WP_TIGHT);
+        int N_btag_loose = 0;
+        int N_btag_tight = 0;
+        for (const auto & jet: *event.jets){
+          if(bJetID_loose(jet, event)) N_btag_loose++;
+          if(bJetID_tight(jet, event)) N_btag_tight++;
+        }
+
+        // try three different versions of this CR
+        if(N_btag_loose >= 2) h_ttbarCR_v1->fill(event);
+        if(N_btag_tight >= 1) h_ttbarCR_v2->fill(event);
+        if(N_btag_tight >= 2) h_ttbarCR_v3->fill(event);
+
+      }
+
+
     }
   }
   else {

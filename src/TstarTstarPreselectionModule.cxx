@@ -53,10 +53,6 @@ private:
 
   // cleaners
   unique_ptr<TopJetCleaner> HOTVRcleaner;
-  unique_ptr<MuonCleaner> MuCleaner_lowpt;
-  unique_ptr<MuonCleaner> MuCleaner_highpt;
-  unique_ptr<ElectronCleaner> EleCleaner_lowpt;
-  unique_ptr<ElectronCleaner> EleCleaner_highpt;
 
   // other external selections
   unique_ptr<Selection> met_sel;

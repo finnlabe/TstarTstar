@@ -211,14 +211,20 @@ void backgroundEstimation(){
   TCanvas *c1_hist = new TCanvas("chist", "c", w, h);
   c1_hist->SetLogz();
 
+  auto legend = new TLegend(0.22,0.75,0.5,0.9);
+  legend->SetBorderSize(0);
+  gStyle->SetLegendTextSize(0.04);
+
   // draw plot
   ratio.GetXaxis()->SetTitle("S_{T} [GeV]");
   ratio.GetXaxis()->SetNdivisions(505);
   ratio.GetYaxis()->SetTitle("ratio");
   ratio.GetYaxis()->SetRangeUser(0, 2);
   ratio.SetTitle("");
+  ratio.SetLineColor(1);
+  ratio.SetMarkerStyle(20);
 
-  ratio.Draw("");
+  ratio.Draw("AP");
   fit->Draw("same");
   fit2->SetLineColor(4);
   fit2->Draw("same");
@@ -232,6 +238,23 @@ void backgroundEstimation(){
   hint2->SetFillColorAlpha(4,0.3);
   hint1->SetLineColor(4);
   hint2->Draw("e3 same");
+
+  // legend
+  legend->AddEntry(&ratio,"#alpha","elp");
+  legend->AddEntry(fit2,"Landau","l");
+  legend->AddEntry(fit,"Gauss + a*x","l");
+  legend->Draw();
+
+  // fit results
+  TString fit2txt = TString::Format("#chi^{2}/ndf: %3.2f / %3.0d", fit2->GetChisquare(), fit2->GetNDF());
+  TLatex *fit2ltx = new TLatex(3.5, 24, fit2txt);
+  fit2ltx->SetNDC();
+  fit2ltx->SetTextAlign(33);
+  fit2ltx->SetX(0.8);
+  fit2ltx->SetTextFont(42);
+  fit2ltx->SetY(.845);
+  fit2ltx->SetTextSize(0.04);
+  fit2ltx->Draw();
 
   // draw Lumi text
   /**

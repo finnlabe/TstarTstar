@@ -36,6 +36,9 @@ public:
 
     uhh2::Event::Handle<float> h_weight_btagdiscNominal;
 
+    uhh2::Event::Handle<float> h_weight_btagdisc_jesUp;
+    uhh2::Event::Handle<float> h_weight_btagdisc_jesDown;
+
     uhh2::Event::Handle<float> h_weight_btagdisc_lfUp;
     uhh2::Event::Handle<float> h_weight_btagdisc_lfDown;
 
@@ -72,9 +75,9 @@ public:
     uhh2::Event::Handle<float> h_weight_sfmu_idUp;
     uhh2::Event::Handle<float> h_weight_sfmu_idDown;
 
-    uhh2::Event::Handle<float> h_weight_sfmu_isoNominal;
-    uhh2::Event::Handle<float> h_weight_sfmu_isoUp;
-    uhh2::Event::Handle<float> h_weight_sfmu_isoDown;
+    uhh2::Event::Handle<float> h_weight_sfmu_isolationNominal;
+    uhh2::Event::Handle<float> h_weight_sfmu_isolationUp;
+    uhh2::Event::Handle<float> h_weight_sfmu_isolationDown;
 
     uhh2::Event::Handle<float> h_weight_sfmu_triggerNominal;
     uhh2::Event::Handle<float> h_weight_sfmu_triggerUp;
