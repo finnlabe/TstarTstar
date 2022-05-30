@@ -69,7 +69,7 @@ private:
   std::unique_ptr<AnalysisModule> HadronicTopFinder;
   std::unique_ptr<AnalysisModule> HOTVRScale;
   std::unique_ptr<AnalysisModule> ScaleFactor_btagging;
-  std::vector<double> eventYieldFactors;
+  TH2D *eventYieldFactors;
   std::unique_ptr<AnalysisModule> ScaleFactor_NNLO;
 
   // trigger selections
@@ -103,6 +103,7 @@ private:
   unique_ptr<Selection> twodcut_sel;
   unique_ptr<Selection> toptagevt_sel;
   unique_ptr<HEMCleanerSelection> HEMCleaner;
+  unique_ptr<HEMCleanerMCScale> HEMCleanerMCScaler;
 
   // ###### Histograms ######
   std::unique_ptr<Hists> h_beginSel,            h_btagcut,             h_2Dcut,               h_dRcut,               h_STcut            ,    h_trigger, h_triggerSF,            h_corrections, h_topptreweighting              ;
@@ -120,7 +121,7 @@ private:
 
   std::unique_ptr<Hists> h_afterNNLO, h_afterNNLO_ele, h_afterNNLO_mu;
 
-  std::unique_ptr<Hists> h_beforeBcorrections, h_afterBcorrections;
+  std::unique_ptr<Hists> h_beforeBcorrections, h_afterBcorrections, h_afterBYieldcorrections;
 
   std::unique_ptr<Hists> h_notTriggered, h_notTriggered_ele, h_notTriggered_mu;
 
@@ -291,12 +292,26 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
 
   // b-tagging SFs
   ScaleFactor_btagging.reset(new MCBTagDiscriminantReweighting(ctx, BTag::algo::DEEPJET)); // should be enough like this
-  eventYieldFactors = {0.000000, 0.000000, 0.000000, 0.000000, 0.743411, 0.880747, 0.864345, 0.837761, 0.796378, 0.794941, 0.751693, 0.705245, 0.692400, 0.693479, 0.638494, 0.674308, 0.581719, 2.297393, 0.000000};
+
+  if(is_MC) {
+    TFile *f = new TFile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/btagYieldSFs.root");
+    TString sample_string = "";
+    if(ctx.get("dataset_version").find("TT") != std::string::npos) sample_string = "TTbar";
+    else if(ctx.get("dataset_version").find("ST") != std::string::npos) sample_string = "ST";
+    else if(ctx.get("dataset_version").find("WJets") != std::string::npos) sample_string = "WJets";
+    else if(ctx.get("dataset_version").find("QCD") != std::string::npos) sample_string = "QCD";
+    else if(ctx.get("dataset_version").find("Diboson") != std::string::npos) sample_string = "VV";
+    if(debug) std::cout << "Apply 2D b-taggin yield SFs for " << sample_string << std::endl;
+
+    if(sample_string != "") eventYieldFactors = (TH2D*)f->Get(sample_string);
+    else throw std::runtime_error("Error: can not determine sample type for btagging yield SFs.");
+  }
 
   if(debug) cout << "Setting up HEM fix." << endl;
 
   // HEM issue
   HEMCleaner.reset(new HEMCleanerSelection(ctx, "jets", "topjets"));
+  HEMCleanerMCScaler.reset(new HEMCleanerMCScale(ctx, "jets", "topjets"));
 
   if(debug) cout << "Setting up NNLO correction." << endl;
 
@@ -397,6 +412,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
 
   h_beforeBcorrections.reset(new TstarTstarHists(ctx, "BeforeBCorrections"));
   h_afterBcorrections.reset(new TstarTstarHists(ctx, "AfterBCorrections"));
+  h_afterBYieldcorrections.reset(new TstarTstarHists(ctx, "AfterBYieldCorrections"));
 
   h_afterHEMcleaning.reset(new TstarTstarHists(ctx, "AfterHEMcleaning"));
   h_afterHEMcleaning_ele.reset(new TstarTstarHists(ctx, "AfterHEMcleaning_ele"));
@@ -462,16 +478,154 @@ bool TstarTstarSelectionModule::process(Event & event) {
     else h_beginSel_ele_lowpt->fill(event);
   }
 
+  // ###### Trigger selection ######
+  bool pass_trigger = false;
+  bool pass_trigger_SingleMu_lowpt = false;
+  bool pass_trigger_SingleMu_highpt = false;
+  bool pass_trigger_SingleEle_lowpt = false;
+  bool pass_trigger_SingleEle_highpt = false;
+
+  if( (is_MC && event.get(h_is_muevt)) || data_isMu ) {
+    if(debug) std::cout << "Entered muon trigger logic" << std::endl;
+
+    if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
+      pass_trigger_SingleMu_lowpt = (trg_mu_low_1->passes(event) || trg_mu_low_2->passes(event));
+      pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event) || trg_mu_high_2->passes(event));
+    }
+    else if(year == "2017" || year == "UL17") {
+      pass_trigger_SingleMu_lowpt = trg_mu_low_1->passes(event);
+      if(data_is2017B || event.get(h_MC_isfake2017B)) pass_trigger_SingleMu_highpt = trg_mu_high_1->passes(event);
+      else pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event) || trg_mu_high_2->passes(event) || trg_mu_high_3->passes(event));
+    }
+    else if(year == "2018" || year == "UL18") {
+      pass_trigger_SingleMu_lowpt = trg_mu_low_1->passes(event);
+      pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event) || trg_mu_high_2->passes(event) || trg_mu_high_3->passes(event));
+    }
+
+    if(debug) std::cout << "Passed muon trigger logic" << std::endl;
+  } else if ( (is_MC && !event.get(h_is_muevt)) || !data_isMu ){
+    if(debug) std::cout << "Entered electron trigger logic" << std::endl;
+
+    if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
+
+      if(!data_isPhoton) pass_trigger_SingleEle_lowpt = trg_ele_low->passes(event);
+
+      if(is_MC) {
+        pass_trigger_SingleEle_highpt = (trg_ele_high->passes(event) || trg_pho->passes(event));
+      } else {
+        if (data_isPhoton) pass_trigger_SingleEle_highpt = (!trg_ele_high->passes(event) && trg_pho->passes(event));
+        else pass_trigger_SingleEle_highpt = trg_ele_high->passes(event);
+      }
+
+    }
+    else if(year == "2017" || year == "UL17") {
+      if(!data_isPhoton) pass_trigger_SingleEle_lowpt = trg_ele_low->passes(event);
+
+      if(is_MC) {
+        if (event.get(h_MC_isfake2017B)) pass_trigger_SingleEle_highpt = (trg_ele_low->passes(event) || trg_pho->passes(event));
+        else pass_trigger_SingleEle_highpt = (trg_ele_high->passes(event) || trg_pho->passes(event));
+      } else {
+        if (data_is2017B) {
+          if(data_isPhoton) pass_trigger_SingleEle_highpt = (!trg_ele_low->passes(event) && trg_pho->passes(event));
+          else pass_trigger_SingleEle_highpt = trg_ele_low->passes(event);
+        } else {
+          if(data_isPhoton) pass_trigger_SingleEle_highpt = (!trg_ele_high->passes(event) && trg_pho->passes(event));
+          else pass_trigger_SingleEle_highpt = trg_ele_high->passes(event);
+        }
+      }
+
+    }
+    else if(year == "2018" || year == "UL18") {
+      pass_trigger_SingleEle_lowpt = trg_ele_low->passes(event);
+      pass_trigger_SingleEle_highpt = (trg_ele_high->passes(event) || trg_pho->passes(event));
+    }
+
+    if(debug) std::cout << "Passed electron trigger logic" << std::endl;
+  } else {
+    throw std::runtime_error("Error: event not fitting any trigger group.");
+  }
+
+  // main logic
+  if( (is_MC && event.get(h_is_muevt)) || data_isMu ) {
+    if(event.get(h_is_highpt)) pass_trigger = pass_trigger_SingleMu_highpt;
+    else pass_trigger = pass_trigger_SingleMu_lowpt;
+  } else {
+    if(event.get(h_is_highpt)) pass_trigger = pass_trigger_SingleEle_highpt;
+    else pass_trigger = pass_trigger_SingleEle_lowpt;
+  }
+  //if(isTriggerSFMeasurement) pass_trigger = pass_trigger_SingleMu_lowpt || pass_trigger_SingleMu_highpt;
+
+  if(!pass_trigger) {
+    h_notTriggered->fill(event);
+    if(event.get(h_is_muevt)) h_notTriggered_mu->fill(event);
+    else h_notTriggered_ele->fill(event);
+    if(debug) cout<<"Filled hists for not triggered"<<endl;
+
+
+    return false;
+  }
+
+  {
+    // hists
+    h_trigger->fill(event);
+    h_trigger_gen->fill(event);
+    if(event.get(h_is_muevt)){
+      h_trigger_mu->fill(event);
+      if(event.get(h_is_highpt)) h_trigger_mu_highpt->fill(event);
+      else h_trigger_mu_lowpt->fill(event);
+    }
+    else {
+      h_trigger_ele->fill(event);
+      if(event.get(h_is_highpt)) h_trigger_ele_highpt->fill(event);
+      else h_trigger_ele_lowpt->fill(event);
+    }
+  }
+
+  // trigger SFs
+  if(is_MC && event.get(h_is_muevt) && !isTriggerSFMeasurement){
+
+    if(event.get(h_is_highpt)) {
+      sf_muon_trigger_highpt->process(event);
+    } else {
+      sf_muon_trigger_lowpt->process(event);
+    }
+
+  } else {
+    sf_muon_trigger_DUMMY->process(event);
+  }
+
+  {
+    // hists
+    h_triggerSF->fill(event);
+    if(event.get(h_is_muevt)){
+      h_triggerSF_mu->fill(event);
+      if(event.get(h_is_highpt)) h_triggerSF_mu_highpt->fill(event);
+      else h_triggerSF_mu_lowpt->fill(event);
+    }
+    else {
+      h_triggerSF_ele->fill(event);
+      if(event.get(h_is_highpt)) h_triggerSF_ele_highpt->fill(event);
+      else h_triggerSF_ele_lowpt->fill(event);
+    }
+  }
+
   h_beforeBcorrections->fill(event);
 
   // b-tagging sfs
   ScaleFactor_btagging->process(event);
+
+  h_afterBcorrections->fill(event);
+
   if(is_MC) {
-    double btaggingYieldWeight = eventYieldFactors.at(event.jets->size());
+    double ht = 0.;
+    for(const auto & jet : *event.jets) ht += jet.pt();
+    if(ht >= 4000.) ht = 3999.9;
+
+    double btaggingYieldWeight = eventYieldFactors->GetBinContent( eventYieldFactors->GetXaxis()->FindBin(ht),  eventYieldFactors->GetYaxis()->FindBin(event.jets->size()) );
     event.weight *= btaggingYieldWeight;
   }
 
-  h_afterBcorrections->fill(event);
+  h_afterBYieldcorrections->fill(event);
 
   // #################
   // ### Selection ###
@@ -602,7 +756,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
 
   // Fixing the HEM issue
   if(!HEMCleaner->passes(event)) return false;
-  if(is_MC && year == "UL18") event.weight *= 0.938463;
+  if(is_MC) HEMCleanerMCScaler->process(event);
 
   if(pass_btagcut) {
     h_afterHEMcleaning->fill(event);
@@ -661,142 +815,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
     if(!event.get(h_is_muevt)) h_corrections_nobtag_ele->fill(event);
   }
 
-  // ###### Trigger selection ######
-  bool pass_trigger = false;
-  bool pass_trigger_SingleMu_lowpt = false;
-  bool pass_trigger_SingleMu_highpt = false;
-  bool pass_trigger_SingleEle_lowpt = false;
-  bool pass_trigger_SingleEle_highpt = false;
-
-  if( (is_MC && event.get(h_is_muevt)) || data_isMu ) {
-    if(debug) std::cout << "Entered muon trigger logic" << std::endl;
-
-    if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
-      pass_trigger_SingleMu_lowpt = (trg_mu_low_1->passes(event) || trg_mu_low_2->passes(event));
-      pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event) || trg_mu_high_2->passes(event));
-    }
-    else if(year == "2017" || year == "UL17") {
-      pass_trigger_SingleMu_lowpt = trg_mu_low_1->passes(event);
-      if(data_is2017B || event.get(h_MC_isfake2017B)) pass_trigger_SingleMu_highpt = trg_mu_high_1->passes(event);
-      else pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event) || trg_mu_high_2->passes(event) || trg_mu_high_3->passes(event));
-    }
-    else if(year == "2018" || year == "UL18") {
-      pass_trigger_SingleMu_lowpt = trg_mu_low_1->passes(event);
-      pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event) || trg_mu_high_2->passes(event) || trg_mu_high_3->passes(event));
-    }
-
-    if(debug) std::cout << "Passed muon trigger logic" << std::endl;
-  } else if ( (is_MC && !event.get(h_is_muevt)) || !data_isMu ){
-    if(debug) std::cout << "Entered electron trigger logic" << std::endl;
-
-    if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
-
-      if(!data_isPhoton) pass_trigger_SingleEle_lowpt = trg_ele_low->passes(event);
-
-      if(is_MC) {
-        pass_trigger_SingleEle_highpt = (trg_ele_high->passes(event) || trg_pho->passes(event));
-      } else {
-        if (data_isPhoton) pass_trigger_SingleEle_highpt = (!trg_ele_high->passes(event) && trg_pho->passes(event));
-        else pass_trigger_SingleEle_highpt = trg_ele_high->passes(event);
-      }
-
-    }
-    else if(year == "2017" || year == "UL17") {
-      if(!data_isPhoton) pass_trigger_SingleEle_lowpt = trg_ele_low->passes(event);
-
-      if(is_MC) {
-        if (event.get(h_MC_isfake2017B)) pass_trigger_SingleEle_highpt = (trg_ele_low->passes(event) || trg_pho->passes(event));
-        else pass_trigger_SingleEle_highpt = (trg_ele_high->passes(event) || trg_pho->passes(event));
-      } else {
-        if (data_is2017B) {
-          if(data_isPhoton) pass_trigger_SingleEle_highpt = (!trg_ele_low->passes(event) && trg_pho->passes(event));
-          else pass_trigger_SingleEle_highpt = trg_ele_low->passes(event);
-        } else {
-          if(data_isPhoton) pass_trigger_SingleEle_highpt = (!trg_ele_high->passes(event) && trg_pho->passes(event));
-          else pass_trigger_SingleEle_highpt = trg_ele_high->passes(event);
-        }
-      }
-
-    }
-    else if(year == "2018" || year == "UL18") {
-      pass_trigger_SingleEle_lowpt = trg_ele_low->passes(event);
-      pass_trigger_SingleEle_highpt = (trg_ele_high->passes(event) || trg_pho->passes(event));
-    }
-
-    if(debug) std::cout << "Passed electron trigger logic" << std::endl;
-  } else {
-    throw std::runtime_error("Error: event not fitting any trigger group.");
-  }
-
-  // main logic
-  if( (is_MC && event.get(h_is_muevt)) || data_isMu ) {
-    if(event.get(h_is_highpt)) pass_trigger = pass_trigger_SingleMu_highpt;
-    else pass_trigger = pass_trigger_SingleMu_lowpt;
-  } else {
-    if(event.get(h_is_highpt)) pass_trigger = pass_trigger_SingleEle_highpt;
-    else pass_trigger = pass_trigger_SingleEle_lowpt;
-  }
-  //if(isTriggerSFMeasurement) pass_trigger = pass_trigger_SingleMu_lowpt || pass_trigger_SingleMu_highpt;
-
-  if(!pass_trigger) {
-    if(pass_btagcut) {
-      h_notTriggered->fill(event);
-      if(event.get(h_is_muevt)) h_notTriggered_mu->fill(event);
-      else h_notTriggered_ele->fill(event);
-      if(debug) cout<<"Filled hists for not triggered"<<endl;
-    }
-
-    return false;
-  }
-
-  if(pass_btagcut) { // only fill these for btag cut passes
-    // hists
-    h_trigger->fill(event);
-    h_trigger_gen->fill(event);
-    if(event.get(h_is_muevt)){
-      h_trigger_mu->fill(event);
-      if(event.get(h_is_highpt)) h_trigger_mu_highpt->fill(event);
-      else h_trigger_mu_lowpt->fill(event);
-    }
-    else {
-      h_trigger_ele->fill(event);
-      if(event.get(h_is_highpt)) h_trigger_ele_highpt->fill(event);
-      else h_trigger_ele_lowpt->fill(event);
-    }
-  } else {
-    h_trigger_nobtag->fill(event);
-  }
-
-  // trigger SFs
-  if(is_MC && event.get(h_is_muevt) && !isTriggerSFMeasurement){
-
-    if(event.get(h_is_highpt)) {
-      sf_muon_trigger_highpt->process(event);
-    } else {
-      sf_muon_trigger_lowpt->process(event);
-    }
-
-  } else {
-    sf_muon_trigger_DUMMY->process(event);
-  }
-
-  if(pass_btagcut) { // only fill these for btag cut passes
-    // hists
-    h_triggerSF->fill(event);
-    if(event.get(h_is_muevt)){
-      h_triggerSF_mu->fill(event);
-      if(event.get(h_is_highpt)) h_triggerSF_mu_highpt->fill(event);
-      else h_triggerSF_mu_lowpt->fill(event);
-    }
-    else {
-      h_triggerSF_ele->fill(event);
-      if(event.get(h_is_highpt)) h_triggerSF_ele_highpt->fill(event);
-      else h_triggerSF_ele_lowpt->fill(event);
-    }
-  } else {
-    h_triggerSF_nobtag->fill(event);
-  }
-
+  /**
   // NNLO corrections
   ScaleFactor_NNLO->process(event);
 
@@ -808,8 +827,6 @@ bool TstarTstarSelectionModule::process(Event & event) {
   }
 
   if(debug) cout << "NNLO corrections done" << std::endl;
-
-
 
   TopPtReweighting->process(event);
 
@@ -829,6 +846,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
   } else {
     h_topptreweighting_nobtag->fill(event);
   }
+  **/
 
   return true;
 

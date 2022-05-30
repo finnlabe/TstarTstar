@@ -110,8 +110,14 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   const int nbins = 34;
   double bins[nbins] = {0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500,
     2600, 2700, 2800, 2900, 3000, 3250, 4000, 6000};
+  book<TH1F>("pt_HT_rebinned", "H_{T} [GeV]", nbins-1, bins);
   book<TH1F>("pt_ST_rebinned", "S_{T} [GeV]", nbins-1, bins);
   book<TH1F>("pt_ST_HOTVR_rebinned", "S_{T} HOTVR [GeV]", nbins-1, bins);
+
+  const int nbinsNjet = 8;
+  double binsNjet[nbinsNjet] {0, 4, 5, 6, 7, 8, 10, 20};
+  book<TH2D>("pt_HT_N_jet", ";H_{T}; N(jet)", 40, 0, 4000, 20, 0, 20);
+  book<TH2D>("pt_HT_N_jet_rebinned", ";H_{T}; N(jet)", nbins-1, bins, nbinsNjet-1, binsNjet);
 
   book<TH1F>("pt_asym12", "#Delta p_{T} (jet 1, jet 2) [GeV]", 20, 0, 2000);
   book<TH1F>("pt_asym13", "#Delta p_{T} (jet 1, jet 3) [GeV]", 20, 0, 2000);
@@ -324,8 +330,18 @@ void TstarTstarHists::fill(const Event & event){
 
   double st = 0.;
   for(const auto & jet : *event.jets) st += jet.pt();
-  if(st > 4000) hist("pt_HT")->Fill(3999.9, weight);
-  else hist("pt_HT")->Fill(st, weight);
+  if(st > 4000) {
+    hist("pt_HT")->Fill(3999.9, weight);
+    hist("pt_HT_rebinned")->Fill(3999.9, weight);
+    ((TH2D*)hist("pt_HT_N_jet"))->Fill(3999.9, event.jets->size(), weight);
+    ((TH2D*)hist("pt_HT_N_jet_rebinned"))->Fill(3999.9, event.jets->size(), weight);
+  }
+  else {
+    hist("pt_HT")->Fill(st, weight);
+    hist("pt_HT_rebinned")->Fill(st, weight);
+    ((TH2D*)hist("pt_HT_N_jet"))->Fill(st, event.jets->size(), weight);
+    ((TH2D*)hist("pt_HT_N_jet_rebinned"))->Fill(st, event.jets->size(), weight);
+  }
 
   for(const auto & lepton : *event.electrons) st += lepton.pt();
   for(const auto & lepton : *event.muons) st += lepton.pt();

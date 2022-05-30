@@ -42,3 +42,44 @@ private:
   const bool do_QCD_NNLO = false;
 
 };
+
+// HEM issue addressation for MC
+class EtaPhiEventCleanerMC: public uhh2::AnalysisModule {
+public:
+  EtaPhiEventCleanerMC(uhh2::Context& ctx, float weight_factor, int min_run, int max_run, float min_eta, float max_eta, float min_phi, float max_phi, std::string jetCollection = "topjets", bool doJets = true, bool doElectrons = true, bool doMuons = true);
+  virtual bool process(uhh2::Event& event) override;
+
+private:
+  float weight_factor;
+  int min_run;
+  int max_run;
+  float min_eta;
+  float max_eta;
+  float min_phi;
+  float max_phi;
+  std::string jetCollection;
+  bool doJets;
+  bool doElectrons;
+  bool doMuons;
+  uhh2::Event::Handle<std::vector<Jet> > h_jets;
+  uhh2::Event::Handle<std::vector<TopJet> > h_topjets;
+};
+
+// Class which inherits from EtaPhiEventCleanerMC, specific to the HEM15/16 issues.
+// This applies to 2018 only.
+// The values are specified in https://hypernews.cern.ch/HyperNews/CMS/get/JetMET/2000.html
+class HEMCleanerMCScale: public EtaPhiEventCleanerMC {
+public:
+  static const int min_run_HEM = 319077; // end of Run B in 2018
+  static const int max_run_HEM = -1;
+  static constexpr float min_eta_HEM = -2.964;
+  static constexpr float max_eta_HEM = -1.305;
+  static constexpr float min_phi_HEM = -1.6;
+  static constexpr float max_phi_HEM = -0.87;
+  static constexpr float weight_factor = 0.352;
+
+  HEMCleanerMCScale(uhh2::Context& ctx, std::string jetCollection, bool doJets=true, bool doElectrons=true, bool doMuons=true);
+
+private:
+  std::string jetCollection;
+};
