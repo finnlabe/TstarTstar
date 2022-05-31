@@ -754,9 +754,9 @@ bool TstarTstarSelectionModule::process(Event & event) {
 
   if(debug) std::cout << "Done ST" << endl;
 
-  // Fixing the HEM issue
+  // Fixing the HEM issue (only 2018)
   if(!HEMCleaner->passes(event)) return false;
-  if(is_MC) HEMCleanerMCScaler->process(event);
+  if(is_MC && (year == "2018" || year == "UL18")) HEMCleanerMCScaler->process(event);
 
   if(pass_btagcut) {
     h_afterHEMcleaning->fill(event);

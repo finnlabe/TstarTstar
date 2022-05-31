@@ -46,13 +46,11 @@ private:
 // HEM issue addressation for MC
 class EtaPhiEventCleanerMC: public uhh2::AnalysisModule {
 public:
-  EtaPhiEventCleanerMC(uhh2::Context& ctx, float weight_factor, int min_run, int max_run, float min_eta, float max_eta, float min_phi, float max_phi, std::string jetCollection = "topjets", bool doJets = true, bool doElectrons = true, bool doMuons = true);
+  EtaPhiEventCleanerMC(uhh2::Context& ctx, float weight_factor, float min_eta, float max_eta, float min_phi, float max_phi, std::string jetCollection = "topjets", bool doJets = true, bool doElectrons = true, bool doMuons = true);
   virtual bool process(uhh2::Event& event) override;
 
 private:
   float weight_factor;
-  int min_run;
-  int max_run;
   float min_eta;
   float max_eta;
   float min_phi;
@@ -70,8 +68,6 @@ private:
 // The values are specified in https://hypernews.cern.ch/HyperNews/CMS/get/JetMET/2000.html
 class HEMCleanerMCScale: public EtaPhiEventCleanerMC {
 public:
-  static const int min_run_HEM = 319077; // end of Run B in 2018
-  static const int max_run_HEM = -1;
   static constexpr float min_eta_HEM = -2.964;
   static constexpr float max_eta_HEM = -1.305;
   static constexpr float min_phi_HEM = -1.6;

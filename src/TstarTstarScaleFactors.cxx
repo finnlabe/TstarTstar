@@ -106,11 +106,10 @@ bool NLOCorrections::process(uhh2::Event& event){
   return true;
 }
 
-EtaPhiEventCleanerMC::EtaPhiEventCleanerMC(Context& ctx, float weight_factor_, int min_run_,
-  int max_run_, float min_eta_, float max_eta_, float min_phi_, float max_phi_,
+EtaPhiEventCleanerMC::EtaPhiEventCleanerMC(Context& ctx, float weight_factor_, float min_eta_, float max_eta_, float min_phi_, float max_phi_,
   string jetCollection_, bool doJets_, bool doElectrons_, bool doMuons_):
   weight_factor(weight_factor_),
-  min_run(min_run_), max_run(max_run_), min_eta(min_eta_), max_eta(max_eta_),
+  min_eta(min_eta_), max_eta(max_eta_),
   min_phi(min_phi_), max_phi(max_phi_), jetCollection(jetCollection_),
   doJets(doJets_), doElectrons(doElectrons_), doMuons(doMuons_){
     h_jets = ctx.get_handle<vector<Jet>>(jetCollection);
@@ -126,10 +125,6 @@ bool EtaPhiEventCleanerMC::process(Event& event){
   if (event.isRealData) {
     return true;
   }
-
-  // Run only if run is between min_run and max_run
-  if (event.run < min_run ) return true;
-  if (max_run != -1 && max_run < event.run) return true;
 
   if (doJets){
     // Get the jets for the event, depening on whether they are jets or topJets.
@@ -174,6 +169,6 @@ bool EtaPhiEventCleanerMC::process(Event& event){
 
 HEMCleanerMCScale::HEMCleanerMCScale(Context& ctx, string jetCollection, bool doJets,
   bool doElectrons, bool doMuons):
-  EtaPhiEventCleanerMC(ctx, weight_factor, min_run_HEM, max_run_HEM, min_eta_HEM,
+  EtaPhiEventCleanerMC(ctx, weight_factor, min_eta_HEM,
     max_eta_HEM,min_phi_HEM, max_phi_HEM, jetCollection, doJets, doElectrons,
     doMuons){};
