@@ -122,6 +122,8 @@ private:
   std::unique_ptr<Hists> h_afterNNLO, h_afterNNLO_ele, h_afterNNLO_mu;
 
   std::unique_ptr<Hists> h_beforeBcorrections, h_afterBcorrections, h_afterBYieldcorrections;
+  std::unique_ptr<Hists> h_beforeBcorrections_mu, h_afterBcorrections_mu, h_afterBYieldcorrections_mu;
+  std::unique_ptr<Hists> h_beforeBcorrections_ele, h_afterBcorrections_ele, h_afterBYieldcorrections_ele;
 
   std::unique_ptr<Hists> h_notTriggered, h_notTriggered_ele, h_notTriggered_mu;
 
@@ -294,7 +296,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   ScaleFactor_btagging.reset(new MCBTagDiscriminantReweighting(ctx, BTag::algo::DEEPJET)); // should be enough like this
 
   if(is_MC) {
-    TFile *f = new TFile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/btagYieldSFs.root");
+    TFile *f = new TFile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/btagYieldSFs_"+year+".root");
     TString sample_string = "";
     if(ctx.get("dataset_version").find("TT") != std::string::npos) sample_string = "TTbar";
     else if(ctx.get("dataset_version").find("ST") != std::string::npos) sample_string = "ST";
@@ -413,6 +415,14 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   h_beforeBcorrections.reset(new TstarTstarHists(ctx, "BeforeBCorrections"));
   h_afterBcorrections.reset(new TstarTstarHists(ctx, "AfterBCorrections"));
   h_afterBYieldcorrections.reset(new TstarTstarHists(ctx, "AfterBYieldCorrections"));
+
+  h_beforeBcorrections_mu.reset(new TstarTstarHists(ctx, "BeforeBCorrections_mu"));
+  h_afterBcorrections_mu.reset(new TstarTstarHists(ctx, "AfterBCorrections_mu"));
+  h_afterBYieldcorrections_mu.reset(new TstarTstarHists(ctx, "AfterBYieldCorrections_mu"));
+
+  h_beforeBcorrections_ele.reset(new TstarTstarHists(ctx, "BeforeBCorrections_ele"));
+  h_afterBcorrections_ele.reset(new TstarTstarHists(ctx, "AfterBCorrections_ele"));
+  h_afterBYieldcorrections_ele.reset(new TstarTstarHists(ctx, "AfterBYieldCorrections_ele"));
 
   h_afterHEMcleaning.reset(new TstarTstarHists(ctx, "AfterHEMcleaning"));
   h_afterHEMcleaning_ele.reset(new TstarTstarHists(ctx, "AfterHEMcleaning_ele"));
@@ -546,12 +556,14 @@ bool TstarTstarSelectionModule::process(Event & event) {
   }
 
   // main logic
-  if( (is_MC && event.get(h_is_muevt)) || data_isMu ) {
+  if( event.get(h_is_muevt) && (is_MC || data_isMu) ) {
     if(event.get(h_is_highpt)) pass_trigger = pass_trigger_SingleMu_highpt;
     else pass_trigger = pass_trigger_SingleMu_lowpt;
-  } else {
+  } else if( !event.get(h_is_muevt) && (is_MC || !data_isMu) ){
     if(event.get(h_is_highpt)) pass_trigger = pass_trigger_SingleEle_highpt;
     else pass_trigger = pass_trigger_SingleEle_lowpt;
+  } else {
+    pass_trigger = false;
   }
   //if(isTriggerSFMeasurement) pass_trigger = pass_trigger_SingleMu_lowpt || pass_trigger_SingleMu_highpt;
 
@@ -610,11 +622,21 @@ bool TstarTstarSelectionModule::process(Event & event) {
   }
 
   h_beforeBcorrections->fill(event);
+  if(event.get(h_is_muevt)){
+    h_beforeBcorrections_mu->fill(event);
+  } else {
+    h_beforeBcorrections_ele->fill(event);
+  }
 
   // b-tagging sfs
   ScaleFactor_btagging->process(event);
 
   h_afterBcorrections->fill(event);
+  if(event.get(h_is_muevt)){
+    h_afterBcorrections_mu->fill(event);
+  } else {
+    h_afterBcorrections_ele->fill(event);
+  }
 
   if(is_MC) {
     double ht = 0.;
@@ -626,6 +648,11 @@ bool TstarTstarSelectionModule::process(Event & event) {
   }
 
   h_afterBYieldcorrections->fill(event);
+  if(event.get(h_is_muevt)){
+    h_afterBYieldcorrections_mu->fill(event);
+  } else {
+    h_afterBYieldcorrections_ele->fill(event);
+  }
 
   // #################
   // ### Selection ###
@@ -815,7 +842,6 @@ bool TstarTstarSelectionModule::process(Event & event) {
     if(!event.get(h_is_muevt)) h_corrections_nobtag_ele->fill(event);
   }
 
-  /**
   // NNLO corrections
   ScaleFactor_NNLO->process(event);
 
@@ -846,8 +872,8 @@ bool TstarTstarSelectionModule::process(Event & event) {
   } else {
     h_topptreweighting_nobtag->fill(event);
   }
-  **/
 
+  event.set(h_evt_weight, event.weight);
   return true;
 
 }
