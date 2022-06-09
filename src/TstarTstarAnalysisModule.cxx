@@ -358,6 +358,7 @@ bool TstarTstarAnalysisModule::process(Event & event) {
     }
   }
 
+  event.set(h_evt_weight, event.weight);
   if(debug){cout << "Done ##################################" << endl;}
   return true;
 

@@ -150,6 +150,7 @@ private:
   bool data_isPhoton = false;
   bool isTriggerSFMeasurement = false;
   TString year;
+  TString Prefiring_direction;
 
   std::unique_ptr<AnalysisModule> TopPtReweighting;
 
@@ -303,6 +304,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
     else if(ctx.get("dataset_version").find("WJets") != std::string::npos) sample_string = "WJets";
     else if(ctx.get("dataset_version").find("QCD") != std::string::npos) sample_string = "QCD";
     else if(ctx.get("dataset_version").find("Diboson") != std::string::npos) sample_string = "VV";
+    else if(ctx.get("dataset_version").find("DY") != std::string::npos) sample_string = "QCD";
     if(debug) std::cout << "Apply 2D b-taggin yield SFs for " << sample_string << std::endl;
 
     if(sample_string != "") eventYieldFactors = (TH2D*)f->Get(sample_string);
@@ -448,6 +450,8 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   if(IsTriggerSFMeasurement == "True") isTriggerSFMeasurement = true;
 
   TopPtReweighting.reset( new TopPtReweight(ctx, 0.0615, -0.0005, "ttbargen", "weight_ttbar", true) );
+
+  Prefiring_direction = ctx.get("Sys_prefiring", "nominal");
 
 }
 
@@ -619,6 +623,13 @@ bool TstarTstarSelectionModule::process(Event & event) {
       if(event.get(h_is_highpt)) h_triggerSF_ele_highpt->fill(event);
       else h_triggerSF_ele_lowpt->fill(event);
     }
+  }
+
+  // Prefiring weights
+  if (is_MC) {
+     if (Prefiring_direction == "nominal") event.weight *= event.prefiringWeight;
+     else if (Prefiring_direction == "up") event.weight *= event.prefiringWeightUp;
+     else if (Prefiring_direction == "down") event.weight *= event.prefiringWeightDown;
   }
 
   h_beforeBcorrections->fill(event);

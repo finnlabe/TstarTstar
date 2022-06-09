@@ -5,18 +5,18 @@ void btagSFcheck() {
   TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/"+year+"/hadded/";
   TString filename_base = "uhh2.AnalysisModuleRunner.MC.";
 
-  std::vector<TString> samples = {"TTbar", "WJets", "ST", "QCD", "VV"};
+  std::vector<TString> samples = {"TTbar", "WJets", "ST", "QCD", "VV", "DYJets"};
 
   TString histname2D = "pt_HT_N_jet_rebinned";
   std::vector<TString> hists_to_crosscheck = {"pt_HT", "N_jets", "DeepJetscore"};
 
-  TString postfix = "";
+  TString postfix = "_mu";
 
   TString folder_before = "BeforeBCorrections";
   TString folder_after = "AfterBCorrections";
   TString folder_crosscheck = "AfterBYieldCorrections";
 
-  bool writeSFsToFile = true;
+  bool writeSFsToFile = false;
 
   // main loop, we are doing this for each sample
   std::vector<TH2D*> histograms_to_store;

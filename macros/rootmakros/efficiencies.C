@@ -30,16 +30,16 @@ void efficiencies(TString suffix = ""){
   //leg->SetNColumns(4);
 
   // Defining paths
-  TString pathPresel = "/nfs/dust/cms/user/flabe/TstarTstar/data/Preselection/hadded/";
-  TString pathSel = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/hadded/";
+  TString pathPresel = "/nfs/dust/cms/user/flabe/TstarTstar/data/Preselection/UL18/hadded/";
+  TString pathSel = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/UL18/hadded/";
   TString pathReco = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/";
-  TString fileprefix = "uhh2.AnalysisModuleRunner.MC.";
+  TString fileprefix = "uhh2.AnalysisModuleRunner.";
   TString histname = "N_jets";
 
   // Defining Steps
-  std::vector<TString> preselSteps = {"AfterTrigger", "AfterLep", "AfterJets", "AfterFatJets", "AfterMET"};
-  std::vector<TString> selSteps = {"AfterBtag", "AfterdR", "AfterST"};
-  std::vector<TString> recoSteps = {"newTaggerSR"};
+  std::vector<TString> preselSteps = {"AfterLep", "AfterLepSel_ele", "AfterLepSel_mu", "AfterJets_ele",  "AfterJets_mu", "AfterFatJets_ele", "AfterFatJets_mu", "AfterMET_ele", "AfterMET_mu"};
+  std::vector<TString> selSteps = {"AfterBtag_ele", "AfterBtag_mu", "After2D_ele", "After2D_mu", "AfterST_ele", "AfterST_mu"};
+  std::vector<TString> recoSteps = {};
   int stepcount = preselSteps.size() + selSteps.size() + recoSteps.size();
 
   // Adding suffix
@@ -57,22 +57,24 @@ void efficiencies(TString suffix = ""){
 
 
   // Defining Samples
-  std::vector<TString> signalSamples = {"TstarTstar_M-700", "TstarTstar_M-1600"};
-  std::vector<TString> BGSamples = {"TTbar", "ST", "WJets", "QCD"};
+  std::vector<TString> signalSamples = {"DATA.DATA"};
+  std::vector<TString> BGSamples = {"MC.TTbar", "MC.WJets" };
   //std::vector<TString> BGSamples = {};
 
-  std::vector<TString> signal_labels = {"T* 700 GeV", "T* 1600 GeV"};
-  std::vector<TString> BG_labels = {"t#bar{t}", "single t", "W+jets", "QCD"};
+  std::vector<TString> signal_labels = {"data"};
+  std::vector<TString> BG_labels = { "t#bar{t}", "W+jets"};
 
   // Defining Drawing options
-  std::vector<int> colors_Signal = {1, 1, 1, 1};
-  std::vector<int> line_Signal = {2, 3, 4, 5};
-  std::vector<int> colors_BG = {810, 800, 600, 867};
-  std::vector<TString> labels = {"Trigger", "N_{lep} = 1", "N_{AK4} #geq 4", "N_{HOTVR} #geq 1", "MET > 50GeV", "N_{b-tag} #geq 1", "Isolation", "S_{T} > 500GeV", "SR", "should not be visible"};
+  std::vector<int> colors_Signal = {1};
+  std::vector<int> line_Signal = {1};
+  std::vector<int> colors_BG = {810, 600,800,  867};
+  std::vector<TString> labels = {"N_{lep} = 1", "N_{lep} = 1 ele", "N_{lep} = 1 mu", "N_{AK4} #geq 4 ele", "N_{AK4} #geq 4 mu", "N_{HOTVR} #geq 1 ele", "N_{HOTVR} #geq 1 mu", "MET > 50GeV ele", "MET > 50GeV mu", "N_{b-tag} #geq 1 ele", "N_{b-tag} #geq 1 mu", "2D ele","2D mu", "S_{T} > 500GeV ele", "S_{T} > 500GeV mu", "SR", "should not be visible"};
 
   // ########################
   // ## Finish Definitions ##
   // ########################
+
+  std::cout << "initials" << std::endl;
 
   // Saving initial values
   std::vector<double> initial_signal;
@@ -87,11 +89,6 @@ void efficiencies(TString suffix = ""){
     input = TFile::Open(pathPresel+fileprefix+sample+".root");
     hist = (TH1D*)input->Get(preselSteps.at(0)+"/"+histname);
     double val = hist->Integral();
-    if (sample == "WJets") {
-      input = TFile::Open(pathPresel+fileprefix+sample+"_1.root");
-      hist = (TH1D*)input->Get(preselSteps.at(0)+"/"+histname);
-      val += hist->Integral();
-    }
     initial_BG.push_back(val);
     initial_BG_sum += val;
   }
@@ -136,11 +133,6 @@ void efficiencies(TString suffix = ""){
       input = TFile::Open(pathPresel+fileprefix+sample+".root");
       hist = (TH1D*)input->Get(step+"/"+histname);
       double val = hist->Integral();
-      if (sample == "WJets") {
-        input = TFile::Open(pathPresel+fileprefix+sample+"_1.root");
-        hist = (TH1D*)input->Get(step+"/"+histname);
-        val += hist->Integral();
-      }
       cutflow_BG.at(index_sample)->SetBinContent(index_step, val/initial_BG.at(index_sample));
       index_sample++;
     }
@@ -193,12 +185,15 @@ void efficiencies(TString suffix = ""){
     index_step++;
   }
 
+  std::cout << "Done steps" << std::endl;
 
   // Output QCD efficiency
+  /**
   int indexQCD = 1;
   double val_pre = cutflow_Signal.at(indexQCD)->GetBinContent(cutflow_Signal.at(indexQCD)->FindLastBinAbove()-1);
   double val_post = cutflow_Signal.at(indexQCD)->GetBinContent(cutflow_Signal.at(indexQCD)->FindLastBinAbove());
   std::cout << "Reconstruction efficiency for " << BG_labels.at(indexQCD) << ": " << val_post/val_pre << std::endl;
+  **/
 
   // ##########################
   // ## Finish Filling Hists ##

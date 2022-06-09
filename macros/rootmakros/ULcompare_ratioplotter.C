@@ -26,16 +26,17 @@ void ULcompare_ratioplotter(){
   Double_t w = 800;
   Double_t h = 600;
 
-  TString sample = "MC.WJets";
+  TString sample = "DATA.DATA";
 
-  TString beforePath = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/2017/hadded/";
-  TString afterPath = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/UL17/hadded/";
+  TString beforePath = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/2018/hadded/";
+  TString afterPath = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/UL18/hadded/";
   TString filename = "uhh2.AnalysisModuleRunner."+sample+".root";
-  TString histname = "pt_ST_rebinned";
-  TString label = "S_{T} [GeV]";
+  TString histname = "pt_ele";
+  TString label = "p^{e}_{T} [GeV]";
+  //label = histname;
 
-  TString beforeFolder = "crosscheck";
-  TString afterFolder = "crosscheck";
+  TString beforeFolder = "AfterTrigger";
+  TString afterFolder = "AfterTrigger";
 
   TCanvas *canvas = new TCanvas("canvas", "c", w, h);
 
@@ -90,7 +91,7 @@ void ULcompare_ratioplotter(){
   hist_num_clone->SetTitle("");
   hist_num_clone->GetXaxis()->SetTitle(label);
   hist_num_clone->GetYaxis()->SetTitle("ratio");
-  hist_num_clone->SetLineColor(2);
+  hist_num_clone->SetLineColor(1);
 
   // axis styline
   hist_num_clone->GetXaxis()->SetLabelSize(0.1);
@@ -99,6 +100,9 @@ void ULcompare_ratioplotter(){
   hist_num_clone->GetYaxis()->SetNdivisions(505);
   hist_num_clone->GetYaxis()->SetTitleOffset(0.);
   hist_num_clone->GetYaxis()->SetTitleSize(10);
+
+
+  hist_num_clone->GetYaxis()->SetRangeUser(0.5,1.5);
 
   hist_num_clone->Draw("");
   canvas->SaveAs("plots/ULcomparison_"+histname+"_"+beforeFolder+"_"+sample+".pdf");
