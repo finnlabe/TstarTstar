@@ -26,6 +26,7 @@ TstarTstarSignalRegionHists::TstarTstarSignalRegionHists(Context & ctx, const st
   h_prefiringWeightDown = ctx.get_handle<float>("prefiringWeightDown");
 
   // all the b-tagging stuff
+  /**
   h_weight_btagdiscNominal = ctx.get_handle<float>("weight_btagdisc__central");
 
   h_weight_btagdisc_lfUp = ctx.get_handle<float>("weight_btagdisc__lf_up");
@@ -44,6 +45,7 @@ TstarTstarSignalRegionHists::TstarTstarSignalRegionHists(Context & ctx, const st
   h_weight_btagdisc_cferr1Down = ctx.get_handle<float>("weight_btagdisc__cferr1_up");
   h_weight_btagdisc_cferr2Up = ctx.get_handle<float>("weight_btagdisc__cferr2_up");
   h_weight_btagdisc_cferr2Down = ctx.get_handle<float>("weight_btagdisc__cferr2_down");
+  **/
 
   // lepton stuff
   h_weight_sfelec_idNominal = ctx.get_handle<float>("weight_sfelec_id");
@@ -125,6 +127,7 @@ void TstarTstarSignalRegionHists::fill(const Event & event){
 
   // put b-tagging stuff here
   // to handle the b-tagging, I'll combine all uncertainties by adding the (uncorrelated) uncertainties in quadrature
+  /**
   double btagging_total_Up = 0;
   double btagging_total_Down = 0;
   double btagging_nominal_weight = event.get(h_weight_btagdiscNominal);
@@ -158,7 +161,8 @@ void TstarTstarSignalRegionHists::fill(const Event & event){
 
   hist("pt_ST_btaggingUp")->Fill(st, btagging_total_Up*weight/btagging_nominal_weight);
   hist("pt_ST_btaggingDown")->Fill(st, btagging_total_Down*weight/btagging_nominal_weight);
-
+  **/
+  
   // sfelec_id
   hist("pt_ST_sfelec_idUp")->Fill(st, event.get(h_weight_sfelec_idUp)*weight/event.get(h_weight_sfelec_idNominal));
   hist("pt_ST_sfelec_idDown")->Fill(st, event.get(h_weight_sfelec_idDown)*weight/event.get(h_weight_sfelec_idNominal));

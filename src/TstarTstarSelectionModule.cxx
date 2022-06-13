@@ -304,7 +304,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
     else if(ctx.get("dataset_version").find("WJets") != std::string::npos) sample_string = "WJets";
     else if(ctx.get("dataset_version").find("QCD") != std::string::npos) sample_string = "QCD";
     else if(ctx.get("dataset_version").find("Diboson") != std::string::npos) sample_string = "VV";
-    else if(ctx.get("dataset_version").find("DY") != std::string::npos) sample_string = "QCD";
+    else if(ctx.get("dataset_version").find("DY") != std::string::npos) sample_string = "DYJets";
     if(debug) std::cout << "Apply 2D b-taggin yield SFs for " << sample_string << std::endl;
 
     if(sample_string != "") eventYieldFactors = (TH2D*)f->Get(sample_string);

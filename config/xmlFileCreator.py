@@ -401,7 +401,7 @@ if __name__=='__main__':
    for selection in args.selections:
       for year in args.years:
           if(selection == "DNN_datadriven"):
-              x = xmlCreator(selection, year, "DATA", directions)
+              x = xmlCreator(selection, year, "DATA", directions, False)
               x.write_xml()
           else:
               for group in groups:

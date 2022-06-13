@@ -10,7 +10,7 @@ void shapeCompare(){
   Double_t w = 800;
   Double_t h = 600;
 
-  TString histname = "eta_ele";
+  TString histname = "pt_ST_rebinned";
   TString sampleType = "MC";
   TString sample = "TTbar";
 
@@ -18,7 +18,7 @@ void shapeCompare(){
     "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/UL18/hadded/uhh2.AnalysisModuleRunner."+sampleType+"."+sample+".root",
     "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/UL18/hadded/uhh2.AnalysisModuleRunner."+sampleType+"."+sample+".root",
   };
-  std::vector<TString> folders = {"BeforeBCorrections", "AfterBCorrections"};
+  std::vector<TString> folders = {"AfterNNLO", "Aftertopptreweighting"};
   assert(file.size() == folder.size());
 
   TCanvas *c1_hist = new TCanvas("chist", "c", w, h);
@@ -30,7 +30,7 @@ void shapeCompare(){
   pad1->Draw();
   pad2->Draw();
   pad1->cd();
-  //pad1->SetLogy();
+  pad1->SetLogy();
 
   pad1->SetBottomMargin(0);
   pad2->SetTopMargin(0);
@@ -46,7 +46,7 @@ void shapeCompare(){
     if(!input) cout<<"File is empty"<<endl;
     TH1D *hist = (TH1D*)input->Get(folder+"/"+histname); //histogram
     if(!hist) cout<<"Hist is empty"<<endl;
-    hist->Scale(1/hist->Integral());
+    //hist->Scale(1/hist->Integral());
     hist->GetYaxis()->SetTitle("events");
     hist->SetMarkerStyle(20);
     hist->SetMarkerColor(i+1);
@@ -65,7 +65,7 @@ void shapeCompare(){
   TString base_folder = folders.at(0);
   TFile *base_file = TFile::Open(base_filename);
   TH1D *base_hist = (TH1D*)base_file->Get(base_folder+"/"+histname);
-  base_hist->Scale(1/base_hist->Integral());
+  //base_hist->Scale(1/base_hist->Integral());
 
   i = 0;
   for (auto file : files) {
@@ -76,9 +76,11 @@ void shapeCompare(){
       if(!input) cout<<"File is empty"<<endl;
       TH1D *hist = (TH1D*)input->Get(folder+"/"+histname); //histogram
       if(!hist) cout<<"Hist is empty"<<endl;
-      hist->Scale(1/hist->Integral());
+      //hist->Scale(1/hist->Integral());
       hist->Divide(base_hist);
       hist->GetYaxis()->SetTitle("events");
+      hist->GetXaxis()->SetTitle(hist->GetTitle());
+      hist->SetTitle("");
       hist->SetMarkerStyle(20);
       hist->SetMarkerColor(i+1);
       hist->SetLineColor(i+1);

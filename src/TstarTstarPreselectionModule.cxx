@@ -216,7 +216,6 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
 
   // HOTVR jets
   HOTVRcleaner.reset(new TopJetCleaner(ctx, AndId<Jet>(PtEtaCut(200, 2.5), JetPFID(JetPFID::WP_TIGHT_PUPPI)) ));
-  HOTVRCorr.reset(new HOTVRJetCorrectionModule(ctx));
 
   if(debug) cout << "HOTVR done" << endl;
 
@@ -237,7 +236,7 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   if(debug) cout << "Muons done" << endl;
 
   double jet_pt(30.);
-  common->set_jet_id(AndId<Jet>(PtEtaCut(jet_pt, 2.5), JetPFID(JetPFID::WP_TIGHT_PUPPI)));
+  //common->set_jet_id(AndId<Jet>(PtEtaCut(jet_pt, 2.5), JetPFID(JetPFID::WP_TIGHT_PUPPI)));
   if(debug) cout << "Jets done" << endl;
 
   // init common
@@ -353,7 +352,7 @@ bool TstarTstarPreselectionModule::process(Event & event) {
 
   // ###### common modules, corrections & cleaning ######
   if(!(common->process(event))) return false;
-  if(!(HOTVRCorr->process(event))) return false;
+  //if(!(HOTVRCorr->process(event))) return false;
   if(!(HOTVRcleaner->process(event))) return false;
 
   if(debug) cout<<"common modules done"<<endl;

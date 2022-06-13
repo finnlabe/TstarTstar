@@ -385,12 +385,12 @@ bool TstarTstarDNNModule::process(Event & event) {
       newTagger = -1; // for the moment, use all data for the CR
 
 //      NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE
-//   1  Constant     4.04724e+00   7.42280e-02   9.90911e-05   5.63080e-04
-//   2  MPV          2.80624e+03   1.34157e+02   4.67698e-02  -1.72843e-06
-//   3  Sigma        1.30542e+03   8.57501e+01   1.02664e-05   9.03556e-03
-      double p0 = 4.04724e+00;
-      double p1 = 2.80624e+03;
-      double p2 = 1.30542e+03;
+// 1  Constant     3.21411e+00   5.87492e-02   6.03508e-05   3.46577e-03
+// 2  MPV          3.28318e+03   1.55642e+02   4.60350e-02   4.48085e-06
+// 3  Sigma        1.58951e+03   9.26076e+01   9.27908e-06  -1.78981e-02
+      double p0 = 3.21411e+00;
+      double p1 = 3.28318e+03;
+      double p2 = 1.58951e+03;
       if(true) cout << "ST: " << event.get(h_ST) << endl;
       //double transfer_value = bgest_polynom(event.get(h_ST), p0, p1, p2);
       double transfer_value = bgest_landau(event.get(h_ST), p0, p1, p2);

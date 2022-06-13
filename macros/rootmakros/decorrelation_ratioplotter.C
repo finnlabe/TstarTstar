@@ -28,8 +28,8 @@ void decorrelation_ratioplotter(){
 
   TString sample = "MC.TTbar";
 
-  TString beforePath = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/";
-  TString afterPath = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/";
+  TString beforePath = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/UL18/hadded/";
+  TString afterPath = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/UL18/hadded/";
   TString filename = "uhh2.AnalysisModuleRunner."+sample+".root";
   TString histname = "pt_ST_fullrange";
   TString label = "S_{T} [GeV]";

@@ -64,14 +64,14 @@ void create_output(const TString fout_name, const TString subdir_name, TH1F* his
 void backgroundEstimation(){
 
   // definitions
-  std::vector<TString> nontop_backgrounds = {"WJets", "QCD", "VV"};
+  std::vector<TString> nontop_backgrounds = {"WJets", "QCD", "VV", "DYJets"};
   std::vector<TString> top_backgrounds = {"ST", "TTbar"};
   TString data = "data";
 
   TString subpath_SR="newTaggerCR";
   TString subpath_CR="newTagger_btagCR";
   TString histname="pt_ST_rebinned";
-  TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/UL17/hadded/";
+  TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/UL18/hadded/";
   TString fileprefix = "uhh2.AnalysisModuleRunner.";
 
   TH1D *histSR;

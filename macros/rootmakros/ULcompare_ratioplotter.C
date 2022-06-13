@@ -28,15 +28,15 @@ void ULcompare_ratioplotter(){
 
   TString sample = "DATA.DATA";
 
-  TString beforePath = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/2018/hadded/";
-  TString afterPath = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/UL18/hadded/";
+  TString beforePath = "/nfs/dust/cms/user/flabe/TstarTstar/data/Preselection/2018/hadded/";
+  TString afterPath = "/nfs/dust/cms/user/flabe/TstarTstar/data/Preselection/UL18/hadded/";
   TString filename = "uhh2.AnalysisModuleRunner."+sample+".root";
   TString histname = "pt_ele";
   TString label = "p^{e}_{T} [GeV]";
   //label = histname;
 
-  TString beforeFolder = "AfterTrigger";
-  TString afterFolder = "AfterTrigger";
+  TString beforeFolder = "AfterLep";
+  TString afterFolder = "AfterLep";
 
   TCanvas *canvas = new TCanvas("canvas", "c", w, h);
 
