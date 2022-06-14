@@ -9,6 +9,11 @@ Double_t pt;
 Double_t eta;
 Double_t weight;
 Double_t lumi_plot;
+Double_t weight_sfpt;
+Double_t weight_sfeta;
+Double_t weight_sfetapt;
+Double_t weight_sfetaptUP;
+Double_t weight_sfetaptDOWN;
 Int_t run;
 Int_t lumi;
 Int_t eventnr;
@@ -52,12 +57,12 @@ int main(int argc, char* argv[]){
 
   year = argv[1];
   TString fdir;
-  if(year.EqualTo("2016")){year_v = "_2016v3"; lumi_plot = 35.9; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/TriggerSF/";}
-  else if(year.EqualTo("2017")){year_v = "_2017v2"; lumi_plot = 41.5; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/TriggerSF/";}
-  else if(year.EqualTo("2018")){year_v = "_2018"; lumi_plot = 59.74; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/TriggerSF/";}
-  else if(year.EqualTo("UL16")){year_v = "_UL16"; lumi_plot = 0.0; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/ULTriggerSF/";}
-  else if(year.EqualTo("UL17")){year_v = "_UL17"; lumi_plot = 0.0; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/ULTriggerSF/";}
-  else if(year.EqualTo("UL18")){year_v = "_UL18"; lumi_plot = 59.8; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/ULTriggerSF/";}
+  if(year.EqualTo("2016")){year_v = "_2016v3"; lumi_plot = 35.9; fdir = "no";}
+  else if(year.EqualTo("2017")){year_v = "_2017v2"; lumi_plot = 41.5; fdir = "no";}
+  else if(year.EqualTo("2018")){year_v = "_2018"; lumi_plot = 59.74; fdir = "no";}
+  else if(year.EqualTo("UL16")){year_v = "_UL16"; lumi_plot = 0.0; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/TriggerEff/";}
+  else if(year.EqualTo("UL17")){year_v = "_UL17"; lumi_plot = 0.0; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/TriggerEff/";}
+  else if(year.EqualTo("UL18")){year_v = "_UL18"; lumi_plot = 59.8; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/TriggerEff/UL18/hadded/";}
   else throw runtime_error("I need the correct year; 2016, 2017, 2018, UL16, UL17 or UL18");
 
   if(argc == 2){
@@ -153,12 +158,12 @@ int main(int argc, char* argv[]){
   vector<vector<TH1F*>> h_pt_time, h_eta_time;
   vector<TFile*> f_time;
 
-  TFile *f_data=new TFile(fdir+"uhh2.AnalysisModuleRunner.DATA.SingleMuon"+year_v+".root");
+  TFile *f_data=new TFile(fdir+"uhh2.AnalysisModuleRunner.DATA.DATA.root");
   fill_pteta((TTree *) f_data->Get("AnalysisTree"), h_pt_data, h_eta_data);
   fill_control((TTree *) f_data->Get("AnalysisTree"), h_pt_data_control, h_eta_data_control);
 
   // claculating MC trigger efficiency in ttbar MC
-  TFile *f_tt=new TFile(fdir+"uhh2.AnalysisModuleRunner.MC.TTbarTo2L2Nu"+year_v+".root");
+  TFile *f_tt=new TFile(fdir+"uhh2.AnalysisModuleRunner.MC.TTbar.root");
   fill_pteta((TTree *) f_tt->Get("AnalysisTree"), h_pt_mc, h_eta_mc);
   fill_control((TTree *) f_tt->Get("AnalysisTree"), h_pt_tt, h_eta_tt);
   fill_control((TTree *) f_tt->Get("AnalysisTree"), h_pt_mc_control, h_eta_mc_control);
@@ -314,63 +319,7 @@ int main(int argc, char* argv[]){
   //                        Additional Hists
   // ===========================================================================
   // cout << "Additional hists for debugging..." << endl;
-  // CompareHists(h_pt_mc[0], h_pt_mc[1], "p_{T}", "Compare_MC");
-
-  // ===========================================================================
-  //                        Correlation
-  // ===========================================================================
-
-  if(year.EqualTo("2016")){
-    TFile *f_tt_cor =new TFile(fdir+"Correlation/uhh2.AnalysisModuleRunner.MC.TTbar"+year_v+".root");
-    TFile *f_st_cor =new TFile(fdir+"Correlation/uhh2.AnalysisModuleRunner.MC.SingleTop"+year_v+".root");
-    std::vector<TH1F*> v_cor, v_tt_cor, v_st_cor;
-    std::vector<TString> v_hists = {"no_trigger", "muon_trigger", "elec_trigger", "both_trigger"};
-    for(TString s: v_hists){
-      TH1F* h_tt = (TH1F*) f_tt_cor->Get(s+"/Events_weight");
-      // cout << h_tt -> GetBinContent(2) << endl;
-      TH1F* h_st = (TH1F*) f_st_cor->Get(s+"/Events_weight");
-      // cout << h_st -> GetBinContent(2) << endl;
-      TH1F* h_cor = (TH1F*) h_tt->Clone();
-      h_cor->Add(h_st);
-      v_tt_cor.push_back(h_tt);
-      v_st_cor.push_back(h_st);
-      v_cor.push_back(h_cor);
-    }
-
-    // Bin content is zero, therefore it will cause errors calculating the efficiency
-    v_cor[0]->SetBinContent(1,1);
-    v_cor[1]->SetBinContent(1,1);
-    v_cor[2]->SetBinContent(1,1);
-    v_cor[3]->SetBinContent(1,1);
-
-    TGraphAsymmErrors* h_effi_muon = new TGraphAsymmErrors(v_cor[1], v_cor[0],"cl=0.683 b(1,1) mode");
-    TGraphAsymmErrors* h_effi_elec = new TGraphAsymmErrors(v_cor[1], v_cor[0],"cl=0.683 b(1,1) mode");
-    TGraphAsymmErrors* h_effi_both = new TGraphAsymmErrors(v_cor[3], v_cor[0],"cl=0.683 b(1,1) mode");
-    double effi_muon = v_cor[1]->GetBinContent(2)/v_cor[0]->GetBinContent(2);
-    double effi_elec = v_cor[2]->GetBinContent(2)/v_cor[0]->GetBinContent(2);
-    double effi_both = v_cor[3]->GetBinContent(2)/v_cor[0]->GetBinContent(2);
-    double unc_up_muon = h_effi_muon->GetErrorYhigh(1); double unc_down_muon = h_effi_muon->GetErrorYlow(1);
-    double unc_up_elec = h_effi_elec->GetErrorYhigh(1); double unc_down_elec = h_effi_elec->GetErrorYlow(1);
-    double unc_up_both = h_effi_both->GetErrorYhigh(1); double unc_down_both = h_effi_both->GetErrorYlow(1);
-
-    double alpha = (effi_muon*effi_elec)/effi_both;
-    double term_up_m = ((effi_elec/effi_both)*unc_up_muon)/effi_muon;                    double term_down_m = ((effi_elec/effi_both)*unc_down_muon)/effi_muon;
-    double term_up_e = ((effi_muon/effi_both)*unc_up_elec)/effi_elec;                    double term_down_e = ((effi_muon/effi_both)*unc_down_elec)/effi_elec;
-    double term_up_b = (((effi_elec*effi_muon)/pow(effi_both,2))*unc_up_both)/effi_both; double term_down_b = (((effi_elec*effi_muon)/pow(effi_both,2))*unc_down_both)/effi_both;
-    double term_up_mb = 2*(effi_elec)/pow(effi_both,2) * unc_up_muon * unc_up_both;      double term_down_mb = 2*(effi_elec)/pow(effi_both,2) * unc_down_muon * unc_down_both;
-    double term_up_eb = 2*(effi_muon)/pow(effi_both,2) * unc_up_elec * unc_up_both;      double term_down_eb = 2*(effi_muon)/pow(effi_both,2) * unc_down_elec * unc_down_both;
-
-    double unc_up_alpha = sqrt( pow( term_up_m, 2) + pow( term_up_e, 2) + pow( term_up_b, 2) ) * alpha; //  * alpha
-    double unc_down_alpha = sqrt( pow( ((effi_elec/effi_both)*unc_down_muon)/effi_muon, 2) + pow( ((effi_muon/effi_both)*unc_down_elec)/effi_elec, 2) + pow( (((effi_elec*effi_muon)/pow(effi_both,2))*unc_down_both)/effi_both, 2) ) * alpha; //  * alpha
-    // cout << "up: " << alpha << "\t" << term_up_m  << "\t -" << term_up_e  << "\t +" << term_up_b  << "\t -" << term_up_mb  << "\t -" << term_up_eb << endl;
-
-    double unc_up_cor_alpha = sqrt( pow( term_up_m, 2) + pow( term_up_e, 2) + pow( term_up_b, 2) + pow( term_up_mb, 2) + pow( term_up_eb, 2) )  * alpha; //  * alpha
-    double unc_down_cor_alpha = sqrt( pow( term_down_m, 2) + pow( term_down_e, 2) + pow( term_down_b, 2) + pow( term_down_mb, 2) + pow( term_down_eb, 2)  ) * alpha; //  * alpha
-    // cout << "do: " << alpha << "\t" << term_down_m  << "\t -" << term_down_e  << "\t +" << term_down_b  << "\t -" << term_down_mb  << "\t -" << term_down_eb << endl;
-
-    cout << "alpha =  " << alpha << "\t +" << unc_up_alpha  << "\t -" << unc_down_alpha  << "\t +" << unc_up_cor_alpha  << "\t -" << unc_down_cor_alpha << endl;
-
-  }
+  // CompareHists(h_pt_mc[0], h_pt_mc[1], "p_{T}", "Compare_MC")
 
   return 0;
 }

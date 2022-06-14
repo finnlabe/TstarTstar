@@ -29,8 +29,8 @@
 #include "UHH2/TstarTstar/include/TstarTstarGenRecoMatchedHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarRecoTstarHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarReconstructionModules.h"
-#include "UHH2/TstarTstar/include/ElecTriggerSF.h"
 #include "UHH2/TstarTstar/include/TstarTstarScaleFactors.h"
+#include "UHH2/TstarTstar/include/ElecTriggerSF.h"
 
 // other stuff
 #include "UHH2/HOTVR/include/HOTVRIds.h"
@@ -104,7 +104,7 @@ private:
   std::unique_ptr<AnalysisModule> sf_ele_reco;
   std::unique_ptr<AnalysisModule> sf_ele_ID_DUMMY;
   std::unique_ptr<AnalysisModule> sf_ele_reco_DUMMY;
-  // std::unique_ptr<AnalysisModule> sf_ele_trigger; // TODO add
+  std::unique_ptr<AnalysisModule> sf_ele_trigger; // no dummy needed a only applied when 1 electorn present
 
   // selections
   unique_ptr<Selection> twodcut_sel;
@@ -306,6 +306,8 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   sf_ele_ID_lowpt.reset(new uhh2::ElectronIdScaleFactors(ctx, Electron::mvaEleID_Fall17_iso_V2_wp90) );
   sf_ele_ID_highpt.reset( new uhh2::ElectronIdScaleFactors(ctx, Electron::mvaEleID_Fall17_noIso_V2_wp90) );
   sf_ele_ID_DUMMY.reset( new uhh2::ElectronIdScaleFactors(ctx, boost::none, boost::none, boost::none, boost::none, true) );
+
+  sf_ele_trigger.reset( new uhh2::ElecTriggerSF(ctx, "central", "eta_ptbins", year) );
 
   if(debug) cout << "Setting up muon scale." << endl;
 
@@ -630,6 +632,8 @@ bool TstarTstarSelectionModule::process(Event & event) {
     }
   }
 
+  if(debug) std::cout << "Start trigger SFs" << std::endl;
+
   // trigger SFs
   if(is_MC && event.get(h_is_muevt) && !isTriggerSFMeasurement){
 
@@ -642,6 +646,9 @@ bool TstarTstarSelectionModule::process(Event & event) {
   } else {
     sf_muon_trigger_DUMMY->process(event);
   }
+
+  if(debug) std::cout << "before electorn trigger SFs" << std::endl;
+  sf_ele_trigger->process(event); // this one is its own dummy!
 
   {
     // hists
@@ -657,6 +664,8 @@ bool TstarTstarSelectionModule::process(Event & event) {
       else h_triggerSF_ele_lowpt->fill(event);
     }
   }
+
+  if(debug) std::cout << "Done all trigger stuff" << std::endl;
 
   // put here correct jet cut & MET cut!
   // ###### MET Selection ######
