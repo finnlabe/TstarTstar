@@ -25,10 +25,6 @@
 #include "UHH2/TstarTstar/include/TstarTstarGenRecoMatchedHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarSFHists.h"
 
-// HOTVR
-#include "UHH2/HOTVR/include/HOTVRJetCorrectionModule.h"
-
-
 using namespace std;
 using namespace uhh2;
 
@@ -51,13 +47,7 @@ private:
   // common modules, corrections etc.
   // examples: JetPFid, JEC, JER, MET corrections, etc
   std::unique_ptr<CommonModules> common;
-  std::unique_ptr<AnalysisModule> HOTVRCorr;
 
-  // cleaners
-  unique_ptr<TopJetCleaner> HOTVRcleaner;
-
-  // other external selections
-  unique_ptr<Selection> met_sel;
 
   // other stuff
   std::unique_ptr<uhh2::AnalysisModule> ttgenprod;
@@ -74,19 +64,19 @@ private:
 
   // ##### Histograms #####
   // full hists
-  std::unique_ptr<Hists> h_nocuts,     h_common,         h_lepsel,        h_jetsel,        h_fatjetsel,        h_METsel;
-  std::unique_ptr<Hists> h_nocuts_gen, h_common_gen,     h_lepsel_gen,    h_jetsel_gen,    h_fatjetsel_gen,    h_METsel_gen;
-  std::unique_ptr<LuminosityHists> lumihist_common, lumihist_lepsel, lumihist_jetsel, lumihist_fatjetsel, lumihist_METsel;
+  std::unique_ptr<Hists> h_nocuts,     h_common,         h_lepsel,        h_jetsel, h_ST;
+  std::unique_ptr<Hists> h_nocuts_gen, h_common_gen,     h_lepsel_gen,    h_jetsel_gen, h_ST_gen;
+  std::unique_ptr<LuminosityHists> lumihist_common, lumihist_lepsel, lumihist_jetsel;
 
   // electron channel
-  std::unique_ptr<Hists> h_lepsel_ele,        h_jetsel_ele,        h_fatjetsel_ele,        h_METsel_ele;
-  std::unique_ptr<Hists> h_lepsel_ele_lowpt,  h_jetsel_ele_lowpt,  h_fatjetsel_ele_lowpt,  h_METsel_ele_lowpt;
-  std::unique_ptr<Hists> h_lepsel_ele_highpt, h_jetsel_ele_highpt, h_fatjetsel_ele_highpt, h_METsel_ele_highpt;
+  std::unique_ptr<Hists> h_lepsel_ele,        h_jetsel_ele, h_ST_ele                ;
+  std::unique_ptr<Hists> h_lepsel_ele_lowpt,  h_jetsel_ele_lowpt, h_ST_ele_lowpt;
+  std::unique_ptr<Hists> h_lepsel_ele_highpt, h_jetsel_ele_highpt, h_ST_ele_highpt;
 
   // muon channel
-  std::unique_ptr<Hists> h_lepsel_mu,        h_jetsel_mu,        h_fatjetsel_mu,        h_METsel_mu;
-  std::unique_ptr<Hists> h_lepsel_mu_lowpt,  h_jetsel_mu_lowpt,  h_fatjetsel_mu_lowpt,  h_METsel_mu_lowpt;
-  std::unique_ptr<Hists> h_lepsel_mu_highpt, h_jetsel_mu_highpt, h_fatjetsel_mu_highpt, h_METsel_mu_highpt;
+  std::unique_ptr<Hists> h_lepsel_mu,        h_jetsel_mu, h_ST_mu;
+  std::unique_ptr<Hists> h_lepsel_mu_lowpt,  h_jetsel_mu_lowpt, h_ST_mu_lowpt;
+  std::unique_ptr<Hists> h_lepsel_mu_highpt, h_jetsel_mu_highpt, h_ST_mu_highpt;
 
   std::unique_ptr<Hists> h_afterSelection_gen, h_afterSelection_genmatch;
 
@@ -209,15 +199,10 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
 
   // CommonModules
   common.reset(new CommonModules());
-  common->switch_jetlepcleaner();
+  common->switch_jetlepcleaner(false);
   common->switch_jetPtSorter();
   common->switch_metcorrection();
   if(debug) cout << "Common ini" << endl;
-
-  // HOTVR jets
-  HOTVRcleaner.reset(new TopJetCleaner(ctx, AndId<Jet>(PtEtaCut(200, 2.5), JetPFID(JetPFID::WP_TIGHT_PUPPI)) ));
-
-  if(debug) cout << "HOTVR done" << endl;
 
   // Electron
   ElectronId eleID_lowpt = ElectronTagID(Electron::mvaEleID_Fall17_iso_V2_wp90);
@@ -235,9 +220,9 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   common->set_muon_id(OrId<Muon>( AndId<Muon>(PtEtaCut(muon_pt_lowpt, 2.4), muID_lowpt, MuMaxPtCut(muon_pt_highpt)), AndId<Muon>(PtEtaCut(muon_pt_highpt, 2.4), muID_highpt)));
   if(debug) cout << "Muons done" << endl;
 
-  double jet_pt(30.);
-  //common->set_jet_id(AndId<Jet>(PtEtaCut(jet_pt, 2.5), JetPFID(JetPFID::WP_TIGHT_PUPPI)));
-  if(debug) cout << "Jets done" << endl;
+  // disable jet stuff, as we'll do this in the selection module
+  common->disable_jec();
+  common->disable_jersmear();
 
   // init common
   common->init(ctx);
@@ -251,8 +236,6 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   }
 
   // ###### 2. set up selections ######
-  // MET selection
-  met_sel.reset(new METCut  (50.,1e9));
 
   // ###### 3. set up hists ######
   // general
@@ -260,55 +243,45 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   h_common.reset(new TstarTstarHists(ctx, "AfterCommon"));
   h_lepsel.reset(new TstarTstarHists(ctx, "AfterLep"));
   h_jetsel.reset(new TstarTstarHists(ctx, "AfterJets"));
-  h_fatjetsel.reset(new TstarTstarHists(ctx, "AfterFatJets"));
-  h_METsel.reset(new TstarTstarHists(ctx, "AfterMET"));
+  h_ST.reset(new TstarTstarHists(ctx, "AfterST"));
 
   // GEN hists
   h_nocuts_gen.reset(new TstarTstarGenHists(ctx, "NoCuts_gen"));
   h_common_gen.reset(new TstarTstarGenHists(ctx, "AfterCommon_gen"));
   h_lepsel_gen.reset(new TstarTstarGenHists(ctx, "AfterLep_gen"));
   h_jetsel_gen.reset(new TstarTstarGenHists(ctx, "AfterJets_gen"));
-  h_fatjetsel_gen.reset(new TstarTstarGenHists(ctx, "AfterFatJets_gen"));
-  h_METsel_gen.reset(new TstarTstarGenHists(ctx, "AfterMET_gen"));
+  h_ST_gen.reset(new TstarTstarGenHists(ctx, "AfterST_gen"));
 
   // Lumi hists
   lumihist_common.reset(new LuminosityHists(ctx, "lumihist_AfterCommon"));
   lumihist_lepsel.reset(new LuminosityHists(ctx, "lumihist_AfterLep"));
   lumihist_jetsel.reset(new LuminosityHists(ctx, "lumihist_AfterJets"));
-  lumihist_fatjetsel.reset(new LuminosityHists(ctx, "lumihist_AfterFatJets"));
-  lumihist_METsel.reset(new LuminosityHists(ctx, "lumihist_AfterMET"));
 
   // electron channel
   h_lepsel_ele.reset(new TstarTstarHists(ctx, "AfterLepSel_ele"));
   h_jetsel_ele.reset(new TstarTstarHists(ctx, "AfterJets_ele"));
-  h_fatjetsel_ele.reset(new TstarTstarHists(ctx, "AfterFatJets_ele"));
-  h_METsel_ele.reset(new TstarTstarHists(ctx, "AfterMET_ele"));
+  h_ST_ele.reset(new TstarTstarHists(ctx, "AfterST_ele"));
 
   h_lepsel_ele_lowpt.reset(new TstarTstarHists(ctx, "AfterLepSel_ele_lowpt"));
   h_jetsel_ele_lowpt.reset(new TstarTstarHists(ctx, "AfterJets_ele_lowpt"));
-  h_fatjetsel_ele_lowpt.reset(new TstarTstarHists(ctx, "AfterFatJets_ele_lowpt"));
-  h_METsel_ele_lowpt.reset(new TstarTstarHists(ctx, "AfterMET_ele_lowpt"));
+  h_ST_ele_lowpt.reset(new TstarTstarHists(ctx, "AfterST_ele_lowpt"));
 
   h_lepsel_ele_highpt.reset(new TstarTstarHists(ctx, "AfterLepSel_ele_highpt"));
   h_jetsel_ele_highpt.reset(new TstarTstarHists(ctx, "AfterJets_ele_highpt"));
-  h_fatjetsel_ele_highpt.reset(new TstarTstarHists(ctx, "AfterAK8jets_ele_highpt"));
-  h_METsel_ele_highpt.reset(new TstarTstarHists(ctx, "AfterMET_ele_highpt"));
+  h_ST_ele_highpt.reset(new TstarTstarHists(ctx, "AfterST_ele_highpt"));
 
   // muon channel
   h_lepsel_mu.reset(new TstarTstarHists(ctx, "AfterLepSel_mu"));
   h_jetsel_mu.reset(new TstarTstarHists(ctx, "AfterJets_mu"));
-  h_fatjetsel_mu.reset(new TstarTstarHists(ctx, "AfterFatJets_mu"));
-  h_METsel_mu.reset(new TstarTstarHists(ctx, "AfterMET_mu"));
+  h_ST_mu.reset(new TstarTstarHists(ctx, "AfterST_mu"));
 
   h_lepsel_mu_lowpt.reset(new TstarTstarHists(ctx, "AfterLepSel_mu_lowpt"));
   h_jetsel_mu_lowpt.reset(new TstarTstarHists(ctx, "AfterJets_mu_lowpt"));
-  h_fatjetsel_mu_lowpt.reset(new TstarTstarHists(ctx, "AfterFatJets_mu_lowpt"));
-  h_METsel_mu_lowpt.reset(new TstarTstarHists(ctx, "AfterMET_mu_lowpt"));
+  h_ST_mu_lowpt.reset(new TstarTstarHists(ctx, "AfterST_mu_lowpt"));
 
   h_lepsel_mu_highpt.reset(new TstarTstarHists(ctx, "AfterLepSel_mu_highpt"));
   h_jetsel_mu_highpt.reset(new TstarTstarHists(ctx, "AfterJets_mu_highpt"));
-  h_fatjetsel_mu_highpt.reset(new TstarTstarHists(ctx, "AfterAK8jets_mu_highpt"));
-  h_METsel_mu_highpt.reset(new TstarTstarHists(ctx, "AfterMET_mu_highpt"));
+  h_ST_mu_highpt.reset(new TstarTstarHists(ctx, "AfterST_mu_highpt"));
 
   h_afterSelection_gen.reset(new TstarTstarGenHists(ctx, "AfterSel_gen"));
   h_afterSelection_genmatch.reset(new TstarTstarGenRecoMatchedHists(ctx, "AfterSel_genmatch"));
@@ -352,8 +325,6 @@ bool TstarTstarPreselectionModule::process(Event & event) {
 
   // ###### common modules, corrections & cleaning ######
   if(!(common->process(event))) return false;
-  //if(!(HOTVRCorr->process(event))) return false;
-  if(!(HOTVRcleaner->process(event))) return false;
 
   if(debug) cout<<"common modules done"<<endl;
 
@@ -399,7 +370,6 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   bool pass_lep1;
   bool pass_njet;
   bool pass_fat_njet;
-  bool pass_MET;
 
   // ###### Lepton selection ######
   pass_lep1 = (((event.muons->size() == 1) || (event.electrons->size() == 1)) && (event.electrons->size()+event.muons->size()) == 1);
@@ -516,7 +486,7 @@ bool TstarTstarPreselectionModule::process(Event & event) {
 
 
   // ###### jet selection ######
-  pass_njet = (event.jets->size()>3);
+  pass_njet = (event.jets->size()>2);
   if(isTriggerSFMeasurement) pass_njet = (event.jets->size()>1); // only need to require 2 jets for trigger SF measurement
   if(!pass_njet) return false;
 
@@ -538,48 +508,33 @@ bool TstarTstarPreselectionModule::process(Event & event) {
     if(debug) cout << "Filled hists after fatjetsel" << endl;
   }
 
-  // ###### fat jet selection ######
-  pass_fat_njet = (event.topjets->size()>0);
-  if(!pass_fat_njet) return false;
+  // ##### ST cut to suppress file size substantially! #####
+  // st calculation
+  double st = 0.;
+  for(const auto & lepton : *event.electrons) st += lepton.pt();
+  for(const auto & lepton : *event.muons) st += lepton.pt();
+  st += event.met->pt();
+  for(const auto & jet : *event.jets) st += jet.pt();
+
+  // st cut
+  if(st < 450) return false;
 
   // hists
   if(pass_trigger) {
-    h_fatjetsel->fill(event);
-    h_fatjetsel_gen->fill(event);
-    lumihist_fatjetsel->fill(event);
+    h_ST->fill(event);
+    h_ST_gen->fill(event);
+    lumihist_jetsel->fill(event);
     if(event.get(h_is_muevt)){
-      h_fatjetsel_mu->fill(event);
-      if(event.get(h_is_highpt)) h_fatjetsel_mu_lowpt->fill(event);
-      else h_fatjetsel_mu_highpt->fill(event);
+      h_ST_mu->fill(event);
+      if(event.get(h_is_highpt)) h_ST_mu_lowpt->fill(event);
+      else h_ST_mu_highpt->fill(event);
     }
     else {
-      h_fatjetsel_ele->fill(event);
-      if(event.get(h_is_highpt)) h_fatjetsel_ele_lowpt->fill(event);
-      else h_fatjetsel_ele_highpt->fill(event);
+      h_ST_ele->fill(event);
+      if(event.get(h_is_highpt)) h_ST_ele_lowpt->fill(event);
+      else h_ST_ele_highpt->fill(event);
     }
     if(debug) cout << "Filled hists after fatjetsel" << endl;
-  }
-
-  // ###### MET Selection ######
-  pass_MET =  met_sel->passes(event);
-  if(!pass_MET) return false;
-
-  // hists
-  if(pass_trigger) {
-    h_METsel->fill(event);
-    h_METsel_gen->fill(event);
-    lumihist_METsel->fill(event);
-    if(event.get(h_is_muevt)){
-      h_METsel_mu->fill(event);
-      if(event.get(h_is_highpt)) h_METsel_mu_lowpt->fill(event);
-      else h_METsel_mu_highpt->fill(event);
-    }
-    else {
-      h_METsel_ele->fill(event);
-      if(event.get(h_is_highpt)) h_METsel_ele_lowpt->fill(event);
-      else h_METsel_ele_highpt->fill(event);
-    }
-    if(debug) cout<<"Filled hists after MET"<<endl;
   }
 
   // some gen check hists

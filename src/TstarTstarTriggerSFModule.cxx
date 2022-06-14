@@ -47,18 +47,6 @@ protected:
   enum lepton { muon, elec };
   lepton channel_;
 
-  // cleaners & Correctors
-  std::unique_ptr<CommonModules> common;
-  std::unique_ptr<MuonCleaner>     muoSR_cleaner;
-  std::unique_ptr<ElectronCleaner> eleSR_cleaner;
-
-
-  std::unique_ptr<JetCleaner> jet_cleaner1;
-  std::unique_ptr<JetCleaner> jet_cleaner2;
-
-  // Btag efficiency hists
-  std::unique_ptr<BTagMCEfficiencyHists> BTagEffHists;
-
   // selections
 
   std::unique_ptr<uhh2::Selection> trigger_mu_A;
@@ -66,14 +54,6 @@ protected:
   std::unique_ptr<uhh2::Selection> trigger_el_A;
   std::unique_ptr<uhh2::Selection> trigger_el_B;
   std::unique_ptr<uhh2::Selection> trigger_el_C;
-  std::unique_ptr<uhh2::Selection> muon_sel;
-  std::unique_ptr<uhh2::Selection> elec_sel1;
-  std::unique_ptr<uhh2::Selection> elec_sel2;
-  std::unique_ptr<uhh2::Selection> elec_etaveto;
-  std::unique_ptr<uhh2::Selection> met_sel;
-  std::unique_ptr<uhh2::Selection> pv_sel;
-  std::unique_ptr<uhh2::Selection> twodcut_sel;
-  std::unique_ptr<uhh2::Selection> sel_badhcal;
 
   Event::Handle<bool>h_recsel;
   Event::Handle<double>h_pt;
@@ -137,7 +117,6 @@ TstarTstarTriggerSFModule::TstarTstarTriggerSFModule(uhh2::Context& ctx){
   trigger_el_B = uhh2::make_unique<TriggerSelection>("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*");
   if(year_16) trigger_el_C = uhh2::make_unique<TriggerSelection>("HLT_Photon175_v*");
   else        trigger_el_C = uhh2::make_unique<TriggerSelection>("HLT_Photon200_v*");
-
 
   h_pass.reset(new ElectronHists(ctx, "pass_Elec"));
   h_all.reset(new ElectronHists(ctx, "all_Elec"));

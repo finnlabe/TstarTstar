@@ -19,6 +19,7 @@
 #include "UHH2/common/include/JetIds.h"
 #include "UHH2/common/include/LeptonScaleFactors.h"
 #include "UHH2/common/include/TopPtReweight.h"
+#include "UHH2/common/include/CommonModules.h"
 
 // TstarTstar stuff
 #include "UHH2/TstarTstar/include/ModuleBASE.h"
@@ -35,6 +36,7 @@
 #include "UHH2/HOTVR/include/HOTVRIds.h"
 #include "UHH2/HOTVR/include/HadronicTop.h"
 #include "UHH2/HOTVR/include/HOTVRScaleFactor.h"
+#include "UHH2/HOTVR/include/HOTVRJetCorrectionModule.h"
 
 using namespace std;
 using namespace uhh2;
@@ -62,8 +64,13 @@ private:
 
   // ###### Modules ######
   // general
+  std::unique_ptr<CommonModules> common;
+  std::unique_ptr<AnalysisModule> HOTVRCorr;
+  std::unique_ptr<TopJetCleaner> HOTVRcleaner;
+
   unique_ptr<uhh2::AnalysisModule> reco_primlep;
   unique_ptr<uhh2::AnalysisModule> ttgenprod;
+  unique_ptr<Selection> met_sel;
 
   // scale factors
   std::unique_ptr<AnalysisModule> HadronicTopFinder;
@@ -206,6 +213,28 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   if(data_is2017B) std::cout << "This data sample is from 2017 Run B" << std::endl;
 
   // ###### 1. Set up modules ######
+  common.reset(new CommonModules());
+  common->disable_mclumiweight();  // already done in Presel
+  common->disable_mcpileupreweight();  // already done in Presel
+  common->disable_lumisel();  // already done in Presel
+  common->disable_pvfilter();  // already in Presel
+  common->switch_jetlepcleaner(true);
+  common->switch_jetPtSorter(true);
+  common->switch_metcorrection(false);
+  common->disable_jetpfidfilter();
+  common->disable_metfilters();
+
+  double jet_pt(30.);
+  common->set_jet_id(AndId<Jet>(PtEtaCut(jet_pt, 2.5), JetPFID(JetPFID::WP_TIGHT_PUPPI)));
+
+  common->init(ctx);
+
+  HOTVRCorr.reset(new HOTVRJetCorrectionModule(ctx));
+  HOTVRcleaner.reset(new TopJetCleaner(ctx, AndId<Jet>(PtEtaCut(200, 2.5), JetPFID(JetPFID::WP_TIGHT_PUPPI)) ));
+
+  // MET selection
+  met_sel.reset(new METCut  (50.,1e9));
+
   // ttbar on GEN
   if(is_MC) ttgenprod.reset(new TTbarGenProducer(ctx, "ttbargen", false));
 
@@ -492,6 +521,10 @@ bool TstarTstarSelectionModule::process(Event & event) {
     else h_beginSel_ele_lowpt->fill(event);
   }
 
+  if(!common->process(event)) return false;
+  if(!(HOTVRCorr->process(event))) return false;
+  if(!(HOTVRcleaner->process(event))) return false;
+
   // ###### Trigger selection ######
   bool pass_trigger = false;
   bool pass_trigger_SingleMu_lowpt = false;
@@ -569,7 +602,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
   } else {
     pass_trigger = false;
   }
-  //if(isTriggerSFMeasurement) pass_trigger = pass_trigger_SingleMu_lowpt || pass_trigger_SingleMu_highpt;
+  if(isTriggerSFMeasurement) pass_trigger = pass_trigger_SingleMu_lowpt || pass_trigger_SingleMu_highpt;
 
   if(!pass_trigger) {
     h_notTriggered->fill(event);
@@ -624,6 +657,20 @@ bool TstarTstarSelectionModule::process(Event & event) {
       else h_triggerSF_ele_lowpt->fill(event);
     }
   }
+
+  // put here correct jet cut & MET cut!
+  // ###### MET Selection ######
+  bool pass_MET =  met_sel->passes(event);
+  if(!pass_MET) return false;
+
+  // ###### jet selection ######
+  bool pass_njet = (event.jets->size()>3);
+  if(isTriggerSFMeasurement) pass_njet = (event.jets->size()>1); // only need to require 2 jets for trigger SF measurement
+  if(!pass_njet) return false;
+
+  // ###### fat jet selection ######
+  bool pass_fat_njet = (event.topjets->size()>0);
+  if(!pass_fat_njet) return false;
 
   // Prefiring weights
   if (is_MC) {
