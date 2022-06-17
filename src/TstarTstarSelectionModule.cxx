@@ -187,6 +187,9 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   // getting SF file path
   string SF_path = ctx.get("SF_path");
 
+  string IsTriggerSFMeasurement = ctx.get("IsTriggerSFMeasurement", "False");
+  if(IsTriggerSFMeasurement == "True") isTriggerSFMeasurement = true;
+
   // year of samples
   year = ctx.get("year", "<not set>");
   if(year == "<not set>"){
@@ -307,7 +310,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   sf_ele_ID_highpt.reset( new uhh2::ElectronIdScaleFactors(ctx, Electron::mvaEleID_Fall17_noIso_V2_wp90) );
   sf_ele_ID_DUMMY.reset( new uhh2::ElectronIdScaleFactors(ctx, boost::none, boost::none, boost::none, boost::none, true) );
 
-  sf_ele_trigger.reset( new uhh2::ElecTriggerSF(ctx, "central", "eta_ptbins", year) );
+  if(!isTriggerSFMeasurement) sf_ele_trigger.reset( new uhh2::ElecTriggerSF(ctx, "central", "eta_ptbins", year) );
 
   if(debug) cout << "Setting up muon scale." << endl;
 
@@ -477,9 +480,6 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
 
   h_MC_isfake2017B = ctx.get_handle<bool>("MC_isfake2017B");
 
-  string IsTriggerSFMeasurement = ctx.get("IsTriggerSFMeasurement", "False");
-  if(IsTriggerSFMeasurement == "True") isTriggerSFMeasurement = true;
-
   TopPtReweighting.reset( new TopPtReweight(ctx, 0.0615, -0.0005, "ttbargen", "weight_ttbar", true) );
 
   Prefiring_direction = ctx.get("Sys_prefiring", "nominal");
@@ -604,7 +604,6 @@ bool TstarTstarSelectionModule::process(Event & event) {
   } else {
     pass_trigger = false;
   }
-  if(isTriggerSFMeasurement) pass_trigger = pass_trigger_SingleMu_lowpt || pass_trigger_SingleMu_highpt;
 
   if(!pass_trigger) {
     h_notTriggered->fill(event);
@@ -648,7 +647,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
   }
 
   if(debug) std::cout << "before electorn trigger SFs" << std::endl;
-  sf_ele_trigger->process(event); // this one is its own dummy!
+  if(!isTriggerSFMeasurement) sf_ele_trigger->process(event); // this one is its own dummy!
 
   {
     // hists
@@ -870,8 +869,18 @@ bool TstarTstarSelectionModule::process(Event & event) {
       sf_muon_iso->process(event);
     }
 
-    sf_ele_reco_DUMMY->process(event);
-    sf_ele_ID_DUMMY->process(event);
+    if(isTriggerSFMeasurement) {
+      sf_ele_reco->process(event);
+
+      if(event.electrons->at(0).pt() > 120) {
+        sf_ele_ID_highpt->process(event);
+      } else {
+        sf_ele_ID_lowpt->process(event);
+      }
+    } else {
+      sf_ele_reco_DUMMY->process(event);
+      sf_ele_ID_DUMMY->process(event);
+    }
 
   } else {
 

@@ -380,6 +380,8 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   if(event.muons->size() == 1) event.set(h_is_muevt, true);
   else event.set(h_is_muevt, false);
 
+  if(isTriggerSFMeasurement) event.set(h_is_muevt, true);
+
   // set is_highpt
   if(event.get(h_is_muevt)){
     if(event.muons->at(0).pt()<=55) event.set(h_is_highpt, false);

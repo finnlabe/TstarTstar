@@ -71,8 +71,12 @@ void backgroundEstimation(){
   TString subpath_SR="newTaggerCR";
   TString subpath_CR="newTagger_btagCR";
   TString histname="pt_ST_rebinned";
-  TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/UL18/hadded/";
+  TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/UL18/";
   TString fileprefix = "uhh2.AnalysisModuleRunner.";
+  TString syst = "JEC_down";
+
+  if(syst != "") path = path + "/" + syst + "/";
+  path = path + "/hadded/";
 
   TH1D *histSR;
   TH1D *hist_btagCR_nontop;
@@ -289,7 +293,9 @@ void backgroundEstimation(){
   text3->SetY(0.986);
   text3->Draw();
 
-  c1_hist->SaveAs("plots/backgroundEstimation.pdf");
+  if(syst == "") c1_hist->SaveAs("plots/backgroundEstimation.pdf");
+  else c1_hist->SaveAs("plots/backgroundEstimation_"+syst+".pdf");
+
   c1_hist->Clear();
 
   purity.GetXaxis()->SetTitle("S_{T} [GeV]");
@@ -303,7 +309,13 @@ void backgroundEstimation(){
   text2->Draw();
   text3->Draw();
 
-  c1_hist->SaveAs("plots/purity.pdf");
+  if(syst == "") c1_hist->SaveAs("plots/purity.pdf");
+  else c1_hist->SaveAs("plots/purity_"+syst+".pdf");
 
+  // saving fit function to output file
+  TFile *output;
+  if(syst == "") output = TFile::Open("files/alphaFunction.root", "RECREATE");
+  else output = TFile::Open("files/alphaFunction_"+syst+".root", "RECREATE");
+  fit2->Write();
 
 }
