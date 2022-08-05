@@ -216,5 +216,64 @@ samplesDict = {
      'DYJetsToLL_HT2500toInf': {
         'db_name': 'DYJetsToLL_M-50_HT-2500toInf',
      },
+     #_________________________________________________
+     'TstarTstarToTgammaTgamma_M-700': {
+        'db_name': 'TstarTstarToTgammaTgamma_M-700',
+     },
+     'TstarTstarToTgammaTgamma_M-800': {
+        'db_name': 'TstarTstarToTgammaTgamma_M-800',
+     },
+     'TstarTstarToTgammaTgamma_M-900': {
+        'db_name': 'TstarTstarToTgammaTgamma_M-900',
+     },
+     'TstarTstarToTgammaTgamma_M-1000': {
+        'db_name': 'TstarTstarToTgammaTgamma_M-1000',
+     },
+     'TstarTstarToTgammaTgamma_M-1100': {
+        'db_name': 'TstarTstarToTgammaTgamma_M-1100',
+     },
+     'TstarTstarToTgammaTgamma_M-1200': {
+        'db_name': 'TstarTstarToTgammaTgamma_M-1200',
+     },
+     'TstarTstarToTgammaTgamma_M-1300': {
+        'db_name': 'TstarTstarToTgammaTgamma_M-1300',
+     },
+     'TstarTstarToTgammaTgamma_M-1400': {
+        'db_name': 'TstarTstarToTgammaTgamma_M-1400',
+     },
+     'TstarTstarToTgammaTgamma_M-1500': {
+        'db_name': 'TstarTstarToTgammaTgamma_M-1500',
+     },
+     'TstarTstarToTgammaTgamma_M-1500': {
+        'db_name': 'TstarTstarToTgammaTgamma_M-1500',
+     },
+     'TstarTstarToTgammaTgamma_M-1600': {
+        'db_name': 'TstarTstarToTgammaTgamma_M-1600',
+     },
+     'TstarTstarToTgammaTgamma_M-1700': {
+        'db_name': 'TstarTstarToTgammaTgamma_M-1700',
+     },
+     'TstarTstarToTgammaTgamma_M-1800': {
+        'db_name': 'TstarTstarToTgammaTgamma_M-1800',
+     },
+     'TstarTstarToTgammaTgamma_M-1900': {
+        'db_name': 'TstarTstarToTgammaTgamma_M-1900',
+     },
+     'TstarTstarToTgammaTgamma_M-2000': {
+        'db_name': 'TstarTstarToTgammaTgamma_M-2000',
+     },
+     'TstarTstarToTgammaTgamma_M-2250': {
+        'db_name': 'TstarTstarToTgammaTgamma_M-2250',
+     },
+     'TstarTstarToTgammaTgamma_M-2500': {
+        'db_name': 'TstarTstarToTgammaTgamma_M-2500',
+     },
+     'TstarTstarToTgammaTgamma_M-2750': {
+        'db_name': 'TstarTstarToTgammaTgamma_M-2750',
+     },
+     #'TstarTstarToTgammaTgamma_M-3000': {
+     #   'db_name': 'TstarTstarToTgammaTgamma_M-3000',
+     #},
+
 
 }

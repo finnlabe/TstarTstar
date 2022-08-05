@@ -30,17 +30,18 @@ void efficiencies(TString suffix = ""){
   //leg->SetNColumns(4);
 
   // Defining paths
-  TString pathPresel = "/nfs/dust/cms/user/flabe/TstarTstar/data/Preselection/UL18/hadded/";
-  TString pathSel = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/UL18/hadded/";
-  TString pathReco = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/";
-  TString fileprefix = "uhh2.AnalysisModuleRunner.";
+  TString pathPresel = "/nfs/dust/cms/user/flabe/TstarTstar/data/Preselection/UL16postVFP/hadded/";
+  TString pathSel = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/UL16postVFP/hadded/";
+  TString pathReco = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/UL16postVFP/hadded/";
+  TString fileprefix = "";
   TString histname = "N_jets";
 
   // Defining Steps
-  std::vector<TString> preselSteps = {"AfterLep", "AfterLepSel_ele", "AfterLepSel_mu", "AfterJets_ele",  "AfterJets_mu", "AfterFatJets_ele", "AfterFatJets_mu", "AfterMET_ele", "AfterMET_mu"};
-  std::vector<TString> selSteps = {"AfterBtag_ele", "AfterBtag_mu", "After2D_ele", "After2D_mu", "AfterST_ele", "AfterST_mu"};
+  std::vector<TString> preselSteps = {"AfterCommon", "AfterLep",  "AfterJets", "AfterST"};
+  std::vector<TString> selSteps = {"AfterMET", "AfterAK4", "AfterHOTVR", "AfterBtag", "After2D", "AfterST"};
   std::vector<TString> recoSteps = {};
   int stepcount = preselSteps.size() + selSteps.size() + recoSteps.size();
+  std::vector<TString> labels = {"Initial", "N_{lep} = 1", "jet pre-cut", "ST pre-cut", "N_{AK4} #geq 4 mu", "N_{HOTVR} #geq 1 ele", "N_{HOTVR} #geq 1 mu", "MET > 50GeV ele", "MET > 50GeV mu", "N_{b-tag} #geq 1 ele", "N_{b-tag} #geq 1 mu", "2D ele","2D mu", "S_{T} > 500GeV ele", "S_{T} > 500GeV mu", "SR", "should not be visible"};
 
   // Adding suffix
   int is_first = true;
@@ -57,18 +58,17 @@ void efficiencies(TString suffix = ""){
 
 
   // Defining Samples
-  std::vector<TString> signalSamples = {"DATA.DATA"};
-  std::vector<TString> BGSamples = {"MC.TTbar", "MC.WJets" };
+  std::vector<TString> signalSamples = {"uhh2.AnalysisModuleRunner.MC.TstarTstar_M-1000", "uhh2.AnalysisModuleRunner.MC.TstarTstar_M-2000", "EOY/uhh2.AnalysisModuleRunner.MC.TstarTstar_M-1000", "EOY/uhh2.AnalysisModuleRunner.MC.TstarTstar_M-2000"};
+  std::vector<TString> BGSamples = {};
   //std::vector<TString> BGSamples = {};
 
-  std::vector<TString> signal_labels = {"data"};
-  std::vector<TString> BG_labels = { "t#bar{t}", "W+jets"};
+  std::vector<TString> signal_labels = {"M-1000 1/2", "M-2000 1/2", "M-1000 3/2", "M-2000 3/2"};
+  std::vector<TString> BG_labels = {};
 
   // Defining Drawing options
-  std::vector<int> colors_Signal = {1};
-  std::vector<int> line_Signal = {1};
+  std::vector<int> colors_Signal = {1, 2, 1, 2};
+  std::vector<int> line_Signal = {1, 1, 2, 2};
   std::vector<int> colors_BG = {810, 600,800,  867};
-  std::vector<TString> labels = {"N_{lep} = 1", "N_{lep} = 1 ele", "N_{lep} = 1 mu", "N_{AK4} #geq 4 ele", "N_{AK4} #geq 4 mu", "N_{HOTVR} #geq 1 ele", "N_{HOTVR} #geq 1 mu", "MET > 50GeV ele", "MET > 50GeV mu", "N_{b-tag} #geq 1 ele", "N_{b-tag} #geq 1 mu", "2D ele","2D mu", "S_{T} > 500GeV ele", "S_{T} > 500GeV mu", "SR", "should not be visible"};
 
   // ########################
   // ## Finish Definitions ##

@@ -60,7 +60,7 @@ int main(int argc, char* argv[]){
   if(year.EqualTo("2016")){year_v = "_2016v3"; lumi_plot = 35.9; fdir = "no";}
   else if(year.EqualTo("2017")){year_v = "_2017v2"; lumi_plot = 41.5; fdir = "no";}
   else if(year.EqualTo("2018")){year_v = "_2018"; lumi_plot = 59.74; fdir = "no";}
-  else if(year.EqualTo("UL16")){year_v = "_UL16"; lumi_plot = 0.0; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/TriggerEff/";}
+  else if(year.EqualTo("UL16")){year_v = "_UL16"; lumi_plot = 0.0; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/TriggerEff/UL16/hadded/";}
   else if(year.EqualTo("UL17")){year_v = "_UL17"; lumi_plot = 0.0; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/TriggerEff/";}
   else if(year.EqualTo("UL18")){year_v = "_UL18"; lumi_plot = 59.8; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/TriggerEff/UL18/hadded/";}
   else throw runtime_error("I need the correct year; 2016, 2017, 2018, UL16, UL17 or UL18");
@@ -163,7 +163,7 @@ int main(int argc, char* argv[]){
   fill_control((TTree *) f_data->Get("AnalysisTree"), h_pt_data_control, h_eta_data_control);
 
   // claculating MC trigger efficiency in ttbar MC
-  TFile *f_tt=new TFile(fdir+"uhh2.AnalysisModuleRunner.MC.TTbar.root");
+  TFile *f_tt=new TFile(fdir+"uhh2.AnalysisModuleRunner.MC.MC.root");
   fill_pteta((TTree *) f_tt->Get("AnalysisTree"), h_pt_mc, h_eta_mc);
   fill_control((TTree *) f_tt->Get("AnalysisTree"), h_pt_tt, h_eta_tt);
   fill_control((TTree *) f_tt->Get("AnalysisTree"), h_pt_mc_control, h_eta_mc_control);
@@ -645,7 +645,7 @@ void PlotSF(vector<TH1F*> h_SF, TString xaxis, TString histname){
   h_SF[0]->GetXaxis()->SetTitleOffset(1.3);
   h_SF[0]->GetXaxis()->SetNdivisions(505);
   h_SF[0]->GetYaxis()->SetNdivisions(505);
-  h_SF[0]->GetYaxis()->SetRangeUser(0.7, 1.05);
+  h_SF[0]->GetYaxis()->SetRangeUser(0.4, 1.6);
   h_SF[0]->SetLineColor(kBlack);
   h_SF[0]->SetLineWidth(3);
   h_SF[0]->SetFillColor(13);

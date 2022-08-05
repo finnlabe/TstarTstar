@@ -38,14 +38,14 @@ void cutflowPlot(TString suffix = ""){
   leg->SetNColumns(2);
 
   // Defining paths
-  TString pathPresel = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Preselection/2016/hadded/";
-  TString pathSel = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Selection/2016/hadded/";
-  TString pathReco = "/nfs/dust/cms/user/flabe/CMSSW/TstarTstar/102X_v1/Analysis/2016/hadded/";
+  TString pathPresel = "/nfs/dust/cms/user/flabe/TstarTstar/data/Preselection/UL16postVFP/hadded/";
+  TString pathSel = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/UL16postVFP/hadded/";
+  TString pathReco = "/nfs/dust/cms/user/flabe/TstarTstar/data/Analysis/UL16postVFP/hadded/";
   TString fileprefix = "uhh2.AnalysisModuleRunner.MC.";
   TString histname = "N_jets";
 
   // Defining Steps
-  std::vector<TString> preselSteps = {"AfterTrigger", "AfterLepSel", "AfterAK8jets", "AfterMET"};
+  std::vector<TString> preselSteps = {"AfterCommon", "AfterLep", "AfterJets", "AfterST"};
   std::vector<TString> selSteps = {"AfterBtag", "After2D", "AfterdR"};
   std::vector<TString> recoSteps = {};
   int stepcount = preselSteps.size() + selSteps.size() + recoSteps.size();

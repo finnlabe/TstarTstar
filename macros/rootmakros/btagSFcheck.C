@@ -1,22 +1,20 @@
 
 void btagSFcheck() {
 
-  TString year = "UL18";
+  TString year = "UL16postVFP";
   TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/"+year+"/hadded/";
   TString filename_base = "uhh2.AnalysisModuleRunner.MC.";
 
-  std::vector<TString> samples = {"TTbar", "WJets", "ST", "QCD", "VV", "DYJets"};
+  std::vector<TString> samples = {"TTbar", "WJets", "ST", "QCD", "VV", "DYJets", "TstarTstar"};
 
   TString histname2D = "pt_HT_N_jet_rebinned";
   std::vector<TString> hists_to_crosscheck = {"pt_HT", "N_jets", "DeepJetscore"};
-
-  TString postfix = "_mu";
 
   TString folder_before = "BeforeBCorrections";
   TString folder_after = "AfterBCorrections";
   TString folder_crosscheck = "AfterBYieldCorrections";
 
-  bool writeSFsToFile = true;
+  bool writeSFsToFile = false;
 
   // main loop, we are doing this for each sample
   std::vector<TH2D*> histograms_to_store;
@@ -43,6 +41,16 @@ void btagSFcheck() {
     hist_ratio->GetYaxis()->SetRangeUser(4,20);
     hist_ratio->GetXaxis()->SetRangeUser(0,4000);
     hist_ratio->Draw("colz");
+
+    // draw sample text
+    TLatex *text = new TLatex(3.5, 24, year + " " + sample);
+    text->SetNDC();
+    text->SetTextAlign(33);
+    text->SetX(0.88);
+    text->SetTextFont(42);
+    text->SetY(0.95);
+    text->SetTextSize(0.045);
+    text->Draw();
 
     can_2D->SaveAs("plots/btagYieldSFs_"+sample+"_"+year+".pdf");
 
@@ -87,6 +95,16 @@ void btagSFcheck() {
       legend->SetBorderSize(0);
       legend->Draw();
 
+      // draw sample text
+      TLatex *text = new TLatex(3.5, 24, year + "_" + sample);
+      text->SetNDC();
+      text->SetTextAlign(33);
+      text->SetX(0.88);
+      text->SetTextFont(42);
+      text->SetY(0.95);
+      text->SetTextSize(0.045);
+      text->Draw();
+
       pad2->cd();
 
       TH1D* hist_crosscheck_after_ratio = (TH1D*) hist_crosscheck_after->Clone();
@@ -113,7 +131,7 @@ void btagSFcheck() {
 
   if(writeSFsToFile) {
     // outputting the 2D histograms for scaling
-    TFile *output = TFile::Open("btagYieldSFs_"+year+".root", "RECREATE");
+    TFile *output = TFile::Open("files/btagYieldSFs_"+year+".root", "RECREATE");
     for (auto histogram : histograms_to_store) {
       histogram->Write();
     }

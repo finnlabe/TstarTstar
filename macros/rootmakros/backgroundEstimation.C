@@ -71,12 +71,12 @@ void backgroundEstimation(){
   TString subpath_SR="newTaggerCR";
   TString subpath_CR="newTagger_btagCR";
   TString histname="pt_ST_rebinned";
-  TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/UL18/";
+  TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/";
   TString fileprefix = "uhh2.AnalysisModuleRunner.";
-  TString syst = "JEC_down";
+  TString syst = "JER_down";
 
-  if(syst != "") path = path + "/" + syst + "/";
-  path = path + "/hadded/";
+  if(syst != "") path = path + "/hadded_" + syst + "/";
+  else path = path + "/hadded/";
 
   TH1D *histSR;
   TH1D *hist_btagCR_nontop;
@@ -156,16 +156,16 @@ void backgroundEstimation(){
   ratio.Divide(histSR, hist_btagCR, "pois");
 
   // fit function to ratio histogram
-  //TF1 *fit = new TF1("fit", "[0] - exp(-[1]*x)", 500, 6000);
-  TF1 *fit = new TF1("fit", "[0] * exp(- (x-[1])^2 / (2*[2]^2) ) + [3] * x", 500, 6000);
-  fit->SetParameters(1, 2.5e+03, 2.5e+03, 1e-6);
+  TF1 *fit = new TF1("fit", "[0] - [2]*exp(-[1]*x)", 600, 6000);
+  //TF1 *fit = new TF1("fit", "[0]*log([1]*x)", 500, 6000);
+  fit->SetParameters(0.8, 0, 1);
   //TF1 *fit = new TF1("fit", "gaus", 500, 6000);
   TH1D *hint1 = new TH1D("hint", "Fit 1 with conf.band", 100, 0, 10000);
-  TF1 *fit2 = new TF1("fit2", "landau", 500, 6000);
-  TH1D *hint2 = new TH1D("hint", "Fit 2 with conf.band", 100, 0, 10000);
-  TFitResultPtr r_1 = ratio.Fit("fit", "NS", "", 500, 6000);
+  TF1 *fit2 = new TF1("fit2", "landau", 600, 6000);
+  TH1D *hint2 = new TH1D("hint2", "Fit 2 with conf.band", 100, 0, 10000);
+  TFitResultPtr r_1 = ratio.Fit("fit", "NS", "", 600, 6000);
   (TVirtualFitter::GetFitter())->GetConfidenceIntervals(hint1, 0.68);
-  TFitResultPtr r_2 = ratio.Fit("fit2", "NS", "", 500, 6000);
+  TFitResultPtr r_2 = ratio.Fit("fit2", "NS", "", 600, 6000);
   (TVirtualFitter::GetFitter())->GetConfidenceIntervals(hint2, 0.68);
 
   TF1 *testfunc = new TF1("testfunc", "4.04724 * TMath::Landau(x, 2.80624e+03, 1.30542e+03)", 500, 6000);
@@ -179,7 +179,7 @@ void backgroundEstimation(){
   hReweight_fit_M->Sumw2();
   hReweight_fit_M_up->Sumw2();
   hReweight_fit_M_down->Sumw2();
-  fill_reweighted(hReweight_fit_M, hReweight_fit_M_up, hReweight_fit_M_down, fit, fit2, r_1, r_2, path + fileprefix+ "DATA.DATA.root", 1);
+  //fill_reweighted(hReweight_fit_M, hReweight_fit_M_up, hReweight_fit_M_down, fit, fit2, r_1, r_2, path + fileprefix+ "DATA.DATA.root", 1);
 
   for (int i = 0; i < top_backgrounds.size(); ++i){
     TString fName = path + fileprefix + "MC." + top_backgrounds.at(i) + ".root";
@@ -246,7 +246,7 @@ void backgroundEstimation(){
   // legend
   legend->AddEntry(&ratio,"#alpha","elp");
   legend->AddEntry(fit2,"Landau","l");
-  legend->AddEntry(fit,"Gauss + a*x","l");
+  legend->AddEntry(fit,"a - c * exp(b*x)","l");
   legend->Draw();
 
   // fit results
@@ -259,6 +259,17 @@ void backgroundEstimation(){
   fit2ltx->SetY(.845);
   fit2ltx->SetTextSize(0.04);
   fit2ltx->Draw();
+
+  // fit results
+  TString fittxt = TString::Format("#chi^{2}/ndf: %3.2f / %3.0d", fit->GetChisquare(), fit->GetNDF());
+  TLatex *fitltx = new TLatex(3.5, 24, fittxt);
+  fitltx->SetNDC();
+  fitltx->SetTextAlign(33);
+  fitltx->SetX(0.8);
+  fitltx->SetTextFont(42);
+  fitltx->SetY(.8);
+  fitltx->SetTextSize(0.04);
+  fitltx->Draw();
 
   // draw Lumi text
   /**
@@ -317,5 +328,8 @@ void backgroundEstimation(){
   if(syst == "") output = TFile::Open("files/alphaFunction.root", "RECREATE");
   else output = TFile::Open("files/alphaFunction_"+syst+".root", "RECREATE");
   fit2->Write();
+  fit->Write();
+  hint1->Write();
+  hint2->Write();
 
 }

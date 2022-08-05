@@ -117,8 +117,11 @@ private:
   bool is_Signal;
   bool is_Data;
 
+  TString year;
+
   TH1D* ST_ratio;
   uhh2::Event::Handle<double> h_ST_weight;
+  uhh2::Event::Handle<float> h_eletriggerweight;
 };
 
 
@@ -229,6 +232,22 @@ TstarTstarAnalysisModule::TstarTstarAnalysisModule(Context & ctx){
   h_tstartstar_GENhyp_gHOTVR = ctx.declare_event_output<ReconstructionTstarHypothesis>("TstarTstar_GENHyp_gHOTVR");
   h_tstartstar_GENhyp_gAK4 = ctx.declare_event_output<ReconstructionTstarHypothesis>("TstarTstar_GENHyp_gAK4");
 
+
+  // year of samples
+  year = ctx.get("year", "<not set>");
+  if(year == "<not set>"){
+    if(ctx.get("dataset_version").find("2016") != std::string::npos) year = "2016";
+    else if(ctx.get("dataset_version").find("2017") != std::string::npos) year = "2017";
+    else if(ctx.get("dataset_version").find("2018") != std::string::npos) year = "2018";
+    else if(ctx.get("dataset_version").find("UL16preVFP") != std::string::npos) year = "UL16preVFP";
+    else if(ctx.get("dataset_version").find("UL16postVFP") != std::string::npos) year = "UL16postVFP";
+    else if(ctx.get("dataset_version").find("UL17") != std::string::npos) year = "UL17";
+    else if(ctx.get("dataset_version").find("UL18") != std::string::npos) year = "UL18";
+    else throw "No year found in dataset name!";
+  }
+  if(debug) cout << "Year is " << year << "." << endl;
+  if(year == "UL18") h_eletriggerweight = ctx.get_handle<float>("weight_sfelec_trigger");
+
 }
 
 
@@ -240,6 +259,7 @@ bool TstarTstarAnalysisModule::process(Event & event) {
   // reapply weights
   event.weight = event.get(h_evt_weight);
   if(debug) cout << "weights applied." << endl;
+
 
   // set lepton channel
   const bool muon_evt = (event.muons->size() == 1);

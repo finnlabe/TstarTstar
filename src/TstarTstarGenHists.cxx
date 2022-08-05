@@ -117,40 +117,53 @@ void TstarTstarGenHists::fill(const Event & event){
       antitop = gp;
       found_antitop = true;
     }
-    else if(gp.pdgId() == 9000005 && (gp.status()==23 || gp.status()==22)){
+    else if(gp.pdgId() == 600 && (gp.status()==23 || gp.status()==22)){
       tstar = gp;
+      if(found_tstar) std::cout << "Error: found two T*" << std::endl;
       found_tstar = true;
     }
-    else if(gp.pdgId() == -9000005 && (gp.status()==23 || gp.status()==22)){
+    else if(gp.pdgId() == -600 && (gp.status()==23 || gp.status()==22)){
       antitstar = gp;
+      if(found_antitstar) std::cout << "Error: found two anti T*" << std::endl;
       found_antitstar = true;
     }
-    else if(gp.pdgId() == 21 && gp.status()==23){//only gluons from Tstar decay
+    else if(abs(gp.pdgId()) == 21 || abs(gp.pdgId()) == 9){//only gluons from Tstar decay
       n_gluons++;
       if(!found_gluon1){
-	gluon1 = gp;
-	found_gluon1 = true;
+      	gluon1 = gp;
+      	found_gluon1 = true;
       }
       else{
-	gluon2 = gp;
-	found_gluon2 = true;
+      	gluon2 = gp;
+      	found_gluon2 = true;
       }
     }
-    else if(gp.pdgId() == 22 && gp.status()==23){//only photons from Tstar decay
+    else if(gp.pdgId() == 22){//only photons from Tstar decay
       n_photons++;
       if(!found_photon1){
-	photon1 = gp;
-	found_photon1 = true;
+      	photon1 = gp;
+      	found_photon1 = true;
       }
       else{
-	photon2 = gp;
-	found_photon2 = true;
+      	photon2 = gp;
+      	found_photon2 = true;
       }
     }
   }
 
   if(!found_tstar || !found_antitstar) return;
   if(!found_top || !found_antitop) return;
+
+  /**
+    if(tstar.daughter(event.genparticles, 1)) std::cout << "Tstar daughter 1 pdgID: " << tstar.daughter(event.genparticles, 1)->pdgId() << std::endl;
+    else std::cout << "Tstar daughter 1 not found." << std::endl;
+    if(tstar.daughter(event.genparticles, 2)) std::cout << "Tstar daughter 2 pdgID: " << tstar.daughter(event.genparticles, 2)->pdgId() << std::endl;
+    else std::cout << "Tstar daughter 2 not found." << std::endl;
+    if(antitstar.daughter(event.genparticles, 1)) std::cout << "Anti-Tstar daughter 1 pdgID: " << antitstar.daughter(event.genparticles, 1)->pdgId() << std::endl;
+    else std::cout << "Anti-Tstar daughter 1 not found." << std::endl;
+    if(antitstar.daughter(event.genparticles, 2)) std::cout << "Anti-Tstar daughter 2 pdgID: " << antitstar.daughter(event.genparticles, 2)->pdgId() << std::endl;
+    else std::cout << "Anti-Tstar daughter 2 not found." << std::endl;
+  **/
 
   int isolated_partons = 4;
   std::vector<GenParticle> partons = {top, antitop, gluon1, gluon2};
@@ -301,10 +314,10 @@ void TstarTstarGenHists::fill(const Event & event){
   std::vector<GenParticle> tops;
   int ngluons = 0;
   for(const GenParticle & gp : *event.genparticles){
-    if(gp.pdgId() == 9000005 && (gp.status()==23 || gp.status()==22)){
+    if(gp.pdgId() == 600 && (gp.status()==23 || gp.status()==22)){
       hist("Tstar_spin")->Fill(gp.spin(), weight);
     }
-    else if(gp.pdgId() == -9000005 && (gp.status()==23 || gp.status()==22)){
+    else if(gp.pdgId() == -600 && (gp.status()==23 || gp.status()==22)){
       hist("Tstar_spin")->Fill(gp.spin(), weight);
     }
       else if(gp.pdgId() == 21 && (gp.status()==23 || gp.status()==22)){
@@ -319,13 +332,15 @@ void TstarTstarGenHists::fill(const Event & event){
   for(const auto & top : tops){
     for(const auto & gluon : gluons){
       if(top.mother1() == gluon.mother1()){
-	combsFound++;
-	hist("dR_top_gluon")->Fill(deltaR(top, gluon), weight);
+      	combsFound++;
+      	hist("dR_top_gluon")->Fill(deltaR(top, gluon), weight);
       }
     }
   }
 
-  if(combsFound != 2){cout << "Error: not exactly two top gluon sibling pairs found!" << endl;}
+  if(combsFound != 2){
+    //cout << "Error: not exactly two top gluon sibling pairs found. We have " << combsFound << "!" << endl;
+  }
 
   // Check energy in jets corresponding to gluons
   for(const auto & gluon : gluons){
@@ -484,22 +499,22 @@ void TstarTstarMergedHists::fill(const Event & event){
       antitop = gp;
       found_antitop = true;
     }
-    else if(gp.pdgId() == 9000005 && (gp.status()==23 || gp.status()==22)){
+    else if(gp.pdgId() == 600 && (gp.status()==23 || gp.status()==22)){
       tstar = gp;
       found_tstar = true;
     }
-    else if(gp.pdgId() == -9000005 && (gp.status()==23 || gp.status()==22)){
+    else if(gp.pdgId() == -600 && (gp.status()==23 || gp.status()==22)){
       antitstar = gp;
       found_antitstar = true;
     }
     else if(gp.pdgId() == 21 && gp.status()==23){//only gluons from Tstar decay
       if(!found_gluon1){
-	gluon1 = gp;
-	found_gluon1 = true;
+      	gluon1 = gp;
+      	found_gluon1 = true;
       }
       else{
-	gluon2 = gp;
-	found_gluon2 = true;
+    	gluon2 = gp;
+    	found_gluon2 = true;
       }
     }
   }

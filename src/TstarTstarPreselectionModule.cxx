@@ -160,7 +160,7 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
       trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu24_v*"));
       trg_mu_low_2.reset(new TriggerSelection("HLT_IsoTkMu24_v*"));
       trg_mu_high_1.reset(new TriggerSelection("HLT_Mu50_v*"));
-      trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu50_v*"));
+      if(!data_is2016B) trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu50_v*"));
     }
     else if(year == "2017" || year == "UL17") {
       trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu27_v*"));
@@ -404,7 +404,8 @@ bool TstarTstarPreselectionModule::process(Event & event) {
 
     if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
       pass_trigger_SingleMu_lowpt = (trg_mu_low_1->passes(event) || trg_mu_low_2->passes(event));
-      pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event) || trg_mu_high_2->passes(event));
+      if(data_is2016B) pass_trigger_SingleMu_highpt = trg_mu_high_1->passes(event);
+      else pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event) || trg_mu_high_2->passes(event));
     }
     else if(year == "2017" || year == "UL17") {
       pass_trigger_SingleMu_lowpt = trg_mu_low_1->passes(event);
@@ -519,7 +520,7 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   for(const auto & jet : *event.jets) st += jet.pt();
 
   // st cut
-  if(st < 450) return false;
+  if(st < 450 && !isTriggerSFMeasurement) return false;
 
   // hists
   if(pass_trigger) {

@@ -32,13 +32,14 @@
 // other
 #include "UHH2/HOTVR/include/HOTVRIds.h"
 #include "TGraphAsymmErrors.h"
+#include "TF1.h"
 
 using namespace std;
 using namespace uhh2;
 
 namespace uhh2 {
 
-// x, alpha, n, sigma, mean
+  // x, alpha, n, sigma, mean
 double crystalball_function(double x, double alpha, double n, double sigma, double mean) {
   // evaluate the crystal ball function
   if (sigma < 0.)     return 0.;
@@ -58,14 +59,6 @@ double crystalball_function(double x, double alpha, double n, double sigma, doub
     double arg = nDivAlpha/(B-z);
     return AA * std::pow(arg,n);
   }
-}
-
-double bgest_polynom(double x, double p0, double p1, double p2) {
-  return p0 + p1 * x + p2 * x * x;
-}
-
-double bgest_landau(double x, double p0, double p1, double p2) {
-  return p0 * TMath::Landau(x, p1, p2);
 }
 
 /** \brief Module for the T*T*->ttbar gg MC based study
@@ -138,8 +131,10 @@ private:
   bool is_Signal = false;
 
   bool is_datadriven_BG_run = false;
+  bool is_datadriven_BG_run_variation = false;
 
   TGraphAsymmErrors* bgest_purity;
+  TF1* backgroundEstimationFunction;
 
 };
 
@@ -165,6 +160,9 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   is_MC = ctx.get("dataset_type") == "MC";
 
   if(!is_MC) is_datadriven_BG_run = ctx.get("use_data_for", "regular") == "background_extrapolation"; // get which running mode to use for data
+  if(!is_MC) is_datadriven_BG_run_variation = ctx.get("use_data_for", "regular") == "background_extrapolation_variation"; // get which running mode to use for data
+  if(is_datadriven_BG_run_variation) is_datadriven_BG_run = true;
+
   if(is_datadriven_BG_run) {
     TString background_estimation_purity_filepath = ctx.get("background_estimation_purity_file");
     TFile *f = new TFile(background_estimation_purity_filepath);
@@ -254,6 +252,7 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_ttbarCR_v3.reset(new TstarTstarHists(ctx, "ttbarCR_v3"));
 
   // ###### 4. init handles ######
+  ctx.undeclare_all_event_output();
   h_evt_weight = ctx.get_handle<double>("evt_weight");
   h_flag_toptagevent = ctx.get_handle<int>("flag_toptagevent");
   h_DoAddInputs = ctx.declare_event_output<bool>("doAddInputs");
@@ -266,6 +265,18 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_ST_weight = ctx.declare_event_output<double>("ST_weight");
 
   h_DNN_output = ctx.get_handle<double>("DNN_output");
+
+  if(is_datadriven_BG_run) {
+    TString path = "/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/";
+    TString filename = "alphaFunction";
+    if( ctx.get("jecsmear_direction", "none") == "up") filename += "_JEC_up";
+    else if( ctx.get("jecsmear_direction", "none") == "down") filename += "_JEC_down";
+    else if( ctx.get("jersmear_direction", "none") == "up") filename += "_JER_up";
+    else if( ctx.get("jersmear_direction", "none") == "down") filename += "_JER_down";
+    TFile *f = new TFile(path+filename+".root");
+    if(is_datadriven_BG_run_variation) backgroundEstimationFunction = (TF1*)f->Get("fit");
+    else backgroundEstimationFunction = (TF1*)f->Get("fit2");
+  }
 
 }
 
@@ -384,19 +395,13 @@ bool TstarTstarDNNModule::process(Event & event) {
       pass_btagcut = true; // we will use this data however!
       newTagger = -1; // for the moment, use all data for the CR
 
-//      NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE
-// 1  Constant     3.21411e+00   5.87492e-02   6.03508e-05   3.46577e-03
-// 2  MPV          3.28318e+03   1.55642e+02   4.60350e-02   4.48085e-06
-// 3  Sigma        1.58951e+03   9.26076e+01   9.27908e-06  -1.78981e-02
-      double p0 = 3.21411e+00;
-      double p1 = 3.28318e+03;
-      double p2 = 1.58951e+03;
-      if(true) cout << "ST: " << event.get(h_ST) << endl;
+
+      if(debug) cout << "ST: " << event.get(h_ST) << endl;
       //double transfer_value = bgest_polynom(event.get(h_ST), p0, p1, p2);
-      double transfer_value = bgest_landau(event.get(h_ST), p0, p1, p2);
-      if(true) cout << "transfer value: " << transfer_value << endl;
+      double transfer_value = backgroundEstimationFunction->Eval(event.get(h_ST));
+      if(debug) cout << "transfer value: " << transfer_value << endl;
       double purity_value = bgest_purity->Eval(event.get(h_ST));
-      if(true) cout << "purity: " << purity_value << endl;
+      if(debug) cout << "purity: " << purity_value << endl;
       event.weight *= transfer_value*purity_value;
       //event.weight *= transfer_value;
 
@@ -409,7 +414,9 @@ bool TstarTstarDNNModule::process(Event & event) {
       if(is_MC /* blinding */) {
         h_newTaggerSR->fill(event);
         event.set(h_region, "SR");
+        if(debug) cout << "Before SR hists" << endl;
         h_SignalRegion_total->fill(event);
+        if(debug) cout << "After" << endl;
         if(event.get(h_is_mu)) h_SignalRegion_mu->fill(event);
         else h_SignalRegion_ele->fill(event);
       }

@@ -86,6 +86,12 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   book<TH1F>("pt_ele", "p_{T}^{ele} [GeV/c]", 50, 0, 1000);
   book<TH1F>("eta_ele", "#eta^{ele}", 50, -5.2, 5.2);
 
+  const int n_ele_pt_bins = 12;
+  const int n_ele_eta_bins = 11;
+  double ele_pt_bins[n_ele_pt_bins] = {55, 75, 95, 115, 135, 155, 175, 200, 250, 300, 400, 500};
+  double ele_eta_bins[n_ele_eta_bins] = {-2.5, -2.0, -1.566, -1.444, -0.8, 0.0, 0.8, 1.444, 1.566, 2.0, 2.5};
+  book<TH2D>("ele_pt_eta", ";p_{T}^{ele}; #eta^{ele}", n_ele_pt_bins-1, ele_pt_bins, n_ele_eta_bins-1, ele_eta_bins);
+
   book<TH1F>("N_photon", "N^{#gamma}", 10, 0, 10);
   book<TH1F>("pt_photon", "p_{T}^{#gamma} [GeV/c]", 50, 10, 2000);
   book<TH1F>("eta_photon", "#eta^{#gamma}", 50, -5.2, 5.2);
@@ -271,6 +277,7 @@ void TstarTstarHists::fill(const Event & event){
   for (const Electron & thisele : *event.electrons){
       hist("pt_ele")->Fill(thisele.pt(), weight);
       hist("eta_ele")->Fill(thisele.eta(), weight);
+      ((TH2D*)hist("ele_pt_eta"))->Fill(thisele.pt(), thisele.eta(), weight);
   }
   if(debug) cout << "Finished filling lepton observables." << endl;
 

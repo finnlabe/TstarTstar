@@ -13,13 +13,14 @@ void DNNeff(TString suffix = ""){
   TString pathDNN = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/";
   TString fileprefix = "uhh2.AnalysisModuleRunner.MC.";
   TString histname = "N_jets";
+  TString afterFolder = "newTaggerSR";
 
   // Defining Samples
   std::vector<TString> signalSamples = {"TstarTstar_M-700", "TstarTstar_M-1600", "TstarTstar_M-2000"};
-  std::vector<TString> BGSamples = {"TTbar", "ST", "WJets", "QCD"};
+  std::vector<TString> BGSamples = {"TTbar", "ST", "WJets", "QCD", "VV", "DYJets"};
 
   std::vector<TString> signal_labels = {"T* M-700", "T* M-1600", "T* M-2000"};
-  std::vector<TString> BG_labels = {"TTbar", "ST", "WJets", "QCD"};
+  std::vector<TString> BG_labels = {"TTbar", "ST", "WJets", "QCD", "VV", "DYJets"};
 
   // ########################
   // ## Finish Definitions ##
@@ -47,12 +48,12 @@ void DNNeff(TString suffix = ""){
   double result_BG_sum = 0;
   for(const auto & sample : signalSamples){
     input = TFile::Open(pathDNN+fileprefix+sample+".root");
-    hist = (TH1D*)input->Get("newTaggerSR/"+histname);
+    hist = (TH1D*)input->Get(afterFolder+"/"+histname);
     result_signal.push_back(hist->Integral());
   }
   for(const auto & sample : BGSamples){
     input = TFile::Open(pathDNN+fileprefix+sample+".root");
-    hist = (TH1D*)input->Get("newTaggerSR/"+histname);
+    hist = (TH1D*)input->Get(afterFolder+"/"+histname);
     result_BG.push_back(hist->Integral());
     result_BG_sum += hist->Integral();
   }

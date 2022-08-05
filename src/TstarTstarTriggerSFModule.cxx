@@ -135,13 +135,13 @@ bool TstarTstarTriggerSFModule::process(uhh2::Event& event){
   // HERE FILL PT AND ETA HISTS FOR PASSING AND NOT PASSING ELEC TRIGGER
   if(debug) cout << "Start Fill ... " << endl;
   bool passed_elec_trigger = false;
-  if(year == Year::is2016v3)  passed_elec_trigger = (trigger_el_B->passes(event) || trigger_el_C->passes(event));
-  if(year == Year::is2017v2){
+  if(year_16) passed_elec_trigger = (trigger_el_A->passes(event) || trigger_el_B->passes(event) || trigger_el_C->passes(event));
+  if(year_17){
     // for MC event.run=1
     if(!isMC && event.run <= 299329) passed_elec_trigger = (trigger_el_A->passes(event) || trigger_el_C->passes(event));
     else                             passed_elec_trigger = (trigger_el_B->passes(event) || trigger_el_C->passes(event));
   }
-  if(year == Year::is2018 or year == Year::isUL18)  passed_elec_trigger = (trigger_el_A->passes(event) || trigger_el_B->passes(event) || trigger_el_C->passes(event));
+  if(year_18)  passed_elec_trigger = (trigger_el_A->passes(event) || trigger_el_B->passes(event) || trigger_el_C->passes(event));
 
   if(debug) cout << "Set after Trigger pass... " << endl;
   event.set(h_pt, event.electrons->at(0).pt());

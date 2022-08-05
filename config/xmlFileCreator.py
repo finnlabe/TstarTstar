@@ -79,8 +79,8 @@ class configContainer:
             'UL18': self.uhh2Dir+'common/UHH2-data/UL18/MyDataPileupHistogram_UL18.root',
          },
          'dataUp': {
-            'UL16preVFP': self.uhh2Dir+'common/UHH2-data/UL16preVFP/MyMCPileupHistogram_UL16preVFP_72383.root',
-            'UL16postVFP': self.uhh2Dir+'common/UHH2-data/UL16postVFP/MyMCPileupHistogram_UL16postVFP_72383.root',
+            'UL16preVFP': self.uhh2Dir+'common/UHH2-data/UL16preVFP/MyDataPileupHistogram_UL16preVFP_72383.root',
+            'UL16postVFP': self.uhh2Dir+'common/UHH2-data/UL16postVFP/MyDataPileupHistogram_UL16postVFP_72383.root',
             'UL17': self.uhh2Dir+'common/UHH2-data/UL17/MyDataPileupHistogram_UL17_72383.root',
             'UL18': self.uhh2Dir+'common/UHH2-data/UL18/MyDataPileupHistogram_UL18_72383.root',
          },
@@ -103,7 +103,7 @@ class configContainer:
       self.additionalBranches = {
          'Preselection': "",
          'Selection': "MC_isfake2017B is_muevt evt_weight is_highpt weight_pu weight_pu_up weight_pu_down prefiringWeight prefiringWeightDown prefiringWeightUp",
-         'Analysis': "neutrino is_btagevent weight_sfmu_id weight_sfmu_id_down weight_sfmu_id_up weight_sfmu_iso weight_sfmu_iso_down weight_sfmu_iso_up weight_sfelec_id weight_sfelec_id_down weight_sfelec_id_up weight_sfelec_reco weight_sfelec_reco_down weight_sfelec_reco_up weight_btagdisc__central weight_btagdisc__lf_up weight_btagdisc__lf_down weight_btagdisc__hf_up weight_btagdisc__hf_down weight_btagdisc__hfstats1_up weight_btagdisc__hfstats1_down weight_btagdisc__hfstats2_up weight_btagdisc__hfstats2_down weight_btagdisc__lfstats1_up weight_btagdisc__lfstats1_down weight_btagdisc__lfstats2_up weight_btagdisc__lfstats2_down weight_btagdisc__cferr1_up weight_btagdisc__cferr1_down weight_btagdisc__cferr2_up weight_btagdisc__cferr2_down ST STHOTVR",
+         'Analysis': "neutrino is_btagevent weight_sfmu_id weight_sfmu_id_down weight_sfmu_id_up weight_sfmu_iso weight_sfmu_iso_down weight_sfmu_iso_up weight_sfmu_trigger weight_sfmu_trigger_up weight_sfmu_trigger_down weight_sfelec_id weight_sfelec_id_down weight_sfelec_id_up weight_sfelec_reco weight_sfelec_reco_down weight_sfelec_reco_up weight_sfelec_trigger weight_sfelec_trigger_up weight_sfelec_trigger_down weight_btagdisc_central weight_btagdisc_lf_up weight_btagdisc_lf_down weight_btagdisc_hf_up weight_btagdisc_hf_down weight_btagdisc_hfstats1_up weight_btagdisc_hfstats1_down weight_btagdisc_hfstats2_up weight_btagdisc_hfstats2_down weight_btagdisc_lfstats1_up weight_btagdisc_lfstats1_down weight_btagdisc_lfstats2_up weight_btagdisc_lfstats2_down weight_btagdisc_cferr1_up weight_btagdisc_cferr1_down weight_btagdisc_cferr2_up weight_btagdisc_cferr2_down  ST STHOTVR weight_murmuf_upup weight_murmuf_upnone weight_murmuf_noneup weight_murmuf_nonedown weight_murmuf_downnone weight_murmuf_downdown",
          'DNN': "ST_weight DNN_Inputs TstarTstar_Hyp_gHOTVR TstarTstar_Hyp_gAK4",
          'DNN_datadriven': "",
       }
@@ -112,6 +112,7 @@ class configContainer:
       self.additionalBranches["Analysis"] = self.additionalBranches["Analysis"]+" "+self.additionalBranches["Selection"]
       self.additionalBranches["DNN"] = self.additionalBranches["DNN"]+" "+self.additionalBranches["Analysis"]
       self.additionalBranches["DNN_datadriven"] = self.additionalBranches["DNN_datadriven"]+" "+self.additionalBranches["DNN"]
+      self.additionalBranches["DNN_datadriven_variation"] = self.additionalBranches["DNN_datadriven"]+" "+self.additionalBranches["DNN"]
 
       self.systematics = list()
 
@@ -188,7 +189,7 @@ class xmlCreator:
       self.jecsmear_direction = variationDirections["jecsmear"]
       self.isTriggerEff = isTriggerEff
 
-      if step not in ['Preselection', 'Selection', 'Analysis', 'DNN', "DNN_datadriven"]:
+      if step not in ['Preselection', 'Selection', 'Analysis', 'DNN', "DNN_datadriven", "DNN_datadriven_variation"]:
          sys.exit('Given value of argument "selection" not valid. Abort.')
       self.step = step
       if (step == "Preselection"):
@@ -200,7 +201,7 @@ class xmlCreator:
       elif (step == "Analysis"):
           self.previousFolder = "Selection"
           self.analysisModule = "TstarTstarAnalysisModule"
-      elif (step == "DNN" or step == "DNN_datadriven"):
+      elif (step == "DNN" or step == "DNN_datadriven" or step == "DNN_datadriven_variation"):
           self.previousFolder = "Analysis"
           self.analysisModule = "TstarTstarDNNModule"
       if(self.isTriggerEff): self.previousFolder += "_TriggerEff"
@@ -213,6 +214,13 @@ class xmlCreator:
       self.outputDirBase = '/nfs/dust/cms/user/flabe/TstarTstar/data/'
       if not os.path.isdir(self.outputDirBase):
          sys.exit('Warning: Make sure to create output directory via "ln -s". Abort.')
+      self.outputDirJERJER = ''
+      if (not self.jersmear_direction == "nominal"): self.outputDirJERJER = "/JER_"+self.jersmear_direction+"/"
+      elif (not self.jecsmear_direction == "nominal"): self.outputDirJERJER = "/JEC_"+self.jecsmear_direction+"/"
+      self.inputDirJERJER = ''
+      if not (step == "DNN_datadriven" or step == "DNN_datadriven_variation"):
+          if (not self.jersmear_direction == "nominal"): self.inputDirJERJER = "/JER_"+self.jersmear_direction+"/"
+          elif (not self.jecsmear_direction == "nominal"): self.inputDirJERJER = "/JEC_"+self.jecsmear_direction+"/"
 
       self.xmlFileName = '_'.join(['parsedConfigFile', self.step, self.year, group])+'.xml'
       if(self.isTriggerEff): self.xmlFilePathBase = self.uhh2Dir+'TstarTstar/config/'+'_'.join(['config', self.step, "TriggerEff", self.year])+'/'
@@ -236,10 +244,11 @@ class xmlCreator:
          file.write('''\n''')
          file.write('''<!ENTITY TargetLumi "'''+str(self.yearVars['targetLumis'][self.year])+'''">\n''')
          if not (self.step == "Preselection"):
-            file.write('''<!ENTITY INPUTdir "'''+(self.outputDirBase+self.previousFolder+'/'+self.year)+'''">\n''')
+            if not (self.step == "Selection"): file.write('''<!ENTITY INPUTdir "'''+(self.outputDirBase+self.previousFolder+'/'+self.year+self.inputDirJERJER)+'''">\n''')
+            else: file.write('''<!ENTITY INPUTdir "'''+(self.outputDirBase+self.previousFolder+'/'+self.year)+'''">\n''')
             file.write('''<!ENTITY INPUTfilename "uhh2.AnalysisModuleRunner">\n''')
          if(self.isTriggerEff):file.write('''<!ENTITY OUTPUTdir "'''+(self.outputDirBase+self.step+'_TriggerEff/'+self.year)+'''">\n''')
-         else: file.write('''<!ENTITY OUTPUTdir "'''+(self.outputDirBase+self.step+'/'+self.year)+'''">\n''')
+         else: file.write('''<!ENTITY OUTPUTdir "'''+(self.outputDirBase+self.step+'/'+self.year+self.outputDirJERJER)+'''">\n''')
          file.write('''<!ENTITY b_Cacheable "False">\n''')
          file.write('''<!ENTITY NEVT "-1">\n''')
          file.write('''<!ENTITY YEARsuffix "_'''+self.year+self.yearVersion+'''">\n''')
@@ -307,8 +316,13 @@ class xmlCreator:
              file.write('''<Item Name="HOTVRTopTagSFs" Value="'''+self.yearVars['HOTVRSFs'][self.year]+'''"/>\n''')
              file.write('''<Item Name="SF_path" Value="/nfs/dust/cms/user/flabe/TstarTstar/CMSSW_10_2_17/src/UHH2/TstarTstar/factors/" />\n''')
              file.write('''<Item Name="NLOCorrections" Value = "/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/sfs/nnlo" />''')
+             file.write('''<Item Name="ScaleVariationMuR" Value = "central" />''')
+             file.write('''<Item Name="ScaleVariationMuF" Value = "central" />''')
          if(self.step == "DNN_datadriven"):
              file.write('''<Item Name="use_data_for" Value="background_extrapolation"/>\n''')
+             file.write('''<Item Name="background_estimation_purity_file" Value="'''+self.uhh2Dir+'''TstarTstar/macros/rootmakros/files/bgest_purity.root"/>\n''')
+         elif(self.step == "DNN_datadriven_variation"):
+             file.write('''<Item Name="use_data_for" Value="background_extrapolation_variation"/>\n''')
              file.write('''<Item Name="background_estimation_purity_file" Value="'''+self.uhh2Dir+'''TstarTstar/macros/rootmakros/files/bgest_purity.root"/>\n''')
          if(self.isTriggerEff): file.write('''<Item Name="IsTriggerSFMeasurement" Value="True"/>\n''')
          file.write('''\n''')
@@ -353,7 +367,7 @@ class xmlCreator:
 
 if __name__=='__main__':
 
-   selections = ['Preselection', 'Selection', 'Analysis', 'DNN', 'DNN_datadriven']
+   selections = ['Preselection', 'Selection', 'Analysis', 'DNN', 'DNN_datadriven', 'DNN_datadriven_variation']
    years = ['UL16preVFP','UL16postVFP','UL17', 'UL18']
    jersmear_directions = ['nominal', 'up', 'down']
    jecsmear_directions = ['nominal', 'up', 'down']
@@ -402,7 +416,7 @@ if __name__=='__main__':
 
    for selection in args.selections:
       for year in args.years:
-          if(selection == "DNN_datadriven"):
+          if(selection == "DNN_datadriven" or selection == "DNN_datadriven_variation"):
               x = xmlCreator(selection, year, "DATA", directions, False)
               x.write_xml()
           else:

@@ -25,6 +25,9 @@ public:
     // ST handle
     uhh2::Event::Handle<double> h_ST;
 
+    // hist names for PDF
+    std::string hist_names[100];
+
     // weight handles
     uhh2::Event::Handle<float> h_weight_puNominal;
     uhh2::Event::Handle<float> h_weight_puUp;
@@ -68,6 +71,10 @@ public:
     uhh2::Event::Handle<float> h_weight_sfelec_triggerUp;
     uhh2::Event::Handle<float> h_weight_sfelec_triggerDown;
 
+    uhh2::Event::Handle<float> h_weight_sfelec_recoNominal;
+    uhh2::Event::Handle<float> h_weight_sfelec_recoUp;
+    uhh2::Event::Handle<float> h_weight_sfelec_recoDown;
+
     uhh2::Event::Handle<float> h_weight_sfmu_idNominal;
     uhh2::Event::Handle<float> h_weight_sfmu_idUp;
     uhh2::Event::Handle<float> h_weight_sfmu_idDown;
@@ -79,6 +86,13 @@ public:
     uhh2::Event::Handle<float> h_weight_sfmu_triggerNominal;
     uhh2::Event::Handle<float> h_weight_sfmu_triggerUp;
     uhh2::Event::Handle<float> h_weight_sfmu_triggerDown;
+
+    uhh2::Event::Handle<float> h_murmuf_upup;
+    uhh2::Event::Handle<float> h_murmuf_upnone;
+    uhh2::Event::Handle<float> h_murmuf_noneup;
+    uhh2::Event::Handle<float> h_murmuf_nonedown;
+    uhh2::Event::Handle<float> h_murmuf_downnone;
+    uhh2::Event::Handle<float> h_murmuf_downdown;
 
 };
 

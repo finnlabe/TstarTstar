@@ -20,6 +20,7 @@
 #include "UHH2/common/include/LeptonScaleFactors.h"
 #include "UHH2/common/include/TopPtReweight.h"
 #include "UHH2/common/include/CommonModules.h"
+#include "UHH2/common/include/MCWeight.h"
 
 // TstarTstar stuff
 #include "UHH2/TstarTstar/include/ModuleBASE.h"
@@ -78,6 +79,7 @@ private:
   std::unique_ptr<AnalysisModule> ScaleFactor_btagging;
   TH2D *eventYieldFactors;
   std::unique_ptr<AnalysisModule> ScaleFactor_NNLO;
+  std::unique_ptr<AnalysisModule> MCScaleVariations;
 
   // trigger selections
   std::unique_ptr<Selection> trg_ele_low;
@@ -122,11 +124,18 @@ private:
   std::unique_ptr<Hists> h_beginSel_mu_lowpt,   h_btagcut_mu_lowpt,    h_2Dcut_mu_lowpt,      h_dRcut_mu_lowpt,      h_STcut_mu_lowpt   ,    h_trigger_mu_lowpt, h_triggerSF_mu_lowpt,  h_corrections_mu_lowpt, h_topptreweighting_mu_lowpt     ;
   std::unique_ptr<Hists> h_beginSel_mu_highpt,  h_btagcut_mu_highpt,   h_2Dcut_mu_highpt,     h_dRcut_mu_highpt,     h_STcut_mu_highpt  ,    h_trigger_mu_highpt,  h_triggerSF_mu_highpt, h_corrections_mu_highpt, h_topptreweighting_mu_highpt    ;
   std::unique_ptr<Hists> h_beginSel_nobtag,     h_btagcut_nobtag,      h_2Dcut_nobtag,        h_dRcut_nobtag,        h_STcut_nobtag     ,    h_trigger_nobtag, h_triggerSF_nobtag,     h_corrections_nobtag, h_topptreweighting_nobtag       ;
-  std::unique_ptr<Hists> h_STcut_nobtag_ele, h_corrections_nobtag_ele;
+  std::unique_ptr<Hists> h_STcut_nobtag_ele, h_corrections_nobtag_ele, h_connectionRegion_ele;
+
+  std::unique_ptr<Hists> h_METcut, h_METcut_gen, h_METcut_ele, h_METcut_ele_lowpt, h_METcut_ele_highpt, h_METcut_mu, h_METcut_mu_lowpt, h_METcut_mu_highpt, h_METcut_nobtag;
+  std::unique_ptr<Hists> h_AK4cut, h_AK4cut_gen, h_AK4cut_ele, h_AK4cut_ele_lowpt, h_AK4cut_ele_highpt, h_AK4cut_mu, h_AK4cut_mu_lowpt, h_AK4cut_mu_highpt, h_AK4cut_nobtag;
+  std::unique_ptr<Hists> h_HOTVRcut, h_HOTVRcut_gen, h_HOTVRcut_ele, h_HOTVRcut_ele_lowpt, h_HOTVRcut_ele_highpt, h_HOTVRcut_mu, h_HOTVRcut_mu_lowpt, h_HOTVRcut_mu_highpt, h_HOTVRcut_nobtag;
 
   std::unique_ptr<Hists> h_afterHEMcleaning, h_afterHEMcleaning_ele, h_afterHEMcleaning_mu;
 
   std::unique_ptr<Hists> h_afterNNLO, h_afterNNLO_ele, h_afterNNLO_mu;
+
+  std::unique_ptr<Hists> h_ELEtriggerMeasurement_before;
+  std::unique_ptr<Hists> h_ELEtriggerMeasurement_after;
 
   std::unique_ptr<Hists> h_beforeBcorrections, h_afterBcorrections, h_afterBYieldcorrections;
   std::unique_ptr<Hists> h_beforeBcorrections_mu, h_afterBcorrections_mu, h_afterBYieldcorrections_mu;
@@ -154,6 +163,7 @@ private:
   bool is_MC;
   bool data_isMu = false;
   bool data_is2017B = false;
+  bool data_is2016B = false;
   bool data_isPhoton = false;
   bool isTriggerSFMeasurement = false;
   TString year;
@@ -213,6 +223,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
 
   // check this specific run for trigger
   if(!is_MC) data_is2017B = (ctx.get("dataset_version").find("SingleElectron_RunB_UL17") != std::string::npos) || (ctx.get("dataset_version").find("SingleMuon_RunB_UL17") != std::string::npos) || (ctx.get("dataset_version").find("SinglePhoton_RunB_UL17") != std::string::npos);
+  if(!is_MC) data_is2016B = (ctx.get("dataset_version").find("SingleElectron_RunB_UL16preVFP") != std::string::npos) || (ctx.get("dataset_version").find("SingleMuon_RunB_UL16preVFP") != std::string::npos) || (ctx.get("dataset_version").find("SinglePhoton_RunB_UL16preVFP") != std::string::npos);
   if(data_is2017B) std::cout << "This data sample is from 2017 Run B" << std::endl;
 
   // ###### 1. Set up modules ######
@@ -245,7 +256,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   reco_primlep.reset(new PrimaryLepton(ctx));
 
   // trigger selections
-  if(is_MC || data_isMu) {
+  if(is_MC || data_isMu || isTriggerSFMeasurement) {
     std::cout << "Setting up muon triggers" << std::endl;
 
     // low pt triggers
@@ -253,7 +264,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
       trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu24_v*"));
       trg_mu_low_2.reset(new TriggerSelection("HLT_IsoTkMu24_v*"));
       trg_mu_high_1.reset(new TriggerSelection("HLT_Mu50_v*"));
-      trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu50_v*"));
+      if(!data_is2016B) trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu50_v*"));
     }
     else if(year == "2017" || year == "UL17") {
       trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu27_v*"));
@@ -268,19 +279,19 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
       trg_mu_high_3.reset(new TriggerSelection("HLT_OldMu100_v*"));
     }
   }
-  if(is_MC || !data_isMu){
+  if(is_MC || !data_isMu || isTriggerSFMeasurement){
     std::cout << "Setting up ele triggers" << std::endl;
 
     // low pt triggers
     if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
       trg_ele_low.reset(new TriggerSelection("HLT_Ele27_WPTight_Gsf_v*"));
       trg_ele_high.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
-      if(is_MC || data_isPhoton) trg_pho.reset(new TriggerSelection("HLT_Photon175_v*"));
+      if(is_MC || data_isPhoton || isTriggerSFMeasurement) trg_pho.reset(new TriggerSelection("HLT_Photon175_v*"));
     }
     else if(year == "2017" || year == "UL17") {
       trg_ele_low.reset(new TriggerSelection("HLT_Ele35_WPTight_Gsf_v*"));
       trg_ele_high.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
-      if(is_MC || data_isPhoton) trg_pho.reset(new TriggerSelection("HLT_Photon200_v*"));
+      if(is_MC || data_isPhoton || isTriggerSFMeasurement) trg_pho.reset(new TriggerSelection("HLT_Photon200_v*"));
     }
     else if(year == "2018" || year == "UL18") {
       trg_ele_low.reset(new TriggerSelection("HLT_Ele32_WPTight_Gsf_v*"));
@@ -331,7 +342,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   ScaleFactor_btagging.reset(new MCBTagDiscriminantReweighting(ctx, BTag::algo::DEEPJET)); // should be enough like this
 
   if(is_MC) {
-    TFile *f = new TFile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/btagYieldSFs_"+year+".root");
+    TFile *f = new TFile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/btagYieldSFs_"+year+".root");
     TString sample_string = "";
     if(ctx.get("dataset_version").find("TT") != std::string::npos) sample_string = "TTbar";
     else if(ctx.get("dataset_version").find("ST") != std::string::npos) sample_string = "ST";
@@ -339,6 +350,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
     else if(ctx.get("dataset_version").find("QCD") != std::string::npos) sample_string = "QCD";
     else if(ctx.get("dataset_version").find("Diboson") != std::string::npos) sample_string = "VV";
     else if(ctx.get("dataset_version").find("DY") != std::string::npos) sample_string = "DYJets";
+    else if(ctx.get("dataset_version").find("Tstar") != std::string::npos) sample_string = "TstarTstar"; // TODO FIXME
     if(debug) std::cout << "Apply 2D b-taggin yield SFs for " << sample_string << std::endl;
 
     if(sample_string != "") eventYieldFactors = (TH2D*)f->Get(sample_string);
@@ -375,6 +387,33 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   h_btagcut_mu.reset(new TstarTstarHists(ctx, "AfterBtag_mu"));
   h_btagcut_mu_lowpt.reset(new TstarTstarHists(ctx, "AfterBtag_mu_lowpt"));
   h_btagcut_mu_highpt.reset(new TstarTstarHists(ctx, "AfterBtag_mu_highpt"));
+
+  h_METcut.reset(new TstarTstarHists(ctx, "AfterMET"));
+  h_METcut_gen.reset(new TstarTstarGenHists(ctx, "AfterMET_gen"));
+  h_METcut_ele.reset(new TstarTstarHists(ctx, "AfterMET_ele"));
+  h_METcut_ele_lowpt.reset(new TstarTstarHists(ctx, "AfterMET_ele_lowpt"));
+  h_METcut_ele_highpt.reset(new TstarTstarHists(ctx, "AfterMET_ele_highpt"));
+  h_METcut_mu.reset(new TstarTstarHists(ctx, "AfterMET_mu"));
+  h_METcut_mu_lowpt.reset(new TstarTstarHists(ctx, "AfterMET_mu_lowpt"));
+  h_METcut_mu_highpt.reset(new TstarTstarHists(ctx, "AfterMET_mu_highpt"));
+
+  h_AK4cut.reset(new TstarTstarHists(ctx, "AfterAK4"));
+  h_AK4cut_gen.reset(new TstarTstarGenHists(ctx, "AfterAK4_gen"));
+  h_AK4cut_ele.reset(new TstarTstarHists(ctx, "AfterAK4_ele"));
+  h_AK4cut_ele_lowpt.reset(new TstarTstarHists(ctx, "AfterAK4_ele_lowpt"));
+  h_AK4cut_ele_highpt.reset(new TstarTstarHists(ctx, "AfterAK4_ele_highpt"));
+  h_AK4cut_mu.reset(new TstarTstarHists(ctx, "AfterAK4_mu"));
+  h_AK4cut_mu_lowpt.reset(new TstarTstarHists(ctx, "AfterAK4_mu_lowpt"));
+  h_AK4cut_mu_highpt.reset(new TstarTstarHists(ctx, "AfterAK4_mu_highpt"));
+
+  h_HOTVRcut.reset(new TstarTstarHists(ctx, "AfterHOTVR"));
+  h_HOTVRcut_gen.reset(new TstarTstarGenHists(ctx, "AfterHOTVR_gen"));
+  h_HOTVRcut_ele.reset(new TstarTstarHists(ctx, "AfterHOTVR_ele"));
+  h_HOTVRcut_ele_lowpt.reset(new TstarTstarHists(ctx, "AfterHOTVR_ele_lowpt"));
+  h_HOTVRcut_ele_highpt.reset(new TstarTstarHists(ctx, "AfterHOTVR_ele_highpt"));
+  h_HOTVRcut_mu.reset(new TstarTstarHists(ctx, "AfterHOTVR_mu"));
+  h_HOTVRcut_mu_lowpt.reset(new TstarTstarHists(ctx, "AfterHOTVR_mu_lowpt"));
+  h_HOTVRcut_mu_highpt.reset(new TstarTstarHists(ctx, "AfterHOTVR_mu_highpt"));
 
   h_2Dcut.reset(new TstarTstarHists(ctx, "After2D"));
   h_2Dcut_gen.reset(new TstarTstarGenHists(ctx, "After2D_gen"));
@@ -468,6 +507,11 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   h_notTriggered_ele.reset(new TstarTstarHists(ctx, "notTriggered_ele"));
   h_notTriggered_mu.reset(new TstarTstarHists(ctx, "notTriggered_mu"));
 
+  h_connectionRegion_ele.reset(new TstarTstarHists(ctx, "AfterConnectionRegion_ele"));
+
+  h_ELEtriggerMeasurement_before.reset(new TstarTstarHists(ctx, "ELEtriggerMeasurement_before"));
+  h_ELEtriggerMeasurement_after.reset(new TstarTstarHists(ctx, "ELEtriggerMeasurement_after"));
+
   // ###### 4. Init Handles ######
   h_is_muevt = ctx.get_handle<bool>("is_muevt");
   h_is_highpt = ctx.get_handle<bool>("is_highpt");
@@ -483,6 +527,8 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   TopPtReweighting.reset( new TopPtReweight(ctx, 0.0615, -0.0005, "ttbargen", "weight_ttbar", true) );
 
   Prefiring_direction = ctx.get("Sys_prefiring", "nominal");
+
+  MCScaleVariations.reset(new MCScaleVariation(ctx) );
 
 }
 
@@ -527,6 +573,11 @@ bool TstarTstarSelectionModule::process(Event & event) {
   if(!(HOTVRCorr->process(event))) return false;
   if(!(HOTVRcleaner->process(event))) return false;
 
+  // exclude electron in overlap region
+  if(!event.get(h_is_muevt)) {
+    if( (abs(event.electrons->at(0).eta()) >= 1.444) && (abs(event.electrons->at(0).eta()) <= 1.566)) return false;
+  }
+
   // ###### Trigger selection ######
   bool pass_trigger = false;
   bool pass_trigger_SingleMu_lowpt = false;
@@ -539,7 +590,8 @@ bool TstarTstarSelectionModule::process(Event & event) {
 
     if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
       pass_trigger_SingleMu_lowpt = (trg_mu_low_1->passes(event) || trg_mu_low_2->passes(event));
-      pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event) || trg_mu_high_2->passes(event));
+      if(data_is2016B) pass_trigger_SingleMu_highpt = trg_mu_high_1->passes(event);
+      else pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event) || trg_mu_high_2->passes(event));
     }
     else if(year == "2017" || year == "UL17") {
       pass_trigger_SingleMu_lowpt = trg_mu_low_1->passes(event);
@@ -595,7 +647,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
   }
 
   // main logic
-  if( event.get(h_is_muevt) && (is_MC || data_isMu) ) {
+  if( (event.get(h_is_muevt) && (is_MC || data_isMu) ) || isTriggerSFMeasurement ) {
     if(event.get(h_is_highpt)) pass_trigger = pass_trigger_SingleMu_highpt;
     else pass_trigger = pass_trigger_SingleMu_lowpt;
   } else if( !event.get(h_is_muevt) && (is_MC || !data_isMu) ){
@@ -633,6 +685,12 @@ bool TstarTstarSelectionModule::process(Event & event) {
 
   if(debug) std::cout << "Start trigger SFs" << std::endl;
 
+  // excluding connection region in the electron channel
+  if( !event.get(h_is_muevt) ) {
+    if( abs(event.electrons->at(0).eta()) > 1.4442 && abs(event.electrons->at(0).eta()) < 1.5660 ) return false;
+    h_connectionRegion_ele->fill(event);
+  }
+
   // trigger SFs
   if(is_MC && event.get(h_is_muevt) && !isTriggerSFMeasurement){
 
@@ -666,19 +724,63 @@ bool TstarTstarSelectionModule::process(Event & event) {
 
   if(debug) std::cout << "Done all trigger stuff" << std::endl;
 
-  // put here correct jet cut & MET cut!
   // ###### MET Selection ######
   bool pass_MET =  met_sel->passes(event);
   if(!pass_MET) return false;
+
+  // hists
+  h_METcut->fill(event);
+  h_METcut_gen->fill(event);
+  if(event.get(h_is_muevt)){
+    h_METcut_mu->fill(event);
+    if(event.get(h_is_highpt)) h_METcut_mu_highpt->fill(event);
+    else h_METcut_mu_lowpt->fill(event);
+  }
+  else {
+    h_METcut_ele->fill(event);
+    if(event.get(h_is_highpt)) h_METcut_ele_highpt->fill(event);
+    else h_METcut_ele_lowpt->fill(event);
+  }
+  if(debug) cout << "Passed MET cut." << endl;
 
   // ###### jet selection ######
   bool pass_njet = (event.jets->size()>3);
   if(isTriggerSFMeasurement) pass_njet = (event.jets->size()>1); // only need to require 2 jets for trigger SF measurement
   if(!pass_njet) return false;
 
+  // hists
+  h_AK4cut->fill(event);
+  h_AK4cut_gen->fill(event);
+  if(event.get(h_is_muevt)){
+    h_AK4cut_mu->fill(event);
+    if(event.get(h_is_highpt)) h_AK4cut_mu_highpt->fill(event);
+    else h_AK4cut_mu_lowpt->fill(event);
+  }
+  else {
+    h_AK4cut_ele->fill(event);
+    if(event.get(h_is_highpt)) h_AK4cut_ele_highpt->fill(event);
+    else h_AK4cut_ele_lowpt->fill(event);
+  }
+  if(debug) cout << "Passed AK4 cut." << endl;
+
   // ###### fat jet selection ######
   bool pass_fat_njet = (event.topjets->size()>0);
-  if(!pass_fat_njet) return false;
+  if(!pass_fat_njet && !isTriggerSFMeasurement) return false;
+
+  // hists
+  h_HOTVRcut->fill(event);
+  h_HOTVRcut_gen->fill(event);
+  if(event.get(h_is_muevt)){
+    h_HOTVRcut_mu->fill(event);
+    if(event.get(h_is_highpt)) h_HOTVRcut_mu_highpt->fill(event);
+    else h_HOTVRcut_mu_lowpt->fill(event);
+  }
+  else {
+    h_HOTVRcut_ele->fill(event);
+    if(event.get(h_is_highpt)) h_HOTVRcut_ele_highpt->fill(event);
+    else h_HOTVRcut_ele_lowpt->fill(event);
+  }
+  if(debug) cout << "Passed HOTVR cut." << endl;
 
   // Prefiring weights
   if (is_MC) {
@@ -823,7 +925,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
   event.set(h_STHOTVR, stHOTVR);
 
   // st cut
-  if(st < 500) return false;
+  if(st < 500 && !isTriggerSFMeasurement) return false;
 
   if(pass_btagcut) { // only fill these for btag cut passes
     // hists
@@ -947,6 +1049,43 @@ bool TstarTstarSelectionModule::process(Event & event) {
     }
   } else {
     h_topptreweighting_nobtag->fill(event);
+  }
+
+  // writing MC weights
+  MCScaleVariations->process(event);
+
+  if(debug) cout << "MCScaleVariations done" << std::endl;
+
+  // storing some histograms for the trigger efficiency measurement for ele trigger sfs!
+  if(isTriggerSFMeasurement) {
+    h_ELEtriggerMeasurement_before->fill(event);
+
+    if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
+
+      pass_trigger_SingleEle_lowpt = trg_ele_low->passes(event);
+      pass_trigger_SingleEle_highpt = (trg_ele_high->passes(event) || trg_pho->passes(event));
+
+    }
+    else if(year == "2017" || year == "UL17") {
+
+      pass_trigger_SingleEle_lowpt = trg_ele_low->passes(event);
+
+      if (event.get(h_MC_isfake2017B)) pass_trigger_SingleEle_highpt = (trg_ele_low->passes(event) || trg_pho->passes(event));
+      else pass_trigger_SingleEle_highpt = (trg_ele_high->passes(event) || trg_pho->passes(event));
+
+    }
+    else if(year == "2018" || year == "UL18") {
+
+      pass_trigger_SingleEle_lowpt = trg_ele_low->passes(event);
+      pass_trigger_SingleEle_highpt = (trg_ele_high->passes(event) || trg_pho->passes(event));
+
+    }
+
+    bool pass_trigger_ele_for_SF = false;
+    if(event.get(h_is_highpt)) pass_trigger_ele_for_SF = pass_trigger_SingleEle_highpt;
+    else pass_trigger_ele_for_SF = pass_trigger_SingleEle_lowpt;
+
+    if(pass_trigger_ele_for_SF) h_ELEtriggerMeasurement_after->fill(event);
   }
 
   event.set(h_evt_weight, event.weight);
