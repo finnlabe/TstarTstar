@@ -82,6 +82,9 @@ protected:
   bool year_18;
   Year year;
 
+  bool data_is2017B = false;
+  uhh2::Event::Handle<bool> h_MC_isfake2017B;
+
   std::unique_ptr<Hists> h_pass, h_all;
 };
 
@@ -121,6 +124,10 @@ TstarTstarTriggerSFModule::TstarTstarTriggerSFModule(uhh2::Context& ctx){
   h_pass.reset(new ElectronHists(ctx, "pass_Elec"));
   h_all.reset(new ElectronHists(ctx, "all_Elec"));
 
+  h_MC_isfake2017B = ctx.get_handle<bool>("MC_isfake2017B");
+
+  if(!isMC) data_is2017B = (ctx.get("dataset_version").find("SingleElectron_RunB_UL17") != std::string::npos) || (ctx.get("dataset_version").find("SingleMuon_RunB_UL17") != std::string::npos) || (ctx.get("dataset_version").find("SinglePhoton_RunB_UL17") != std::string::npos);
+
 }
 
 
@@ -138,8 +145,8 @@ bool TstarTstarTriggerSFModule::process(uhh2::Event& event){
   if(year_16) passed_elec_trigger = (trigger_el_A->passes(event) || trigger_el_B->passes(event) || trigger_el_C->passes(event));
   if(year_17){
     // for MC event.run=1
-    if(!isMC && event.run <= 299329) passed_elec_trigger = (trigger_el_A->passes(event) || trigger_el_C->passes(event));
-    else                             passed_elec_trigger = (trigger_el_B->passes(event) || trigger_el_C->passes(event));
+    if(data_is2017B || event.get(h_MC_isfake2017B)) passed_elec_trigger = (trigger_el_A->passes(event) || trigger_el_C->passes(event));
+    else                                            passed_elec_trigger = (trigger_el_A->passes(event) || trigger_el_B->passes(event) || trigger_el_C->passes(event));
   }
   if(year_18)  passed_elec_trigger = (trigger_el_A->passes(event) || trigger_el_B->passes(event) || trigger_el_C->passes(event));
 

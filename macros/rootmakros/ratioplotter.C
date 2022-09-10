@@ -26,9 +26,9 @@ void ratioplotter(){
   Double_t w = 800;
   Double_t h = 600;
 
-  TString sample = "ST";
+  TString sample = "TTbar";
 
-  TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/";
+  TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/UL16postVFP/hadded/";
   TString filename = "uhh2.AnalysisModuleRunner.MC."+sample+".root";
   TString histname = "pt_ST";
   TString label = "S_{T}";
@@ -36,7 +36,7 @@ void ratioplotter(){
   //TString folder_num = "AfterDNNcut_06";
   //TString folder_denom  = "notDNNcut_06";
   //TString folder_denom_2  = "notDNNcut_03";
-  TString suffix = "_2";
+  TString suffix = "";
   TString folder_num = "newTaggerSR";
   TString folder_denom  = "newTaggerCR";
   TString folder_denom_2  = "newTaggerCR";

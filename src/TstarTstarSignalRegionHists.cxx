@@ -219,13 +219,15 @@ void TstarTstarSignalRegionHists::fill(const Event & event){
   hist("pt_ST_sfelec_idUp")->Fill(st, event.get(h_weight_sfelec_idUp)*weight/event.get(h_weight_sfelec_idNominal));
   hist("pt_ST_sfelec_idDown")->Fill(st, event.get(h_weight_sfelec_idDown)*weight/event.get(h_weight_sfelec_idNominal));
 
-  // sfelec_trigger
-  hist("pt_ST_sfelec_triggerUp")->Fill(st, event.get(h_weight_sfelec_triggerUp)*weight/event.get(h_weight_sfelec_triggerNominal));
-  hist("pt_ST_sfelec_triggerDown")->Fill(st, event.get(h_weight_sfelec_triggerDown)*weight/event.get(h_weight_sfelec_triggerNominal));
+  try {
+    // sfelec_trigger
+    hist("pt_ST_sfelec_triggerUp")->Fill(st, event.get(h_weight_sfelec_triggerUp)*weight/event.get(h_weight_sfelec_triggerNominal));
+    hist("pt_ST_sfelec_triggerDown")->Fill(st, event.get(h_weight_sfelec_triggerDown)*weight/event.get(h_weight_sfelec_triggerNominal));
 
-  // sfelec_trigger
-  hist("pt_ST_sfelec_recoUp")->Fill(st, event.get(h_weight_sfelec_recoUp)*weight/event.get(h_weight_sfelec_triggerNominal));
-  hist("pt_ST_sfelec_recoDown")->Fill(st, event.get(h_weight_sfelec_recoDown)*weight/event.get(h_weight_sfelec_triggerNominal));
+    // sfelec_reco
+    hist("pt_ST_sfelec_recoUp")->Fill(st, event.get(h_weight_sfelec_recoUp)*weight/event.get(h_weight_sfelec_recoNominal));
+    hist("pt_ST_sfelec_recoDown")->Fill(st, event.get(h_weight_sfelec_recoDown)*weight/event.get(h_weight_sfelec_recoNominal));
+  } catch (...)  {}
 
   // sfmu_id
   hist("pt_ST_sfmu_idUp")->Fill(st, event.get(h_weight_sfmu_idUp)*weight/event.get(h_weight_sfmu_idNominal));
@@ -248,19 +250,22 @@ void TstarTstarSignalRegionHists::fill(const Event & event){
     hist(name)->Fill(st, weight * pdf_weight / orig_weight);
   }
 
-  float murmuf_upup        = event.get(h_murmuf_upup);
-  float murmuf_upnone      = event.get(h_murmuf_upnone);
-  float murmuf_noneup      = event.get(h_murmuf_noneup);
-  float murmuf_nonedown    = event.get(h_murmuf_nonedown);
-  float murmuf_downnone    = event.get(h_murmuf_downnone);
-  float murmuf_downdown    = event.get(h_murmuf_downdown);
+  try {
+    float murmuf_upup        = event.get(h_murmuf_upup);
+    float murmuf_upnone      = event.get(h_murmuf_upnone);
+    float murmuf_noneup      = event.get(h_murmuf_noneup);
+    float murmuf_nonedown    = event.get(h_murmuf_nonedown);
+    float murmuf_downnone    = event.get(h_murmuf_downnone);
+    float murmuf_downdown    = event.get(h_murmuf_downdown);
 
-  hist("pt_ST_murmuf_upup")->Fill(st, weight * murmuf_upup);
-  hist("pt_ST_murmuf_upnone")->Fill(st, weight * murmuf_upnone);
-  hist("pt_ST_murmuf_noneup")->Fill(st, weight * murmuf_noneup);
-  hist("pt_ST_murmuf_nonedown")->Fill(st, weight * murmuf_nonedown);
-  hist("pt_ST_murmuf_downnone")->Fill(st, weight * murmuf_downnone);
-  hist("pt_ST_murmuf_downdown")->Fill(st, weight * murmuf_downdown);
+    hist("pt_ST_murmuf_upup")->Fill(st, weight * murmuf_upup);
+    hist("pt_ST_murmuf_upnone")->Fill(st, weight * murmuf_upnone);
+    hist("pt_ST_murmuf_noneup")->Fill(st, weight * murmuf_noneup);
+    hist("pt_ST_murmuf_nonedown")->Fill(st, weight * murmuf_nonedown);
+    hist("pt_ST_murmuf_downnone")->Fill(st, weight * murmuf_downnone);
+    hist("pt_ST_murmuf_downdown")->Fill(st, weight * murmuf_downdown);
+  } catch (...) { }
+
 
 
 }

@@ -28,14 +28,15 @@ void decorrelation_ratioplotter(){
 
   TString sample = "MC.TTbar";
 
-  TString beforePath = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/UL18/hadded/";
-  TString afterPath = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/UL18/hadded/";
+  TString beforePath = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/UL16postVFP/hadded/";
+  TString afterPath = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/UL16postVFP/hadded/";
   TString filename = "uhh2.AnalysisModuleRunner."+sample+".root";
-  TString histname = "pt_ST_fullrange";
+  TString beforeHistname = "pt_ST_0p5";
+  TString afterHistname = "not_pt_ST_0p5";
   TString label = "S_{T} [GeV]";
 
-  TString beforeFolder = "newTaggerSR";
-  TString afterFolder = "newTaggerCR";
+  TString beforeFolder = "DDTHists";
+  TString afterFolder = "DDTHists";
 
   TCanvas *canvas = new TCanvas("canvas", "c", w, h);
 
@@ -55,8 +56,8 @@ void decorrelation_ratioplotter(){
   TFile *input_EOY = TFile::Open(beforePath+filename);
   TFile *input_UL = TFile::Open(afterPath+filename);
 
-  TH1D *hist_num = (TH1D*)input_UL->Get(beforeFolder+"/"+histname); //histogram
-  TH1D *hist_denom = (TH1D*)input_EOY->Get(afterFolder+"/"+histname); //histogram
+  TH1D *hist_num = (TH1D*)input_UL->Get(beforeFolder+"/"+beforeHistname); //histogram
+  TH1D *hist_denom = (TH1D*)input_EOY->Get(afterFolder+"/"+afterHistname); //histogram
   if(!hist_num) std::cout << "Numerator does not exist!" << std::endl;
   if(!hist_denom) std::cout << "Denominator does not exist!" << std::endl;
 
@@ -144,6 +145,6 @@ void decorrelation_ratioplotter(){
 
   hist_num_clone->Draw("");
 
-  canvas->SaveAs("plots/decorrelationComparison_"+histname+"_"+beforeFolder+"_"+sample+".pdf");
+  canvas->SaveAs("plots/decorrelationComparison_"+beforeHistname+"_"+beforeFolder+"_"+sample+".pdf");
 
 }

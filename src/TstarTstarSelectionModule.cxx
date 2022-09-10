@@ -530,6 +530,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
 
   MCScaleVariations.reset(new MCScaleVariation(ctx) );
 
+
 }
 
 
@@ -574,7 +575,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
   if(!(HOTVRcleaner->process(event))) return false;
 
   // exclude electron in overlap region
-  if(!event.get(h_is_muevt)) {
+  if(!event.get(h_is_muevt) || isTriggerSFMeasurement) {
     if( (abs(event.electrons->at(0).eta()) >= 1.444) && (abs(event.electrons->at(0).eta()) <= 1.566)) return false;
   }
 
@@ -1070,7 +1071,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
 
       pass_trigger_SingleEle_lowpt = trg_ele_low->passes(event);
 
-      if (event.get(h_MC_isfake2017B)) pass_trigger_SingleEle_highpt = (trg_ele_low->passes(event) || trg_pho->passes(event));
+      if (event.get(h_MC_isfake2017B) || data_is2017B) pass_trigger_SingleEle_highpt = (trg_ele_low->passes(event) || trg_pho->passes(event));
       else pass_trigger_SingleEle_highpt = (trg_ele_high->passes(event) || trg_pho->passes(event));
 
     }

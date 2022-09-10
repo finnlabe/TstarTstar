@@ -7,6 +7,7 @@
 
 #include <stdexcept>
 #include <set>
+#include <regex>
 
 using namespace std;
 using namespace uhh2;
@@ -172,3 +173,56 @@ HEMCleanerMCScale::HEMCleanerMCScale(Context& ctx, string jetCollection, bool do
   EtaPhiEventCleanerMC(ctx, weight_factor, min_eta_HEM,
     max_eta_HEM,min_phi_HEM, max_phi_HEM, jetCollection, doJets, doElectrons,
     doMuons){};
+
+
+TstarTstarSpinScale::TstarTstarSpinScale(Context& ctx, TString path) {
+
+  // detect whether we are signal, otherwise just leave
+  if (ctx.get("dataset_version").find("Tstar") != std::string::npos) {
+    weAreSignal = true;
+
+    // if we are signal, read the file!
+    TFile *f = new TFile(path);
+
+    // detect mass string
+    std::string output = std::regex_replace(ctx.get("dataset_version"), std::regex("[^0-9]*([0-9]+).*"), std::string("$1"));
+    std::cout << "Detected this to be a signal sample at mass point " << output << "." << std::endl;
+    if(std::stoi( output ) > 2000) output = "2000";
+    if(output == "1100") output = "1000";
+    TString output_now_in_root = output;
+    scaleFactorHist = (TH1D*)f->Get("ratio_"+output_now_in_root);
+  } else {
+    weAreSignal = false;
+  }
+
+}
+
+bool TstarTstarSpinScale::process(Event& event){
+
+  if(!weAreSignal) return true; // not doing anything for non-signal
+
+  // first, detect T* average mass in this event
+  // Find signal, top, and antitop
+  GenParticle tstar, antitstar;
+  bool found_tstar = false, found_antitstar = false;
+  for(const GenParticle & gp : *event.genparticles){
+    if(gp.pdgId() == 600 && (gp.status()==23 || gp.status()==22)){
+      tstar = gp;
+      if(found_tstar) std::cout << "Error: found two T*" << std::endl;
+      found_tstar = true;
+    }
+    else if(gp.pdgId() == -600 && (gp.status()==23 || gp.status()==22)){
+      antitstar = gp;
+      if(found_antitstar) std::cout << "Error: found two anti T*" << std::endl;
+      found_antitstar = true;
+    }
+  }
+
+  if(!found_tstar || !found_antitstar) return false;
+
+  double sf = scaleFactorHist->GetBinContent( scaleFactorHist->GetXaxis()->FindBin(tstar.pt()));
+
+  event.weight *= sf;
+
+  return true;
+}

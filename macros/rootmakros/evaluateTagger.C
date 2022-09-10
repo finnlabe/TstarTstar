@@ -33,10 +33,10 @@ void evaluateTagger(){
   c1_hist->SetLogz();
 
   // get histogram
-  TString filename="TTbar";
+  TString filename="TstarTstar_M-1800";
   TString subpath="DNN_newTagger";
   TString histname="2D_newTagger_ST";
-  TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/";
+  TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/UL16postVFP/hadded/";
   TString fileprefix = "uhh2.AnalysisModuleRunner.MC.";
   TFile *input = TFile::Open(path+fileprefix+filename+".root");
   if(!input) cout << "Empty file" << endl;

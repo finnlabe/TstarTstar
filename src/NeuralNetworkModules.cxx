@@ -242,14 +242,13 @@ std::vector<double> NeuralNetworkInputNormalizer::normalizeInputs(uhh2::Event& e
 
 NeuralNetworkIncluder::NeuralNetworkIncluder(Context& ctx, bool parametrized) {
   is_parametrized = parametrized;
-  path = "/nfs/dust/cms/user/flabe/MLCorner/TstarNN/reweightingApproach/NonParametric/";
-  //path = "/nfs/dust/cms/user/flabe/MLCorner/TstarNN/DisCoApproach/output/STweightFalse_lambda0.05_layers4_nodes25_25_25_25_dropout0.0__2/";
+  //path = "/nfs/dust/cms/user/flabe/MLCorner/TstarNN/reweightingApproach/NonParametric/";
+  path = "/nfs/dust/cms/user/flabe/TstarTstar/Jupyter/TstarTstar_NN/models/chosenModel/main__layers_25_25_25_25_1__activation_tanh__loss_mean_squared_error__lr_1e-05__batchsize_4096__dropout_0__batchnorm_0/frozen/";
   NNInputCreator.reset(new NeuralNetworkInputCreator(ctx));
   //NNInputNormalizer.reset(new NeuralNetworkInputNormalizer(ctx, path+"/data/"));
   NNInputNormalizer.reset(new NeuralNetworkInputNormalizer(ctx, path));
-  //NNModule.reset(new NeuralNetworkModule(ctx, path+"/network/model/frozen_graph.pb", path+"/network/model/frozen_graph.config.pbtxt"));
-  //NNModule.reset(new NeuralNetworkModule(ctx, path+"model.pb", path+"model.config.pbtxt"));
-  NNModule.reset(new NeuralNetworkModule(ctx, path+"/model.pb", path+"/model.config.pbtxt"));
+  //NNModule.reset(new NeuralNetworkModule(ctx, path+"/model.pb", path+"/model.config.pbtxt"));
+  NNModule.reset(new NeuralNetworkModule(ctx, path+"/frozen_graph.pb", path+"/frozen_graph.config.pbtxt"));
   h_masspoint = ctx.get_handle<double>("masspoint");
   h_DNN_output = ctx.declare_event_output<double>("DNN_output");
   h_DoAddInputs = ctx.get_handle<bool>("doAddInputs");

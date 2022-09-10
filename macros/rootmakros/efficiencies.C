@@ -41,7 +41,7 @@ void efficiencies(TString suffix = ""){
   std::vector<TString> selSteps = {"AfterMET", "AfterAK4", "AfterHOTVR", "AfterBtag", "After2D", "AfterST"};
   std::vector<TString> recoSteps = {};
   int stepcount = preselSteps.size() + selSteps.size() + recoSteps.size();
-  std::vector<TString> labels = {"Initial", "N_{lep} = 1", "jet pre-cut", "ST pre-cut", "N_{AK4} #geq 4 mu", "N_{HOTVR} #geq 1 ele", "N_{HOTVR} #geq 1 mu", "MET > 50GeV ele", "MET > 50GeV mu", "N_{b-tag} #geq 1 ele", "N_{b-tag} #geq 1 mu", "2D ele","2D mu", "S_{T} > 500GeV ele", "S_{T} > 500GeV mu", "SR", "should not be visible"};
+  std::vector<TString> labels = {"Initial", "N_{lep} = 1", "jet pre-cut", "ST pre-cut", "MET cut", "AK4 cut", "HOTVR cut", "b-tag cut", "2D cut", "ST cut", "not visible"};
 
   // Adding suffix
   int is_first = true;
@@ -58,16 +58,16 @@ void efficiencies(TString suffix = ""){
 
 
   // Defining Samples
-  std::vector<TString> signalSamples = {"uhh2.AnalysisModuleRunner.MC.TstarTstar_M-1000", "uhh2.AnalysisModuleRunner.MC.TstarTstar_M-2000", "EOY/uhh2.AnalysisModuleRunner.MC.TstarTstar_M-1000", "EOY/uhh2.AnalysisModuleRunner.MC.TstarTstar_M-2000"};
+  std::vector<TString> signalSamples = {"uhh2.AnalysisModuleRunner.MC.TstarTstar_M-1800",  "EOY/uhh2.AnalysisModuleRunner.MC.TstarTstar_M-1800"};
   std::vector<TString> BGSamples = {};
   //std::vector<TString> BGSamples = {};
 
-  std::vector<TString> signal_labels = {"M-1000 1/2", "M-2000 1/2", "M-1000 3/2", "M-2000 3/2"};
+  std::vector<TString> signal_labels = {"M-1800 1/2",  "M-1800 3/2", };
   std::vector<TString> BG_labels = {};
 
   // Defining Drawing options
-  std::vector<int> colors_Signal = {1, 2, 1, 2};
-  std::vector<int> line_Signal = {1, 1, 2, 2};
+  std::vector<int> colors_Signal = {1,  1,};
+  std::vector<int> line_Signal = {1, 2};
   std::vector<int> colors_BG = {810, 600,800,  867};
 
   // ########################
@@ -229,7 +229,7 @@ void efficiencies(TString suffix = ""){
       hist->GetYaxis()->SetTickLength(0.02);
       hist->GetYaxis()->SetLabelOffset(0.011);
 
-      hist->SetMinimum(2e-4);
+      hist->SetMinimum(2e-5);
       hist->Draw();
     }
     else hist->Draw("same");

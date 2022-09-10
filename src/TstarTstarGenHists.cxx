@@ -45,7 +45,16 @@ TstarTstarGenHists::TstarTstarGenHists(Context & ctx, const string & dirname): H
 
   book<TH1F>("M_tstar_gen", "M_{Tstar} gen", 100, 0, 2000);
   book<TH1F>("Pt_tstar_gen", "Pt_{Tstar} gen", 100, 0, 3000);
+  book<TH1F>("eta_tstar_gen", "Pt_{Tstar} gen", 40, -4, 4);
   book<TH1F>("M_tstartstar_gen", "M_{TstarTstar} gen", 200, 0, 10000);
+
+  const int nbinsX = 31;
+  double binsX[nbinsX] = {0, 60, 120, 180, 240, 300, 360, 420, 480, 540, 600, 660, 720, 780, 840, 900, 960, 1020, 1080, 1140, 1200, 1260, 1320, 1380, 1440, 1500, 1620, 1740, 1860, 2100, 3000};
+  const int nbinsY = 17;
+  double binsY[nbinsY] = {0, 2000, 3000, 3500, 3750, 4000, 4250, 4500, 4750, 5000, 5250, 5500, 5750, 6000, 6500, 8000, 10000};
+  book<TH2F>("Pt_M_tstar_2D_gen", "2D pt M gen", nbinsX, binsX, nbinsY, binsY );
+  book<TH2F>("Pt_eta_tstar_2D_gen", "2D pt eta gen", 100, 0, 3000, 40, -4, 4);
+
   book<TH1F>("M_ttbar_gen", "M_{ttbar} gen", 100, 0, 5000);
   book<TH1F>("M_top_gen", "M_{top} gen", 50, 0, 500);
   book<TH1F>("Pt_top_gen", "p^{t}_{T} [GeV/c]", 50, 0, 2500);
@@ -190,10 +199,13 @@ void TstarTstarGenHists::fill(const Event & event){
     float m_tstar = inv_mass(tstar.v4());
     hist("M_tstar_gen")->Fill(m_tstar, weight);
     hist("Pt_tstar_gen")->Fill(tstar.pt(), weight);
+    hist("eta_tstar_gen")->Fill(tstar.eta(), weight);
+    ((TH2F*)hist("Pt_eta_tstar_2D_gen"))->Fill(tstar.pt(), tstar.eta(), weight);
   }
   if(found_tstar && found_antitstar){
     float m_tstartstar = inv_mass(tstar.v4()+antitstar.v4());
     hist("M_tstartstar_gen")->Fill(m_tstartstar, weight);
+    ((TH2F*)hist("Pt_M_tstar_2D_gen"))->Fill(m_tstartstar, tstar.pt(), weight);
   }
   float m_ttbar = inv_mass(top.v4() + antitop.v4());
   hist("M_ttbar_gen")->Fill(m_ttbar, weight);

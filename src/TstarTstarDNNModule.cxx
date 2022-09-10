@@ -28,6 +28,9 @@
 #include "UHH2/TstarTstar/include/TstarTstarGenMatch.h"
 #include "UHH2/TstarTstar/include/NeuralNetworkModules.h"
 #include "UHH2/TstarTstar/include/TstarTstarSignalRegionHists.h"
+#include "UHH2/TstarTstar/include/TstarTstarScaleFactors.h"
+#include "UHH2/TstarTstar/include/TstarTstarDDTHists.h"
+
 
 // other
 #include "UHH2/HOTVR/include/HOTVRIds.h"
@@ -101,6 +104,8 @@ private:
 
   std::unique_ptr<Hists> h_ttbarCR_v1, h_ttbarCR_v2, h_ttbarCR_v3;
 
+  std::unique_ptr<uhh2::TstarTstarDDTHists> h_DDTtestHists;
+
   // ###### Control switches ######
   bool debug = false;
   bool do_masspoint = false;
@@ -135,6 +140,10 @@ private:
 
   TGraphAsymmErrors* bgest_purity;
   TF1* backgroundEstimationFunction;
+  std::vector<TF1*> DDTFunctions;
+  TF1* BestDDTFunction;
+
+  std::unique_ptr<uhh2::AnalysisModule> TstarTstarSpinSwitcher;
 
 };
 
@@ -278,6 +287,26 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
     else backgroundEstimationFunction = (TF1*)f->Get("fit2");
   }
 
+  TString path = "/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/";
+  TString bestFunction = "0p3";
+  TString filename_base = "DDTfunc_";
+  
+  // getting the best function
+  TFile *f = new TFile(path+filename_base+bestFunction+".root");
+  BestDDTFunction = (TF1*)f->Get("fit");
+
+  // now lets load all the others
+  std::vector<TString> points_to_check = {"0p1", "0p15", "0p2", "0p25", "0p3", "0p35", "0p4", "0p45", "0p5"};
+  for (auto point : points_to_check) {
+    TFile *f = new TFile(path+filename_base+point+".root");
+    auto DDTFunction = (TF1*)f->Get("fit");
+    DDTFunctions.push_back(DDTFunction);
+  }
+
+  h_DDTtestHists.reset( new TstarTstarDDTHists(ctx, "DDTHists", points_to_check) ) ;
+
+  TstarTstarSpinSwitcher.reset(new TstarTstarSpinScale(ctx, "/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/spinFactors.root"));
+
 }
 
 
@@ -292,6 +321,9 @@ bool TstarTstarDNNModule::process(Event & event) {
   // reapply weights
   event.weight = event.get(h_evt_weight);
   if(debug) cout << "weights applied." << endl;
+
+  //if(!(TstarTstarSpinSwitcher->process(event))) return false;
+  event.set(h_evt_weight, event.weight); // we'll use this later, so need to re-set
 
   // get ST weights
   double ST_weight = event.get(h_ST_weight);
@@ -368,23 +400,16 @@ bool TstarTstarDNNModule::process(Event & event) {
   }
   **/
 
-  if(debug) cout << "Defining CB function 1" << endl;
-
-  // Additional decorrelation through "varying cut" on DNN output
-  // the function used here was obtained by a fit in the macro "decorrelatedTagger.C"
-  // 1  Constant     4.65951e-01   1.36602e-03  -9.94180e-06  -2.24498e-01
-  // 2  Mean         7.13578e+02   4.00979e+00   1.37526e-03   6.80281e-05
-  // 3  Sigma        2.40880e+02   7.13853e+00   8.82481e-03  -1.99541e-04
-  // 4  Alpha       -1.43648e-01   6.23610e-03   1.21231e-05  -3.65818e-02
-  // 5  N            5.14847e+05   2.62580e+05  -5.73867e+01   1.95656e-10
-  double crystal_constant = 8.09337e-01;
-  double crystal_mean = 6.86757e+02;
-  double crystal_sigma = 4.37874e+02;
-  double crystal_alpha = -2.14474e-01;
-  double crystal_n = 7.97461e+05;
-  double secondPart = 1 - (crystal_constant * crystalball_function(event.get(h_ST), crystal_alpha, crystal_n, crystal_sigma, crystal_mean));
-  double newTagger = event.get(h_DNN_output) - secondPart;
+  double newFunc = BestDDTFunction->Eval(event.get(h_ST));
+  double newTagger = event.get(h_DNN_output) - ( 1 - newFunc );
   event.set(h_newTagger, newTagger);
+  
+  // lets store all the other tagger outputs in a vector
+  std::vector<double> newTaggerResults;
+  for (auto function : DDTFunctions) {
+    double value = event.get(h_DNN_output) - ( 1 - function->Eval(event.get(h_ST)) );
+    newTaggerResults.push_back(value);
+  }
 
   // datadriven background estimation
   if(is_datadriven_BG_run) {
@@ -420,9 +445,7 @@ bool TstarTstarDNNModule::process(Event & event) {
         if(event.get(h_is_mu)) h_SignalRegion_mu->fill(event);
         else h_SignalRegion_ele->fill(event);
       }
-
-    }
-    else {
+    } else {
       h_newTaggerCR->fill(event);
       event.set(h_region,"VR");
 
@@ -457,6 +480,10 @@ bool TstarTstarDNNModule::process(Event & event) {
 
 
     }
+
+    // lets fill some other histogram class that will give us the output for each point to check
+    h_DDTtestHists->fill(event, newTaggerResults);
+
   }
   else {
     h_newTagger_btagCR->fill(event);

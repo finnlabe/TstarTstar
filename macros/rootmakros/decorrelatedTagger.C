@@ -6,7 +6,8 @@
 
 void decorrelatedTagger(){
 
-  Double_t efficiency_ttbar = 0.2;
+  Double_t efficiency_ttbar = 0.4;
+  TString effic_string = "0p5";
 
   // some style options
   gStyle->SetOptFit(0);
@@ -33,7 +34,7 @@ void decorrelatedTagger(){
   c1_hist->SetLogz();
 
   // get histogram
-  TString filename="ttbar";
+  TString filename="TTbar";
   TString subpath="DNN";
   TString histname="2D_DNN_ST";
   TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/";
@@ -150,10 +151,12 @@ void decorrelatedTagger(){
   TGraph* edgePoints = new TGraphAsymmErrors(cutedgesX.size(),&cutedgesX[0],&cutedgesY[0], 0, 0, &errors[0], &errors[0]);
   edgePoints->SetMarkerStyle(1);
   edgePoints->Draw("p same");
-  // other option: Gauß + exponential
-  TF1 *fit = new TF1("fit", "crystalball", 500, 4000);
+  //other option: Gauß + exponential
+  //TF1 *fit = new TF1("fit", "crystalball", 500, 4000);
+  TF1 *fit = new TF1("fit", "[2] + [0] * exp([1] * x)", 500, 4000);
   // constant, mean, sigma, alpha, N
-  fit->SetParameters(.8,700,400,-0.2,8e+05);
+  //fit->SetParameters(.9,270,200,-0.3,1e+06);
+  fit->SetParameters(2, -3.05300e-03, 4.17680e-01);
   edgePoints->Fit("fit", "N", "", 500, 4000);
   fit->Draw("same");
 
@@ -169,7 +172,11 @@ void decorrelatedTagger(){
   otherfunc->SetLineColor(kBlue);
   otherfunc->Draw("L same");
   **/
-  c1_hist->SaveAs("plots/variableCuts_"+filename+"_"+subpath+"_"+histname+".pdf");
+  c1_hist->SaveAs("plots/variableCuts_"+filename+"_"+subpath+"_"+histname+"_"+effic_string+".pdf");
 
+  // saving fit function to output file
+  TFile *output;
+  output = TFile::Open("files/DDTfunc_"+effic_string+".root", "RECREATE");
+  fit->Write();
 
 }

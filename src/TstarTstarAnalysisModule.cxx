@@ -216,7 +216,7 @@ TstarTstarAnalysisModule::TstarTstarAnalysisModule(Context & ctx){
     h_ST_weight = ctx.declare_event_output<double>("ST_weight");
   }
 
-  TFile *f = new TFile("/nfs/dust/cms/user/flabe/MLCorner/TstarNN/reweightingApproach/output/data/ST_weights.root");
+  TFile *f = new TFile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/ST_weights.root");
   ST_ratio = (TH1D*)f->Get("ST_ratio");
 
   // TstarTstar reconstruction

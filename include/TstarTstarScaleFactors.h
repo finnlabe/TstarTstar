@@ -79,3 +79,15 @@ public:
 private:
   std::string jetCollection;
 };
+
+class TstarTstarSpinScale: public uhh2::AnalysisModule {
+public:
+
+  explicit TstarTstarSpinScale(uhh2::Context& ctx, TString path);
+  virtual bool process(uhh2::Event&) override;
+
+private:
+  bool weAreSignal;
+  TH1D *scaleFactorHist;
+
+};

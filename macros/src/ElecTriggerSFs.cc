@@ -61,7 +61,7 @@ int main(int argc, char* argv[]){
   else if(year.EqualTo("2017")){year_v = "_2017v2"; lumi_plot = 41.5; fdir = "no";}
   else if(year.EqualTo("2018")){year_v = "_2018"; lumi_plot = 59.74; fdir = "no";}
   else if(year.EqualTo("UL16")){year_v = "_UL16"; lumi_plot = 0.0; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/TriggerEff/UL16/hadded/";}
-  else if(year.EqualTo("UL17")){year_v = "_UL17"; lumi_plot = 0.0; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/TriggerEff/";}
+  else if(year.EqualTo("UL17")){year_v = "_UL17"; lumi_plot = 41.5; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/TriggerEff/UL17/hadded/";}
   else if(year.EqualTo("UL18")){year_v = "_UL18"; lumi_plot = 59.8; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/TriggerEff/UL18/hadded/";}
   else throw runtime_error("I need the correct year; 2016, 2017, 2018, UL16, UL17 or UL18");
 
