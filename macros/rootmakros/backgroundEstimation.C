@@ -63,6 +63,8 @@ void create_output(const TString fout_name, const TString subdir_name, TH1F* his
 
 void backgroundEstimation(){
 
+  bool storeOutputToFile = false;
+
   // definitions
   std::vector<TString> nontop_backgrounds = {"WJets", "QCD", "VV", "DYJets"};
   std::vector<TString> top_backgrounds = {"ST", "TTbar"};
@@ -73,7 +75,7 @@ void backgroundEstimation(){
   TString histname="pt_ST_rebinned";
   TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/";
   TString fileprefix = "uhh2.AnalysisModuleRunner.";
-  TString syst = "JER_down";
+  TString syst = "";
 
   if(syst != "") path = path + "/hadded_" + syst + "/";
   else path = path + "/hadded/";
@@ -324,12 +326,14 @@ void backgroundEstimation(){
   else c1_hist->SaveAs("plots/purity_"+syst+".pdf");
 
   // saving fit function to output file
-  TFile *output;
-  if(syst == "") output = TFile::Open("files/alphaFunction.root", "RECREATE");
-  else output = TFile::Open("files/alphaFunction_"+syst+".root", "RECREATE");
-  fit2->Write();
-  fit->Write();
-  hint1->Write();
-  hint2->Write();
+  if(storeOutputToFile) {
+    TFile *output;
+    if(syst == "") output = TFile::Open("files/alphaFunction.root", "RECREATE");
+    else output = TFile::Open("files/alphaFunction_"+syst+".root", "RECREATE");
+    fit2->Write();
+    fit->Write();
+    hint1->Write();
+    hint2->Write();
+  }
 
 }

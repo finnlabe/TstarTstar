@@ -33,15 +33,15 @@ void efficiencies(TString suffix = ""){
   TString pathPresel = "/nfs/dust/cms/user/flabe/TstarTstar/data/Preselection/UL16postVFP/hadded/";
   TString pathSel = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/UL16postVFP/hadded/";
   TString pathReco = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/UL16postVFP/hadded/";
-  TString fileprefix = "";
+  TString fileprefix = "uhh2.AnalysisModuleRunner.MC.";
   TString histname = "N_jets";
 
   // Defining Steps
-  std::vector<TString> preselSteps = {"AfterCommon", "AfterLep",  "AfterJets", "AfterST"};
+  std::vector<TString> preselSteps = {"AfterLep",  "AfterJets", "AfterST"};
   std::vector<TString> selSteps = {"AfterMET", "AfterAK4", "AfterHOTVR", "AfterBtag", "After2D", "AfterST"};
   std::vector<TString> recoSteps = {};
   int stepcount = preselSteps.size() + selSteps.size() + recoSteps.size();
-  std::vector<TString> labels = {"Initial", "N_{lep} = 1", "jet pre-cut", "ST pre-cut", "MET cut", "AK4 cut", "HOTVR cut", "b-tag cut", "2D cut", "ST cut", "not visible"};
+  std::vector<TString> labels = {"Trigger and N_{lep} = 1", "jet pre-cut", "ST pre-cut", "MET cut", "AK4 cut", "HOTVR cut", "b-tag cut", "2D cut", "ST cut", "not visible"};
 
   // Adding suffix
   int is_first = true;
@@ -58,12 +58,12 @@ void efficiencies(TString suffix = ""){
 
 
   // Defining Samples
-  std::vector<TString> signalSamples = {"uhh2.AnalysisModuleRunner.MC.TstarTstar_M-1800",  "EOY/uhh2.AnalysisModuleRunner.MC.TstarTstar_M-1800"};
-  std::vector<TString> BGSamples = {};
+  std::vector<TString> signalSamples = {"TstarTstar_M-1000", "TstarTstar_M-2000"};
+  std::vector<TString> BGSamples = {"TTbar", "WJets", "ST", "QCD"};
   //std::vector<TString> BGSamples = {};
 
-  std::vector<TString> signal_labels = {"M-1800 1/2",  "M-1800 3/2", };
-  std::vector<TString> BG_labels = {};
+  std::vector<TString> signal_labels = {"t* 1000 GeV",  "t* 2000 GeV", };
+  std::vector<TString> BG_labels = {"TTbar", "WJets", "ST", "QCD"};
 
   // Defining Drawing options
   std::vector<int> colors_Signal = {1,  1,};
@@ -229,7 +229,7 @@ void efficiencies(TString suffix = ""){
       hist->GetYaxis()->SetTickLength(0.02);
       hist->GetYaxis()->SetLabelOffset(0.011);
 
-      hist->SetMinimum(2e-5);
+      hist->SetMinimum(1e-4);
       hist->Draw();
     }
     else hist->Draw("same");
@@ -260,7 +260,7 @@ void efficiencies(TString suffix = ""){
   leg->Draw("same");
 
   // draw Lumi text
-  TString infotext = TString::Format("%3.1f fb^{-1} (%d TeV)", 137., 13);
+  TString infotext = TString::Format("%3.1f fb^{-1} (%d TeV)", 16.81, 13);
   TLatex *text = new TLatex(3.5, 24, infotext);
   text->SetNDC();
   text->SetTextAlign(33);

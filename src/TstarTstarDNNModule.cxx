@@ -335,15 +335,10 @@ bool TstarTstarDNNModule::process(Event & event) {
   event.set(h_DoAddInputs, doAddInputs);
 
   // placeholder as this flag seems to be wrong!!!
-  int N_jets_btag_loose = 0;
-  int N_jets_btag_medium = 0;
-  int N_jets_btag_tight = 0;
+  BTag bJetID = BTag(BTag::algo::DEEPJET, BTag::wp::WP_LOOSE);
   bool pass_btagcut = false;
-  for(const auto & jet : *event.jets) {
-    if(jet.btag_DeepCSV() > 0.2219) N_jets_btag_loose++;
-    if(jet.btag_DeepCSV() > 0.2219) pass_btagcut = true;
-    if(jet.btag_DeepCSV() > 0.6324) N_jets_btag_medium++;
-    if(jet.btag_DeepCSV() > 0.8958) N_jets_btag_tight++;
+  for (const auto & jet: *event.jets){
+    if(bJetID(jet, event)) pass_btagcut = true;
   }
 
   h_crosscheck->fill(event);

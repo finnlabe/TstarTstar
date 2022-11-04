@@ -21,14 +21,14 @@ void variationPlots(){
   gROOT->ForceStyle();
 
   TString sample = "TTbar";
-  TString year = "UL16postVFP";
+  TString year = "UL18";
   TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/"+year+"/hadded";
   TString macro_path = "/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/";
   TString filename = "uhh2.AnalysisModuleRunner.MC."+sample+".root";
   TString foldername = "SignalRegion_total";
   TString histname = "pt_ST";
-  bool doJECJER = true;
-  bool doPDFandScale = true;
+  bool doJECJER = false;
+  bool doPDFandScale = false;
 
   std::vector<TString> variations_elec = {"sfelec_id", "sfelec_reco", "sfelec_trigger"};
   std::vector<TString> variations_mu = {"sfmu_id", "sfmu_iso", "sfmu_trigger"};
@@ -188,6 +188,7 @@ void variationPlots(){
   leg->SetBorderSize(0);
   for (int i = 0; i < variations.size(); i++) {
     TString variation = variations.at(i);
+    std::cout << variation << std::endl;
     TH1D *hist_up = (TH1D*)main_file->Get(foldername+"/"+histname+"_"+variation+"Up");
     TH1D *hist_down = (TH1D*)main_file->Get(foldername+"/"+histname+"_"+variation+"Down");
 

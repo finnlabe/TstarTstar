@@ -14,7 +14,7 @@ void btagSFcheck() {
   TString folder_after = "AfterBCorrections";
   TString folder_crosscheck = "AfterBYieldCorrections";
 
-  bool writeSFsToFile = false;
+  bool writeSFsToFile = true;
 
   // main loop, we are doing this for each sample
   std::vector<TH2D*> histograms_to_store;

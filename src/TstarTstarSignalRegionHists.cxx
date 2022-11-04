@@ -219,15 +219,16 @@ void TstarTstarSignalRegionHists::fill(const Event & event){
   hist("pt_ST_sfelec_idUp")->Fill(st, event.get(h_weight_sfelec_idUp)*weight/event.get(h_weight_sfelec_idNominal));
   hist("pt_ST_sfelec_idDown")->Fill(st, event.get(h_weight_sfelec_idDown)*weight/event.get(h_weight_sfelec_idNominal));
 
-  try {
-    // sfelec_trigger
+  // sfelec_trigger
+  if( event.get(h_weight_sfelec_triggerNominal) != 0) {
+    // some entries in h_weight_sfelec_triggerNominal can be 0 -> we do not want to include those! 
     hist("pt_ST_sfelec_triggerUp")->Fill(st, event.get(h_weight_sfelec_triggerUp)*weight/event.get(h_weight_sfelec_triggerNominal));
     hist("pt_ST_sfelec_triggerDown")->Fill(st, event.get(h_weight_sfelec_triggerDown)*weight/event.get(h_weight_sfelec_triggerNominal));
-
-    // sfelec_reco
-    hist("pt_ST_sfelec_recoUp")->Fill(st, event.get(h_weight_sfelec_recoUp)*weight/event.get(h_weight_sfelec_recoNominal));
-    hist("pt_ST_sfelec_recoDown")->Fill(st, event.get(h_weight_sfelec_recoDown)*weight/event.get(h_weight_sfelec_recoNominal));
-  } catch (...)  {}
+  }
+  
+  // sfelec_reco
+  hist("pt_ST_sfelec_recoUp")->Fill(st, event.get(h_weight_sfelec_recoUp)*weight/event.get(h_weight_sfelec_recoNominal));
+  hist("pt_ST_sfelec_recoDown")->Fill(st, event.get(h_weight_sfelec_recoDown)*weight/event.get(h_weight_sfelec_recoNominal));
 
   // sfmu_id
   hist("pt_ST_sfmu_idUp")->Fill(st, event.get(h_weight_sfmu_idUp)*weight/event.get(h_weight_sfmu_idNominal));

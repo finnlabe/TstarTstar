@@ -25,6 +25,7 @@
 #include "UHH2/TstarTstar/include/TstarTstarGenRecoMatchedHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarSFHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarScaleFactors.h"
+#include "UHH2/TstarTstar/include/TstarTstarElectronIDHists.h"
 
 using namespace std;
 using namespace uhh2;
@@ -81,6 +82,8 @@ private:
 
   std::unique_ptr<Hists> h_afterSelection_gen, h_afterSelection_genmatch;
 
+  std::unique_ptr<Hists> h_electronIDhists;
+
   // ##### Handles #####
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
   uhh2::Event::Handle<bool> h_is_muevt;
@@ -102,8 +105,6 @@ private:
   bool data_is2016B = false;
   bool isTriggerSFMeasurement = false;
 
-  // the spin changer for signal
-  std::unique_ptr<uhh2::AnalysisModule> TstarTstarSpinSwitcher;
 
 };
 
@@ -239,6 +240,9 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
     if(debug) cout << "TTbarGenProducer done" << endl;
   }
 
+  // std::cout << "Attention: no tree will be stored, this is just for plotting!!!" << std::endl;
+  // ctx.undeclare_all_event_output();
+
   // ###### 2. set up selections ######
 
   // ###### 3. set up hists ######
@@ -290,6 +294,8 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   h_afterSelection_gen.reset(new TstarTstarGenHists(ctx, "AfterSel_gen"));
   h_afterSelection_genmatch.reset(new TstarTstarGenRecoMatchedHists(ctx, "AfterSel_genmatch"));
 
+  h_electronIDhists.reset(new TstarTstarElectronIDHists(ctx, "ElectronIDHists"));
+
   // ###### 4. init handles ######
   h_is_muevt = ctx.declare_event_output<bool>("is_muevt");
   h_is_highpt = ctx.declare_event_output<bool>("is_highpt");
@@ -304,7 +310,6 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
 
   std::srand(std::time(nullptr));
 
-  TstarTstarSpinSwitcher.reset(new TstarTstarSpinScale(ctx, "/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/spinFactors.root"));
 }
 
 
@@ -325,11 +330,11 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   // hists before anything happened
   h_nocuts->fill(event);
   h_nocuts_gen->fill(event);
+  if(is_MC) h_electronIDhists->fill(event);
   if(debug) cout<<"Filled hists without any cuts, and GEN with no cuts"<<endl;
 
   // ###### common modules, corrections & cleaning ######
   if(!(common->process(event))) return false;
-  if(!(TstarTstarSpinSwitcher->process(event))) return false;  
 
   if(debug) cout<<"common modules done"<<endl;
 

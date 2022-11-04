@@ -44,13 +44,13 @@ TstarTstarDNNInputHists::TstarTstarDNNInputHists(Context & ctx, const string & d
   DNN_2D_23 = book<TH1D>("DNN_Input_23", "HOTVR-3 #tau_{2}",  20, 0, 1);
   DNN_2D_24 = book<TH1D>("DNN_Input_24", "HOTVR-3 #tau_{3}",  20, 0, 1);
   DNN_2D_25 = book<TH1D>("DNN_Input_25", "HOTVR-3 N_{subjets}",  20, 0, 5);
-  DNN_2D_26 = book<TH1D>("DNN_Input_26", "b-jet p_{T}",  20, 0, 3000);
+  DNN_2D_26 = book<TH1D>("DNN_Input_26", "b-jet p_{T}",  20, 0, 1000);
   DNN_2D_27 = book<TH1D>("DNN_Input_27", "b-jet #eta",  20, -4, 4);
   DNN_2D_28 = book<TH1D>("DNN_Input_28", "b-jet #phi",  20, -4, 4);
-  DNN_2D_29 = book<TH1D>("DNN_Input_29", "b-jet DeepCSV score",  20, 0, 1);
+  DNN_2D_29 = book<TH1D>("DNN_Input_29", "b-jet DeepJet score",  20, 0, 1);
   DNN_2D_30 = book<TH1D>("DNN_Input_30", "MET p_{T}",  20, 0, 2000);
   DNN_2D_31 = book<TH1D>("DNN_Input_31", "MET #phi",  20, -4, 4);
-  DNN_2D_32 = book<TH1D>("DNN_Input_32", "N_{AK4}",  10, 0, 10);
+  DNN_2D_32 = book<TH1D>("DNN_Input_32", "N_{AK4}",  20, 0, 20);
   DNN_2D_33 = book<TH1D>("DNN_Input_33", "N_{HOTVR}",  10, 0, 10);
 
   AddDNN_2D_1 = book<TH1D>("DNN_AddInput_1", "p_{T} asymmetry",  25, 0, 1);

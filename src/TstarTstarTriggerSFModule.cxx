@@ -143,7 +143,7 @@ bool TstarTstarTriggerSFModule::process(uhh2::Event& event){
   if(debug) cout << "Start Fill ... " << endl;
   bool passed_elec_trigger = false;
   if(year_16) {
-    if(event.electrons->at(0).pt()<=120) passed_elec_trigger = trigger_el_A->passes(event)
+    if(event.electrons->at(0).pt()<=120) passed_elec_trigger = trigger_el_A->passes(event);
     else passed_elec_trigger = (trigger_el_B->passes(event) || trigger_el_C->passes(event));
   }
   if(year_17){

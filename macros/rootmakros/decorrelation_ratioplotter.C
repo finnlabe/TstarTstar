@@ -28,15 +28,15 @@ void decorrelation_ratioplotter(){
 
   TString sample = "MC.TTbar";
 
-  TString beforePath = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/UL16postVFP/hadded/";
-  TString afterPath = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/UL16postVFP/hadded/";
+  TString beforePath = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/";
+  TString afterPath = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/";
   TString filename = "uhh2.AnalysisModuleRunner."+sample+".root";
-  TString beforeHistname = "pt_ST_0p5";
-  TString afterHistname = "not_pt_ST_0p5";
+  TString beforeHistname = "pt_ST_rebinned";
+  TString afterHistname = "pt_ST_rebinned";
   TString label = "S_{T} [GeV]";
 
-  TString beforeFolder = "DDTHists";
-  TString afterFolder = "DDTHists";
+  TString beforeFolder = "NotDNNcut_06_UGLYFIX";
+  TString afterFolder = "AfterDNNcut_06_UGLYFIX";
 
   TCanvas *canvas = new TCanvas("canvas", "c", w, h);
 
@@ -142,6 +142,10 @@ void decorrelation_ratioplotter(){
   hist_num_clone->GetYaxis()->SetNdivisions(505);
   hist_num_clone->GetYaxis()->SetTitleOffset(0.375);
   hist_num_clone->GetYaxis()->SetTitleSize(0.15);
+
+  hist_num_clone->GetYaxis()->SetRangeUser(0.01, 5e1);
+
+  gPad->SetLogy();
 
   hist_num_clone->Draw("");
 

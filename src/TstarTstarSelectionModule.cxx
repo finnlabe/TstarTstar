@@ -879,18 +879,21 @@ bool TstarTstarSelectionModule::process(Event & event) {
   if(!pass_2D) return false;
 
   // hists
-  h_2Dcut->fill(event);
-  h_2Dcut_gen->fill(event);
-  if(event.get(h_is_muevt)){
-    h_2Dcut_mu->fill(event);
-    if(event.get(h_is_highpt)) h_2Dcut_mu_highpt->fill(event);
-    else h_2Dcut_mu_lowpt->fill(event);
+  if(pass_btagcut) {
+    h_2Dcut->fill(event);
+    h_2Dcut_gen->fill(event);
+    if(event.get(h_is_muevt)){
+      h_2Dcut_mu->fill(event);
+      if(event.get(h_is_highpt)) h_2Dcut_mu_highpt->fill(event);
+      else h_2Dcut_mu_lowpt->fill(event);
+    }
+    else {
+      h_2Dcut_ele->fill(event);
+      if(event.get(h_is_highpt)) h_2Dcut_ele_highpt->fill(event);
+      else h_2Dcut_ele_lowpt->fill(event);
+    }
   }
-  else {
-    h_2Dcut_ele->fill(event);
-    if(event.get(h_is_highpt)) h_2Dcut_ele_highpt->fill(event);
-    else h_2Dcut_ele_lowpt->fill(event);
-  }
+  
   if(debug) cout << "Passed 2D cut." << endl;
 
   if(debug) std::cout << "We have muons: " << event.muons->size() << endl;
