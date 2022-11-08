@@ -7,46 +7,6 @@ template<class T, size_t N>
 constexpr size_t size(T (&)[N]) { return N; }
 
 
-// stolen from alex :)
-void fill_reweighted(TH1F* hReweight,TH1F* hReweight_up,TH1F* hReweight_down, TF1* fitfun1, TF1* fitfun2,  TFitResultPtr r1, TFitResultPtr r2, const TString &fname, const double &weightSign) {
-
-  TFile *f = TFile::Open(fname);
-  if(!f) std::cout << "File not found!" << std::endl;
-
-  TTreeReader tReader("AnalysisTree", f);
-  TTreeReaderValue<double> preWeight(tReader, "evt_weight");
-  TTreeReaderValue<double> recoST(tReader, "ST");
-  TTreeReaderValue<TString> regionReader(tReader, "region");
-
-  while (tReader.Next()) {
-    double ST = (*recoST);
-    TString region = (*regionReader);
-    if(region != "CR2") continue;
-
-    double x[1] = { ST };
-    double err_1[1], err_2[1];
-    // mass = (mass >= 4000.) ? 3999.9 : mass; // I think I dont need an overflow bin after rebinning, but maybe check!
-
-    // evaluate fit at masspoint and get 1 sigma deviation from 68.3% confidence interval
-    double diff = fitfun1->Eval(*recoST) - fitfun2->Eval(*recoST);
-    double weight = fitfun1->Eval(*recoST);
-    r1->GetConfidenceIntervals(1, 1, 1, x, err_1, 0.683, false);
-    r2->GetConfidenceIntervals(1, 1, 1, x, err_2, 0.683, false);
-    double err = sqrt( pow(diff/2, 2) + pow(err_1[0], 2) + pow(err_2[0], 2));
-    double weight_up = weight - diff/2 + err;
-    double weight_down = weight - diff/2 - err;
-    weight = (weight < 0) ? 0 : weight * (*preWeight);
-    weight_up = (weight_up < 0) ? 0 : weight_up * (*preWeight);
-    weight_down = (weight_down < 0) ? 0 : weight_down * (*preWeight);
-    hReweight->Fill(ST, weight * weightSign);
-    hReweight_up->Fill(ST, weight_up * weightSign);
-    hReweight_down->Fill(ST, weight_down * weightSign);
-  }
-
-  f->Close();
-  delete f;
-}
-
 // stolen also from alex :)
 void create_output(const TString fout_name, const TString subdir_name, TH1F* hist) {
   TFile *fout = new TFile(fout_name, "update");
@@ -63,22 +23,23 @@ void create_output(const TString fout_name, const TString subdir_name, TH1F* his
 
 void backgroundEstimation(){
 
-  bool storeOutputToFile = false;
+  bool storeOutputToFile = true;
+
+  TString region = "SR";
+  bool useHOTVRST = true;
 
   // definitions
   std::vector<TString> nontop_backgrounds = {"WJets", "QCD", "VV", "DYJets"};
   std::vector<TString> top_backgrounds = {"ST", "TTbar"};
-  TString data = "data";
 
-  TString subpath_SR="newTaggerCR";
+  TString subpath_SR="newTagger" + region;
   TString subpath_CR="newTagger_btagCR";
   TString histname="pt_ST_rebinned";
+  if(useHOTVRST) histname="pt_ST_HOTVR_rebinned";
   TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/";
   TString fileprefix = "uhh2.AnalysisModuleRunner.";
-  TString syst = "";
 
-  if(syst != "") path = path + "/hadded_" + syst + "/";
-  else path = path + "/hadded/";
+  path = path + "/hadded/";
 
   TH1D *histSR;
   TH1D *hist_btagCR_nontop;
@@ -147,27 +108,32 @@ void backgroundEstimation(){
   TGraphAsymmErrors purity = TGraphAsymmErrors();
   purity.Divide(hist_btagCR_nontop, hist_btagCR, "cl=0.68 b(1,1) mode");
 
-  TFile *file = new TFile("files/bgest_purity.root", "RECREATE");
-  purity.SetName("purity");
-  purity.Write();
-  file->Close();
-  delete file;
-
+  if(storeOutputToFile) {
+    TString filename = "files/bgest_purity_"+region+".root";
+    if(useHOTVRST) filename = "files/bgest_purity_HOTVR_"+region+".root";
+    TFile *file = new TFile(filename, "RECREATE");
+    purity.SetName("purity");
+    purity.Write();
+    file->Close();
+    delete file;
+  }
+  
   // calculate ratio histogram
   TGraphAsymmErrors ratio = TGraphAsymmErrors();
   ratio.Divide(histSR, hist_btagCR, "pois");
 
   // fit function to ratio histogram
-  TF1 *fit = new TF1("fit", "[0] - [2]*exp(-[1]*x)", 600, 6000);
-  //TF1 *fit = new TF1("fit", "[0]*log([1]*x)", 500, 6000);
-  fit->SetParameters(0.8, 0, 1);
-  //TF1 *fit = new TF1("fit", "gaus", 500, 6000);
+  TF1 *fit = new TF1("fit", "[0]*log([1]*x)", 1000, 6000);
+  fit->SetParameters(-3, .1);
   TH1D *hint1 = new TH1D("hint", "Fit 1 with conf.band", 100, 0, 10000);
-  TF1 *fit2 = new TF1("fit2", "landau", 600, 6000);
+
+  TF1 *fit2 = new TF1("fit2", "landau", 1000, 6000);
   TH1D *hint2 = new TH1D("hint2", "Fit 2 with conf.band", 100, 0, 10000);
-  TFitResultPtr r_1 = ratio.Fit("fit", "NS", "", 600, 6000);
+  //if(region == "SR") fit2->SetParameters(5.7, 27000, 10000);
+  
+  TFitResultPtr r_1 = ratio.Fit("fit", "NS", "", 1000, 6000);
   (TVirtualFitter::GetFitter())->GetConfidenceIntervals(hint1, 0.68);
-  TFitResultPtr r_2 = ratio.Fit("fit2", "NS", "", 600, 6000);
+  TFitResultPtr r_2 = ratio.Fit("fit2", "NS", "", 1000, 6000);
   (TVirtualFitter::GetFitter())->GetConfidenceIntervals(hint2, 0.68);
 
   TF1 *testfunc = new TF1("testfunc", "4.04724 * TMath::Landau(x, 2.80624e+03, 1.30542e+03)", 500, 6000);
@@ -181,12 +147,6 @@ void backgroundEstimation(){
   hReweight_fit_M->Sumw2();
   hReweight_fit_M_up->Sumw2();
   hReweight_fit_M_down->Sumw2();
-  //fill_reweighted(hReweight_fit_M, hReweight_fit_M_up, hReweight_fit_M_down, fit, fit2, r_1, r_2, path + fileprefix+ "DATA.DATA.root", 1);
-
-  for (int i = 0; i < top_backgrounds.size(); ++i){
-    TString fName = path + fileprefix + "MC." + top_backgrounds.at(i) + ".root";
-    fill_reweighted(hReweight_fit_M, hReweight_fit_M_up, hReweight_fit_M_down, fit, fit2, r_1, r_2, fName, -1);
-  }
 
   const TString prefix = "uhh2.AnalysisModuleRunner.";
   create_output(prefix+"MC.Other.root", "reco", hReweight_fit_M);
@@ -226,6 +186,7 @@ void backgroundEstimation(){
   ratio.GetXaxis()->SetNdivisions(505);
   ratio.GetYaxis()->SetTitle("ratio");
   ratio.GetYaxis()->SetRangeUser(0, 2);
+  if(region == "SR") ratio.GetYaxis()->SetRangeUser(0, 0.5);
   ratio.SetTitle("");
   ratio.SetLineColor(1);
   ratio.SetMarkerStyle(20);
@@ -248,7 +209,7 @@ void backgroundEstimation(){
   // legend
   legend->AddEntry(&ratio,"#alpha","elp");
   legend->AddEntry(fit2,"Landau","l");
-  legend->AddEntry(fit,"a - c * exp(b*x)","l");
+  legend->AddEntry(fit,"Logarithm","l");
   legend->Draw();
 
   // fit results
@@ -306,8 +267,8 @@ void backgroundEstimation(){
   text3->SetY(0.986);
   text3->Draw();
 
-  if(syst == "") c1_hist->SaveAs("plots/backgroundEstimation.pdf");
-  else c1_hist->SaveAs("plots/backgroundEstimation_"+syst+".pdf");
+  if (useHOTVRST) c1_hist->SaveAs("plots/backgroundEstimation_HOTVR_" + region + ".pdf");
+  else c1_hist->SaveAs("plots/backgroundEstimation_" + region + ".pdf");
 
   c1_hist->Clear();
 
@@ -322,14 +283,15 @@ void backgroundEstimation(){
   text2->Draw();
   text3->Draw();
 
-  if(syst == "") c1_hist->SaveAs("plots/purity.pdf");
-  else c1_hist->SaveAs("plots/purity_"+syst+".pdf");
+  if (useHOTVRST) c1_hist->SaveAs("plots/purity_HOTVR_" + region + ".pdf");
+  else c1_hist->SaveAs("plots/purity_" + region + ".pdf");
 
   // saving fit function to output file
   if(storeOutputToFile) {
     TFile *output;
-    if(syst == "") output = TFile::Open("files/alphaFunction.root", "RECREATE");
-    else output = TFile::Open("files/alphaFunction_"+syst+".root", "RECREATE");
+    TString filename = "files/alphaFunction_" + region + ".root";
+    if(useHOTVRST) filename = "files/alphaFunction_HOTVR_" + region + ".root";
+    output = TFile::Open(filename, "RECREATE");
     fit2->Write();
     fit->Write();
     hint1->Write();

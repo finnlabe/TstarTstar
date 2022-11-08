@@ -524,7 +524,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
 
   h_MC_isfake2017B = ctx.get_handle<bool>("MC_isfake2017B");
 
-  TopPtReweighting.reset( new TopPtReweight(ctx, 0.0615, -0.0005, "ttbargen", "weight_ttbar", true) );
+  TopPtReweighting.reset( new TopPtReweight(ctx, 0.0615, -0.0005, "ttbargen", "weight_ttbar", false) );
 
   Prefiring_direction = ctx.get("Sys_prefiring", "nominal");
 
@@ -583,8 +583,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
   bool pass_trigger = false;
   bool pass_trigger_SingleMu_lowpt = false;
   bool pass_trigger_SingleMu_highpt = false;
-  bool pass_trigger_SingleEle_lowpt = false;
-  bool pass_trigger_SingleEle_highpt = false;
+  bool pass_trigger_SingleEle = false;
 
   if( (is_MC && event.get(h_is_muevt)) || data_isMu ) {
     if(debug) std::cout << "Entered muon trigger logic" << std::endl;
@@ -610,36 +609,32 @@ bool TstarTstarSelectionModule::process(Event & event) {
 
     if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
 
-      if(!data_isPhoton) pass_trigger_SingleEle_lowpt = trg_ele_low->passes(event);
-
       if(is_MC) {
-        pass_trigger_SingleEle_highpt = (trg_ele_high->passes(event) || trg_pho->passes(event));
+        pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_ele_high->passes(event) || trg_pho->passes(event));
       } else {
-        if (data_isPhoton) pass_trigger_SingleEle_highpt = (!trg_ele_high->passes(event) && trg_pho->passes(event));
-        else pass_trigger_SingleEle_highpt = trg_ele_high->passes(event);
+        if (data_isPhoton) pass_trigger_SingleEle = (!trg_ele_low->passes(event) && !trg_ele_high->passes(event) && trg_pho->passes(event));
+        else pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_ele_high->passes(event));
       }
 
     }
     else if(year == "2017" || year == "UL17") {
-      if(!data_isPhoton) pass_trigger_SingleEle_lowpt = trg_ele_low->passes(event);
 
       if(is_MC) {
-        if (event.get(h_MC_isfake2017B)) pass_trigger_SingleEle_highpt = (trg_ele_low->passes(event) || trg_pho->passes(event));
-        else pass_trigger_SingleEle_highpt = (trg_ele_high->passes(event) || trg_pho->passes(event));
+        if (event.get(h_MC_isfake2017B)) pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_pho->passes(event));
+        else pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_ele_high->passes(event) || trg_pho->passes(event));
       } else {
         if (data_is2017B) {
-          if(data_isPhoton) pass_trigger_SingleEle_highpt = (!trg_ele_low->passes(event) && trg_pho->passes(event));
-          else pass_trigger_SingleEle_highpt = trg_ele_low->passes(event);
+          if(data_isPhoton) pass_trigger_SingleEle = (!trg_ele_low->passes(event) && trg_pho->passes(event));
+          else pass_trigger_SingleEle = trg_ele_low->passes(event);
         } else {
-          if(data_isPhoton) pass_trigger_SingleEle_highpt = (!trg_ele_high->passes(event) && trg_pho->passes(event));
-          else pass_trigger_SingleEle_highpt = trg_ele_high->passes(event);
+          if(data_isPhoton) pass_trigger_SingleEle = (!trg_ele_low->passes(event) && !trg_ele_high->passes(event) && trg_pho->passes(event));
+          else pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_ele_high->passes(event));
         }
       }
 
     }
     else if(year == "2018" || year == "UL18") {
-      pass_trigger_SingleEle_lowpt = trg_ele_low->passes(event);
-      pass_trigger_SingleEle_highpt = (trg_ele_high->passes(event) || trg_pho->passes(event));
+      pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_ele_high->passes(event) || trg_pho->passes(event));
     }
 
     if(debug) std::cout << "Passed electron trigger logic" << std::endl;
@@ -648,14 +643,11 @@ bool TstarTstarSelectionModule::process(Event & event) {
   }
 
   // main logic
-  if( (event.get(h_is_muevt) && (is_MC || data_isMu) ) || isTriggerSFMeasurement ) {
+  if( (is_MC && event.get(h_is_muevt)) || data_isMu ) {
     if(event.get(h_is_highpt)) pass_trigger = pass_trigger_SingleMu_highpt;
     else pass_trigger = pass_trigger_SingleMu_lowpt;
-  } else if( !event.get(h_is_muevt) && (is_MC || !data_isMu) ){
-    if(event.get(h_is_highpt)) pass_trigger = pass_trigger_SingleEle_highpt;
-    else pass_trigger = pass_trigger_SingleEle_lowpt;
   } else {
-    pass_trigger = false;
+    pass_trigger = pass_trigger_SingleEle;
   }
 
   if(!pass_trigger) {
@@ -829,7 +821,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
   if(debug) std::cout << "Starting selection" << endl;
 
   // ###### Btag Selection ######
-  BTag bJetID = BTag(BTag::algo::DEEPJET, BTag::wp::WP_LOOSE);
+  BTag bJetID = BTag(BTag::algo::DEEPJET, BTag::wp::WP_MEDIUM);
   bool pass_btagcut = false;
   for (const auto & jet: *event.jets){
     if(bJetID(jet, event)) pass_btagcut = true;
@@ -1059,38 +1051,6 @@ bool TstarTstarSelectionModule::process(Event & event) {
   MCScaleVariations->process(event);
 
   if(debug) cout << "MCScaleVariations done" << std::endl;
-
-  // storing some histograms for the trigger efficiency measurement for ele trigger sfs!
-  if(isTriggerSFMeasurement) {
-    h_ELEtriggerMeasurement_before->fill(event);
-
-    if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
-
-      pass_trigger_SingleEle_lowpt = trg_ele_low->passes(event);
-      pass_trigger_SingleEle_highpt = (trg_ele_high->passes(event) || trg_pho->passes(event));
-
-    }
-    else if(year == "2017" || year == "UL17") {
-
-      pass_trigger_SingleEle_lowpt = trg_ele_low->passes(event);
-
-      if (event.get(h_MC_isfake2017B) || data_is2017B) pass_trigger_SingleEle_highpt = (trg_ele_low->passes(event) || trg_pho->passes(event));
-      else pass_trigger_SingleEle_highpt = (trg_ele_high->passes(event) || trg_pho->passes(event));
-
-    }
-    else if(year == "2018" || year == "UL18") {
-
-      pass_trigger_SingleEle_lowpt = trg_ele_low->passes(event);
-      pass_trigger_SingleEle_highpt = (trg_ele_high->passes(event) || trg_pho->passes(event));
-
-    }
-
-    bool pass_trigger_ele_for_SF = false;
-    if(event.get(h_is_highpt)) pass_trigger_ele_for_SF = pass_trigger_SingleEle_highpt;
-    else pass_trigger_ele_for_SF = pass_trigger_SingleEle_lowpt;
-
-    if(pass_trigger_ele_for_SF) h_ELEtriggerMeasurement_after->fill(event);
-  }
 
   event.set(h_evt_weight, event.weight);
   return true;

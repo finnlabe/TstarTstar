@@ -12,6 +12,7 @@ TstarTstarSignalRegionHists::TstarTstarSignalRegionHists(Context & ctx, const st
 
   // ST handle
   h_ST = ctx.get_handle<double>("ST");
+  is_MC = ctx.get("dataset_type") == "MC";
 
   // weight handles
 
@@ -181,6 +182,8 @@ void TstarTstarSignalRegionHists::fill(const Event & event){
 
   // fill nominal
   hist("pt_ST_nominal")->Fill(st, weight);
+
+  if(!is_MC) return;
 
   // pu
   hist("pt_ST_puUp")->Fill(st, event.get(h_weight_puUp)*weight/event.get(h_weight_puNominal));

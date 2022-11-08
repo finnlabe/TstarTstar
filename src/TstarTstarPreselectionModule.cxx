@@ -26,6 +26,8 @@
 #include "UHH2/TstarTstar/include/TstarTstarSFHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarScaleFactors.h"
 #include "UHH2/TstarTstar/include/TstarTstarElectronIDHists.h"
+#include "UHH2/TstarTstar/include/TstarTstarPDFNormHists.h"
+
 
 using namespace std;
 using namespace uhh2;
@@ -83,6 +85,9 @@ private:
   std::unique_ptr<Hists> h_afterSelection_gen, h_afterSelection_genmatch;
 
   std::unique_ptr<Hists> h_electronIDhists;
+
+  // PDF NORM hist
+  std::unique_ptr<Hists> h_PDFnorm;
 
   // ##### Handles #####
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
@@ -296,6 +301,8 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
 
   h_electronIDhists.reset(new TstarTstarElectronIDHists(ctx, "ElectronIDHists"));
 
+  h_PDFnorm.reset(new TstarTstarPDFNormHists(ctx, "PDFNorm"));
+
   // ###### 4. init handles ######
   h_is_muevt = ctx.declare_event_output<bool>("is_muevt");
   h_is_highpt = ctx.declare_event_output<bool>("is_highpt");
@@ -341,6 +348,7 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   // hists before selection
   h_common->fill(event);
   h_common_gen->fill(event);
+  if(is_MC) h_PDFnorm->fill(event);
   lumihist_common->fill(event);
   if(debug) cout<<"Filled hists after cleaning"<<endl;
 
@@ -406,8 +414,7 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   bool pass_trigger = false;
   bool pass_trigger_SingleMu_lowpt = false;
   bool pass_trigger_SingleMu_highpt = false;
-  bool pass_trigger_SingleEle_lowpt = false;
-  bool pass_trigger_SingleEle_highpt = false;
+  bool pass_trigger_SingleEle = false;
 
   if( (is_MC && event.get(h_is_muevt)) || data_isMu ) {
     if(debug) std::cout << "Entered muon trigger logic" << std::endl;
@@ -433,36 +440,32 @@ bool TstarTstarPreselectionModule::process(Event & event) {
 
     if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
 
-      if(!data_isPhoton) pass_trigger_SingleEle_lowpt = trg_ele_low->passes(event);
-
       if(is_MC) {
-        pass_trigger_SingleEle_highpt = (trg_ele_high->passes(event) || trg_pho->passes(event));
+        pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_ele_high->passes(event) || trg_pho->passes(event));
       } else {
-        if (data_isPhoton) pass_trigger_SingleEle_highpt = (!trg_ele_high->passes(event) && trg_pho->passes(event));
-        else pass_trigger_SingleEle_highpt = trg_ele_high->passes(event);
+        if (data_isPhoton) pass_trigger_SingleEle = (!trg_ele_low->passes(event) && !trg_ele_high->passes(event) && trg_pho->passes(event));
+        else pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_ele_high->passes(event));
       }
 
     }
     else if(year == "2017" || year == "UL17") {
-      if(!data_isPhoton) pass_trigger_SingleEle_lowpt = trg_ele_low->passes(event);
 
       if(is_MC) {
-        if (event.get(h_MC_isfake2017B)) pass_trigger_SingleEle_highpt = (trg_ele_low->passes(event) || trg_pho->passes(event));
-        else pass_trigger_SingleEle_highpt = (trg_ele_high->passes(event) || trg_pho->passes(event));
+        if (event.get(h_MC_isfake2017B)) pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_pho->passes(event));
+        else pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_ele_high->passes(event) || trg_pho->passes(event));
       } else {
         if (data_is2017B) {
-          if(data_isPhoton) pass_trigger_SingleEle_highpt = (!trg_ele_low->passes(event) && trg_pho->passes(event));
-          else pass_trigger_SingleEle_highpt = trg_ele_low->passes(event);
+          if(data_isPhoton) pass_trigger_SingleEle = (!trg_ele_low->passes(event) && trg_pho->passes(event));
+          else pass_trigger_SingleEle = trg_ele_low->passes(event);
         } else {
-          if(data_isPhoton) pass_trigger_SingleEle_highpt = (!trg_ele_high->passes(event) && trg_pho->passes(event));
-          else pass_trigger_SingleEle_highpt = trg_ele_high->passes(event);
+          if(data_isPhoton) pass_trigger_SingleEle = (!trg_ele_low->passes(event) && !trg_ele_high->passes(event) && trg_pho->passes(event));
+          else pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_ele_high->passes(event));
         }
       }
 
     }
     else if(year == "2018" || year == "UL18") {
-      pass_trigger_SingleEle_lowpt = trg_ele_low->passes(event);
-      pass_trigger_SingleEle_highpt = (trg_ele_high->passes(event) || trg_pho->passes(event));
+      pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_ele_high->passes(event) || trg_pho->passes(event));
     }
 
     if(debug) std::cout << "Passed electron trigger logic" << std::endl;
@@ -475,8 +478,7 @@ bool TstarTstarPreselectionModule::process(Event & event) {
     if(event.get(h_is_highpt)) pass_trigger = pass_trigger_SingleMu_highpt;
     else pass_trigger = pass_trigger_SingleMu_lowpt;
   } else {
-    if(event.get(h_is_highpt)) pass_trigger = pass_trigger_SingleEle_highpt;
-    else pass_trigger = pass_trigger_SingleEle_lowpt;
+    pass_trigger = pass_trigger_SingleEle;
   }
 
   // hists

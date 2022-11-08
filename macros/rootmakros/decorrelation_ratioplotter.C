@@ -31,12 +31,12 @@ void decorrelation_ratioplotter(){
   TString beforePath = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/";
   TString afterPath = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/";
   TString filename = "uhh2.AnalysisModuleRunner."+sample+".root";
-  TString beforeHistname = "pt_ST_rebinned";
-  TString afterHistname = "pt_ST_rebinned";
+  TString beforeHistname = "pt_ST_HOTVR_rebinned";
+  TString afterHistname = "pt_ST_HOTVR_rebinned";
   TString label = "S_{T} [GeV]";
 
-  TString beforeFolder = "NotDNNcut_06_UGLYFIX";
-  TString afterFolder = "AfterDNNcut_06_UGLYFIX";
+  TString beforeFolder = "newTaggerSR";
+  TString afterFolder = "newTaggerCR";
 
   TCanvas *canvas = new TCanvas("canvas", "c", w, h);
 

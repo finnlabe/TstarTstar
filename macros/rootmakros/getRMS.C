@@ -25,11 +25,16 @@ using namespace std;
 void getRMS(){
 
   TString filename_base = "";
-  TString year = "UL16postVFP";
+  TString year = "UL18";
   filename_base += "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/"+year+"/hadded/uhh2.AnalysisModuleRunner.MC.";
 
   vector<TString> samples = {"TTbar", "ST"};
   vector<bool> isSignal (samples.size(), false);
+  vector<TString> masspoints = {"800", "1600", "1800", "2500"};
+  for (auto mass : masspoints) {
+    samples.push_back("TstarTstar_M-" + mass);
+    isSignal.push_back(true);
+  }
 
   for(unsigned int i=0; i<samples.size(); i++){
 
@@ -45,7 +50,7 @@ void getRMS(){
     vector<double> pdf_norm (100, 1.); //For bkgs set normalization value to 1
     if( isSignal.at(i) ){
        string pdf_numb[100];
-       ifstream normfile("/nfs/dust/cms/user/deleokse/RunII_106_v2/CMSSW_10_6_28/src/UHH2/ZprimeSemiLeptonic/macros/src/SignalPDFNorm/SignalNorm_"+ samples.at(i) +".txt", ios::in);
+       ifstream normfile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/SignalNorm_"+ samples.at(i) +".txt", ios::in);
        if (normfile.is_open()){
          for(int i = 0; i < 100; ++i){
            normfile >> pdf_numb[i] >> pdf_norm[i];

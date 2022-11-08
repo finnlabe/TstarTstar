@@ -24,6 +24,7 @@ public:
 
     // ST handle
     uhh2::Event::Handle<double> h_ST;
+    bool is_MC;
 
     // hist names for PDF
     std::string hist_names[100];

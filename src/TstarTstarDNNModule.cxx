@@ -42,28 +42,6 @@ using namespace uhh2;
 
 namespace uhh2 {
 
-  // x, alpha, n, sigma, mean
-double crystalball_function(double x, double alpha, double n, double sigma, double mean) {
-  // evaluate the crystal ball function
-  if (sigma < 0.)     return 0.;
-  double z = (x - mean)/sigma;
-  if (alpha < 0) z = -z;
-  double abs_alpha = std::abs(alpha);
-  // double C = n/abs_alpha * 1./(n-1.) * std::exp(-alpha*alpha/2.);
-  // double D = std::sqrt(M_PI/2.)*(1.+ROOT::Math::erf(abs_alpha/std::sqrt(2.)));
-  // double N = 1./(sigma*(C+D));
-  if (z  > - abs_alpha)
-    return std::exp(- 0.5 * z * z);
-  else {
-    //double A = std::pow(n/abs_alpha,n) * std::exp(-0.5*abs_alpha*abs_alpha);
-    double nDivAlpha = n/abs_alpha;
-    double AA =  std::exp(-0.5*abs_alpha*abs_alpha);
-    double B = nDivAlpha -abs_alpha;
-    double arg = nDivAlpha/(B-z);
-    return AA * std::pow(arg,n);
-  }
-}
-
 /** \brief Module for the T*T*->ttbar gg MC based study
  *
  * This is the central class which calls other AnalysisModules, Hists or Selection classes.
@@ -87,6 +65,8 @@ private:
   std::unique_ptr<Hists> h_STreweighted, h_crosscheck;
 
   std::unique_ptr<Hists> h_newTaggerSR, h_newTaggerCR, h_newTagger_btagCR, h_newTagger_btagCR_DNNSR;
+  std::unique_ptr<Hists> h_SR_datadrivenUp_total, h_SR_datadrivenDown_total, h_SR_datadrivenUp_mu, h_SR_datadrivenDown_mu, h_SR_datadrivenUp_ele, h_SR_datadrivenDown_ele;
+  std::unique_ptr<Hists> h_CR_datadrivenUp_total, h_CR_datadrivenDown_total, h_CR_datadrivenUp_mu, h_CR_datadrivenDown_mu, h_CR_datadrivenUp_ele, h_CR_datadrivenDown_ele;
 
   std::unique_ptr<Hists> h_AfterDNNcut_02, h_AfterDNNcut_03, h_AfterDNNcut_04, h_AfterDNNcut_05, h_AfterDNNcut_06, h_AfterDNNcut_07, h_AfterDNNcut_08;
   std::unique_ptr<Hists> h_notDNNcut_02,   h_notDNNcut_03,   h_notDNNcut_04,   h_notDNNcut_05,   h_notDNNcut_06,   h_notDNNcut_07,   h_notDNNcut_08;
@@ -124,6 +104,7 @@ private:
   uhh2::Event::Handle<double> h_DNN_output;
   uhh2::Event::Handle<bool> h_do_masspoint;
   uhh2::Event::Handle<double> h_ST;
+  uhh2::Event::Handle<double> h_ST_HOTVR;
   uhh2::Event::Handle<bool> h_DoAddInputs;
   uhh2::Event::Handle<bool> h_is_mu;
   uhh2::Event::Handle<double> h_newTagger;
@@ -136,10 +117,12 @@ private:
   bool is_Signal = false;
 
   bool is_datadriven_BG_run = false;
-  bool is_datadriven_BG_run_variation = false;
 
   TGraphAsymmErrors* bgest_purity;
-  TF1* backgroundEstimationFunction;
+  TF1* backgroundEstimationFunctionCR1;
+  TF1* backgroundEstimationFunctionCR2;
+  TF1* backgroundEstimationFunctionSR1;
+  TF1* backgroundEstimationFunctionSR2;
   std::vector<TF1*> DDTFunctions;
   TF1* BestDDTFunction;
 
@@ -169,8 +152,6 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   is_MC = ctx.get("dataset_type") == "MC";
 
   if(!is_MC) is_datadriven_BG_run = ctx.get("use_data_for", "regular") == "background_extrapolation"; // get which running mode to use for data
-  if(!is_MC) is_datadriven_BG_run_variation = ctx.get("use_data_for", "regular") == "background_extrapolation_variation"; // get which running mode to use for data
-  if(is_datadriven_BG_run_variation) is_datadriven_BG_run = true;
 
   if(is_datadriven_BG_run) {
     TString background_estimation_purity_filepath = ctx.get("background_estimation_purity_file");
@@ -256,6 +237,21 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_SignalRegion_mu.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_mu"));
   h_SignalRegion_ele.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_ele"));
 
+  h_SR_datadrivenUp_total.reset(new TstarTstarSignalRegionHists(ctx, "SR_datadrivenUp_total"));
+  h_SR_datadrivenDown_total.reset(new TstarTstarSignalRegionHists(ctx, "SR_datadrivenDown_total"));
+  h_CR_datadrivenUp_total.reset(new TstarTstarSignalRegionHists(ctx, "CR_datadrivenUp_total")); // using SR hists here, althoigh it is not
+  h_CR_datadrivenDown_total.reset(new TstarTstarSignalRegionHists(ctx, "CR_datadrivenDown_total")); // using SR hists here, althoigh it is not
+
+  h_SR_datadrivenUp_mu.reset(new TstarTstarSignalRegionHists(ctx, "SR_datadrivenUp_mu"));
+  h_SR_datadrivenDown_mu.reset(new TstarTstarSignalRegionHists(ctx, "SR_datadrivenDown_mu"));
+  h_CR_datadrivenUp_mu.reset(new TstarTstarSignalRegionHists(ctx, "CR_datadrivenUp_mu")); // using SR hists here, althoigh it is not
+  h_CR_datadrivenDown_mu.reset(new TstarTstarSignalRegionHists(ctx, "CR_datadrivenDown_mu")); // using SR hists here, althoigh it is not
+
+  h_SR_datadrivenUp_ele.reset(new TstarTstarSignalRegionHists(ctx, "SR_datadrivenUp_ele"));
+  h_SR_datadrivenDown_ele.reset(new TstarTstarSignalRegionHists(ctx, "SR_datadrivenDown_ele"));
+  h_CR_datadrivenUp_ele.reset(new TstarTstarSignalRegionHists(ctx, "CR_datadrivenUp_ele")); // using SR hists here, althoigh it is not
+  h_CR_datadrivenDown_ele.reset(new TstarTstarSignalRegionHists(ctx, "CR_datadrivenDown_ele")); // using SR hists here, althoigh it is not
+
   h_ttbarCR_v1.reset(new TstarTstarHists(ctx, "ttbarCR_v1"));
   h_ttbarCR_v2.reset(new TstarTstarHists(ctx, "ttbarCR_v2"));
   h_ttbarCR_v3.reset(new TstarTstarHists(ctx, "ttbarCR_v3"));
@@ -269,6 +265,7 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_is_btagevent = ctx.get_handle<bool>("is_btagevent");
   h_is_mu = ctx.get_handle<bool>("is_muevt");
   h_ST = ctx.get_handle<double>("ST");
+  h_ST_HOTVR = ctx.get_handle<double>("ST_HOTVR");
   h_region = ctx.declare_event_output<TString>("region");
 
   h_ST_weight = ctx.declare_event_output<double>("ST_weight");
@@ -282,9 +279,12 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
     else if( ctx.get("jecsmear_direction", "none") == "down") filename += "_JEC_down";
     else if( ctx.get("jersmear_direction", "none") == "up") filename += "_JER_up";
     else if( ctx.get("jersmear_direction", "none") == "down") filename += "_JER_down";
-    TFile *f = new TFile(path+filename+".root");
-    if(is_datadriven_BG_run_variation) backgroundEstimationFunction = (TF1*)f->Get("fit");
-    else backgroundEstimationFunction = (TF1*)f->Get("fit2");
+    TFile *fSR = new TFile(path+filename+"_SR.root");
+    backgroundEstimationFunctionSR1 = (TF1*)fSR->Get("fit");
+    backgroundEstimationFunctionSR2 = (TF1*)fSR->Get("fit2");
+    TFile *fCR = new TFile(path+filename+"_CR.root");
+    backgroundEstimationFunctionCR1 = (TF1*)fCR->Get("fit");
+    backgroundEstimationFunctionCR2 = (TF1*)fCR->Get("fit2");
   }
 
   TString path = "/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/";
@@ -335,7 +335,7 @@ bool TstarTstarDNNModule::process(Event & event) {
   event.set(h_DoAddInputs, doAddInputs);
 
   // placeholder as this flag seems to be wrong!!!
-  BTag bJetID = BTag(BTag::algo::DEEPJET, BTag::wp::WP_LOOSE);
+  BTag bJetID = BTag(BTag::algo::DEEPJET, BTag::wp::WP_MEDIUM);
   bool pass_btagcut = false;
   for (const auto & jet: *event.jets){
     if(bJetID(jet, event)) pass_btagcut = true;
@@ -407,42 +407,94 @@ bool TstarTstarDNNModule::process(Event & event) {
   }
 
   // datadriven background estimation
-  if(is_datadriven_BG_run) {
+  double transfer_weight_average_SR = 1;
+  double transfer_weight_average_CR = 1;
+  double weight_for_resetting = event.weight; 
+  double purity_value = 1;
+  if(is_datadriven_BG_run && !pass_btagcut) {
     if(debug) cout << "Doing datadriven BG estimation" << endl;
-    if(pass_btagcut) {
-      pass_btagcut = false; // in this running scheme, we won't use the data that actually would go into the SR or CR
-    } else {
-      pass_btagcut = true; // we will use this data however!
-      newTagger = -1; // for the moment, use all data for the CR
 
+    if(debug) cout << "ST: " << event.get(h_ST) << endl;
+    double transfer_value_SR1 = backgroundEstimationFunctionSR1->Eval(event.get(h_ST));
+    double transfer_value_SR2 = backgroundEstimationFunctionSR2->Eval(event.get(h_ST));
+    if(debug) cout << "transfer values: " << transfer_value_SR1 << " and " << transfer_value_SR2 << endl;
 
-      if(debug) cout << "ST: " << event.get(h_ST) << endl;
-      //double transfer_value = bgest_polynom(event.get(h_ST), p0, p1, p2);
-      double transfer_value = backgroundEstimationFunction->Eval(event.get(h_ST));
-      if(debug) cout << "transfer value: " << transfer_value << endl;
-      double purity_value = bgest_purity->Eval(event.get(h_ST));
-      if(debug) cout << "purity: " << purity_value << endl;
-      event.weight *= transfer_value*purity_value;
-      //event.weight *= transfer_value;
+    if(debug) cout << "ST: " << event.get(h_ST) << endl;
+    double transfer_value_CR1 = backgroundEstimationFunctionCR1->Eval(event.get(h_ST));
+    double transfer_value_CR2 = backgroundEstimationFunctionCR2->Eval(event.get(h_ST));
+    if(debug) cout << "transfer values: " << transfer_value_CR1 << " and " << transfer_value_CR2 << endl;
 
-    }
+    purity_value = bgest_purity->Eval(event.get(h_ST));
+    if(debug) cout << "purity: " << purity_value << endl;
+    
+    // construct average weight
+    transfer_weight_average_SR = (transfer_value_SR1 + transfer_value_SR2) / 2;
+    transfer_weight_average_CR = (transfer_value_CR1 + transfer_value_CR2) / 2;
+
+    // fill all the up and down-variations
+    event.weight *= transfer_value_SR1 * purity_value;
+    h_SR_datadrivenUp_total->fill(event);
+    if(event.get(h_is_mu)) h_SR_datadrivenUp_mu->fill(event);
+    else h_SR_datadrivenUp_mu->fill(event);
+    event.weight = weight_for_resetting;
+
+    event.weight *= transfer_value_SR2 * purity_value;
+    h_SR_datadrivenDown_total->fill(event);
+    if(event.get(h_is_mu)) h_SR_datadrivenDown_mu->fill(event);
+    else h_SR_datadrivenDown_mu->fill(event);
+    event.weight = weight_for_resetting;
+
+    event.weight *= transfer_value_CR1 * purity_value;
+    h_CR_datadrivenUp_total->fill(event);
+    if(event.get(h_is_mu)) h_CR_datadrivenUp_mu->fill(event);
+    else h_CR_datadrivenUp_mu->fill(event);
+    event.weight = weight_for_resetting;
+
+    event.weight *= transfer_value_CR2 * purity_value;
+    h_CR_datadrivenDown_total->fill(event);
+    if(event.get(h_is_mu)) h_CR_datadrivenDown_mu->fill(event);
+    else h_CR_datadrivenDown_mu->fill(event);
+    event.weight = weight_for_resetting;
   }
 
-  if(pass_btagcut) {
+  if(pass_btagcut || (is_datadriven_BG_run && !pass_btagcut)) {
+
     h_DNN_newTagger->fill(event);
-    if(newTagger > 0) {
-      if(is_MC /* blinding */) {
-        h_newTaggerSR->fill(event);
+
+    bool fillSR = false;
+    bool fillCR = false;
+
+    if(is_datadriven_BG_run && !pass_btagcut) {
+      fillSR = true;
+      fillCR = true;
+      event.set(h_region, "datadrivenEst");
+    } else if (!is_datadriven_BG_run) {
+      if(newTagger > 0) {
+        fillSR = true;
+        fillCR = false;
         event.set(h_region, "SR");
-        if(debug) cout << "Before SR hists" << endl;
+      } else {
+        fillSR = false;
+        fillCR = true;
+        event.set(h_region, "VR");
+      }
+    }
+   
+    if(fillSR) {
+      if (is_datadriven_BG_run) event.weight *= transfer_weight_average_SR * purity_value;
+      if(is_MC /* blinding */ || is_datadriven_BG_run) {
+        if(debug) std::cout << "Filling SR" << std::endl;
+        h_newTaggerSR->fill(event);
         h_SignalRegion_total->fill(event);
-        if(debug) cout << "After" << endl;
         if(event.get(h_is_mu)) h_SignalRegion_mu->fill(event);
         else h_SignalRegion_ele->fill(event);
       }
-    } else {
+      if (is_datadriven_BG_run) event.weight = weight_for_resetting;
+    }
+    if(fillCR) {
+      if (is_datadriven_BG_run) event.weight *= transfer_weight_average_CR * purity_value;
       h_newTaggerCR->fill(event);
-      event.set(h_region,"VR");
+      if (is_datadriven_BG_run) event.weight = weight_for_resetting;
 
       // a subsest of this will be used as a (to-test) ttbar CR
 
@@ -479,8 +531,7 @@ bool TstarTstarDNNModule::process(Event & event) {
     // lets fill some other histogram class that will give us the output for each point to check
     h_DDTtestHists->fill(event, newTaggerResults);
 
-  }
-  else {
+  } else {
     h_newTagger_btagCR->fill(event);
     if(newTagger > 0) {
       h_newTagger_btagCR_DNNSR->fill(event);

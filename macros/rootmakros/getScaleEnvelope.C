@@ -41,11 +41,16 @@ void getScaleEnvelope(){
   gStyle->SetPadRightMargin(0.07);
 
   TString filename_base = "";
-  TString year = "UL16postVFP";
+  TString year = "UL18";
   filename_base += "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/"+year+"/hadded/uhh2.AnalysisModuleRunner.MC.";
 
   vector<TString> samples = {"TTbar", "ST"};
   vector<bool> isSignal (samples.size(), false);
+  vector<TString> masspoints = {"800", "1600", "1800", "2500"};
+  for (auto mass : masspoints) {
+    samples.push_back("TstarTstar_M-" + mass);
+    isSignal.push_back(true);
+  }
 
   for(unsigned int i=0; i<samples.size(); i++){
 
@@ -151,12 +156,12 @@ void getScaleEnvelope(){
     h_scale_down_ratio->SetLineWidth(4);
     h_scale_down_ratio->SetLineStyle(1);
 
-    can->SaveAs("plots/envelope_MCscale_noenvelope.pdf");
+    can->SaveAs("plots/envelope_MCscale_noenvelope" + samples.at(i) +".pdf");
 
     h_scale_up_ratio->Draw("hist same");
     h_scale_down_ratio->Draw("hist same");
 
-    can->SaveAs("plots/envelope_MCscale.pdf");
+    can->SaveAs("plots/envelope_MCscale" + samples.at(i) +".pdf");
 
     delete f_in;
   }
