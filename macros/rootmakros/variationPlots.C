@@ -1,5 +1,47 @@
 
 
+void drawCMSandLumi(TString year) {
+
+  double lumi = 0;
+  if(year == "UL16") lumi = 36.31;
+  else if(year == "UL17") lumi = 41.48;
+  else if(year == "UL18") lumi = 59.83;
+  else lumi = 137.62 ;
+
+  // draw Lumi text
+  TString infotext = TString::Format("%3.1f fb^{-1} (%d TeV)", lumi, 13);
+  if(lumi > 100.) infotext = TString::Format("%3.0f fb^{-1} (%d TeV)", lumi, 13);
+  TLatex *text = new TLatex(3.5, 24, infotext);
+  text->SetNDC();
+  text->SetTextAlign(33);
+  text->SetX(0.93);
+  text->SetTextFont(42);
+  text->SetY(0.975);
+  text->SetTextSize(0.045);
+  text->Draw();
+
+  // draw CMS Work in Progress text
+  TString cmstext = "CMS";
+  TLatex *text2 = new TLatex(3.5, 24, cmstext);
+  text2->SetNDC();
+  text2->SetTextAlign(13);
+  text2->SetX(0.21);
+  text2->SetTextFont(62);
+  text2->SetTextSize(0.05);
+  text2->SetY(0.9);
+  text2->Draw();
+  TString preltext = "Work in Progress";
+  TLatex *text3 = new TLatex(3.5, 24, preltext);
+  text3->SetNDC();
+  text3->SetTextAlign(13);
+  text3->SetX(0.21);
+  text3->SetTextFont(52);
+  text3->SetTextSize(0.035);
+  text3->SetY(0.85);
+  text3->Draw();
+
+}
+
 void variationPlots(){
 
   gStyle->SetOptFit(0);
@@ -21,7 +63,7 @@ void variationPlots(){
   gROOT->ForceStyle();
 
   TString sample = "TTbar";
-  TString year = "UL18";
+  TString year = "";
   TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/"+year+"/hadded";
   TString macro_path = "/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/";
   TString filename = "uhh2.AnalysisModuleRunner.MC."+sample+".root";
@@ -32,9 +74,9 @@ void variationPlots(){
 
   std::vector<TString> variations_elec = {"sfelec_id", "sfelec_reco", "sfelec_trigger"};
   std::vector<TString> variations_mu = {"sfmu_id", "sfmu_iso", "sfmu_trigger"};
-  std::vector<TString> variations_btagging = {"btagging_hf", "btagging_hfstats1", "btagging_hfstats2", "btagging_lf", "btagging_lfstats1", "btagging_lfstats2", "btagging_cferr1", "btagging_cferr2"};
+  std::vector<TString> variations_btagging = {"btagging_total", "btagging_hf", "btagging_hfstats1", "btagging_hfstats2", "btagging_lf", "btagging_lfstats1", "btagging_lfstats2", "btagging_cferr1", "btagging_cferr2"};
   std::vector<TString> variations_other = {"pu", "prefiring"};
-  std::vector<int> colors = {2,3,4,6,7,8,9, 11, 12};
+  std::vector<int> colors = {1, 2,3,4,6,7,8,9, 11, 12};
 
   // open main file
   TFile *main_file = TFile::Open(path+"/"+filename);
@@ -49,7 +91,7 @@ void variationPlots(){
   gStyle->SetOptFit(0);
   gStyle->SetOptStat(0);
 
-  auto line = TLine(500.1,1,6000,1);
+  auto line = TLine(600.1,1,6000,1);
 
   if(doJECJER) {
     // JER
@@ -74,7 +116,7 @@ void variationPlots(){
 
     // styling first
     hist_JER_up->GetYaxis()->SetRangeUser(0.7, 1.3);
-    hist_JER_up->GetXaxis()->SetRangeUser(500, 6000);
+    hist_JER_up->GetXaxis()->SetRangeUser(600, 6000);
     hist_JER_up->GetXaxis()->SetTitle( hist_JER_up->GetTitle() );
     hist_JER_up->GetYaxis()->SetTitle( "variation / nominal" );
     hist_JER_up->SetTitle("");
@@ -110,7 +152,7 @@ void variationPlots(){
     leg->AddEntry(hist_JEC_up,"JEC","l");
 
     // line
-    line = TLine(500.1,1,6000,1);
+    line = TLine(600.1,1,6000,1);
     line.Draw("same");
     leg->Draw();
 
@@ -138,7 +180,7 @@ void variationPlots(){
 
     // styling first
     hist_PDF_up->GetYaxis()->SetRangeUser(0.5, 1.5);
-    hist_PDF_up->GetXaxis()->SetRangeUser(500, 6000);
+    hist_PDF_up->GetXaxis()->SetRangeUser(600, 6000);
     hist_PDF_up->GetXaxis()->SetTitle( hist_PDF_up->GetTitle() );
     hist_PDF_up->GetYaxis()->SetTitle( "variation / nominal" );
     hist_PDF_up->SetTitle("");
@@ -172,7 +214,7 @@ void variationPlots(){
     leg->AddEntry(hist_scale_up,"MC scale","l");
 
     // line
-    line = TLine(500.1,1,6000,1);
+    line = TLine(600.1,1,6000,1);
     line.Draw("same");
     leg->Draw();
 
@@ -204,7 +246,7 @@ void variationPlots(){
 
     // styling first
     hist_up->GetYaxis()->SetRangeUser(0.9, 1.1);
-    hist_up->GetXaxis()->SetRangeUser(500, 6000);
+    hist_up->GetXaxis()->SetRangeUser(600, 6000);
     hist_up->GetXaxis()->SetTitle( hist_up->GetTitle() );
     hist_up->GetYaxis()->SetTitle( "variation / nominal" );
     hist_up->SetTitle("");
@@ -216,6 +258,7 @@ void variationPlots(){
     leg->AddEntry(hist_up,variation,"l");
 
   }
+  drawCMSandLumi(year);
   line.Draw("same");
   leg->Draw();
   can->SaveAs("plots/variations_elec.pdf");
@@ -241,7 +284,7 @@ void variationPlots(){
     hist_down->SetLineStyle(3);
 
     hist_up->GetYaxis()->SetRangeUser(0.9, 1.1);
-    hist_up->GetXaxis()->SetRangeUser(500, 6000);
+    hist_up->GetXaxis()->SetRangeUser(600, 6000);
     hist_up->GetXaxis()->SetTitle( hist_up->GetTitle() );
     hist_up->GetYaxis()->SetTitle( "variation / nominal" );
     hist_up->SetTitle("");
@@ -278,7 +321,7 @@ void variationPlots(){
     hist_down->SetLineStyle(3);
 
     hist_up->GetYaxis()->SetRangeUser(0.4, 1.6);
-    hist_up->GetXaxis()->SetRangeUser(500, 6000);
+    hist_up->GetXaxis()->SetRangeUser(600, 6000);
     hist_up->GetXaxis()->SetTitle( hist_up->GetTitle() );
     hist_up->GetYaxis()->SetTitle( "variation / nominal" );
     hist_up->SetTitle("");
@@ -315,7 +358,7 @@ void variationPlots(){
     hist_down->SetLineStyle(3);
 
     hist_up->GetYaxis()->SetRangeUser(0.9, 1.1);
-    hist_up->GetXaxis()->SetRangeUser(500, 6000);
+    hist_up->GetXaxis()->SetRangeUser(600, 6000);
     hist_up->GetXaxis()->SetTitle( hist_up->GetTitle() );
     hist_up->GetYaxis()->SetTitle( "variation / nominal" );
     hist_up->SetTitle("");

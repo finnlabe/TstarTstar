@@ -1,21 +1,17 @@
 #!/bin/bash
 
-sframe_batch.py -a config_EOY/DNN_TstarTstar_2016.xml
-sframe_batch.py -a config_EOY/DNN_TstarTstar_2017.xml
-sframe_batch.py -a config_EOY/DNN_TstarTstar_2018.xml
+sframe_batch.py -a config_DNN_UL16preVFP/parsedConfigFile_DNN_UL16preVFP_SM.xml
+sframe_batch.py -a config_DNN_UL16postVFP/parsedConfigFile_DNN_UL16postVFP_SM.xml
+sframe_batch.py -a config_DNN_UL17/parsedConfigFile_DNN_UL17_SM.xml
+sframe_batch.py -a config_DNN_UL18/parsedConfigFile_DNN_UL18_SM.xml
 
-sframe_batch.py -a config_EOY/DNN_SM_2016.xml
-sframe_batch.py -a config_EOY/DNN_SM_2017.xml
-sframe_batch.py -a config_EOY/DNN_SM_2018.xml
+sframe_batch.py -a config_DNN_UL16preVFP/parsedConfigFile_DNN_UL16preVFP_Signal.xml
+sframe_batch.py -a config_DNN_UL16postVFP/parsedConfigFile_DNN_UL16postVFP_Signal.xml
+sframe_batch.py -a config_DNN_UL17/parsedConfigFile_DNN_UL17_Signal.xml
+sframe_batch.py -a config_DNN_UL18/parsedConfigFile_DNN_UL18_Signal.xml
 
-sframe_batch.py -a config_EOY/DNN_addSM_2016.xml
-sframe_batch.py -a config_EOY/DNN_addSM_2017.xml
-sframe_batch.py -a config_EOY/DNN_addSM_2018.xml
+sframe_batch.py -a config_DNN_UL16preVFP/parsedConfigFile_DNN_UL16preVFP_DATA.xml
+sframe_batch.py -a config_DNN_UL16postVFP/parsedConfigFile_DNN_UL16postVFP_DATA.xml
+sframe_batch.py -a config_DNN_UL17/parsedConfigFile_DNN_UL17_DATA.xml
+sframe_batch.py -a config_DNN_UL18/parsedConfigFile_DNN_UL18_DATA.xml
 
-sframe_batch.py -a config_EOY/DNN_Data_2016.xml
-sframe_batch.py -a config_EOY/DNN_Data_2017.xml
-sframe_batch.py -a config_EOY/DNN_Data_2018.xml
-
-#sframe_batch.py -a DNN_DataDrivenBG_2016.xml
-#sframe_batch.py -a DNN_DataDrivenBG_2017.xml
-#sframe_batch.py -a DNN_DataDrivenBG_2018.xml

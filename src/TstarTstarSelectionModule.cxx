@@ -921,7 +921,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
   event.set(h_STHOTVR, stHOTVR);
 
   // st cut
-  if(st < 500 && !isTriggerSFMeasurement) return false;
+  if(stHOTVR < 500 && !isTriggerSFMeasurement) return false;
 
   if(pass_btagcut) { // only fill these for btag cut passes
     // hists

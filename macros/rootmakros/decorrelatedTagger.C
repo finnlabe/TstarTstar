@@ -6,8 +6,8 @@
 
 void decorrelatedTagger(){
 
-  Double_t efficiency_ttbar = 0.4;
-  TString effic_string = "0p5";
+  Double_t efficiency_ttbar = 0.3;
+  TString effic_string = "0p3";
 
   // some style options
   gStyle->SetOptFit(0);
@@ -152,12 +152,12 @@ void decorrelatedTagger(){
   edgePoints->SetMarkerStyle(1);
   edgePoints->Draw("p same");
   //other option: Gauß + exponential
-  //TF1 *fit = new TF1("fit", "crystalball", 500, 4000);
-  TF1 *fit = new TF1("fit", "[2] + [0] * exp([1] * x)", 500, 4000);
+  TF1 *fit = new TF1("fit", "pol2", 500, 4000);
+  //TF1 *fit = new TF1("fit", "[2] + [0] * exp([1] * x)", 500, 4000);
   // constant, mean, sigma, alpha, N
   //fit->SetParameters(.9,270,200,-0.3,1e+06);
-  fit->SetParameters(2, -3.05300e-03, 4.17680e-01);
-  edgePoints->Fit("fit", "N", "", 500, 4000);
+  //fit->SetParameters(2, -3.05300e-03, 4.17680e-01);
+  edgePoints->Fit("fit", "N", "", 500, 3000);
   fit->Draw("same");
 
   // plot some second line

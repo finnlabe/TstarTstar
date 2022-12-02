@@ -4,6 +4,7 @@
 #include "TH1F.h"
 #include "TH2F.h"
 #include <iostream>
+#include "TFile.h"
 
 using namespace std;
 using namespace uhh2;
@@ -11,8 +12,17 @@ using namespace uhh2;
 TstarTstarSignalRegionHists::TstarTstarSignalRegionHists(Context & ctx, const string & dirname): Hists(ctx, dirname){
 
   // ST handle
-  h_ST = ctx.get_handle<double>("ST");
+  h_ST = ctx.get_handle<double>("STHOTVR");
   is_MC = ctx.get("dataset_type") == "MC";
+
+  if(ctx.get("debug", "<not set>") == "true") debug = true;
+
+  needsOtherMCweightHandling = ctx.get("dataset_version").find("TstarTstar") != std::string::npos;
+  if(needsOtherMCweightHandling) std::cout << "We are signal so we need other idices" << std::endl;
+
+  // Histogram containing decorrelation uncertainty
+  TFile *decorrelationUncertaintyFile = new TFile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/decorrelationComparison.root");
+  decorrelationUncertainty = (TH1*)decorrelationUncertaintyFile->Get("decorrelation_uncertainty");
 
   // weight handles
 
@@ -93,6 +103,9 @@ TstarTstarSignalRegionHists::TstarTstarSignalRegionHists(Context & ctx, const st
   book<TH1F>("pt_ST_prefiringUp", "S_{T} [GeV]", nbins-1, bins);
   book<TH1F>("pt_ST_prefiringDown", "S_{T} [GeV]", nbins-1, bins);
 
+  book<TH1F>("pt_ST_btagging_totalUp", "S_{T} [GeV]", nbins-1, bins);
+  book<TH1F>("pt_ST_btagging_totalDown", "S_{T} [GeV]", nbins-1, bins);
+
   book<TH1F>("pt_ST_btagging_hfUp", "S_{T} [GeV]", nbins-1, bins);
   book<TH1F>("pt_ST_btagging_hfDown", "S_{T} [GeV]", nbins-1, bins);
 
@@ -135,6 +148,9 @@ TstarTstarSignalRegionHists::TstarTstarSignalRegionHists(Context & ctx, const st
   book<TH1F>("pt_ST_sfmu_triggerUp", "S_{T} [GeV]", nbins-1, bins);
   book<TH1F>("pt_ST_sfmu_triggerDown", "S_{T} [GeV]", nbins-1, bins);
 
+  book<TH1F>("pt_ST_decorrelationUp", "S_{T} [GeV]", nbins-1, bins);
+  book<TH1F>("pt_ST_decorrelationDown", "S_{T} [GeV]", nbins-1, bins);
+
   // 100 histograms for the PDF stuff
   for(int i=0; i<100; i++){
     std::stringstream ss_name;
@@ -170,8 +186,6 @@ void TstarTstarSignalRegionHists::fill(const Event & event){
   // slow when you have many histograms; therefore, better
   // use histogram pointers as members as in 'UHH2/common/include/ElectronHists.h'
 
-  bool debug = false;
-
   // Don't forget to always use the weight when filling.
   double weight = event.weight;
 
@@ -193,31 +207,74 @@ void TstarTstarSignalRegionHists::fill(const Event & event){
   hist("pt_ST_prefiringUp")->Fill(st, event.get(h_prefiringWeightUp)*weight/event.get(h_prefiringWeightNominal));
   hist("pt_ST_prefiringDown")->Fill(st, event.get(h_prefiringWeightDown)*weight/event.get(h_prefiringWeightNominal));
 
+  if(debug) cout << "Starting btagging..." << endl;
   // b-tagging
+
+  // for the total, we need to quadratically add all >1 and all <1 values, respectively
+  // so lets push all of them to a vector and do that afterwards
+  std::vector<double> btag_variation_values_Up;
+  std::vector<double> btag_variation_values_Down;
+
   hist("pt_ST_btagging_hfUp")->Fill(st, event.get(h_weight_btagdisc_hfUp)*weight/event.get(h_weight_btagdiscNominal));
   hist("pt_ST_btagging_hfDown")->Fill(st, event.get(h_weight_btagdisc_hfDown)*weight/event.get(h_weight_btagdiscNominal));
+  btag_variation_values_Up.push_back(event.get(h_weight_btagdisc_hfUp) / event.get(h_weight_btagdiscNominal) - 1);
+  btag_variation_values_Down.push_back(event.get(h_weight_btagdisc_hfDown) / event.get(h_weight_btagdiscNominal) - 1);
 
   hist("pt_ST_btagging_hfstats1Up")->Fill(st, event.get(h_weight_btagdisc_hfstats1Up)*weight/event.get(h_weight_btagdiscNominal));
   hist("pt_ST_btagging_hfstats1Down")->Fill(st, event.get(h_weight_btagdisc_hfstats1Down)*weight/event.get(h_weight_btagdiscNominal));
+  btag_variation_values_Up.push_back(event.get(h_weight_btagdisc_hfstats1Up) / event.get(h_weight_btagdiscNominal) - 1);
+  btag_variation_values_Down.push_back(event.get(h_weight_btagdisc_hfstats1Down) / event.get(h_weight_btagdiscNominal) - 1);
 
   hist("pt_ST_btagging_hfstats2Up")->Fill(st, event.get(h_weight_btagdisc_hfstats2Up)*weight/event.get(h_weight_btagdiscNominal));
   hist("pt_ST_btagging_hfstats2Down")->Fill(st, event.get(h_weight_btagdisc_hfstats2Down)*weight/event.get(h_weight_btagdiscNominal));
+  btag_variation_values_Up.push_back(event.get(h_weight_btagdisc_hfstats2Up) / event.get(h_weight_btagdiscNominal) - 1);
+  btag_variation_values_Down.push_back(event.get(h_weight_btagdisc_hfstats2Down) / event.get(h_weight_btagdiscNominal) - 1);
 
   hist("pt_ST_btagging_lfUp")->Fill(st, event.get(h_weight_btagdisc_lfUp)*weight/event.get(h_weight_btagdiscNominal));
   hist("pt_ST_btagging_lfDown")->Fill(st, event.get(h_weight_btagdisc_lfDown)*weight/event.get(h_weight_btagdiscNominal));
+  btag_variation_values_Up.push_back(event.get(h_weight_btagdisc_lfUp) / event.get(h_weight_btagdiscNominal) - 1);
+  btag_variation_values_Down.push_back(event.get(h_weight_btagdisc_lfDown) / event.get(h_weight_btagdiscNominal) - 1);
 
   hist("pt_ST_btagging_lfstats1Up")->Fill(st, event.get(h_weight_btagdisc_lfstats1Up)*weight/event.get(h_weight_btagdiscNominal));
   hist("pt_ST_btagging_lfstats1Down")->Fill(st, event.get(h_weight_btagdisc_lfstats1Down)*weight/event.get(h_weight_btagdiscNominal));
+  btag_variation_values_Up.push_back(event.get(h_weight_btagdisc_lfstats1Up) / event.get(h_weight_btagdiscNominal) - 1);
+  btag_variation_values_Down.push_back(event.get(h_weight_btagdisc_lfstats1Down) / event.get(h_weight_btagdiscNominal) - 1);
 
   hist("pt_ST_btagging_lfstats2Up")->Fill(st, event.get(h_weight_btagdisc_lfstats2Up)*weight/event.get(h_weight_btagdiscNominal));
   hist("pt_ST_btagging_lfstats2Down")->Fill(st, event.get(h_weight_btagdisc_lfstats2Down)*weight/event.get(h_weight_btagdiscNominal));
+  btag_variation_values_Up.push_back(event.get(h_weight_btagdisc_lfstats2Up) / event.get(h_weight_btagdiscNominal) - 1);
+  btag_variation_values_Down.push_back(event.get(h_weight_btagdisc_lfstats2Down) / event.get(h_weight_btagdiscNominal) - 1);
 
   hist("pt_ST_btagging_cferr1Up")->Fill(st, event.get(h_weight_btagdisc_cferr1Up)*weight/event.get(h_weight_btagdiscNominal));
   hist("pt_ST_btagging_cferr1Down")->Fill(st, event.get(h_weight_btagdisc_cferr1Down)*weight/event.get(h_weight_btagdiscNominal));
+  btag_variation_values_Up.push_back(event.get(h_weight_btagdisc_cferr1Up) / event.get(h_weight_btagdiscNominal) - 1);
+  btag_variation_values_Down.push_back(event.get(h_weight_btagdisc_cferr1Down) / event.get(h_weight_btagdiscNominal) - 1);
 
   hist("pt_ST_btagging_cferr2Up")->Fill(st, event.get(h_weight_btagdisc_cferr2Up)*weight/event.get(h_weight_btagdiscNominal));
   hist("pt_ST_btagging_cferr2Down")->Fill(st, event.get(h_weight_btagdisc_cferr2Down)*weight/event.get(h_weight_btagdiscNominal));
+  btag_variation_values_Up.push_back(event.get(h_weight_btagdisc_cferr2Up) / event.get(h_weight_btagdiscNominal) - 1);
+  btag_variation_values_Down.push_back(event.get(h_weight_btagdisc_cferr2Down) / event.get(h_weight_btagdiscNominal) - 1);
 
+  // now lets do the total
+  double total_greater = 0;
+  double total_smaller = 0;
+  for (int i = 0; i < btag_variation_values_Up.size(); i++) {
+    double valueUp = btag_variation_values_Up.at(i);
+    double valueDown = btag_variation_values_Down.at(i);
+    if(valueUp >= valueDown) {
+      total_greater += valueUp*valueUp;
+      total_smaller += valueDown*valueDown;
+    } else {
+      total_smaller += valueUp*valueUp;
+      total_greater += valueDown*valueDown;
+    }
+  }
+  hist("pt_ST_btagging_totalUp")->Fill(st, weight * (1 + sqrt(total_greater)));
+  hist("pt_ST_btagging_totalDown")->Fill(st, weight * (1 - sqrt(total_smaller)));
+
+
+
+  if(debug) cout << "Starting ele..." << endl;
   // sfelec_id
   hist("pt_ST_sfelec_idUp")->Fill(st, event.get(h_weight_sfelec_idUp)*weight/event.get(h_weight_sfelec_idNominal));
   hist("pt_ST_sfelec_idDown")->Fill(st, event.get(h_weight_sfelec_idDown)*weight/event.get(h_weight_sfelec_idNominal));
@@ -233,6 +290,7 @@ void TstarTstarSignalRegionHists::fill(const Event & event){
   hist("pt_ST_sfelec_recoUp")->Fill(st, event.get(h_weight_sfelec_recoUp)*weight/event.get(h_weight_sfelec_recoNominal));
   hist("pt_ST_sfelec_recoDown")->Fill(st, event.get(h_weight_sfelec_recoDown)*weight/event.get(h_weight_sfelec_recoNominal));
 
+  if(debug) cout << "Starting mu..." << endl;
   // sfmu_id
   hist("pt_ST_sfmu_idUp")->Fill(st, event.get(h_weight_sfmu_idUp)*weight/event.get(h_weight_sfmu_idNominal));
   hist("pt_ST_sfmu_idDown")->Fill(st, event.get(h_weight_sfmu_idDown)*weight/event.get(h_weight_sfmu_idNominal));
@@ -245,8 +303,16 @@ void TstarTstarSignalRegionHists::fill(const Event & event){
   hist("pt_ST_sfmu_triggerUp")->Fill(st, event.get(h_weight_sfmu_triggerUp)*weight/event.get(h_weight_sfmu_triggerNominal));
   hist("pt_ST_sfmu_triggerDown")->Fill(st, event.get(h_weight_sfmu_triggerDown)*weight/event.get(h_weight_sfmu_triggerNominal));
 
+  // decorrelation uncertainty
+  if(debug) cout << "Starting decorrelation..." << endl;
+  double decorr_uncertainty = decorrelationUncertainty->GetBinContent( decorrelationUncertainty->FindBin(st) );
+  hist("pt_ST_sfmu_triggerUp")->Fill(st, weight + (decorr_uncertainty * weight));
+  hist("pt_ST_sfmu_triggerDown")->Fill(st, weight - (decorr_uncertainty * weight));
+
+  if(debug) cout << "Starting btagging..." << endl;
   float orig_weight = event.genInfo->originalXWGTUP();
   int MY_FIRST_INDEX = 9;
+  if(needsOtherMCweightHandling) MY_FIRST_INDEX = 41;
   for(int i=0; i<100; i++){
     double pdf_weight = 0;
     if(event.genInfo->systweights().size() > 0) pdf_weight =event.genInfo->systweights().at(i+MY_FIRST_INDEX);

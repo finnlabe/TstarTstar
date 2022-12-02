@@ -52,6 +52,8 @@ void getScaleEnvelope(){
     isSignal.push_back(true);
   }
 
+  TString channel = "mu";
+
   for(unsigned int i=0; i<samples.size(); i++){
 
     cout << "sample " << samples.at(i) << endl;
@@ -62,7 +64,7 @@ void getScaleEnvelope(){
     TString filename = filename_base + samples.at(i) + ".root";
     TFile* f_in = new TFile(filename, "READ");
 
-    TH1F *h_nominal = (TH1F*)f_in->Get("SignalRegion_total/pt_ST_nominal");
+    TH1F *h_nominal = (TH1F*)f_in->Get("SignalRegion_" + channel + "/pt_ST_nominal");
     TH1F *h_scale_up = (TH1F*)h_nominal->Clone();
     TH1F *h_scale_down = (TH1F*)h_nominal->Clone();
 
@@ -76,7 +78,7 @@ void getScaleEnvelope(){
       "murmuf_downdown"
     };
     for (auto name : variation_names) {
-      TString basename = "SignalRegion_total/pt_ST_";
+      TString basename = "SignalRegion_" + channel + "/pt_ST_";
       variations.push_back((TH1F*)f_in->Get(basename + name));
     }
 
@@ -136,7 +138,7 @@ void getScaleEnvelope(){
     leg->Draw();
 
     // Save the histo with the up/down variations in root file
-    TFile* f_out = new TFile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/scale_"+year+"_" + samples.at(i) + ".root", "RECREATE");
+    TFile* f_out = new TFile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/scale_" + year + "_" + channel + "_" + samples.at(i) + ".root", "RECREATE");
     h_scale_up->SetName(samples.at(i)+"_scale_up");
     h_scale_down->SetName(samples.at(i)+"_scale_down");
     h_scale_up->Write();
@@ -156,12 +158,12 @@ void getScaleEnvelope(){
     h_scale_down_ratio->SetLineWidth(4);
     h_scale_down_ratio->SetLineStyle(1);
 
-    can->SaveAs("plots/envelope_MCscale_noenvelope" + samples.at(i) +".pdf");
+    can->SaveAs("plots/envelope_MCscale_noenvelope" + year + "_" + channel + "_" + samples.at(i) +".pdf");
 
     h_scale_up_ratio->Draw("hist same");
     h_scale_down_ratio->Draw("hist same");
 
-    can->SaveAs("plots/envelope_MCscale" + samples.at(i) +".pdf");
+    can->SaveAs("plots/envelope_MCscale" + year + "_" + channel + "_" + samples.at(i) +".pdf");
 
     delete f_in;
   }

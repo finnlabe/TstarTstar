@@ -26,7 +26,7 @@ void getRMS(){
 
   TString filename_base = "";
   TString year = "UL18";
-  filename_base += "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/"+year+"/hadded/uhh2.AnalysisModuleRunner.MC.";
+  filename_base += "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/" + year + "/hadded/uhh2.AnalysisModuleRunner.MC.";
 
   vector<TString> samples = {"TTbar", "ST"};
   vector<bool> isSignal (samples.size(), false);
@@ -35,6 +35,8 @@ void getRMS(){
     samples.push_back("TstarTstar_M-" + mass);
     isSignal.push_back(true);
   }
+
+  TString channel = "mu";
 
   for(unsigned int i=0; i<samples.size(); i++){
 
@@ -50,7 +52,7 @@ void getRMS(){
     vector<double> pdf_norm (100, 1.); //For bkgs set normalization value to 1
     if( isSignal.at(i) ){
        string pdf_numb[100];
-       ifstream normfile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/SignalNorm_"+ samples.at(i) +".txt", ios::in);
+       ifstream normfile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/SignalNorm_" + samples.at(i) + ".txt", ios::in);
        if (normfile.is_open()){
          for(int i = 0; i < 100; ++i){
            normfile >> pdf_numb[i] >> pdf_norm[i];
@@ -59,7 +61,7 @@ void getRMS(){
        }
     }
 
-    TH1F *h_nominal = (TH1F*)f_in->Get("SignalRegion_total/pt_ST_nominal");
+    TH1F *h_nominal = (TH1F*)f_in->Get("SignalRegion_" + channel + "/pt_ST_nominal");
     TH1F *h_PDF_up = (TH1F*)h_nominal->Clone();
     TH1F *h_PDF_down = (TH1F*)h_nominal->Clone();
 
@@ -73,7 +75,7 @@ void getRMS(){
        // Loop over each of the 100 Histogrmas reweighted with the PDF replicas
        for(int i = 1; i<101; i++){
            stringstream ss_name;
-           ss_name << "SignalRegion_total/pt_ST_PDF_" << i;
+           ss_name << "SignalRegion_" + channel + "/pt_ST_PDF_" << i;
            string s_name = ss_name.str();
            const char* char_name = s_name.c_str();
 
@@ -90,7 +92,7 @@ void getRMS(){
     }
 
     // Save the histo with the up/down variations in root file
-    TFile* f_out = new TFile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/PDF_"+year+"_" + samples.at(i) + ".root", "RECREATE");
+    TFile* f_out = new TFile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/PDF_" + year + "_" + channel + "_" + samples.at(i) + ".root", "RECREATE");
     h_PDF_up->SetName(samples.at(i)+"_PDF_up");
     h_PDF_down->SetName(samples.at(i)+"_PDF_down");
     h_PDF_up->Write();
@@ -181,7 +183,7 @@ void getRMS(){
     text1->Draw();
 
 
-    c->SaveAs("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/plots/PDF_"+ samples.at(i) +".pdf");
+    c->SaveAs("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/plots/PDF_" + year + "_" + channel + "_" + samples.at(i) + ".pdf");
     c->Close();
 
     delete f_in;

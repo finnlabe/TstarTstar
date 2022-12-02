@@ -143,11 +143,17 @@ void decorrelation_ratioplotter(){
   hist_num_clone->GetYaxis()->SetTitleOffset(0.375);
   hist_num_clone->GetYaxis()->SetTitleSize(0.15);
 
-  hist_num_clone->GetYaxis()->SetRangeUser(0.01, 5e1);
+  hist_num_clone->GetYaxis()->SetRangeUser(0.5, 1.5);
 
-  gPad->SetLogy();
+  //gPad->SetLogy();
 
   hist_num_clone->Draw("");
+
+  // storing this histogram to a file to use as uncertainty later
+  TFile *output = TFile::Open("files/decorrelationComparison_" + sample + ".root", "recreate");
+  hist_num_clone->SetName("decorrelation_uncertainty");
+  hist_num_clone->Write();
+  output->Close();
 
   canvas->SaveAs("plots/decorrelationComparison_"+beforeHistname+"_"+beforeFolder+"_"+sample+".pdf");
 

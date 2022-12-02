@@ -25,6 +25,13 @@ public:
     // ST handle
     uhh2::Event::Handle<double> h_ST;
     bool is_MC;
+    bool needsOtherMCweightHandling;
+
+    // histogram containing decorrelation uncertainty
+    TH1* decorrelationUncertainty;
+
+    // debug bool
+    bool debug = false;
 
     // hist names for PDF
     std::string hist_names[100];
