@@ -75,7 +75,6 @@ private:
 
   // scale factors
   std::unique_ptr<AnalysisModule> HadronicTopFinder;
-  std::unique_ptr<AnalysisModule> HOTVRScale;
   std::unique_ptr<AnalysisModule> ScaleFactor_btagging;
   TH2D *eventYieldFactors;
   std::unique_ptr<AnalysisModule> ScaleFactor_NNLO;

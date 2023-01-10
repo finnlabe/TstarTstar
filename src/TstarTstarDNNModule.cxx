@@ -382,6 +382,7 @@ bool TstarTstarDNNModule::process(Event & event) {
 
   // TODO remove me
   if (event.get(h_ST_HOTVR) < 600) return false; // TODO REMOVE ME IN NEXT ITERATION
+  std::cout << "REMOVE TEMP FIX HERE!!!" << std::endl;
 
   // reapply weights
   event.weight = event.get(h_evt_weight);

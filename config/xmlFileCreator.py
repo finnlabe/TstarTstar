@@ -175,7 +175,7 @@ class xmlCreator:
 
    '''Creates XML files for SFrame'''
 
-   def __init__(self, step: str, year: str, group: str, variationDirections, isTriggerEff):
+   def __init__(self, step: str, year: str, group: str, variationDirections, isTriggerEff, spinstring=""):
 
       confCon = configContainer()
       self.uhh2Dir = confCon.uhh2Dir
@@ -188,6 +188,7 @@ class xmlCreator:
       self.jersmear_direction = variationDirections["jersmear"]
       self.jecsmear_direction = variationDirections["jecsmear"]
       self.isTriggerEff = isTriggerEff
+      self.spinstring = spinstring
 
       if step not in ['Preselection', 'Selection', 'Analysis', 'DNN', "DNN_datadriven", "DNN_datadriven_variation"]:
          sys.exit('Given value of argument "selection" not valid. Abort.')
@@ -222,7 +223,7 @@ class xmlCreator:
           if (not self.jersmear_direction == "nominal"): self.inputDirJERJER = "/JER_"+self.jersmear_direction+"/"
           elif (not self.jecsmear_direction == "nominal"): self.inputDirJERJER = "/JEC_"+self.jecsmear_direction+"/"
 
-      self.xmlFileName = '_'.join(['parsedConfigFile', self.step, self.year, group])+'.xml'
+      self.xmlFileName = '_'.join(['parsedConfigFile', self.step, self.year, group])+self.spinstring+'.xml'
       if(self.isTriggerEff): self.xmlFilePathBase = self.uhh2Dir+'TstarTstar/config/'+'_'.join(['config', self.step, "TriggerEff", self.year])+'/'
       else: self.xmlFilePathBase = self.uhh2Dir+'TstarTstar/config/'+'_'.join(['config', self.step, self.year])+'/'
       os.makedirs(self.xmlFilePathBase, exist_ok=True)
@@ -275,9 +276,9 @@ class xmlCreator:
          file.write('''\n''')
          for s in self.sample_list:
              if(self.step == "Preselection"):
-                 file.write('''<InputData Lumi="'''+str(s.lumi)+'''" NEventsMax="&NEVT;" Type="'''+('DATA' if s.is_data else 'MC')+'''" Version="'''+s.nickName+'''&YEARsuffix;" Cacheable="&b_Cacheable;"> &'''+s.nickName+'''; <InputTree Name="AnalysisTree"/> <OutputTree Name="AnalysisTree"/> </InputData>\n''')
+                 file.write('''<InputData Lumi="'''+str(s.lumi)+'''" NEventsMax="&NEVT;" Type="'''+('DATA' if s.is_data else 'MC')+'''" Version="'''+s.nickName+self.spinstring+'''&YEARsuffix;" Cacheable="&b_Cacheable;"> &'''+s.nickName+'''; <InputTree Name="AnalysisTree"/> <OutputTree Name="AnalysisTree"/> </InputData>\n''')
              else:
-                 file.write('''<InputData Lumi="'''+str(s.lumi)+'''" NEventsMax="&NEVT;" Type="'''+('DATA' if s.is_data else 'MC')+'''" Version="'''+s.nickName+'''&YEARsuffix;" Cacheable="&b_Cacheable;"> <In FileName="&'''+s.nickName+''';" Lumi="0.0"/> <InputTree Name="AnalysisTree"/> <OutputTree Name="AnalysisTree"/> </InputData>\n''')
+                 file.write('''<InputData Lumi="'''+str(s.lumi)+'''" NEventsMax="&NEVT;" Type="'''+('DATA' if s.is_data else 'MC')+'''" Version="'''+s.nickName+self.spinstring+'''&YEARsuffix;" Cacheable="&b_Cacheable;"> <In FileName="&'''+s.nickName+''';" Lumi="0.0"/> <InputTree Name="AnalysisTree"/> <OutputTree Name="AnalysisTree"/> </InputData>\n''')
          file.write('''\n''')
          file.write('''<UserConfig>\n''')
          file.write('''\n''')
@@ -325,6 +326,7 @@ class xmlCreator:
              file.write('''<Item Name="use_data_for" Value="background_extrapolation_variation"/>\n''')
              file.write('''<Item Name="background_estimation_purity_file" Value="'''+self.uhh2Dir+'''TstarTstar/macros/rootmakros/files/bgest_purity.root"/>\n''')
          if(self.isTriggerEff): file.write('''<Item Name="IsTriggerSFMeasurement" Value="True"/>\n''')
+         if not (self.spinstring == ""): file.write('''<Item Name="SignalSpinScenario" Value="'''+self.spinstring+'''"/>\n''')
          file.write('''\n''')
          file.write('''<!-- Switch for debugging of the central AnalysisModule -->\n''')
          file.write('''<Item Name="debug" Value="false"/>\n''')
@@ -416,10 +418,17 @@ if __name__=='__main__':
 
    for selection in args.selections:
       for year in args.years:
-          if(selection == "DNN_datadriven" or selection == "DNN_datadriven_variation"):
-              x = xmlCreator(selection, year, "DATA", directions, False)
-              x.write_xml()
-          else:
-              for group in groups:
-                 x = xmlCreator(selection, year, group, directions, args.triggerEff)
-                 x.write_xml()
+         if(selection == "DNN_datadriven" or selection == "DNN_datadriven_variation"):
+            x = xmlCreator(selection, year, "DATA", directions, False)
+            x.write_xml()
+         elif(selection == "DNN" or selection == "DNN_datadriven_variation"):
+            for group in groups:
+               if (group == "Signal"):
+                  x = xmlCreator(selection, year, group, directions, args.triggerEff, spinstring="_32")
+                  x.write_xml()
+               x = xmlCreator(selection, year, group, directions, args.triggerEff)
+               x.write_xml()
+         else:
+            for group in groups:
+               x = xmlCreator(selection, year, group, directions, args.triggerEff)
+               x.write_xml()

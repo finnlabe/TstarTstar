@@ -21,7 +21,7 @@ TstarTstarSignalRegionHists::TstarTstarSignalRegionHists(Context & ctx, const st
   if(needsOtherMCweightHandling) std::cout << "We are signal so we need other idices" << std::endl;
 
   // Histogram containing decorrelation uncertainty
-  TFile *decorrelationUncertaintyFile = new TFile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/decorrelationComparison.root");
+  TFile *decorrelationUncertaintyFile = new TFile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/decorrelationComparison_total_smooth.root");
   decorrelationUncertainty = (TH1*)decorrelationUncertaintyFile->Get("decorrelation_uncertainty");
 
   // weight handles
@@ -306,8 +306,8 @@ void TstarTstarSignalRegionHists::fill(const Event & event){
   // decorrelation uncertainty
   if(debug) cout << "Starting decorrelation..." << endl;
   double decorr_uncertainty = decorrelationUncertainty->GetBinContent( decorrelationUncertainty->FindBin(st) );
-  hist("pt_ST_sfmu_triggerUp")->Fill(st, weight + (decorr_uncertainty * weight));
-  hist("pt_ST_sfmu_triggerDown")->Fill(st, weight - (decorr_uncertainty * weight));
+  hist("pt_ST_decorrelationUp")->Fill(st, weight + (decorr_uncertainty * weight));
+  hist("pt_ST_decorrelationDown")->Fill(st, weight - (decorr_uncertainty * weight));
 
   if(debug) cout << "Starting btagging..." << endl;
   float orig_weight = event.genInfo->originalXWGTUP();

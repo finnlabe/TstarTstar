@@ -70,7 +70,7 @@ void backgroundEstimation(){
   }
 
   // this is only used if we plot the baseline!
-  bool plot_other_ratios = true;
+  bool plot_other_ratios = false;
   TString other_ratios_base_path = "/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/";
   std::vector<TString> other_ratios = {"btagging_total", "JEC", "JER"};
 
@@ -152,13 +152,11 @@ void backgroundEstimation(){
   fit1 = new TF1("fit1", "landau", 0, 6000);
   ratio.Fit("fit1", "N", "", 1000, 6000);
 
-  if(region == "CR") {
+  if(region == "VR") {
     // fitting some piecewise thingy
     fit2A = new TF1("fit2A", "pol1", 0, border);
     fit2B = new TF1("fit2B", "pol2", border, 6000);
    
-    //if(region == "SR") fit2->SetParameters(5.7, 27000, 10000);
-
     ratio.Fit("fit2A", "N", "", 500, border);
     ratio.Fit("fit2B", "N", "", border, 6000);
 
@@ -168,8 +166,6 @@ void backgroundEstimation(){
     fit2A = new TF1("fit2A", "pol1", 0, border);
     fit2B = new TF1("fit2B", "expo", border, 6000);
    
-    //if(region == "SR") fit2->SetParameters(5.7, 27000, 10000);
-
     ratio.Fit("fit2A", "N", "", 500, border);
     ratio.Fit("fit2B", "N", "", border, 6000);
 
@@ -293,7 +289,7 @@ void backgroundEstimation(){
   fitltx->SetTextFont(42);
   fitltx->SetY(.845);
   fitltx->SetTextSize(0.04);
-  fitltx->Draw();
+  //fitltx->Draw();
 
   // fit results
   /**
@@ -485,34 +481,6 @@ void backgroundEstimation(){
   ratiofit2->SetLineColor(1);
   ratiofit2->SetLineStyle(3);
   ratiofit2->Draw("same");
-
-  // drawing error from decorrelation
-  TFile *decorrelationUncertaintyFile = new TFile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/decorrelationComparison.root");
-  TH1* decorrelationUncertainty_ori = (TH1*)decorrelationUncertaintyFile->Get("decorrelation_uncertainty");
-  TH1* decorrelationUncertainty = (TH1*)decorrelationUncertainty_ori->Clone();
-  for (int bin = 0; bin <= nbins; bin++) {
-    decorrelationUncertainty->SetBinError( bin, abs( decorrelationUncertainty->GetBinContent(bin)-1) );
-    decorrelationUncertainty->SetBinContent( bin, 1 );
-  }
-
-  // smoothening the histogram
-  TH1* decorrelationUncertainty_preSmooth = (TH1*)decorrelationUncertainty->Clone();
-  for (int bin = 0; bin <= nbins; bin++) {
-
-    double previousBin = decorrelationUncertainty_preSmooth->GetBinError(bin-1);
-    double currentBin = decorrelationUncertainty_preSmooth->GetBinError(bin);
-    double nextBin = decorrelationUncertainty_preSmooth->GetBinError(bin+1);
-
-    double average = (previousBin + currentBin + nextBin)/3;
-    if(previousBin == 1) average = (currentBin + nextBin)/2;
-    else if(nextBin == 1) average = (previousBin + currentBin)/2;
-
-    decorrelationUncertainty->SetBinError(bin, average);
-
-  }
-
-  decorrelationUncertainty->SetFillColorAlpha(1, 0.25);
-  decorrelationUncertainty->Draw("same e2");
 
   c1_hist->SaveAs("plots/backgroundEstimation_HOTVR_" + region + systematic + JE_string + ".pdf");
 

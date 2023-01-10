@@ -25,8 +25,10 @@ using namespace std;
 void getRMS(){
 
   TString filename_base = "";
-  TString year = "UL18";
+  TString year = "";
   filename_base += "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/" + year + "/hadded/uhh2.AnalysisModuleRunner.MC.";
+  
+  TString region = "SignalRegion";
 
   vector<TString> samples = {"TTbar", "ST"};
   vector<bool> isSignal (samples.size(), false);
@@ -36,7 +38,7 @@ void getRMS(){
     isSignal.push_back(true);
   }
 
-  TString channel = "mu";
+  TString channel = "total";
 
   for(unsigned int i=0; i<samples.size(); i++){
 
@@ -61,7 +63,7 @@ void getRMS(){
        }
     }
 
-    TH1F *h_nominal = (TH1F*)f_in->Get("SignalRegion_" + channel + "/pt_ST_nominal");
+    TH1F *h_nominal = (TH1F*)f_in->Get(region + "_" + channel + "/pt_ST_nominal");
     TH1F *h_PDF_up = (TH1F*)h_nominal->Clone();
     TH1F *h_PDF_down = (TH1F*)h_nominal->Clone();
 
@@ -75,7 +77,7 @@ void getRMS(){
        // Loop over each of the 100 Histogrmas reweighted with the PDF replicas
        for(int i = 1; i<101; i++){
            stringstream ss_name;
-           ss_name << "SignalRegion_" + channel + "/pt_ST_PDF_" << i;
+           ss_name << region + "_" + channel + "/pt_ST_PDF_" << i;
            string s_name = ss_name.str();
            const char* char_name = s_name.c_str();
 
@@ -92,7 +94,7 @@ void getRMS(){
     }
 
     // Save the histo with the up/down variations in root file
-    TFile* f_out = new TFile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/PDF_" + year + "_" + channel + "_" + samples.at(i) + ".root", "RECREATE");
+    TFile* f_out = new TFile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/" + region + "_PDF_" + year + "_" + channel + "_" + samples.at(i) + ".root", "RECREATE");
     h_PDF_up->SetName(samples.at(i)+"_PDF_up");
     h_PDF_down->SetName(samples.at(i)+"_PDF_down");
     h_PDF_up->Write();
@@ -183,7 +185,7 @@ void getRMS(){
     text1->Draw();
 
 
-    c->SaveAs("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/plots/PDF_" + year + "_" + channel + "_" + samples.at(i) + ".pdf");
+    c->SaveAs("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/plots/" + region + "_PDF_" + year + "_" + channel + "_" + samples.at(i) + ".pdf");
     c->Close();
 
     delete f_in;

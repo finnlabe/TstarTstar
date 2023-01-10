@@ -70,7 +70,7 @@ void variationPlots(){
   TString foldername = "SignalRegion_total";
   TString histname = "pt_ST";
   bool doJECJER = false;
-  bool doPDFandScale = false;
+  bool doPDFandScale = true;
 
   std::vector<TString> variations_elec = {"sfelec_id", "sfelec_reco", "sfelec_trigger"};
   std::vector<TString> variations_mu = {"sfmu_id", "sfmu_iso", "sfmu_trigger"};
@@ -95,11 +95,11 @@ void variationPlots(){
 
   if(doJECJER) {
     // JER
-    TFile *file_JER_up = TFile::Open(path+"_JER_up/"+filename);
+    TFile *file_JER_up = TFile::Open(path+"_JERUp/"+filename);
     if(!file_JER_up) std::cout << "Main file does not exist" << std::endl;
     TH1D *hist_JER_up = (TH1D*)file_JER_up->Get(foldername+"/"+histname+"_nominal");
     if(!hist_JER_up) std::cout << "Main hist does not exist" << std::endl;
-    TFile *file_JER_down = TFile::Open(path+"_JER_down/"+filename);
+    TFile *file_JER_down = TFile::Open(path+"_JERDown/"+filename);
     if(!file_JER_down) std::cout << "Main file does not exist" << std::endl;
     TH1D *hist_JER_down = (TH1D*)file_JER_down->Get(foldername+"/"+histname+"_nominal");
     if(!hist_JER_down) std::cout << "Main hist does not exist" << std::endl;
@@ -127,11 +127,11 @@ void variationPlots(){
     leg->AddEntry(hist_JER_up,"JER","l");
 
     // JEC
-    TFile *file_JEC_up = TFile::Open(path+"_JEC_up/"+filename);
+    TFile *file_JEC_up = TFile::Open(path+"_JECUp/"+filename);
     if(!file_JEC_up) std::cout << "Main file does not exist" << std::endl;
     TH1D *hist_JEC_up = (TH1D*)file_JEC_up->Get(foldername+"/"+histname+"_nominal");
     if(!hist_JEC_up) std::cout << "Main hist does not exist" << std::endl;
-    TFile *file_JEC_down = TFile::Open(path+"_JEC_down/"+filename);
+    TFile *file_JEC_down = TFile::Open(path+"_JECDown/"+filename);
     if(!file_JEC_down) std::cout << "Main file does not exist" << std::endl;
     TH1D *hist_JEC_down = (TH1D*)file_JEC_down->Get(foldername+"/"+histname+"_nominal");
     if(!hist_JEC_down) std::cout << "Main hist does not exist" << std::endl;
@@ -161,7 +161,7 @@ void variationPlots(){
 
   if(doPDFandScale) {
     // PDF
-    TFile *file_PDF = TFile::Open(macro_path+"/PDF_"+year+"_"+sample+".root");
+    TFile *file_PDF = TFile::Open(macro_path+"/SignalRegion_PDF_"+year+"_total_"+sample+".root");
     if(!file_PDF) std::cout << "Main file does not exist" << std::endl;
     TH1D *hist_PDF_up = (TH1D*)file_PDF->Get(sample+"_PDF_up");
     if(!hist_PDF_up) std::cout << "PDF hist up does not exist" << std::endl;
@@ -179,7 +179,7 @@ void variationPlots(){
     hist_PDF_down->SetLineStyle(3);
 
     // styling first
-    hist_PDF_up->GetYaxis()->SetRangeUser(0.5, 1.5);
+    hist_PDF_up->GetYaxis()->SetRangeUser(0.1, 2.5);
     hist_PDF_up->GetXaxis()->SetRangeUser(600, 6000);
     hist_PDF_up->GetXaxis()->SetTitle( hist_PDF_up->GetTitle() );
     hist_PDF_up->GetYaxis()->SetTitle( "variation / nominal" );
@@ -191,7 +191,7 @@ void variationPlots(){
     leg->AddEntry(hist_PDF_up,"PDF","l");
 
     // scale
-    TFile *file_scale = TFile::Open(macro_path+"/scale_"+year+"_"+sample+".root");
+    TFile *file_scale = TFile::Open(macro_path+"/SignalRegion_scale_"+year+"_total_"+sample+".root");
     if(!file_scale) std::cout << "Main file does not exist" << std::endl;
     TH1D *hist_scale_up = (TH1D*)file_scale->Get(sample+"_scale_up");
     if(!hist_scale_up) std::cout << "scale hist up does not exist" << std::endl;
@@ -230,7 +230,6 @@ void variationPlots(){
   leg->SetBorderSize(0);
   for (int i = 0; i < variations.size(); i++) {
     TString variation = variations.at(i);
-    std::cout << variation << std::endl;
     TH1D *hist_up = (TH1D*)main_file->Get(foldername+"/"+histname+"_"+variation+"Up");
     TH1D *hist_down = (TH1D*)main_file->Get(foldername+"/"+histname+"_"+variation+"Down");
 

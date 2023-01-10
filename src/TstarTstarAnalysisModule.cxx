@@ -35,6 +35,7 @@
 
 // other stuff
 #include "UHH2/HOTVR/include/HOTVRIds.h"
+#include "UHH2/HOTVR/include/HOTVRJetCorrectionModule.h"
 
 using namespace std;
 using namespace uhh2;
@@ -259,7 +260,6 @@ bool TstarTstarAnalysisModule::process(Event & event) {
   // reapply weights
   event.weight = event.get(h_evt_weight);
   if(debug) cout << "weights applied." << endl;
-
 
   // set lepton channel
   const bool muon_evt = (event.muons->size() == 1);

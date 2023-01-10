@@ -26,7 +26,7 @@ void decorrelation_ratioplotter(){
   Double_t w = 800;
   Double_t h = 600;
 
-  TString sample = "MC.TTbar";
+  TString sample = "MC.totalSM";
 
   TString beforePath = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/";
   TString afterPath = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/hadded/";
