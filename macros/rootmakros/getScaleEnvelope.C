@@ -41,7 +41,7 @@ void getScaleEnvelope(){
   gStyle->SetPadRightMargin(0.07);
 
   TString filename_base = "";
-  TString year = "";
+  TString year = "UL18";
   filename_base += "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/"+year+"/hadded/uhh2.AnalysisModuleRunner.MC.";
 
   TString region = "SignalRegion";
@@ -52,9 +52,11 @@ void getScaleEnvelope(){
   for (auto mass : masspoints) {
     samples.push_back("TstarTstar_M-" + mass);
     isSignal.push_back(true);
+    samples.push_back("TstarTstar_M-" + mass + "_32");
+    isSignal.push_back(true);
   }
 
-  TString channel = "total";
+  TString channel = "mu";
 
   for(unsigned int i=0; i<samples.size(); i++){
 

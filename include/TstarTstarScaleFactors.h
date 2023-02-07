@@ -87,7 +87,7 @@ public:
   virtual bool process(uhh2::Event&) override;
 
 private:
-  bool weAreSignal;
+  bool doSpinReweighting = false;
   TH1D *scaleFactorHist;
 
 };

@@ -148,7 +148,6 @@ private:
   uhh2::Event::Handle<bool> h_is_muevt;
   uhh2::Event::Handle<bool> h_is_highpt;
   uhh2::Event::Handle<double> h_evt_weight;
-  uhh2::Event::Handle<LorentzVector> h_neutrino;
   uhh2::Event::Handle<double> h_ST;
   uhh2::Event::Handle<double> h_STHOTVR;
   uhh2::Event::Handle<bool> h_is_btagevent;
@@ -255,49 +254,44 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   reco_primlep.reset(new PrimaryLepton(ctx));
 
   // trigger selections
-  if(is_MC || data_isMu || isTriggerSFMeasurement) {
     std::cout << "Setting up muon triggers" << std::endl;
 
-    // low pt triggers
-    if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
-      trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu24_v*"));
-      trg_mu_low_2.reset(new TriggerSelection("HLT_IsoTkMu24_v*"));
-      trg_mu_high_1.reset(new TriggerSelection("HLT_Mu50_v*"));
-      if(!data_is2016B) trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu50_v*"));
-    }
-    else if(year == "2017" || year == "UL17") {
-      trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu27_v*"));
-      trg_mu_high_1.reset(new TriggerSelection("HLT_Mu50_v*"));
-      trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu100_v*"));
-      trg_mu_high_3.reset(new TriggerSelection("HLT_OldMu100_v*"));
-    }
-    else if(year == "2018" || year == "UL18") {
-      trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu24_v*"));
-      trg_mu_high_1.reset(new TriggerSelection("HLT_Mu50_v*"));
-      trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu100_v*"));
-      trg_mu_high_3.reset(new TriggerSelection("HLT_OldMu100_v*"));
-    }
+  // low pt triggers
+  if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
+    trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu24_v*"));
+    trg_mu_low_2.reset(new TriggerSelection("HLT_IsoTkMu24_v*"));
+    trg_mu_high_1.reset(new TriggerSelection("HLT_Mu50_v*"));
+    if(!data_is2016B) trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu50_v*"));
   }
-  if(is_MC || !data_isMu || isTriggerSFMeasurement){
-    std::cout << "Setting up ele triggers" << std::endl;
+  else if(year == "2017" || year == "UL17") {
+    trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu27_v*"));
+    trg_mu_high_1.reset(new TriggerSelection("HLT_Mu50_v*"));
+    trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu100_v*"));
+    trg_mu_high_3.reset(new TriggerSelection("HLT_OldMu100_v*"));
+  }
+  else if(year == "2018" || year == "UL18") {
+    trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu24_v*"));
+    trg_mu_high_1.reset(new TriggerSelection("HLT_Mu50_v*"));
+    trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu100_v*"));
+    trg_mu_high_3.reset(new TriggerSelection("HLT_OldMu100_v*"));
+  }
 
-    // low pt triggers
-    if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
-      trg_ele_low.reset(new TriggerSelection("HLT_Ele27_WPTight_Gsf_v*"));
-      trg_ele_high.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
-      if(is_MC || data_isPhoton || isTriggerSFMeasurement) trg_pho.reset(new TriggerSelection("HLT_Photon175_v*"));
-    }
-    else if(year == "2017" || year == "UL17") {
-      trg_ele_low.reset(new TriggerSelection("HLT_Ele35_WPTight_Gsf_v*"));
-      trg_ele_high.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
-      if(is_MC || data_isPhoton || isTriggerSFMeasurement) trg_pho.reset(new TriggerSelection("HLT_Photon200_v*"));
-    }
-    else if(year == "2018" || year == "UL18") {
-      trg_ele_low.reset(new TriggerSelection("HLT_Ele32_WPTight_Gsf_v*"));
-      trg_ele_high.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
-      trg_pho.reset(new TriggerSelection("HLT_Photon200_v*"));
-    }
-
+  std::cout << "Setting up ele triggers" << std::endl;
+  // low pt triggers
+  if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
+    trg_ele_low.reset(new TriggerSelection("HLT_Ele27_WPTight_Gsf_v*"));
+    trg_ele_high.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
+    trg_pho.reset(new TriggerSelection("HLT_Photon175_v*"));
+  }
+  else if(year == "2017" || year == "UL17") {
+    trg_ele_low.reset(new TriggerSelection("HLT_Ele35_WPTight_Gsf_v*"));
+    trg_ele_high.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
+    trg_pho.reset(new TriggerSelection("HLT_Photon200_v*"));
+  }
+  else if(year == "2018" || year == "UL18") {
+    trg_ele_low.reset(new TriggerSelection("HLT_Ele32_WPTight_Gsf_v*"));
+    trg_ele_high.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
+    trg_pho.reset(new TriggerSelection("HLT_Photon200_v*"));
   }
 
   // ###### 2. set up selections ######
@@ -349,7 +343,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
     else if(ctx.get("dataset_version").find("QCD") != std::string::npos) sample_string = "QCD";
     else if(ctx.get("dataset_version").find("Diboson") != std::string::npos) sample_string = "VV";
     else if(ctx.get("dataset_version").find("DY") != std::string::npos) sample_string = "DYJets";
-    else if(ctx.get("dataset_version").find("Tstar") != std::string::npos) sample_string = "TstarTstar"; // TODO FIXME
+    else if(ctx.get("dataset_version").find("Tstar") != std::string::npos) sample_string = "TstarTstar";
     if(debug) std::cout << "Apply 2D b-taggin yield SFs for " << sample_string << std::endl;
 
     if(sample_string != "") eventYieldFactors = (TH2D*)f->Get(sample_string);
@@ -516,7 +510,6 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   h_is_highpt = ctx.get_handle<bool>("is_highpt");
   h_evt_weight = ctx.get_handle<double>("evt_weight");
   h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
-  h_neutrino = ctx.declare_event_output<LorentzVector>("neutrino");
   h_ST = ctx.declare_event_output<double>("ST");
   h_STHOTVR = ctx.declare_event_output<double>("STHOTVR");
   h_is_btagevent = ctx.declare_event_output<bool>("is_btagevent");
@@ -573,6 +566,20 @@ bool TstarTstarSelectionModule::process(Event & event) {
   if(!(HOTVRCorr->process(event))) return false;
   if(!(HOTVRcleaner->process(event))) return false;
 
+  // st calculation
+  double st = 0.;
+  for(const auto & lepton : *event.electrons) st += lepton.pt();
+  for(const auto & lepton : *event.muons) st += lepton.pt();
+  st += event.met->pt();
+  double stHOTVR = st;
+
+  for(const auto & jet : *event.jets) st += jet.pt();
+  for(const auto & jet : *event.topjets) stHOTVR += jet.pt();
+
+  event.set(h_ST, st);
+  event.set(h_STHOTVR, stHOTVR);
+
+
   // exclude electron in overlap region
   if(!event.get(h_is_muevt) || isTriggerSFMeasurement) {
     if( (abs(event.electrons->at(0).eta()) >= 1.444) && (abs(event.electrons->at(0).eta()) <= 1.566)) return false;
@@ -584,68 +591,64 @@ bool TstarTstarSelectionModule::process(Event & event) {
   bool pass_trigger_SingleMu_highpt = false;
   bool pass_trigger_SingleEle = false;
 
-  if( (is_MC && event.get(h_is_muevt)) || data_isMu ) {
-    if(debug) std::cout << "Entered muon trigger logic" << std::endl;
+  if(debug) std::cout << "Entered muon trigger logic" << std::endl;
 
-    if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
-      pass_trigger_SingleMu_lowpt = (trg_mu_low_1->passes(event) || trg_mu_low_2->passes(event));
-      if(data_is2016B) pass_trigger_SingleMu_highpt = trg_mu_high_1->passes(event);
-      else pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event) || trg_mu_high_2->passes(event));
-    }
-    else if(year == "2017" || year == "UL17") {
-      pass_trigger_SingleMu_lowpt = trg_mu_low_1->passes(event);
-      if(data_is2017B || event.get(h_MC_isfake2017B)) pass_trigger_SingleMu_highpt = trg_mu_high_1->passes(event);
-      else pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event) || trg_mu_high_2->passes(event) || trg_mu_high_3->passes(event));
-    }
-    else if(year == "2018" || year == "UL18") {
-      pass_trigger_SingleMu_lowpt = trg_mu_low_1->passes(event);
-      pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event) || trg_mu_high_2->passes(event) || trg_mu_high_3->passes(event));
-    }
-
-    if(debug) std::cout << "Passed muon trigger logic" << std::endl;
-  } else if ( (is_MC && !event.get(h_is_muevt)) || !data_isMu ){
-    if(debug) std::cout << "Entered electron trigger logic" << std::endl;
-
-    if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
-
-      if(is_MC) {
-        pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_ele_high->passes(event) || trg_pho->passes(event));
-      } else {
-        if (data_isPhoton) pass_trigger_SingleEle = (!trg_ele_low->passes(event) && !trg_ele_high->passes(event) && trg_pho->passes(event));
-        else pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_ele_high->passes(event));
-      }
-
-    }
-    else if(year == "2017" || year == "UL17") {
-
-      if(is_MC) {
-        if (event.get(h_MC_isfake2017B)) pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_pho->passes(event));
-        else pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_ele_high->passes(event) || trg_pho->passes(event));
-      } else {
-        if (data_is2017B) {
-          if(data_isPhoton) pass_trigger_SingleEle = (!trg_ele_low->passes(event) && trg_pho->passes(event));
-          else pass_trigger_SingleEle = trg_ele_low->passes(event);
-        } else {
-          if(data_isPhoton) pass_trigger_SingleEle = (!trg_ele_low->passes(event) && !trg_ele_high->passes(event) && trg_pho->passes(event));
-          else pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_ele_high->passes(event));
-        }
-      }
-
-    }
-    else if(year == "2018" || year == "UL18") {
-      pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_ele_high->passes(event) || trg_pho->passes(event));
-    }
-
-    if(debug) std::cout << "Passed electron trigger logic" << std::endl;
-  } else {
-    throw std::runtime_error("Error: event not fitting any trigger group.");
+  if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
+    pass_trigger_SingleMu_lowpt = (trg_mu_low_1->passes(event) || trg_mu_low_2->passes(event));
+    if(data_is2016B) pass_trigger_SingleMu_highpt = trg_mu_high_1->passes(event);
+    else pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event) || trg_mu_high_2->passes(event));
+  }
+  else if(year == "2017" || year == "UL17") {
+    pass_trigger_SingleMu_lowpt = trg_mu_low_1->passes(event);
+    if(data_is2017B || event.get(h_MC_isfake2017B)) pass_trigger_SingleMu_highpt = trg_mu_high_1->passes(event);
+    else pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event) || trg_mu_high_2->passes(event) || trg_mu_high_3->passes(event));
+  }
+  else if(year == "2018" || year == "UL18") {
+    pass_trigger_SingleMu_lowpt = trg_mu_low_1->passes(event);
+    pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event) || trg_mu_high_2->passes(event) || trg_mu_high_3->passes(event));
   }
 
+  if(debug) std::cout << "Passed muon trigger logic" << std::endl;
+
+  if(debug) std::cout << "Entered electron trigger logic" << std::endl;
+
+  if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
+
+    if(is_MC) {
+      pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_ele_high->passes(event) || trg_pho->passes(event));
+    } else {
+      if (data_isPhoton) pass_trigger_SingleEle = (!trg_ele_low->passes(event) && !trg_ele_high->passes(event) && trg_pho->passes(event));
+      else pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_ele_high->passes(event));
+    }
+
+  }
+  else if(year == "2017" || year == "UL17") {
+
+    if(is_MC) {
+      if (event.get(h_MC_isfake2017B)) pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_pho->passes(event));
+      else pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_ele_high->passes(event) || trg_pho->passes(event));
+    } else {
+      if (data_is2017B) {
+        if(data_isPhoton) pass_trigger_SingleEle = (!trg_ele_low->passes(event) && trg_pho->passes(event));
+        else pass_trigger_SingleEle = trg_ele_low->passes(event);
+      } else {
+        if(data_isPhoton) pass_trigger_SingleEle = (!trg_ele_low->passes(event) && !trg_ele_high->passes(event) && trg_pho->passes(event));
+        else pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_ele_high->passes(event));
+      }
+    }
+
+  }
+  else if(year == "2018" || year == "UL18") {
+    pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_ele_high->passes(event) || trg_pho->passes(event));
+  }
+
+  if(debug) std::cout << "Passed electron trigger logic" << std::endl;
+
   // main logic
-  if( (is_MC && event.get(h_is_muevt)) || data_isMu ) {
+  if( event.get(h_is_muevt) && (is_MC || (!is_MC && data_isMu) ) )  {
     if(event.get(h_is_highpt)) pass_trigger = pass_trigger_SingleMu_highpt;
     else pass_trigger = pass_trigger_SingleMu_lowpt;
-  } else {
+  } else if( !event.get(h_is_muevt) && (is_MC || (!is_MC && !data_isMu) ) )  {
     pass_trigger = pass_trigger_SingleEle;
   }
 
@@ -654,7 +657,6 @@ bool TstarTstarSelectionModule::process(Event & event) {
     if(event.get(h_is_muevt)) h_notTriggered_mu->fill(event);
     else h_notTriggered_ele->fill(event);
     if(debug) cout<<"Filled hists for not triggered"<<endl;
-
 
     return false;
   }
@@ -892,32 +894,6 @@ bool TstarTstarSelectionModule::process(Event & event) {
   if(debug) std::cout << "is_muevt is: " << event.get(h_is_muevt) << endl;
 
   if(debug) std::cout << "Done dR" << endl;
-
-  // ST cut to reduce computation time (and file sizes)
-  // Neutrino reconstruction
-  const Particle& lepton = event.get(h_primlep); // Primary Lepton has to be set
-  std::vector<LorentzVector> neutrinos = NeutrinoReconstruction(lepton.v4(), event.met->v4());
-  if(debug) std::cout << "We have this many neutrino options: " << neutrinos.size() << std::endl;
-  for(auto &ntr : neutrinos) {
-    if(debug) std::cout << "Neutrino pt: " << ntr.pt() << std::endl;
-    double Wmass = inv_mass(ntr+lepton.v4());
-    if(debug) std::cout << "W mass: " << Wmass << std::endl;
-  }
-  event.set(h_neutrino, neutrinos.at(0));
-  // TODO find some better way to select best neutrino reconstruction?
-
-  // st calculation
-  double st = 0.;
-  for(const auto & lepton : *event.electrons) st += lepton.pt();
-  for(const auto & lepton : *event.muons) st += lepton.pt();
-  st += event.met->pt();
-  double stHOTVR = st;
-
-  for(const auto & jet : *event.jets) st += jet.pt();
-  for(const auto & jet : *event.topjets) stHOTVR += jet.pt();
-
-  event.set(h_ST, st);
-  event.set(h_STHOTVR, stHOTVR);
 
   // st cut
   if(stHOTVR < 500 && !isTriggerSFMeasurement) return false;

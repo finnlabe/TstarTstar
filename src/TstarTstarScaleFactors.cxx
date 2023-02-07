@@ -12,6 +12,11 @@
 using namespace std;
 using namespace uhh2;
 
+namespace {
+  // invariant mass of a lorentzVector, but safe for timelike / spacelike vectors
+  float inv_mass(const LorentzVector& p4){ return p4.isTimelike() ? p4.mass() : -sqrt(-p4.mass2()); }
+}
+
 // Generic Class for Applying SFs
 void ScaleFactorsFromHistos::LoadHisto(TFile* file, std::string name, std::string hname) {
   histos[name].reset((TH1F*)file->Get(hname.c_str()));
@@ -177,32 +182,29 @@ HEMCleanerMCScale::HEMCleanerMCScale(Context& ctx, string jetCollection, bool do
 
 TstarTstarSpinScale::TstarTstarSpinScale(Context& ctx, TString path) {
 
-  // detect whether we are signal, otherwise just leave
-  if (ctx.get("dataset_version").find("Tstar") != std::string::npos) {
-    weAreSignal = true;
+  if( (ctx.get("SignalSpinScenario", "not set") == "_32") && (ctx.get("dataset_version").find("Tstar") != std::string::npos)) {
 
-    // if we are signal, read the file!
-    TFile *f = new TFile(path);
+    doSpinReweighting = true;
 
     // detect mass string
-    std::string output = std::regex_replace(ctx.get("dataset_version"), std::regex("[^0-9]*([0-9]+).*"), std::string("$1"));
-    std::cout << "Detected this to be a signal sample at mass point " << output << "." << std::endl;
-    if(std::stoi( output ) > 2000) output = "2000";
-    if(output == "1100") output = "1000";
-    TString output_now_in_root = output;
-    scaleFactorHist = (TH1D*)f->Get("ratio_"+output_now_in_root);
+    std::string masspoint = std::regex_replace(ctx.get("dataset_version"), std::regex("[^0-9]*([0-9]+).*"), std::string("$1"));
+    std::cout << "Detected this to be a signal sample at mass point " << masspoint << " for spin reweighting." << std::endl;
+    
+    // if we are signal, read the file!
+    TFile *f = new TFile(path + "/spin12tospin32_M-" + masspoint + ".root");
+    scaleFactorHist = (TH1D*)f->Get("spinweights");
+
   } else {
-    weAreSignal = false;
+    std::cout << "Not doing any spin reweighting." << std::endl;
   }
 
 }
 
 bool TstarTstarSpinScale::process(Event& event){
 
-  if(!weAreSignal) return true; // not doing anything for non-signal
+  if(!doSpinReweighting) return true; // not doing anything
 
-  // first, detect T* average mass in this event
-  // Find signal, top, and antitop
+  // Find tstars
   GenParticle tstar, antitstar;
   bool found_tstar = false, found_antitstar = false;
   for(const GenParticle & gp : *event.genparticles){
@@ -220,7 +222,9 @@ bool TstarTstarSpinScale::process(Event& event){
 
   if(!found_tstar || !found_antitstar) return false;
 
-  double sf = scaleFactorHist->GetBinContent( scaleFactorHist->GetXaxis()->FindBin(tstar.pt()));
+  float m_tstartstar = inv_mass(tstar.v4()+antitstar.v4());
+
+  double sf = scaleFactorHist->GetBinContent( scaleFactorHist->GetXaxis()->FindBin( m_tstartstar ));
 
   event.weight *= sf;
 

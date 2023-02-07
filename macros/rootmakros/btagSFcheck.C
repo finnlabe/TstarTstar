@@ -1,7 +1,7 @@
 
 void btagSFcheck() {
 
-  TString year = "UL16postVFP";
+  TString year = "UL16preVFP";
   TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/"+year+"/hadded/";
   TString filename_base = "uhh2.AnalysisModuleRunner.MC.";
 
@@ -14,7 +14,7 @@ void btagSFcheck() {
   TString folder_after = "AfterBCorrections";
   TString folder_crosscheck = "AfterBYieldCorrections";
 
-  bool writeSFsToFile = true;
+  bool writeSFsToFile = false;
 
   // main loop, we are doing this for each sample
   std::vector<TH2D*> histograms_to_store;

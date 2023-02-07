@@ -69,7 +69,7 @@ void variationPlots(){
   TString filename = "uhh2.AnalysisModuleRunner.MC."+sample+".root";
   TString foldername = "SignalRegion_total";
   TString histname = "pt_ST";
-  bool doJECJER = false;
+  bool doJECJER = true;
   bool doPDFandScale = true;
 
   std::vector<TString> variations_elec = {"sfelec_id", "sfelec_reco", "sfelec_trigger"};
@@ -160,6 +160,9 @@ void variationPlots(){
   }
 
   if(doPDFandScale) {
+
+    leg = new TLegend(0.6,0.7,0.9,0.9);
+
     // PDF
     TFile *file_PDF = TFile::Open(macro_path+"/SignalRegion_PDF_"+year+"_total_"+sample+".root");
     if(!file_PDF) std::cout << "Main file does not exist" << std::endl;
@@ -179,7 +182,7 @@ void variationPlots(){
     hist_PDF_down->SetLineStyle(3);
 
     // styling first
-    hist_PDF_up->GetYaxis()->SetRangeUser(0.1, 2.5);
+    hist_PDF_up->GetYaxis()->SetRangeUser(0.5, 2);
     hist_PDF_up->GetXaxis()->SetRangeUser(600, 6000);
     hist_PDF_up->GetXaxis()->SetTitle( hist_PDF_up->GetTitle() );
     hist_PDF_up->GetYaxis()->SetTitle( "variation / nominal" );
@@ -282,7 +285,7 @@ void variationPlots(){
     hist_up->SetLineStyle(2);
     hist_down->SetLineStyle(3);
 
-    hist_up->GetYaxis()->SetRangeUser(0.9, 1.1);
+    hist_up->GetYaxis()->SetRangeUser(0.95, 1.05);
     hist_up->GetXaxis()->SetRangeUser(600, 6000);
     hist_up->GetXaxis()->SetTitle( hist_up->GetTitle() );
     hist_up->GetYaxis()->SetTitle( "variation / nominal" );
@@ -319,7 +322,7 @@ void variationPlots(){
     hist_up->SetLineStyle(2);
     hist_down->SetLineStyle(3);
 
-    hist_up->GetYaxis()->SetRangeUser(0.4, 1.6);
+    hist_up->GetYaxis()->SetRangeUser(0.2, 1.8);
     hist_up->GetXaxis()->SetRangeUser(600, 6000);
     hist_up->GetXaxis()->SetTitle( hist_up->GetTitle() );
     hist_up->GetYaxis()->SetTitle( "variation / nominal" );

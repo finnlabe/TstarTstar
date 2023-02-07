@@ -36,9 +36,10 @@ Double_t btagRatioDown(Double_t *x, Double_t *par) {
 
 void backgroundEstimation(){
 
-  bool storeOutputToFile = true;
+  bool storeOutputToFile = false;
+  bool plot_other_ratios = false;
 
-  TString region = "SR";
+  TString region = "VR";
 
   // definitions
   std::vector<TString> nontop_backgrounds = {"WJets", "QCD", "VV", "DYJets"};
@@ -70,7 +71,6 @@ void backgroundEstimation(){
   }
 
   // this is only used if we plot the baseline!
-  bool plot_other_ratios = false;
   TString other_ratios_base_path = "/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/";
   std::vector<TString> other_ratios = {"btagging_total", "JEC", "JER"};
 
@@ -257,8 +257,8 @@ void backgroundEstimation(){
 
       func_up->SetLineColorAlpha(color_int, 0.5);
       func_down->SetLineColorAlpha(color_int, 0.5);
-      func_up->SetLineStyle(2);
-      func_down->SetLineStyle(3);
+      func_up->SetLineStyle(1);
+      func_down->SetLineStyle(1);
       
       graph_up->Draw("P same");
       graph_down->Draw("P same");
@@ -276,8 +276,9 @@ void backgroundEstimation(){
 
   // legend
   legend->AddEntry(&ratio,"#alpha (nominal)","elp");
-  legend->AddEntry(fit1,"Landau","l");
-  legend->AddEntry(fit2,"piecewise","l");
+  legend->AddEntry(fit1,"Landau fit","l");
+  legend->AddEntry(fit2,"piecewise fit","l");
+  legend->AddEntry(fitMean,"mean fit","l");
   legend->Draw();
 
   // fit results
@@ -357,7 +358,7 @@ void backgroundEstimation(){
   TH1F *deviation = new TH1F("deviation", "", nbins-1, bins);
 
   // the main loop
-  int bins_before_500 = 1; // need to start at 0 because of overflow bin
+  int bins_before_500 = 0; // need to start at 0 because of overflow bin
   for (int bin = 0; bin <= nbins; bin++) {
     double st = deviation->GetBinCenter(bin);
     if( st < 500 ) {
@@ -424,8 +425,8 @@ void backgroundEstimation(){
 
         btagRatioUp_func->SetLineColorAlpha(color_int, 0.5);
         btagRatioDown_func->SetLineColorAlpha(color_int, 0.5);
-        btagRatioUp_func->SetLineStyle(2);
-        btagRatioDown_func->SetLineStyle(3);
+        btagRatioUp_func->SetLineStyle(1);
+        btagRatioDown_func->SetLineStyle(1);
       }
 
       for (int bin = 0; bin <= nbins; bin++) {

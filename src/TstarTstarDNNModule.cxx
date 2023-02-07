@@ -1,6 +1,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <regex>
 
 // UHH2 stuff
 #include "UHH2/core/include/AnalysisModule.h"
@@ -367,7 +368,7 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
 
   h_weight_sfelec_triggerNominal = ctx.get_handle<float>("weight_sfelec_trigger");
 
-  TstarTstarSpinSwitcher.reset(new TstarTstarSpinScale(ctx, "/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/spinFactors.root"));
+  TstarTstarSpinSwitcher.reset(new TstarTstarSpinScale(ctx, "/nfs/dust/cms/user/flabe/TstarTstar/Jupyter/reweight_factors/"));
 
 }
 
@@ -381,14 +382,14 @@ bool TstarTstarDNNModule::process(Event & event) {
   event.set(h_region,"not set");
 
   // TODO remove me
-  if (event.get(h_ST_HOTVR) < 600) return false; // TODO REMOVE ME IN NEXT ITERATION
-  std::cout << "REMOVE TEMP FIX HERE!!!" << std::endl;
+  // if (event.get(h_ST_HOTVR) < 600) return false; // TODO REMOVE ME IN NEXT ITERATION
+  // std::cout << "REMOVE TEMP FIX HERE!!!" << std::endl;
 
   // reapply weights
   event.weight = event.get(h_evt_weight);
   if(debug) cout << "weights applied." << endl;
 
-  //if(!(TstarTstarSpinSwitcher->process(event))) return false;
+  if(!(TstarTstarSpinSwitcher->process(event))) return false; // this will reweight, but only if set so in config file
   event.set(h_evt_weight, event.weight); // we'll use this later, so need to re-set
 
   // get ST weights

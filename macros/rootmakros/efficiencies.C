@@ -30,9 +30,9 @@ void efficiencies(TString suffix = ""){
   //leg->SetNColumns(4);
 
   // Defining paths
-  TString pathPresel = "/nfs/dust/cms/user/flabe/TstarTstar/data/Preselection/UL16postVFP/hadded/";
-  TString pathSel = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/UL16postVFP/hadded/";
-  TString pathReco = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/UL16postVFP/hadded/";
+  TString pathPresel = "/nfs/dust/cms/user/flabe/TstarTstar/data/Preselection/UL18/hadded/";
+  TString pathSel = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/UL18/hadded/";
+  TString pathReco = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/UL18/hadded/";
   TString fileprefix = "uhh2.AnalysisModuleRunner.MC.";
   TString histname = "N_jets";
 
@@ -58,11 +58,11 @@ void efficiencies(TString suffix = ""){
 
 
   // Defining Samples
-  std::vector<TString> signalSamples = {"TstarTstar_M-1000", "TstarTstar_M-2000"};
+  std::vector<TString> signalSamples = {"TstarTstar_M-800", "TstarTstar_M-1800"};
   std::vector<TString> BGSamples = {"TTbar", "WJets", "ST", "QCD"};
   //std::vector<TString> BGSamples = {};
 
-  std::vector<TString> signal_labels = {"t* 1000 GeV",  "t* 2000 GeV", };
+  std::vector<TString> signal_labels = {"t* 800 GeV",  "t* 1800 GeV", };
   std::vector<TString> BG_labels = {"TTbar", "WJets", "ST", "QCD"};
 
   // Defining Drawing options
@@ -260,7 +260,7 @@ void efficiencies(TString suffix = ""){
   leg->Draw("same");
 
   // draw Lumi text
-  TString infotext = TString::Format("%3.1f fb^{-1} (%d TeV)", 16.81, 13);
+  TString infotext = TString::Format("%3.1f fb^{-1} (%d TeV)",  59.83, 13);
   TLatex *text = new TLatex(3.5, 24, infotext);
   text->SetNDC();
   text->SetTextAlign(33);
