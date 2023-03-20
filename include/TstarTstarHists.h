@@ -26,8 +26,8 @@ public:
 
     TopJetId topjetID;
     uhh2::Event::Handle<FlavorParticle> h_primlep;
-    uhh2::Event::Handle<double> h_ST;
-    uhh2::Event::Handle<double> h_STHOTVR;
+    uhh2::Event::Handle<double> h_ST_AK4;
+    uhh2::Event::Handle<double> h_ST_HOTVR;
 
     uhh2::Event::Handle<ReconstructionTstarHypothesis> h_tstartstar_hyp_gHOTVR;
     uhh2::Event::Handle<ReconstructionTstarHypothesis> h_tstartstar_hyp_gAK4;

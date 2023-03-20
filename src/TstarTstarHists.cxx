@@ -21,8 +21,8 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   topjetID = AndId<TopJet>(HOTVRTopTag(), Tau32Groomed(0.56));
 
   h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
-  h_ST = ctx.get_handle<double>("ST");
-  h_STHOTVR = ctx.get_handle<double>("STHOTVR");
+  h_ST_AK4 = ctx.get_handle<double>("ST_AK4");
+  h_ST_HOTVR = ctx.get_handle<double>("ST_HOTVR");
 
   h_tstartstar_hyp_gHOTVR = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_Hyp_gHOTVR");
   h_tstartstar_hyp_gAK4 = ctx.get_handle<ReconstructionTstarHypothesis>("TstarTstar_Hyp_gAK4");
@@ -356,7 +356,7 @@ void TstarTstarHists::fill(const Event & event){
   else hist("pt_HTlep")->Fill(st, weight);
 
   try {
-    st = event.get(h_ST);
+    st = event.get(h_ST_AK4);
     if(st > 4000) hist("pt_ST")->Fill(3999.9, weight);
     else hist("pt_ST")->Fill(st, weight);
     hist("pt_ST_fullrange")->Fill(st, weight);
@@ -365,7 +365,7 @@ void TstarTstarHists::fill(const Event & event){
   } catch(...) {}
 
   try {
-    st = event.get(h_STHOTVR);
+    st = event.get(h_ST_HOTVR);
     if(st > 4000) hist("pt_ST_HOTVR")->Fill(3999.9, weight);
     else hist("pt_ST_HOTVR")->Fill(st, weight);
     hist("pt_ST_HOTVR_fullrange")->Fill(st, weight);

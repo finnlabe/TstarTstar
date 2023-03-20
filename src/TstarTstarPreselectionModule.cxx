@@ -28,7 +28,7 @@
 #include "UHH2/TstarTstar/include/TstarTstarElectronIDHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarPDFNormHists.h"
 
-
+// namespace definition
 using namespace std;
 using namespace uhh2;
 
@@ -52,14 +52,15 @@ private:
   // examples: JetPFid, JEC, JER, MET corrections, etc
   std::unique_ptr<CommonModules> common;
 
-
-  // other stuff
+  // GEN stuff (used for top pt reweighting)
   std::unique_ptr<uhh2::AnalysisModule> ttgenprod;
 
   // trigger selections
+  // these can be filled with different things per year, see below
   std::unique_ptr<Selection> trg_ele_low;
-  std::unique_ptr<Selection> trg_pho;
   std::unique_ptr<Selection> trg_ele_high;
+  std::unique_ptr<Selection> trg_pho;
+
   std::unique_ptr<Selection> trg_mu_low_1;
   std::unique_ptr<Selection> trg_mu_low_2;
   std::unique_ptr<Selection> trg_mu_high_1;
@@ -67,26 +68,30 @@ private:
   std::unique_ptr<Selection> trg_mu_high_3;
 
   // ##### Histograms #####
-  // full hists
-  std::unique_ptr<Hists> h_nocuts,     h_common,         h_lepsel,        h_jetsel, h_ST;
-  std::unique_ptr<Hists> h_nocuts_gen, h_common_gen,     h_lepsel_gen,    h_jetsel_gen, h_ST_gen;
-  std::unique_ptr<LuminosityHists> lumihist_common, lumihist_lepsel, lumihist_jetsel;
+  // total hists
+  std::unique_ptr<Hists> h_nocuts,     h_common,         h_lepsel,        h_jetsel,       h_ST;
 
   // electron channel
-  std::unique_ptr<Hists> h_lepsel_ele,        h_jetsel_ele, h_ST_ele                ;
-  std::unique_ptr<Hists> h_lepsel_ele_lowpt,  h_jetsel_ele_lowpt, h_ST_ele_lowpt;
-  std::unique_ptr<Hists> h_lepsel_ele_highpt, h_jetsel_ele_highpt, h_ST_ele_highpt;
+  std::unique_ptr<Hists> h_lepsel_ele,          h_jetsel_ele,           h_ST_ele;
+  std::unique_ptr<Hists> h_lepsel_ele_lowpt,    h_jetsel_ele_lowpt,     h_ST_ele_lowpt;
+  std::unique_ptr<Hists> h_lepsel_ele_highpt,   h_jetsel_ele_highpt,    h_ST_ele_highpt;
 
   // muon channel
-  std::unique_ptr<Hists> h_lepsel_mu,        h_jetsel_mu, h_ST_mu;
-  std::unique_ptr<Hists> h_lepsel_mu_lowpt,  h_jetsel_mu_lowpt, h_ST_mu_lowpt;
-  std::unique_ptr<Hists> h_lepsel_mu_highpt, h_jetsel_mu_highpt, h_ST_mu_highpt;
+  std::unique_ptr<Hists> h_lepsel_mu,           h_jetsel_mu,            h_ST_mu;
+  std::unique_ptr<Hists> h_lepsel_mu_lowpt,     h_jetsel_mu_lowpt,      h_ST_mu_lowpt;
+  std::unique_ptr<Hists> h_lepsel_mu_highpt,    h_jetsel_mu_highpt,     h_ST_mu_highpt;
 
+  // luminosity histograms
+  std::unique_ptr<LuminosityHists> lumihist_common, lumihist_lepsel, lumihist_jetsel;
+
+  // GEN histograms
+  std::unique_ptr<Hists> h_nocuts_gen, h_common_gen,     h_lepsel_gen,    h_jetsel_gen,   h_ST_gen;
   std::unique_ptr<Hists> h_afterSelection_gen, h_afterSelection_genmatch;
 
+  // histograms for electron ID
   std::unique_ptr<Hists> h_electronIDhists;
 
-  // PDF NORM hist
+  // hist PDF NORM
   std::unique_ptr<Hists> h_PDFnorm;
 
   // ##### Handles #####
@@ -94,18 +99,19 @@ private:
   uhh2::Event::Handle<bool> h_is_muevt;
   uhh2::Event::Handle<bool> h_is_highpt;
   uhh2::Event::Handle<double> h_evt_weight;
-
+  uhh2::Event::Handle<bool> h_trigger_decision;
   uhh2::Event::Handle<bool> h_MC_isfake2017B;
   uhh2::Event::Handle<bool> h_MC_isfake2016B;
 
-  // ##### Control switches #####
-  bool debug = false;
-
   // ##### other needed definitions #####
+  // these are mainly booleans set in the constructor and used in the process method
   TString year;
+  bool debug = false;
   bool is_MC;
   bool data_isMu = false;
-  bool data_isPhoton = false;
+  bool data_isEG = false;
+  bool data_isEle = false;
+  bool data_isPho = false;
   bool data_is2017B = false;
   bool data_is2016B = false;
   bool isTriggerSFMeasurement = false;
@@ -116,21 +122,18 @@ private:
 
 TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
 
-  // setting debug from xml file
+  // setting debugging flag from xml file
   if(ctx.get("debug", "<not set>") == "true") debug = true;
 
-  // debug status message
+  // debugging status message
   if(debug) {
     cout << "Hello World from TstarTstarPreselectionModule!" << endl;
-    // If running in SFrame, the keys "dataset_version", "dataset_type", "dataset_lumi",
-    // and "target_lumi" are set to the according values in the xml file. For CMSSW, these are
-    // not set automatically, but can be set in the python config file.
     for(auto & kv : ctx.get_all()){
       cout << " " << kv.first << " = " << kv.second << endl;
     }
   }
 
-  // ###### 0. Setting some MISC variables ######
+  // ###### 0. Fetching required information ######
   // year of sample
   year = ctx.get("year", "<not set>");
   if(year == "<not set>"){
@@ -145,94 +148,95 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   }
   if(debug) cout << "Year is " << year << "." << endl;
 
-  // MC or real data
+  // check if we are MC or real data
   is_MC = ctx.get("dataset_type") == "MC";
 
-  // muon channel for DATA
-  if(!is_MC) data_isMu = (ctx.get("dataset_version").find("SingleMuon") != std::string::npos);
-  if(data_isMu) std::cout << "this data sample is a muon sample" << std::endl;
-  if(!is_MC) data_isPhoton = (ctx.get("dataset_version").find("SinglePhoton") != std::string::npos);
-  if(data_isPhoton) std::cout << "this data sample is a photon sample" << std::endl;
+  // if its a data sample, check what kind
+  if(!is_MC) {
+    data_isMu = (ctx.get("dataset_version").find("SingleMuon") != std::string::npos);
+    data_isEle = (ctx.get("dataset_version").find("SingleElectron") != std::string::npos);
+    data_isPho = (ctx.get("dataset_version").find("SinglePhoton") != std::string::npos);
+    data_isEG = (ctx.get("dataset_version").find("EGamma") != std::string::npos);
 
-  // check this specific run as it has error
-  if(!is_MC) data_is2017B = (ctx.get("dataset_version").find("SingleElectron_RunB_UL17") != std::string::npos) || (ctx.get("dataset_version").find("SingleMuon_RunB_UL17") != std::string::npos) || (ctx.get("dataset_version").find("SinglePhoton_RunB_UL17") != std::string::npos);
-  if(!is_MC) data_is2016B = (ctx.get("dataset_version").find("SingleElectron_RunB_UL16preVFP") != std::string::npos) || (ctx.get("dataset_version").find("SingleMuon_RunB_UL16preVFP") != std::string::npos) || (ctx.get("dataset_version").find("SinglePhoton_RunB_UL16preVFP") != std::string::npos);
+    if(data_isMu) std::cout << "This data sample is a muon sample." << std::endl;
+    if(data_isPho) std::cout << "This data sample is a photon sample" << std::endl;
+    if(data_isEle) std::cout << "This data sample is an electron sample." << std::endl;
+    if(data_isEG) std::cout << "This data sample is an egamma sample" << std::endl;
+  }
 
-  // ###### 1. set up modules ######
+  // check if this is specific run
+  // needed as some triggers were missing
+  if(!is_MC) data_is2016B = ctx.get("dataset_version").find("RunB_UL16preVFP") != std::string::npos;
+  if(!is_MC) data_is2017B = ctx.get("dataset_version").find("RunB_UL17") != std::string::npos;
+
+  // ###### 1. setting up modules ######
   if(debug) cout << "Setting up modules" << endl;
 
-  // trigger selections
-  if(is_MC || data_isMu) {
-    std::cout << "Setting up muon triggers" << std::endl;
+  // TRIGGER
+  // Muon channel
+  std::cout << "Setting up muon triggers" << std::endl;
 
-    // low pt triggers
-    if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
-      trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu24_v*"));
-      trg_mu_low_2.reset(new TriggerSelection("HLT_IsoTkMu24_v*"));
-      trg_mu_high_1.reset(new TriggerSelection("HLT_Mu50_v*"));
-      if(!data_is2016B) trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu50_v*"));
-    }
-    else if(year == "2017" || year == "UL17") {
-      trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu27_v*"));
-      trg_mu_high_1.reset(new TriggerSelection("HLT_Mu50_v*"));
-      trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu100_v*"));
-      trg_mu_high_3.reset(new TriggerSelection("HLT_OldMu100_v*"));
-    }
-    else if(year == "2018" || year == "UL18") {
-      trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu24_v*"));
-      trg_mu_high_1.reset(new TriggerSelection("HLT_Mu50_v*"));
-      trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu100_v*"));
-      trg_mu_high_3.reset(new TriggerSelection("HLT_OldMu100_v*"));
-    }
+  if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
+    trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu24_v*"));
+    trg_mu_low_2.reset(new TriggerSelection("HLT_IsoTkMu24_v*"));
+    trg_mu_high_1.reset(new TriggerSelection("HLT_Mu50_v*"));
+    if(!data_is2016B) trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu50_v*"));
   }
-  if(is_MC || !data_isMu){
-    std::cout << "Setting up ele triggers" << std::endl;
+  else if(year == "2017" || year == "UL17") {
+    trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu27_v*"));
+    trg_mu_high_1.reset(new TriggerSelection("HLT_Mu50_v*"));
+    trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu100_v*"));
+    trg_mu_high_3.reset(new TriggerSelection("HLT_OldMu100_v*"));
+  }
+  else if(year == "2018" || year == "UL18") {
+    trg_mu_low_1.reset(new TriggerSelection("HLT_IsoMu24_v*"));
+    trg_mu_high_1.reset(new TriggerSelection("HLT_Mu50_v*"));
+    trg_mu_high_2.reset(new TriggerSelection("HLT_TkMu100_v*"));
+    trg_mu_high_3.reset(new TriggerSelection("HLT_OldMu100_v*"));
+  }
 
-    // low pt triggers
-    if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
-      trg_ele_low.reset(new TriggerSelection("HLT_Ele27_WPTight_Gsf_v*"));
-      trg_ele_high.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
-      if(is_MC || data_isPhoton) trg_pho.reset(new TriggerSelection("HLT_Photon175_v*"));
-    }
-    else if(year == "2017" || year == "UL17") {
-      trg_ele_low.reset(new TriggerSelection("HLT_Ele35_WPTight_Gsf_v*"));
-      trg_ele_high.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
-      if(is_MC || data_isPhoton) trg_pho.reset(new TriggerSelection("HLT_Photon200_v*"));
-    }
-    else if(year == "2018" || year == "UL18") {
-      trg_ele_low.reset(new TriggerSelection("HLT_Ele32_WPTight_Gsf_v*"));
-      trg_ele_high.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
-      trg_pho.reset(new TriggerSelection("HLT_Photon200_v*"));
-    }
+  // Electron channel
+  std::cout << "Setting up ele triggers" << std::endl;
 
+  if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
+    trg_ele_low.reset(new TriggerSelection("HLT_Ele27_WPTight_Gsf_v*"));
+    trg_ele_high.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
+    trg_pho.reset(new TriggerSelection("HLT_Photon175_v*"));
+  }
+  else if(year == "2017" || year == "UL17") {
+    trg_ele_low.reset(new TriggerSelection("HLT_Ele35_WPTight_Gsf_v*"));
+    trg_ele_high.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
+    trg_pho.reset(new TriggerSelection("HLT_Photon200_v*"));
+  }
+  else if(year == "2018" || year == "UL18") {
+    trg_ele_low.reset(new TriggerSelection("HLT_Ele32_WPTight_Gsf_v*"));
+    trg_ele_high.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"));
+    trg_pho.reset(new TriggerSelection("HLT_Photon200_v*"));
   }
 
   // CommonModules
+  if(debug) cout << "Common ini" << endl;
+
+  // here, we will *NOT* apply jet lepton cleaning, JEC/JER, MET corrections...
+  // basically everything jet-related
   common.reset(new CommonModules());
   common->switch_jetlepcleaner(false);
-  common->switch_jetPtSorter();
-  common->switch_metcorrection();
-  if(debug) cout << "Common ini" << endl;
+  common->switch_metcorrection(false);
+  common->switch_jetPtSorter(true);
+  common->disable_jec();
+  common->disable_jersmear();
 
   // Electron
   ElectronId eleID_lowpt = ElectronTagID(Electron::mvaEleID_Fall17_iso_V2_wp90);
   ElectronId eleID_highpt = ElectronTagID(Electron::mvaEleID_Fall17_noIso_V2_wp90);
-  double electron_pt_lowpt(40.);
-  double electron_pt_highpt(120.);
-  common->set_electron_id(OrId<Electron>( AndId<Electron>(PtEtaSCCut(electron_pt_lowpt, 2.4), eleID_lowpt, EleMaxPtCut(120.)),  AndId<Electron>(PtEtaSCCut(electron_pt_highpt, 2.4), eleID_highpt)));
+  common->set_electron_id(OrId<Electron>( AndId<Electron>(PtEtaCut(40., 2.4), eleID_lowpt, EleMaxPtCut(120.)),  AndId<Electron>(PtEtaCut(120., 2.4), eleID_highpt)));
   if(debug) cout << "Electrons done" << endl;
 
   // Muon
   MuonId muID_lowpt = AndId<Muon>(MuonID(Muon::CutBasedIdTight), MuonID(Muon::PFIsoTight));
   MuonId muID_highpt = MuonID(Muon::CutBasedIdGlobalHighPt);
-  double muon_pt_lowpt(30.);
-  double muon_pt_highpt(55.);
-  common->set_muon_id(OrId<Muon>( AndId<Muon>(PtEtaCut(muon_pt_lowpt, 2.4), muID_lowpt, MuMaxPtCut(muon_pt_highpt)), AndId<Muon>(PtEtaCut(muon_pt_highpt, 2.4), muID_highpt)));
+  common->set_muon_id(OrId<Muon>( AndId<Muon>(PtEtaCut(30., 2.4), muID_lowpt, MuMaxPtCut(55.)), AndId<Muon>(PtEtaCut(55, 2.4), muID_highpt)));
   if(debug) cout << "Muons done" << endl;
-
-  // disable jet stuff, as we'll do this in the selection module
-  common->disable_jec();
-  common->disable_jersmear();
 
   // init common
   common->init(ctx);
@@ -245,30 +249,13 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
     if(debug) cout << "TTbarGenProducer done" << endl;
   }
 
-  // std::cout << "Attention: no tree will be stored, this is just for plotting!!!" << std::endl;
-  // ctx.undeclare_all_event_output();
-
-  // ###### 2. set up selections ######
-
-  // ###### 3. set up hists ######
+  // ###### 3. setting up histograms ######
   // general
   h_nocuts.reset(new TstarTstarHists(ctx, "NoCuts"));
   h_common.reset(new TstarTstarHists(ctx, "AfterCommon"));
   h_lepsel.reset(new TstarTstarHists(ctx, "AfterLep"));
   h_jetsel.reset(new TstarTstarHists(ctx, "AfterJets"));
   h_ST.reset(new TstarTstarHists(ctx, "AfterST"));
-
-  // GEN hists
-  h_nocuts_gen.reset(new TstarTstarGenHists(ctx, "NoCuts_gen"));
-  h_common_gen.reset(new TstarTstarGenHists(ctx, "AfterCommon_gen"));
-  h_lepsel_gen.reset(new TstarTstarGenHists(ctx, "AfterLep_gen"));
-  h_jetsel_gen.reset(new TstarTstarGenHists(ctx, "AfterJets_gen"));
-  h_ST_gen.reset(new TstarTstarGenHists(ctx, "AfterST_gen"));
-
-  // Lumi hists
-  lumihist_common.reset(new LuminosityHists(ctx, "lumihist_AfterCommon"));
-  lumihist_lepsel.reset(new LuminosityHists(ctx, "lumihist_AfterLep"));
-  lumihist_jetsel.reset(new LuminosityHists(ctx, "lumihist_AfterJets"));
 
   // electron channel
   h_lepsel_ele.reset(new TstarTstarHists(ctx, "AfterLepSel_ele"));
@@ -296,25 +283,40 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   h_jetsel_mu_highpt.reset(new TstarTstarHists(ctx, "AfterJets_mu_highpt"));
   h_ST_mu_highpt.reset(new TstarTstarHists(ctx, "AfterST_mu_highpt"));
 
+    // GEN hists
+  h_nocuts_gen.reset(new TstarTstarGenHists(ctx, "NoCuts_gen"));
+  h_common_gen.reset(new TstarTstarGenHists(ctx, "AfterCommon_gen"));
+  h_lepsel_gen.reset(new TstarTstarGenHists(ctx, "AfterLep_gen"));
+  h_jetsel_gen.reset(new TstarTstarGenHists(ctx, "AfterJets_gen"));
+  h_ST_gen.reset(new TstarTstarGenHists(ctx, "AfterST_gen"));
   h_afterSelection_gen.reset(new TstarTstarGenHists(ctx, "AfterSel_gen"));
   h_afterSelection_genmatch.reset(new TstarTstarGenRecoMatchedHists(ctx, "AfterSel_genmatch"));
 
-  h_electronIDhists.reset(new TstarTstarElectronIDHists(ctx, "ElectronIDHists"));
+  // Lumi hists
+  lumihist_common.reset(new LuminosityHists(ctx, "lumihist_AfterCommon"));
+  lumihist_lepsel.reset(new LuminosityHists(ctx, "lumihist_AfterLep"));
+  lumihist_jetsel.reset(new LuminosityHists(ctx, "lumihist_AfterJets"));
 
+  // other histograms  
+  h_electronIDhists.reset(new TstarTstarElectronIDHists(ctx, "ElectronIDHists"));
   h_PDFnorm.reset(new TstarTstarPDFNormHists(ctx, "PDFNorm"));
 
   // ###### 4. init handles ######
   h_is_muevt = ctx.declare_event_output<bool>("is_muevt");
   h_is_highpt = ctx.declare_event_output<bool>("is_highpt");
   h_evt_weight = ctx.declare_event_output<double>("evt_weight");
+  h_MC_isfake2017B = ctx.declare_event_output<bool>("MC_isfake2017B");
+  h_MC_isfake2016B = ctx.declare_event_output<bool>("MC_isfake2016B");
+  h_trigger_decision = ctx.declare_event_output<bool>("trigger_decision");
 
+  // ###### 4. other MISC stuff ######
+  // handle trigger SF measurement, which changes some things
   string IsTriggerSFMeasurement = ctx.get("IsTriggerSFMeasurement", "False");
   if(IsTriggerSFMeasurement == "True") isTriggerSFMeasurement = true;
   if(isTriggerSFMeasurement) std::cout << "Changing the lepton requirement as this is Electron trigger SF measurement run!" << std::endl;
 
-  h_MC_isfake2017B = ctx.declare_event_output<bool>("MC_isfake2017B");
-  h_MC_isfake2016B = ctx.declare_event_output<bool>("MC_isfake2016B");
-
+  // init srand
+  // used later to set random MC "runs"
   std::srand(std::time(nullptr));
 
 }
@@ -342,20 +344,16 @@ bool TstarTstarPreselectionModule::process(Event & event) {
 
   // ###### common modules, corrections & cleaning ######
   if(!(common->process(event))) return false;
-
   if(debug) cout<<"common modules done"<<endl;
 
   // hists before selection
   h_common->fill(event);
   h_common_gen->fill(event);
-  if(is_MC) h_PDFnorm->fill(event);
   lumihist_common->fill(event);
+  if(is_MC) h_PDFnorm->fill(event);
   if(debug) cout<<"Filled hists after cleaning"<<endl;
 
-  // #################
-  // ### Selection ###
-  // #################
-
+  // setting fake MC "runs"
   bool MC_isfake2017B = false;
   bool MC_isfake2016B = false;
 
@@ -384,44 +382,49 @@ bool TstarTstarPreselectionModule::process(Event & event) {
     event.set(h_MC_isfake2016B, false);
   }
 
-  // bools
-  bool pass_lep1;
-  bool pass_njet;
-  bool pass_fat_njet;
+  // #################
+  // ### Selection ###
+  // #################
 
   // ###### Lepton selection ######
-  pass_lep1 = (((event.muons->size() == 1) || (event.electrons->size() == 1)) && (event.electrons->size()+event.muons->size()) == 1);
+  bool pass_lep1 = (((event.muons->size() == 1) || (event.electrons->size() == 1)) && (event.electrons->size()+event.muons->size()) == 1);
   if(isTriggerSFMeasurement) pass_lep1 = ((event.muons->size() == 1) && (event.electrons->size() == 1)); // this ensures orthogonal dataset
   if(!pass_lep1) return false;
 
+  // now that we have leptons, we can set the event channel:
   // setting muevt handle
   if(event.muons->size() == 1) event.set(h_is_muevt, true);
   else event.set(h_is_muevt, false);
 
+  // trigger SF measurement will be in "muon mode"
   if(isTriggerSFMeasurement) event.set(h_is_muevt, true);
 
   // set is_highpt
   if(event.get(h_is_muevt)){
-    if(event.muons->at(0).pt()<=55) event.set(h_is_highpt, false);
+    if(event.muons->at(0).pt()<=55.) event.set(h_is_highpt, false);
     else event.set(h_is_highpt, true);
   }
   else {
-    if(event.electrons->at(0).pt()<=120) event.set(h_is_highpt, false);
+    if(event.electrons->at(0).pt()<=120.) event.set(h_is_highpt, false);
     else event.set(h_is_highpt, true);
   }
 
   // ###### Trigger selection ######
+  // important: triggers are not yet "applied" here, just calculated for plotting!
+  // to be able to plot trigger efficiencies later, events that don't pass are not thrown away yet
   bool pass_trigger = false;
   bool pass_trigger_SingleMu_lowpt = false;
   bool pass_trigger_SingleMu_highpt = false;
   bool pass_trigger_SingleEle = false;
 
-  if( (is_MC && event.get(h_is_muevt)) || data_isMu ) {
+  // using muon triggers if we are a muon event
+  // also, if data, only for muon samples
+  if ( event.get(h_is_muevt) && (is_MC || data_isMu ) ) {
     if(debug) std::cout << "Entered muon trigger logic" << std::endl;
 
     if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
       pass_trigger_SingleMu_lowpt = (trg_mu_low_1->passes(event) || trg_mu_low_2->passes(event));
-      if(data_is2016B) pass_trigger_SingleMu_highpt = trg_mu_high_1->passes(event);
+      if(data_is2016B || event.get(h_MC_isfake2016B)) pass_trigger_SingleMu_highpt = trg_mu_high_1->passes(event);
       else pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event) || trg_mu_high_2->passes(event));
     }
     else if(year == "2017" || year == "UL17") {
@@ -434,8 +437,11 @@ bool TstarTstarPreselectionModule::process(Event & event) {
       pass_trigger_SingleMu_highpt = (trg_mu_high_1->passes(event) || trg_mu_high_2->passes(event) || trg_mu_high_3->passes(event));
     }
 
-    if(debug) std::cout << "Passed muon trigger logic" << std::endl;
-  } else if ( (is_MC && !event.get(h_is_muevt)) || !data_isMu ){
+    if(event.get(h_is_highpt)) pass_trigger = pass_trigger_SingleMu_highpt;
+    else pass_trigger = pass_trigger_SingleMu_lowpt;
+
+    if(debug) std::cout << "Passed muon trigger logic: " << pass_trigger << std::endl;
+  } else if ( !event.get(h_is_muevt) && (is_MC || data_isEG || data_isEle || data_isPho )){
     if(debug) std::cout << "Entered electron trigger logic" << std::endl;
 
     if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
@@ -443,7 +449,7 @@ bool TstarTstarPreselectionModule::process(Event & event) {
       if(is_MC) {
         pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_ele_high->passes(event) || trg_pho->passes(event));
       } else {
-        if (data_isPhoton) pass_trigger_SingleEle = (!trg_ele_low->passes(event) && !trg_ele_high->passes(event) && trg_pho->passes(event));
+        if (data_isPho) pass_trigger_SingleEle = (!trg_ele_low->passes(event) && !trg_ele_high->passes(event) && trg_pho->passes(event));
         else pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_ele_high->passes(event));
       }
 
@@ -455,10 +461,10 @@ bool TstarTstarPreselectionModule::process(Event & event) {
         else pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_ele_high->passes(event) || trg_pho->passes(event));
       } else {
         if (data_is2017B) {
-          if(data_isPhoton) pass_trigger_SingleEle = (!trg_ele_low->passes(event) && trg_pho->passes(event));
+          if(data_isPho) pass_trigger_SingleEle = (!trg_ele_low->passes(event) && trg_pho->passes(event));
           else pass_trigger_SingleEle = trg_ele_low->passes(event);
         } else {
-          if(data_isPhoton) pass_trigger_SingleEle = (!trg_ele_low->passes(event) && !trg_ele_high->passes(event) && trg_pho->passes(event));
+          if(data_isPho) pass_trigger_SingleEle = (!trg_ele_low->passes(event) && !trg_ele_high->passes(event) && trg_pho->passes(event));
           else pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_ele_high->passes(event));
         }
       }
@@ -468,40 +474,36 @@ bool TstarTstarPreselectionModule::process(Event & event) {
       pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_ele_high->passes(event) || trg_pho->passes(event));
     }
 
-    if(debug) std::cout << "Passed electron trigger logic" << std::endl;
-  } else {
-    throw std::runtime_error("Error: event not fitting any trigger group.");
+    pass_trigger = pass_trigger_SingleEle;
+
+    if(debug) std::cout << "Passed electron trigger logic: " << pass_trigger << std::endl;
   }
 
-  // main logic
-  if( (is_MC && event.get(h_is_muevt)) || data_isMu ) {
-    if(event.get(h_is_highpt)) pass_trigger = pass_trigger_SingleMu_highpt;
-    else pass_trigger = pass_trigger_SingleMu_lowpt;
-  } else {
-    pass_trigger = pass_trigger_SingleEle;
-  }
+  // setting the trigger_decision
+  event.set(h_trigger_decision, pass_trigger);
 
   // hists
+  // these are after our "first real" selection step, the lepton selection
   if(pass_trigger) {
     h_lepsel->fill(event);
     h_lepsel_gen->fill(event);
     lumihist_lepsel->fill(event);
     if(event.get(h_is_muevt)){
       h_lepsel_mu->fill(event);
-      if(event.get(h_is_highpt)) h_lepsel_mu_lowpt->fill(event);
-      else h_lepsel_mu_highpt->fill(event);
+      if(event.get(h_is_highpt)) h_lepsel_mu_highpt->fill(event);
+      else h_lepsel_mu_lowpt->fill(event);
     }
     else {
       h_lepsel_ele->fill(event);
-      if(event.get(h_is_highpt)) h_lepsel_ele_lowpt->fill(event);
-      else h_lepsel_ele_highpt->fill(event);
+      if(event.get(h_is_highpt)) h_lepsel_ele_highpt->fill(event);
+      else h_lepsel_ele_lowpt->fill(event);
     }
     if(debug) cout << "Filled hists after lepsel" << endl;
   }
 
-
   // ###### jet selection ######
-  pass_njet = (event.jets->size()>2);
+  // just a loose preselection without any pt cut on the jets
+  bool pass_njet = (event.jets->size()>2);
   if(isTriggerSFMeasurement) pass_njet = (event.jets->size()>1); // only need to require 2 jets for trigger SF measurement
   if(!pass_njet) return false;
 
@@ -512,26 +514,27 @@ bool TstarTstarPreselectionModule::process(Event & event) {
     lumihist_jetsel->fill(event);
     if(event.get(h_is_muevt)){
       h_jetsel_mu->fill(event);
-      if(event.get(h_is_highpt)) h_jetsel_mu_lowpt->fill(event);
-      else h_jetsel_mu_highpt->fill(event);
+      if(event.get(h_is_highpt)) h_jetsel_mu_highpt->fill(event);
+      else h_jetsel_mu_lowpt->fill(event);
     }
     else {
       h_jetsel_ele->fill(event);
-      if(event.get(h_is_highpt)) h_jetsel_ele_lowpt->fill(event);
-      else h_jetsel_ele_highpt->fill(event);
+      if(event.get(h_is_highpt)) h_jetsel_ele_highpt->fill(event);
+      else h_jetsel_ele_lowpt->fill(event);
     }
-    if(debug) cout << "Filled hists after fatjetsel" << endl;
+    if(debug) cout << "Filled hists after jet sel" << endl;
   }
 
   // ##### ST cut to suppress file size substantially! #####
-  // st calculation
+  // only tmp st calculation, as we'll calculate a proper one later after the full jet sel
   double st = 0.;
-  for(const auto & lepton : *event.electrons) st += lepton.pt();
-  for(const auto & lepton : *event.muons) st += lepton.pt();
+  for(const auto & lepton : *event.electrons)   st += lepton.pt();
+  for(const auto & lepton : *event.muons)       st += lepton.pt();
   st += event.met->pt();
-  for(const auto & jet : *event.topjets) st += jet.pt();
+  for(const auto & jet : *event.topjets)        st += jet.pt();
 
   // st cut
+  // not applied for trigger sf measurement
   if(st < 450 && !isTriggerSFMeasurement) return false;
 
   // hists
@@ -541,15 +544,15 @@ bool TstarTstarPreselectionModule::process(Event & event) {
     lumihist_jetsel->fill(event);
     if(event.get(h_is_muevt)){
       h_ST_mu->fill(event);
-      if(event.get(h_is_highpt)) h_ST_mu_lowpt->fill(event);
-      else h_ST_mu_highpt->fill(event);
+      if(event.get(h_is_highpt)) h_ST_mu_highpt->fill(event);
+      else h_ST_mu_lowpt->fill(event);
     }
     else {
       h_ST_ele->fill(event);
-      if(event.get(h_is_highpt)) h_ST_ele_lowpt->fill(event);
-      else h_ST_ele_highpt->fill(event);
+      if(event.get(h_is_highpt)) h_ST_ele_highpt->fill(event);
+      else h_ST_ele_lowpt->fill(event);
     }
-    if(debug) cout << "Filled hists after fatjetsel" << endl;
+    if(debug) cout << "Filled hists after ST sel" << endl;
   }
 
   // some gen check hists
