@@ -5,7 +5,6 @@
 // UHH2 stuff
 #include "UHH2/core/include/AnalysisModule.h"
 #include "UHH2/core/include/Event.h"
-#include "UHH2/common/include/CommonModules.h"
 #include "UHH2/common/include/CleaningModules.h"
 #include "UHH2/common/include/ElectronHists.h"
 #include "UHH2/common/include/NSelections.h"
@@ -19,7 +18,6 @@
 #include "UHH2/common/include/JetIds.h"
 #include "UHH2/common/include/LeptonScaleFactors.h"
 #include "UHH2/common/include/TopPtReweight.h"
-#include "UHH2/common/include/CommonModules.h"
 #include "UHH2/common/include/MCWeight.h"
 
 // TstarTstar stuff
@@ -32,11 +30,14 @@
 #include "UHH2/TstarTstar/include/TstarTstarReconstructionModules.h"
 #include "UHH2/TstarTstar/include/TstarTstarScaleFactors.h"
 #include "UHH2/TstarTstar/include/ElecTriggerSF.h"
+#include "UHH2/TstarTstar/include/TstarTstarJetCorrectionHists.h"
+#include "UHH2/TstarTstar/include/JetMETCorrections.h"
 
 // HOTVR stuff
 #include "UHH2/HOTVR/include/HOTVRIds.h"
 #include "UHH2/HOTVR/include/HadronicTop.h"
 #include "UHH2/HOTVR/include/HOTVRScaleFactor.h"
+#include "UHH2/HOTVR/include/HOTVRJetCorrector.h"
 #include "UHH2/HOTVR/include/HOTVRJetCorrectionModule.h"
 
 // namespace definitions
@@ -62,12 +63,14 @@ private:
 
   // ###### Modules ######
   // general
-  std::unique_ptr<CommonModules> common;
-  std::unique_ptr<uhh2::AnalysisModule> reco_primlep;
-  std::unique_ptr<uhh2::AnalysisModule> ttgenprod;
+  std::unique_ptr<JetMETCorrections> jetcorrections;
+  std::unique_ptr<AnalysisModule> AK4cleaner;
+  std::unique_ptr<AnalysisModule> reco_primlep;
+  std::unique_ptr<AnalysisModule> ttgenprod;
 
   // HOTVR-related
   std::unique_ptr<AnalysisModule> HOTVRCorr;
+  std::unique_ptr<HOTVRJetLeptonCleaner> HOTVRjlc;
   std::unique_ptr<TopJetCleaner> HOTVRcleaner;
 
   // scale factors
@@ -104,33 +107,38 @@ private:
   // ###### Histograms ######
 
   // set of nominal ones
-  std::unique_ptr<Hists> h_beginSel,                 h_corrections,               h_triggerSF,             h_leptonSF,             h_HEMcut,             h_METcut,             h_AK4cut;
-  std::unique_ptr<Hists> h_HOTVRcut,                 h_bcorrections,              h_byield,                h_btagcut,              h_2Dcut,              h_STcut,              h_theorycorrections;
+  std::unique_ptr<Hists> h_beginSel,                 h_prefiring,                 h_jetcorrections,            h_jetcleaning,            h_triggerSF,             h_leptonSF,             h_HEMcut,             h_METcut,             h_AK4cut;
+  std::unique_ptr<Hists> h_HOTVRcut,                 h_bcorrections,              h_byield,                 h_btagcut,              h_2Dcut,              h_STcut,              h_theorycorrections;
 
   // set of muon ones
-  std::unique_ptr<Hists> h_beginSel_mu,              h_corrections_mu,            h_triggerSF_mu,           h_leptonSF_mu,           h_HEMcut_mu,           h_METcut_mu,           h_AK4cut_mu;
+  std::unique_ptr<Hists> h_beginSel_mu,              h_prefiring_mu,              h_jetcorrections_mu,         h_jetcleaning_mu,         h_triggerSF_mu,           h_leptonSF_mu,           h_HEMcut_mu,           h_METcut_mu,           h_AK4cut_mu;
   std::unique_ptr<Hists> h_HOTVRcut_mu,              h_bcorrections_mu,           h_byield_mu,              h_btagcut_mu,            h_2Dcut_mu,            h_STcut_mu,            h_theorycorrections_mu;
-  std::unique_ptr<Hists> h_beginSel_mu_lowpt,        h_corrections_mu_lowpt,      h_triggerSF_mu_lowpt,     h_leptonSF_mu_lowpt,     h_HEMcut_mu_lowpt,     h_METcut_mu_lowpt,     h_AK4cut_mu_lowpt;
+  std::unique_ptr<Hists> h_beginSel_mu_lowpt,        h_prefiring_mu_lowpt,        h_jetcorrections_mu_lowpt,   h_jetcleaning_mu_lowpt,   h_triggerSF_mu_lowpt,     h_leptonSF_mu_lowpt,     h_HEMcut_mu_lowpt,     h_METcut_mu_lowpt,     h_AK4cut_mu_lowpt;
   std::unique_ptr<Hists> h_HOTVRcut_mu_lowpt,        h_bcorrections_mu_lowpt,     h_byield_mu_lowpt,        h_btagcut_mu_lowpt,      h_2Dcut_mu_lowpt,      h_STcut_mu_lowpt,      h_theorycorrections_mu_lowpt;
-  std::unique_ptr<Hists> h_beginSel_mu_highpt,       h_corrections_mu_highpt,     h_triggerSF_mu_highpt,    h_leptonSF_mu_highpt,    h_HEMcut_mu_highpt,    h_METcut_mu_highpt,    h_AK4cut_mu_highpt;
+  std::unique_ptr<Hists> h_beginSel_mu_highpt,       h_prefiring_mu_highpt,       h_jetcorrections_mu_highpt,  h_jetcleaning_mu_highpt,  h_triggerSF_mu_highpt,    h_leptonSF_mu_highpt,    h_HEMcut_mu_highpt,    h_METcut_mu_highpt,    h_AK4cut_mu_highpt;
   std::unique_ptr<Hists> h_HOTVRcut_mu_highpt,       h_bcorrections_mu_highpt,    h_byield_mu_highpt,       h_btagcut_mu_highpt,     h_2Dcut_mu_highpt,     h_STcut_mu_highpt,     h_theorycorrections_mu_highpt;
 
   // set of electron ones
-  std::unique_ptr<Hists> h_beginSel_ele,             h_corrections_ele,           h_triggerSF_ele,          h_leptonSF_ele,          h_HEMcut_ele,          h_METcut_ele,          h_AK4cut_ele;
+  std::unique_ptr<Hists> h_beginSel_ele,             h_prefiring_ele,             h_jetcorrections_ele,        h_jetcleaning_ele,        h_triggerSF_ele,          h_leptonSF_ele,          h_HEMcut_ele,          h_METcut_ele,          h_AK4cut_ele;
   std::unique_ptr<Hists> h_HOTVRcut_ele,             h_bcorrections_ele,          h_byield_ele,             h_btagcut_ele,           h_2Dcut_ele,           h_STcut_ele,           h_theorycorrections_ele;
-  std::unique_ptr<Hists> h_beginSel_ele_lowpt,       h_corrections_ele_lowpt,     h_triggerSF_ele_lowpt,    h_leptonSF_ele_lowpt,    h_HEMcut_ele_lowpt,    h_METcut_ele_lowpt,    h_AK4cut_ele_lowpt;
+  std::unique_ptr<Hists> h_beginSel_ele_lowpt,       h_prefiring_ele_lowpt,       h_jetcorrections_ele_lowpt,  h_jetcleaning_ele_lowpt,  h_triggerSF_ele_lowpt,    h_leptonSF_ele_lowpt,    h_HEMcut_ele_lowpt,    h_METcut_ele_lowpt,    h_AK4cut_ele_lowpt;
   std::unique_ptr<Hists> h_HOTVRcut_ele_lowpt,       h_bcorrections_ele_lowpt,    h_byield_ele_lowpt,       h_btagcut_ele_lowpt,     h_2Dcut_ele_lowpt,     h_STcut_ele_lowpt,     h_theorycorrections_ele_lowpt;
-  std::unique_ptr<Hists> h_beginSel_ele_highpt,      h_corrections_ele_highpt,    h_triggerSF_ele_highpt,   h_leptonSF_ele_highpt,   h_HEMcut_ele_highpt,   h_METcut_ele_highpt,   h_AK4cut_ele_highpt;
+  std::unique_ptr<Hists> h_beginSel_ele_highpt,      h_prefiring_ele_highpt,      h_jetcorrections_ele_highpt, h_jetcleaning_ele_highpt, h_triggerSF_ele_highpt,   h_leptonSF_ele_highpt,   h_HEMcut_ele_highpt,   h_METcut_ele_highpt,   h_AK4cut_ele_highpt;
   std::unique_ptr<Hists> h_HOTVRcut_ele_highpt,      h_bcorrections_ele_highpt,   h_byield_ele_highpt,      h_btagcut_ele_highpt,    h_2Dcut_ele_highpt,    h_STcut_ele_highpt,    h_theorycorrections_ele_highpt;
 
   // no-btag CR histograms for all steps after btagcut
   std::unique_ptr<Hists> h_nob_btagcut,              h_nob_2Dcut,                 h_nob_STcut,              h_nob_theorycorrections;
-  std::unique_ptr<Hists> h_nob_btagcut_mu,           h_nob_2Dcut_mu,             h_nob_STcut_mu,           h_nob_theorycorrections_mu;
+  std::unique_ptr<Hists> h_nob_btagcut_mu,           h_nob_2Dcut_mu,              h_nob_STcut_mu,           h_nob_theorycorrections_mu;
   std::unique_ptr<Hists> h_nob_btagcut_mu_lowpt,     h_nob_2Dcut_mu_lowpt,        h_nob_STcut_mu_lowpt,     h_nob_theorycorrections_mu_lowpt;
   std::unique_ptr<Hists> h_nob_btagcut_mu_highpt,    h_nob_2Dcut_mu_highpt,       h_nob_STcut_mu_highpt,    h_nob_theorycorrections_mu_highpt;
   std::unique_ptr<Hists> h_nob_btagcut_ele,          h_nob_2Dcut_ele,             h_nob_STcut_ele,          h_nob_theorycorrections_ele;
   std::unique_ptr<Hists> h_nob_btagcut_ele_lowpt,    h_nob_2Dcut_ele_lowpt,       h_nob_STcut_ele_lowpt,    h_nob_theorycorrections_ele_lowpt;
   std::unique_ptr<Hists> h_nob_btagcut_ele_highpt,   h_nob_2Dcut_ele_highpt,      h_nob_STcut_ele_highpt,   h_nob_theorycorrections_ele_highpt;
+
+  // set of jet correction hists
+  std::unique_ptr<Hists> h_jetCorr_beginSel,          h_jetCorr_prefiring,        h_jetCorr_jetcorrections,          h_jetCorr_jetcleaning,         h_jetCorr_theorycorrections;
+  std::unique_ptr<Hists> h_jetCorr_beginSel_mu,       h_jetCorr_prefiring_mu,     h_jetCorr_jetcorrections_mu,       h_jetCorr_jetcleaning_mu,      h_jetCorr_theorycorrections_mu;
+  std::unique_ptr<Hists> h_jetCorr_beginSet_ele,      h_jetCorr_prefiring_ele,    h_jetCorr_jetcorrections_ele,      h_jetCorr_jetcleaning_ele,     h_jetCorr_theorycorrections_ele;
 
   // ###### Handles ######
   uhh2::Event::Handle<bool> h_trigger_decision;
@@ -213,25 +221,24 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   }
 
   // ###### 1. Set up modules ######
-  common.reset(new CommonModules());
-  // the following were already run in preselection
-  common->disable_mclumiweight();
-  common->disable_mcpileupreweight();
-  common->disable_lumisel();
-  common->disable_pvfilter();
-  common->disable_metfilters();
 
-  // we'll want to tun MET corrections and all jet-related stuff
-  common->switch_metcorrection(true);
-  common->switch_jetlepcleaner(true);
-  common->switch_jetPtSorter(true);
-  common->disable_jetpfidfilter();
-  common->set_jet_id(AndId<Jet>(PtEtaCut(30, 2.5), JetPFID(JetPFID::WP_TIGHT_PUPPI)));
-
-  // init common
-  common->init(ctx);
+  // common modules was replaced here
+  // I'll use the jet correction module from Christopher
+  // this will do the following
+  // - Jet corrections
+  // - Jet resolution smearing
+  // - PF ID Jet cleaning
+  // - Jet Lepton Cleaning
+  jetcorrections.reset(new JetMETCorrections());
+  jetcorrections->switch_met_xy_correction(false); // I do not want to apply these
+  jetcorrections->init(ctx);  
+  
+  // - JetCleaner
+  const JetId jetID = PtEtaCut(30, 2.5); // only this needed, PFID is done within jet correction module
+  AK4cleaner.reset(new JetCleaner(ctx, jetID));
 
   // correcting and cleaning HOTVR
+  HOTVRjlc.reset(new HOTVRJetLeptonCleaner());
   HOTVRCorr.reset(new HOTVRJetCorrectionModule(ctx));
   HOTVRcleaner.reset(new TopJetCleaner(ctx, AndId<Jet>(PtEtaCut(200, 2.5), JetPFID(JetPFID::WP_TIGHT_PUPPI)) ));
 
@@ -313,13 +320,29 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   h_beginSel_ele_lowpt.reset(new TstarTstarHists(ctx, "beginSel_ele_lowpt"));
   h_beginSel_ele_highpt.reset(new TstarTstarHists(ctx, "beginSel_ele_highpt"));
 
-  h_corrections.reset(new TstarTstarHists(ctx, "corrections"));
-  h_corrections_mu.reset(new TstarTstarHists(ctx, "corrections_mu"));
-  h_corrections_mu_lowpt.reset(new TstarTstarHists(ctx, "corrections_mu_lowpt"));
-  h_corrections_mu_highpt.reset(new TstarTstarHists(ctx, "corrections_mu_highpt"));
-  h_corrections_ele.reset(new TstarTstarHists(ctx, "corrections_ele"));
-  h_corrections_ele_lowpt.reset(new TstarTstarHists(ctx, "corrections_ele_lowpt"));
-  h_corrections_ele_highpt.reset(new TstarTstarHists(ctx, "corrections_ele_highpt"));
+  h_prefiring.reset(new TstarTstarHists(ctx, "prefiring"));
+  h_prefiring_mu.reset(new TstarTstarHists(ctx, "prefiring_mu"));
+  h_prefiring_mu_lowpt.reset(new TstarTstarHists(ctx, "prefiring_mu_lowpt"));
+  h_prefiring_mu_highpt.reset(new TstarTstarHists(ctx, "prefiring_mu_highpt"));
+  h_prefiring_ele.reset(new TstarTstarHists(ctx, "prefiring_ele"));
+  h_prefiring_ele_lowpt.reset(new TstarTstarHists(ctx, "prefiring_ele_lowpt"));
+  h_prefiring_ele_highpt.reset(new TstarTstarHists(ctx, "prefiring_ele_highpt"));
+
+  h_jetcorrections.reset(new TstarTstarHists(ctx, "jetcorrections"));
+  h_jetcorrections_mu.reset(new TstarTstarHists(ctx, "jetcorrections_mu"));
+  h_jetcorrections_mu_lowpt.reset(new TstarTstarHists(ctx, "jetcorrections_mu_lowpt"));
+  h_jetcorrections_mu_highpt.reset(new TstarTstarHists(ctx, "jetcorrections_mu_highpt"));
+  h_jetcorrections_ele.reset(new TstarTstarHists(ctx, "jetcorrections_ele"));
+  h_jetcorrections_ele_lowpt.reset(new TstarTstarHists(ctx, "jetcorrections_ele_lowpt"));
+  h_jetcorrections_ele_highpt.reset(new TstarTstarHists(ctx, "jetcorrections_ele_highpt"));
+
+  h_jetcleaning.reset(new TstarTstarHists(ctx, "jetcleaning"));
+  h_jetcleaning_mu.reset(new TstarTstarHists(ctx, "jetcleaning_mu"));
+  h_jetcleaning_mu_lowpt.reset(new TstarTstarHists(ctx, "jetcleaning_mu_lowpt"));
+  h_jetcleaning_mu_highpt.reset(new TstarTstarHists(ctx, "jetcleaning_mu_highpt"));
+  h_jetcleaning_ele.reset(new TstarTstarHists(ctx, "jetcleaning_ele"));
+  h_jetcleaning_ele_lowpt.reset(new TstarTstarHists(ctx, "jetcleaning_ele_lowpt"));
+  h_jetcleaning_ele_highpt.reset(new TstarTstarHists(ctx, "jetcleaning_ele_highpt"));
 
   h_triggerSF.reset(new TstarTstarHists(ctx, "triggerSF"));
   h_triggerSF_mu.reset(new TstarTstarHists(ctx, "triggerSF_mu"));
@@ -449,6 +472,25 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   h_nob_theorycorrections_ele_lowpt.reset(new TstarTstarHists(ctx, "nob_theorycorrections_ele_lowpt"));
   h_nob_theorycorrections_ele_highpt.reset(new TstarTstarHists(ctx, "nob_theorycorrections_ele_highpt"));
 
+  // jet correction hists
+  h_jetCorr_beginSel.reset(new TstarTstarJetCorrectionHists(ctx, "jetCorr_beginSel"));
+  h_jetCorr_prefiring.reset(new TstarTstarJetCorrectionHists(ctx, "jetCorr_prefiring"));
+  h_jetCorr_jetcorrections.reset(new TstarTstarJetCorrectionHists(ctx, "jetCorr_jetcorrections"));
+  h_jetCorr_jetcleaning.reset(new TstarTstarJetCorrectionHists(ctx, "jetCorr_jetcleaning"));
+  h_jetCorr_theorycorrections.reset(new TstarTstarJetCorrectionHists(ctx, "jetCorr_theorycorrections"));
+
+  h_jetCorr_beginSel_mu.reset(new TstarTstarJetCorrectionHists(ctx, "jetCorr_beginSel_mu"));
+  h_jetCorr_prefiring_mu.reset(new TstarTstarJetCorrectionHists(ctx, "jetCorr_prefiring_mu"));
+  h_jetCorr_jetcorrections_mu.reset(new TstarTstarJetCorrectionHists(ctx, "jetCorr_jetcorrections_mu"));
+  h_jetCorr_jetcleaning_mu.reset(new TstarTstarJetCorrectionHists(ctx, "jetCorr_jetcleaning_mu"));
+  h_jetCorr_theorycorrections_mu.reset(new TstarTstarJetCorrectionHists(ctx, "jetCorr_theorycorrections_mu"));
+
+  h_jetCorr_beginSel_ele.reset(new TstarTstarJetCorrectionHists(ctx, "jetCorr_beginSel_ele"));
+  h_jetCorr_prefiring_ele.reset(new TstarTstarJetCorrectionHists(ctx, "jetCorr_prefiring_ele"));
+  h_jetCorr_jetcorrections_ele.reset(new TstarTstarJetCorrectionHists(ctx, "jetCorr_jetcorrections_ele"));
+  h_jetCorr_jetcleaning_ele.reset(new TstarTstarJetCorrectionHists(ctx, "jetCorr_jetcleaning_ele"));
+  h_jetCorr_theorycorrections_ele.reset(new TstarTstarJetCorrectionHists(ctx, "jetCorr_theorycorrections_ele"));
+
   // ###### 4. Init Handles ######
   h_trigger_decision = ctx.get_handle<bool>("trigger_decision");
   h_is_muevt = ctx.get_handle<bool>("is_muevt");
@@ -489,23 +531,19 @@ bool TstarTstarSelectionModule::process(Event & event) {
   if(debug) std::cout << "Fill Crosscheck hists" << endl;
   if(event.get(h_trigger_decision)) {
     h_beginSel->fill(event);
+    if(is_MC) h_jetCorr_beginSel->fill(event);
     if(event.get(h_is_muevt)){
       h_beginSel_mu->fill(event);
+      if(is_MC) h_jetCorr_beginSel_mu->fill(event);
       if(event.get(h_is_highpt)) h_beginSel_mu_highpt->fill(event);
       else h_beginSel_mu_lowpt->fill(event);
     } else {
       h_beginSel_ele->fill(event);
+      if(is_MC) h_jetCorr_beginSel_ele->fill(event);
       if(event.get(h_is_highpt)) h_beginSel_ele_highpt->fill(event);
       else h_beginSel_ele_lowpt->fill(event);
     }
   }
-  
-  // common
-  if(!common->process(event)) return false;
-
-  // HOTVR cleaning & corrections
-  if(!(HOTVRCorr->process(event))) return false;
-  if(!(HOTVRcleaner->process(event))) return false;
 
   // Prefiring weights
   if (is_MC) {
@@ -513,9 +551,53 @@ bool TstarTstarSelectionModule::process(Event & event) {
      else if (Prefiring_direction == "up") event.weight *= event.prefiringWeightUp;
      else if (Prefiring_direction == "down") event.weight *= event.prefiringWeightDown;
   }
-
   // writing MC weights
   MCScaleVariations->process(event);
+
+  // hists before anything happened
+  if(debug) std::cout << "Fill Crosscheck hists" << endl;
+  if(event.get(h_trigger_decision)) {
+    h_prefiring->fill(event);
+    if(is_MC) h_jetCorr_prefiring->fill(event);
+    if(event.get(h_is_muevt)){
+      h_prefiring_mu->fill(event);
+      if(is_MC) h_jetCorr_prefiring_mu->fill(event);
+      if(event.get(h_is_highpt)) h_prefiring_mu_highpt->fill(event);
+      else h_prefiring_mu_lowpt->fill(event);
+    } else {
+      h_prefiring_ele->fill(event);
+      if(is_MC) h_jetCorr_prefiring_ele->fill(event);
+      if(event.get(h_is_highpt)) h_prefiring_ele_highpt->fill(event);
+      else h_prefiring_ele_lowpt->fill(event);
+    }
+  }
+  
+  // JetMET corrections (and jet lepton cleaning)
+  if(!jetcorrections->process(event)) return false;
+  if(!(HOTVRjlc->process(event))) return false;
+  if(!(HOTVRCorr->process(event))) return false;
+
+  // hists after jet corrections
+  if(debug) std::cout << "Fill correction hists" << endl;
+  if(event.get(h_trigger_decision)) {
+    h_jetcorrections->fill(event);
+    if(is_MC) h_jetCorr_jetcorrections->fill(event);
+    if(event.get(h_is_muevt)){
+      h_jetcorrections_mu->fill(event);
+      if(is_MC) h_jetCorr_jetcorrections_mu->fill(event);
+      if(event.get(h_is_highpt)) h_jetcorrections_mu_highpt->fill(event);
+      else h_jetcorrections_mu_lowpt->fill(event);
+    } else {
+      h_jetcorrections_ele->fill(event);
+      if(is_MC) h_jetCorr_jetcorrections_ele->fill(event);
+      if(event.get(h_is_highpt)) h_jetcorrections_ele_highpt->fill(event);
+      else h_jetcorrections_ele_lowpt->fill(event);
+    }
+  }
+
+  // Jet cleaning
+  if(!(AK4cleaner->process(event))) return false;
+  if(!(HOTVRcleaner->process(event))) return false;
 
   // st calculation, for usage in plotting later on
   double st = 0.;
@@ -530,18 +612,21 @@ bool TstarTstarSelectionModule::process(Event & event) {
   event.set(h_ST_AK4, st);
   event.set(h_ST_HOTVR, stHOTVR);
 
-  // hists after correction
-  if(debug) std::cout << "Fill correction hists" << endl;
+  // hists after jet cleaning
+  if(debug) std::cout << "Fill jet cleaning hists" << endl;
   if(event.get(h_trigger_decision)) {
-    h_corrections->fill(event);
+    h_jetcleaning->fill(event);
+    if(is_MC) h_jetCorr_jetcleaning->fill(event);
     if(event.get(h_is_muevt)){
-      h_corrections_mu->fill(event);
-      if(event.get(h_is_highpt)) h_corrections_mu_highpt->fill(event);
-      else h_corrections_mu_lowpt->fill(event);
+      h_jetcleaning_mu->fill(event);
+      if(is_MC) h_jetCorr_jetcleaning_mu->fill(event);
+      if(event.get(h_is_highpt)) h_jetcleaning_mu_highpt->fill(event);
+      else h_jetcleaning_mu_lowpt->fill(event);
     } else {
-      h_corrections_ele->fill(event);
-      if(event.get(h_is_highpt)) h_corrections_ele_highpt->fill(event);
-      else h_corrections_ele_lowpt->fill(event);
+      h_jetcleaning_ele->fill(event);
+      if(is_MC) h_jetCorr_jetcleaning_ele->fill(event);
+      if(event.get(h_is_highpt)) h_jetcleaning_ele_highpt->fill(event);
+      else h_jetcleaning_ele_lowpt->fill(event);
     }
   }
 
@@ -886,12 +971,15 @@ bool TstarTstarSelectionModule::process(Event & event) {
   if(event.get(h_trigger_decision)) {
     if(event.get(h_is_btagevent)) {
       h_theorycorrections->fill(event);
+      if(is_MC) h_jetCorr_theorycorrections->fill(event);
       if(event.get(h_is_muevt)){
         h_theorycorrections_mu->fill(event);
+        if(is_MC) h_jetCorr_theorycorrections_mu->fill(event);
         if(event.get(h_is_highpt)) h_theorycorrections_mu_highpt->fill(event);
         else h_theorycorrections_mu_lowpt->fill(event);
       } else {
         h_theorycorrections_ele->fill(event);
+        if(is_MC) h_jetCorr_theorycorrections_ele->fill(event);
         if(event.get(h_is_highpt)) h_theorycorrections_ele_highpt->fill(event);
         else h_theorycorrections_ele_lowpt->fill(event);
       }

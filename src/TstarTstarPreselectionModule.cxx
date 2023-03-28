@@ -5,7 +5,6 @@
 // UHH2 stuff
 #include "UHH2/core/include/AnalysisModule.h"
 #include "UHH2/core/include/Event.h"
-#include "UHH2/common/include/CommonModules.h"
 #include "UHH2/common/include/LuminosityHists.h"
 #include "UHH2/common/include/CleaningModules.h"
 #include "UHH2/common/include/ElectronHists.h"
@@ -15,6 +14,7 @@
 #include <UHH2/common/include/MuonIds.h>
 #include "UHH2/common/include/MCWeight.h"
 #include "UHH2/common/include/TriggerSelection.h"
+#include "UHH2/common/include/LumiSelection.h"
 
 
 // TstarTstar custom stuff
@@ -48,9 +48,9 @@ public:
 private:
 
   // ##### Modules #####
-  // common modules, corrections etc.
-  // examples: JetPFid, JEC, JER, MET corrections, etc
-  std::unique_ptr<CommonModules> common;
+  std::unique_ptr<Selection> lumi_selection;
+  std::unique_ptr<AndSelection> metfilters_selection;
+  std::vector<std::unique_ptr<AnalysisModule>> modules;
 
   // GEN stuff (used for top pt reweighting)
   std::unique_ptr<uhh2::AnalysisModule> ttgenprod;
@@ -215,32 +215,45 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
   }
 
   // CommonModules
-  if(debug) cout << "Common ini" << endl;
+  // replacing common modules (which was originally here) by manual calls of the appropriate things
+  // what should be done here:
+  // - good run selection (for data only) based on lumi_file defined in xml input
+  lumi_selection.reset(new LumiSelection(ctx));
+  // - apply MET filters (this is done early in common modules as well)
+  metfilters_selection.reset(new AndSelection(ctx, "metfilters"));
+  metfilters_selection->add<TriggerSelection>("goodVertices"                      ,"Flag_goodVertices");
+  metfilters_selection->add<TriggerSelection>("globalSuperTightHalo2016Filter"    ,"Flag_globalSuperTightHalo2016Filter");
+  metfilters_selection->add<TriggerSelection>("HBHENoiseFilter"                   ,"Flag_HBHENoiseFilter");
+  metfilters_selection->add<TriggerSelection>("HBHENoiseIsoFilter"                ,"Flag_HBHENoiseIsoFilter");
+  metfilters_selection->add<TriggerSelection>("EcalDeadCellTriggerPrimitiveFilter","Flag_EcalDeadCellTriggerPrimitiveFilter");
+  metfilters_selection->add<TriggerSelection>("BadPFMuonFilter"                   ,"Flag_BadPFMuonFilter");
+  metfilters_selection->add<TriggerSelection>("BadPFMuonDzFilter"                 ,"Flag_BadPFMuonDzFilter");
+  metfilters_selection->add<TriggerSelection>("eeBadScFilter"                     ,"Flag_eeBadScFilter");
+  if ( year == "UL17" || year == "UL18" ) {
+    metfilters_selection->add<TriggerSelection>("Flag_ecalBadCalibFilter", "Flag_ecalBadCalibFilter");
+  }
+  PrimaryVertexId pvid=StandardPrimaryVertexId();
+  metfilters_selection->add<NPVSelection>("1 good PV",1,-1,pvid);
+  // - Primary vertex cleaner (remove all non-good PVs from the list of primary vertices)
+  modules.emplace_back(new PrimaryVertexCleaner(pvid));
+  if(is_MC){
+    // - MCLumiWeight (for MC only; only has an effect if "use_sframe_weight" is set to false)
+    modules.emplace_back(new MCLumiWeight(ctx));
+    // - MCPileupReweight (for MC only)
+    modules.emplace_back(new MCPileupReweight(ctx, "central"));
+  } 
 
-  // here, we will *NOT* apply jet lepton cleaning, JEC/JER, MET corrections...
-  // basically everything jet-related
-  common.reset(new CommonModules());
-  common->switch_jetlepcleaner(false);
-  common->switch_metcorrection(false);
-  common->switch_jetPtSorter(true);
-  common->disable_jec();
-  common->disable_jersmear();
-
-  // Electron
+  // - Electron Cleaner
   ElectronId eleID_lowpt = ElectronTagID(Electron::mvaEleID_Fall17_iso_V2_wp90);
   ElectronId eleID_highpt = ElectronTagID(Electron::mvaEleID_Fall17_noIso_V2_wp90);
-  common->set_electron_id(OrId<Electron>( AndId<Electron>(PtEtaCut(40., 2.4), eleID_lowpt, EleMaxPtCut(120.)),  AndId<Electron>(PtEtaCut(120., 2.4), eleID_highpt)));
-  if(debug) cout << "Electrons done" << endl;
+  ElectronId total_eleID = OrId<Electron>( AndId<Electron>(PtEtaCut(40., 2.4), eleID_lowpt, EleMaxPtCut(120.)),  AndId<Electron>(PtEtaCut(120., 2.4), eleID_highpt));
+  modules.emplace_back(new ElectronCleaner(total_eleID));
 
-  // Muon
+  // - Muon Cleaner
   MuonId muID_lowpt = AndId<Muon>(MuonID(Muon::CutBasedIdTight), MuonID(Muon::PFIsoTight));
   MuonId muID_highpt = MuonID(Muon::CutBasedIdGlobalHighPt);
-  common->set_muon_id(OrId<Muon>( AndId<Muon>(PtEtaCut(30., 2.4), muID_lowpt, MuMaxPtCut(55.)), AndId<Muon>(PtEtaCut(55, 2.4), muID_highpt)));
-  if(debug) cout << "Muons done" << endl;
-
-  // init common
-  common->init(ctx);
-  if(debug) cout << "Common init done" << endl;
+  MuonId total_muID = OrId<Muon>( AndId<Muon>(PtEtaCut(30., 2.4), muID_lowpt, MuMaxPtCut(55.)), AndId<Muon>(PtEtaCut(55, 2.4), muID_highpt));
+  modules.emplace_back(new MuonCleaner(total_muID));
 
   // find ttbar for GEN
   if(is_MC){
@@ -343,7 +356,11 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   if(debug) cout<<"Filled hists without any cuts, and GEN with no cuts"<<endl;
 
   // ###### common modules, corrections & cleaning ######
-  if(!(common->process(event))) return false;
+  if(event.isRealData) if(!lumi_selection->passes(event)) return false;
+  if(!metfilters_selection->passes(event)) return false;
+  for(auto & m : modules){
+    m->process(event);
+  }
   if(debug) cout<<"common modules done"<<endl;
 
   // hists before selection
