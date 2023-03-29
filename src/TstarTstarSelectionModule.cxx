@@ -138,7 +138,7 @@ private:
   // set of jet correction hists
   std::unique_ptr<Hists> h_jetCorr_beginSel,          h_jetCorr_prefiring,        h_jetCorr_jetcorrections,          h_jetCorr_jetcleaning,         h_jetCorr_theorycorrections;
   std::unique_ptr<Hists> h_jetCorr_beginSel_mu,       h_jetCorr_prefiring_mu,     h_jetCorr_jetcorrections_mu,       h_jetCorr_jetcleaning_mu,      h_jetCorr_theorycorrections_mu;
-  std::unique_ptr<Hists> h_jetCorr_beginSet_ele,      h_jetCorr_prefiring_ele,    h_jetCorr_jetcorrections_ele,      h_jetCorr_jetcleaning_ele,     h_jetCorr_theorycorrections_ele;
+  std::unique_ptr<Hists> h_jetCorr_beginSel_ele,      h_jetCorr_prefiring_ele,    h_jetCorr_jetcorrections_ele,      h_jetCorr_jetcleaning_ele,     h_jetCorr_theorycorrections_ele;
 
   // ###### Handles ######
   uhh2::Event::Handle<bool> h_trigger_decision;
