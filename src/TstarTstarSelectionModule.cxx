@@ -135,6 +135,9 @@ private:
   std::unique_ptr<Hists> h_nob_btagcut_ele_lowpt,    h_nob_2Dcut_ele_lowpt,       h_nob_STcut_ele_lowpt,    h_nob_theorycorrections_ele_lowpt;
   std::unique_ptr<Hists> h_nob_btagcut_ele_highpt,   h_nob_2Dcut_ele_highpt,      h_nob_STcut_ele_highpt,   h_nob_theorycorrections_ele_highpt;
 
+  // ttbar control region
+  std::unique_ptr<Hists> h_theorycorrections_ttbar;
+
   // set of jet correction hists
   std::unique_ptr<Hists> h_jetCorr_beginSel,          h_jetCorr_prefiring,        h_jetCorr_jetcorrections,          h_jetCorr_jetcleaning,         h_jetCorr_theorycorrections;
   std::unique_ptr<Hists> h_jetCorr_beginSel_mu,       h_jetCorr_prefiring_mu,     h_jetCorr_jetcorrections_mu,       h_jetCorr_jetcleaning_mu,      h_jetCorr_theorycorrections_mu;
@@ -150,6 +153,7 @@ private:
   uhh2::Event::Handle<double> h_ST_AK4;
   uhh2::Event::Handle<double> h_ST_HOTVR;
   uhh2::Event::Handle<bool> h_is_btagevent;
+  uhh2::Event::Handle<bool> h_is_ttbarCR;
   uhh2::Event::Handle<bool> h_MC_isfake2017B;
   uhh2::Event::Handle<bool> h_MC_isfake2016B;
 
@@ -439,6 +443,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   h_theorycorrections_ele.reset(new TstarTstarHists(ctx, "theorycorrections_ele"));
   h_theorycorrections_ele_lowpt.reset(new TstarTstarHists(ctx, "theorycorrections_ele_lowpt"));
   h_theorycorrections_ele_highpt.reset(new TstarTstarHists(ctx, "theorycorrections_ele_highpt"));
+  h_theorycorrections_ttbar.reset(new TstarTstarHists(ctx, "theorycorrections_ttbar"));
   
   h_nob_btagcut.reset(new TstarTstarHists(ctx, "nob_btagcut"));
   h_nob_btagcut_mu.reset(new TstarTstarHists(ctx, "nob_btagcut_mu"));
@@ -503,6 +508,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   h_ST_AK4 = ctx.declare_event_output<double>("ST_AK4");
   h_ST_HOTVR = ctx.declare_event_output<double>("ST_HOTVR");
   h_is_btagevent = ctx.declare_event_output<bool>("is_btagevent");
+  h_is_ttbarCR = ctx.declare_event_output<bool>("is_ttbarCR");
 
 }
 
@@ -827,6 +833,20 @@ bool TstarTstarSelectionModule::process(Event & event) {
     event.weight *= btaggingYieldWeight;
   }
 
+  // defining a ttbar CR, now that btags have been corrected
+  TopJetId topjetID = AndId<TopJet>(HOTVRTopTag(), Tau32Groomed(0.56)); // Top Tag that is used later
+  bool passHOTVRtoptag = false;
+  for (const auto & jet: *event.topjets){
+    if(topjetID(jet, event)) passHOTVRtoptag = true;
+  }
+  BTag bJetID_loose = BTag(BTag::algo::DEEPJET, BTag::wp::WP_LOOSE);
+  int N_btag_loose = 0;
+  for (const auto & jet: *event.jets){
+    if(bJetID_loose(jet, event)) N_btag_loose++;
+  }
+  if(passHOTVRtoptag && N_btag_loose > 1) event.set(h_is_ttbarCR, true);
+  else event.set(h_is_ttbarCR, false);
+
   // hists after b-tagging yield corrections
   if(debug) std::cout << "Fill btagging yield hists" << endl;
   if(event.get(h_trigger_decision)) {
@@ -972,6 +992,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
     if(event.get(h_is_btagevent)) {
       h_theorycorrections->fill(event);
       if(is_MC) h_jetCorr_theorycorrections->fill(event);
+      if(event.get(h_is_ttbarCR)) {h_theorycorrections_ttbar->fill(event);}
       if(event.get(h_is_muevt)){
         h_theorycorrections_mu->fill(event);
         if(is_MC) h_jetCorr_theorycorrections_mu->fill(event);
