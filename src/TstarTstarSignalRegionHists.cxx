@@ -12,7 +12,7 @@ using namespace uhh2;
 TstarTstarSignalRegionHists::TstarTstarSignalRegionHists(Context & ctx, const string & dirname): Hists(ctx, dirname){
 
   // ST handle
-  h_ST = ctx.get_handle<double>("STHOTVR");
+  h_ST_HOTVR = ctx.get_handle<double>("ST_HOTVR");
   is_MC = ctx.get("dataset_type") == "MC";
 
   if(ctx.get("debug", "<not set>") == "true") debug = true;
@@ -191,7 +191,7 @@ void TstarTstarSignalRegionHists::fill(const Event & event){
 
   if(debug) cout << "Starting Tstar Hists." << endl;
 
-  double st = event.get(h_ST);
+  double st = event.get(h_ST_HOTVR);
   if(st > 6000) st = 5999.9; // handling overflow
 
   // fill nominal
@@ -336,7 +336,7 @@ void TstarTstarSignalRegionHists::fill(const Event & event){
     hist("pt_ST_murmuf_downdown")->Fill(st, weight * murmuf_downdown);
   } catch (...) { }
 
-
+  if(debug) cout << "Done with plotting" << endl;
 
 }
 

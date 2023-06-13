@@ -23,7 +23,7 @@ public:
   private:
 
     // ST handle
-    uhh2::Event::Handle<double> h_ST;
+    uhh2::Event::Handle<double> h_ST_HOTVR;
     bool is_MC;
     bool needsOtherMCweightHandling;
 

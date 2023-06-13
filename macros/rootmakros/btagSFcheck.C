@@ -1,18 +1,20 @@
 
 void btagSFcheck() {
 
-  TString year = "UL16preVFP";
+  TString year = "UL18";
   TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/"+year+"/hadded/";
   TString filename_base = "uhh2.AnalysisModuleRunner.MC.";
 
   std::vector<TString> samples = {"TTbar", "WJets", "ST", "QCD", "VV", "DYJets", "TstarTstar"};
+  //std::vector<TString> samples = {"TTbar", "WJets", "ST", "QCD", "VV", "DYJets"};
+
 
   TString histname2D = "pt_HT_N_jet_rebinned";
   std::vector<TString> hists_to_crosscheck = {"pt_HT", "N_jets", "DeepJetscore"};
 
-  TString folder_before = "BeforeBCorrections";
-  TString folder_after = "AfterBCorrections";
-  TString folder_crosscheck = "AfterBYieldCorrections";
+  TString folder_before = "HOTVRcut";
+  TString folder_after = "bcorrections";
+  TString folder_crosscheck = "byield";
 
   bool writeSFsToFile = false;
 

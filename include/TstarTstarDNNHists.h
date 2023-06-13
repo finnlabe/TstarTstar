@@ -25,7 +25,7 @@ public:
     uhh2::Event::Handle<double> h_DNN_output;
     uhh2::Event::Handle<double> h_newTagger;
     uhh2::Event::Handle<std::vector<double>> h_DNN_Inputs;
-    uhh2::Event::Handle<double> h_ST;
+    uhh2::Event::Handle<double> h_ST_HOTVR;
 
     TH2D *DNN_2D_ST, *newTagger_2D_ST;
 

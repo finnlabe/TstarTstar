@@ -16,7 +16,7 @@ TstarTstarDNNHists::TstarTstarDNNHists(Context & ctx, const string & dirname): H
   h_DNN_output = ctx.get_handle<double>("DNN_output");
   h_newTagger = ctx.get_handle<double>("newTagger");
   h_DNN_Inputs = ctx.get_handle<std::vector<double>>("DNN_Inputs");
-  h_ST = ctx.get_handle<double>("STHOTVR");
+  h_ST_HOTVR = ctx.get_handle<double>("ST_HOTVR");
 
   // book all histograms here
   book<TH1F>("DNN_output", "DNN output", 20, 0, 1);
@@ -77,7 +77,7 @@ void TstarTstarDNNHists::fill(const Event & event){
 
   hist("DNN_output")->Fill(DNNoutput, weight);
   hist("DNN_output_noWeights")->Fill(DNNoutput, 1);
-  double st = event.get(h_ST);
+  double st = event.get(h_ST_HOTVR);
   DNN_2D_ST->Fill(st, DNNoutput, weight);
   if(st > 500) hist("DNN_output_nolowST")->Fill(DNNoutput, weight);
 

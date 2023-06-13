@@ -984,7 +984,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
 
   // NNLO corrections
   ScaleFactor_NNLO->process(event);
-  TopPtReweighting->process(event); // is not applied, but calculated
+  TopPtReweighting->process(event);
 
   // hists after theory corrections
   if(debug) std::cout << "Fill theory correction hists" << endl;
