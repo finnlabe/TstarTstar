@@ -114,6 +114,8 @@ class configContainer:
       self.additionalBranches["DNN_datadriven"] = self.additionalBranches["DNN_datadriven"]+" "+self.additionalBranches["DNN"]
       self.additionalBranches["DNN_datadriven_variation"] = self.additionalBranches["DNN_datadriven"]+" "+self.additionalBranches["DNN"]
 
+      self.additionalBranches["TriggerEff"] = self.additionalBranches["Selection"]
+
       self.systematics = list()
 
    @staticmethod
@@ -372,7 +374,7 @@ class xmlCreator:
 
 if __name__=='__main__':
 
-   selections = ['Preselection', 'Selection', 'Analysis', 'DNN', 'DNN_datadriven', 'DNN_datadriven_variation']
+   selections = ['Preselection', 'Selection', 'Analysis', 'DNN', 'DNN_datadriven', 'DNN_datadriven_variation', 'TriggerEff']
    years = ['UL16preVFP','UL16postVFP','UL17', 'UL18']
    jersmear_directions = ['nominal', 'up', 'down']
    jecsmear_directions = ['nominal', 'up', 'down']

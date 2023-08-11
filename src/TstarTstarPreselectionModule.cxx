@@ -471,7 +471,7 @@ bool TstarTstarPreselectionModule::process(Event & event) {
 
     if(year == "2016" || year == "UL16preVFP" || year == "UL16postVFP") {
 
-      if(is_MC) {
+      if(is_MC || isTriggerSFMeasurement) {
         pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_ele_high->passes(event) || trg_pho->passes(event));
       } else {
         if (data_isPho) pass_trigger_SingleEle = (!trg_ele_low->passes(event) && !trg_ele_high->passes(event) && trg_pho->passes(event));
@@ -481,8 +481,8 @@ bool TstarTstarPreselectionModule::process(Event & event) {
     }
     else if(year == "2017" || year == "UL17") {
 
-      if(is_MC) {
-        if (event.get(h_MC_isfake2017B)) pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_pho->passes(event));
+      if(is_MC || isTriggerSFMeasurement) {
+        if (event.get(h_MC_isfake2017B) || (isTriggerSFMeasurement && data_is2017B) ) pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_pho->passes(event));
         else pass_trigger_SingleEle = (trg_ele_low->passes(event) || trg_ele_high->passes(event) || trg_pho->passes(event));
       } else {
         if (data_is2017B) {
