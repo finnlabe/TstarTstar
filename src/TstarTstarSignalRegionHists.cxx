@@ -21,7 +21,12 @@ TstarTstarSignalRegionHists::TstarTstarSignalRegionHists(Context & ctx, const st
   if(needsOtherMCweightHandling) std::cout << "We are signal so we need other idices" << std::endl;
 
   // Histogram containing decorrelation uncertainty
-  TFile *decorrelationUncertaintyFile = new TFile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/decorrelationComparison_total_smooth.root");
+  TString sample_string = "total";      // won't be used, just to have it filled for mc only results :
+  if(is_MC) { // TODO put this into a module at some point
+    if(ctx.get("dataset_version").find("TT") != std::string::npos) sample_string = "TTbar";
+    else if(ctx.get("dataset_version").find("ST") != std::string::npos) sample_string = "ST";
+  }
+  TFile *decorrelationUncertaintyFile = new TFile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/decorrelationComparison_" + sample_string + "_smooth.root");
   decorrelationUncertainty = (TH1*)decorrelationUncertaintyFile->Get("decorrelation_uncertainty");
 
   // weight handles

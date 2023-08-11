@@ -1,13 +1,14 @@
 
 void btagSFcheck() {
 
-  TString year = "UL18";
+  gStyle->SetPadBottomMargin(0.2);
+
+  TString year = "UL16preVFP";
   TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/"+year+"/hadded/";
   TString filename_base = "uhh2.AnalysisModuleRunner.MC.";
 
   std::vector<TString> samples = {"TTbar", "WJets", "ST", "QCD", "VV", "DYJets", "TstarTstar"};
   //std::vector<TString> samples = {"TTbar", "WJets", "ST", "QCD", "VV", "DYJets"};
-
 
   TString histname2D = "pt_HT_N_jet_rebinned";
   std::vector<TString> hists_to_crosscheck = {"pt_HT", "N_jets", "DeepJetscore"};
@@ -81,7 +82,9 @@ void btagSFcheck() {
       hist_crosscheck_crosscheck->SetLineColor(3);
 
       hist_crosscheck_before->GetXaxis()->SetTitle( hist_crosscheck_before->GetTitle() );
-      hist_crosscheck_before->GetXaxis()->SetTitle("events");
+      hist_crosscheck_before->GetYaxis()->SetTitle("events");
+      hist_crosscheck_before->GetYaxis()->SetTitleSize(0.05);
+      hist_crosscheck_before->GetYaxis()->SetTitleOffset(1);
       hist_crosscheck_before->SetTitle("");
 
       hist_crosscheck_before->Draw("hist");
@@ -114,6 +117,14 @@ void btagSFcheck() {
 
       hist_crosscheck_after_ratio->Divide(hist_crosscheck_before);
       hist_crosscheck_crosscheck_ratio->Divide(hist_crosscheck_before);
+
+      hist_crosscheck_after_ratio->GetXaxis()->SetTitle(hist_crosscheck_after_ratio->GetTitle());
+      hist_crosscheck_after_ratio->GetXaxis()->SetTitleSize(0.1);
+      hist_crosscheck_after_ratio->GetXaxis()->SetTitleOffset(0.7);
+
+      hist_crosscheck_after_ratio->GetYaxis()->SetTitle("deviation");
+      hist_crosscheck_after_ratio->GetYaxis()->SetTitleSize(0.1);
+      hist_crosscheck_after_ratio->GetYaxis()->SetTitleOffset(0.5);
 
       hist_crosscheck_after_ratio->SetTitle("");
       hist_crosscheck_crosscheck_ratio->SetTitle("");

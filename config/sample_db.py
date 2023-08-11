@@ -271,9 +271,9 @@ samplesDict = {
      'TstarTstarToTgammaTgamma_M-2750': {
         'db_name': 'TstarTstarToTgammaTgamma_M-2750',
      },
-     #'TstarTstarToTgammaTgamma_M-3000': {
-     #   'db_name': 'TstarTstarToTgammaTgamma_M-3000',
-     #},
+     'TstarTstarToTgammaTgamma_M-3000': {
+        'db_name': 'TstarTstarToTgammaTgamma_M-3000',
+     },
 
 
 }

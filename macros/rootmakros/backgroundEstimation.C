@@ -6,7 +6,7 @@
 template<class T, size_t N>
 constexpr size_t size(T (&)[N]) { return N; }
 
-double border = 3000;
+double border = 2700;
 
 TF1 *fit1, *fit2, *fit2A, *fit2B, *fitMean, *btagUp, *btagDown; // yes these need to be defined out here. Why? because root is absolutely stupid
 Double_t meanFunc(Double_t *x, Double_t *par) {
@@ -36,10 +36,10 @@ Double_t btagRatioDown(Double_t *x, Double_t *par) {
 
 void backgroundEstimation(){
 
-  bool storeOutputToFile = false;
-  bool plot_other_ratios = false;
+  bool storeOutputToFile = true;
+  bool plot_other_ratios = true;
 
-  TString region = "VR";
+  TString region = "SR";
 
   // definitions
   std::vector<TString> nontop_backgrounds = {"WJets", "QCD", "VV", "DYJets"};
@@ -157,7 +157,7 @@ void backgroundEstimation(){
     fit2A = new TF1("fit2A", "pol1", 0, border);
     fit2B = new TF1("fit2B", "pol2", border, 6000);
    
-    ratio.Fit("fit2A", "N", "", 500, border);
+    ratio.Fit("fit2A", "N", "", 0, border);
     ratio.Fit("fit2B", "N", "", border, 6000);
 
     fit2 = new TF1("fit2", piecewise, 0, 6000);
@@ -166,7 +166,7 @@ void backgroundEstimation(){
     fit2A = new TF1("fit2A", "pol1", 0, border);
     fit2B = new TF1("fit2B", "expo", border, 6000);
    
-    ratio.Fit("fit2A", "N", "", 500, border);
+    ratio.Fit("fit2A", "N", "", 600, border);
     ratio.Fit("fit2B", "N", "", border, 6000);
 
 
@@ -358,11 +358,11 @@ void backgroundEstimation(){
   TH1F *deviation = new TH1F("deviation", "", nbins-1, bins);
 
   // the main loop
-  int bins_before_500 = 0; // need to start at 0 because of overflow bin
+  int bins_before_600 = 0; // need to start at 0 because of overflow bin
   for (int bin = 0; bin <= nbins; bin++) {
     double st = deviation->GetBinCenter(bin);
-    if( st < 500 ) {
-      bins_before_500++;
+    if( st < 600 ) {
+      bins_before_600++;
       deviation->SetBinContent(bin, 0);
     }
     else {
@@ -370,8 +370,8 @@ void backgroundEstimation(){
       double func_val_2 = fit2->Eval(st);
       double func_val_avg = fitMean->Eval(st);
 
-      double val_ratio = ratio.GetY()[bin-bins_before_500];
-      double val_error = ratio.GetErrorY(bin-bins_before_500);
+      double val_ratio = ratio.GetY()[bin-bins_before_600];
+      double val_error = ratio.GetErrorY(bin-bins_before_600);
 
       // calculating how much the ratio deviates from the central fit
       deviation->SetBinContent(bin, val_ratio / func_val_avg);
@@ -390,6 +390,7 @@ void backgroundEstimation(){
   deviation->GetYaxis()->SetRangeUser(0.6, 1.4);
   deviation->GetXaxis()->SetRangeUser(0, 6000);
   deviation->SetMarkerStyle(8);
+  deviation->SetLineColor(1);
   deviation->GetXaxis()->SetTitle("S_{T} [GeV]");
   deviation->GetYaxis()->SetTitle("deviation");
   deviation->Draw("P");
@@ -431,7 +432,7 @@ void backgroundEstimation(){
 
       for (int bin = 0; bin <= nbins; bin++) {
         double st = deviation->GetBinCenter(bin);
-        if( st < 500 ) {
+        if( st < 600 ) {
           deviationUp->SetBinContent(bin, 0);
           deviationDown->SetBinContent(bin, 0);
         }
@@ -440,11 +441,11 @@ void backgroundEstimation(){
           double func_val_2 = fit2->Eval(st);
           double func_val_avg = fitMean->Eval(st);
 
-          double val_ratio_up = graph_up->GetY()[bin-bins_before_500];
-          double val_error_up = graph_up->GetErrorY(bin-bins_before_500);
+          double val_ratio_up = graph_up->GetY()[bin-bins_before_600];
+          double val_error_up = graph_up->GetErrorY(bin-bins_before_600);
 
-          double val_ratio_down = graph_down->GetY()[bin-bins_before_500];
-          double val_error_down = graph_down->GetErrorY(bin-bins_before_500);
+          double val_ratio_down = graph_down->GetY()[bin-bins_before_600];
+          double val_error_down = graph_down->GetErrorY(bin-bins_before_600);
 
           // calculating how much the ratio deviates from the central fit
           deviationUp->SetBinContent(bin, val_ratio_up / func_val_avg);
@@ -483,7 +484,8 @@ void backgroundEstimation(){
   ratiofit2->SetLineStyle(3);
   ratiofit2->Draw("same");
 
-  c1_hist->SaveAs("plots/backgroundEstimation_HOTVR_" + region + systematic + JE_string + ".pdf");
+  if(plot_other_ratios) c1_hist->SaveAs("plots/backgroundEstimation_HOTVR_" + region + systematic + JE_string + "_withSysts.pdf");
+  else c1_hist->SaveAs("plots/backgroundEstimation_HOTVR_" + region + systematic + JE_string + ".pdf");
 
   c1_hist->Clear();
 

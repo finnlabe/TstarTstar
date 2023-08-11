@@ -51,9 +51,8 @@ private:
   std::unique_ptr<Hists> h_gencheck;
   
   // some "regular" hist collections
-  std::unique_ptr<Hists> h_crosscheck, h_hists_SR, h_hists_VR, h_hists_btagCR;
-  std::unique_ptr<Hists> h_hists_VR_noElecTrigSFs; // this one is needed to check the effect of the SFs
-  std::unique_ptr<Hists> h_hists_ttbarCR_v1, h_hists_ttbarCR_v2, h_hists_ttbarCR_v3; // ttbar control regions of variable tightness
+  std::unique_ptr<Hists> h_crosscheck, h_hists_SR, h_hists_VR, h_hists_btagCR, h_hists_ttbarCR;
+  std::unique_ptr<Hists> h_hists_VR_noElecTrigSFs, h_hists_ttbarCR_noElecTrigSFs; // this one is needed to check the effect of the SFs
   std::unique_ptr<Hists> h_AfterDNNcut_06, h_NotDNNcut_06; // used to compare DDT results to simple cut
 
   // DNN output plots
@@ -63,6 +62,7 @@ private:
   std::unique_ptr<Hists> h_SignalRegion_total,      h_SignalRegion_mu,        h_SignalRegion_ele;
   std::unique_ptr<Hists> h_ValidationRegion_total,  h_ValidationRegion_mu,    h_ValidationRegion_ele;
   std::unique_ptr<Hists> h_ControlRegion_total,     h_ControlRegion_mu,       h_ControlRegion_ele;
+  std::unique_ptr<Hists> h_ttbarControlRegion_total;
 
   // in case this is data and datadriven BG estimation running, these histograms will be filled for all systematic variations
   std::unique_ptr<Hists> h_SignalRegion_datadriven_FuncUp_total,      h_SignalRegion_datadriven_FuncDown_total;
@@ -86,6 +86,7 @@ private:
   // ###### Handles ######
   uhh2::Event::Handle<double> h_evt_weight;
 
+  uhh2::Event::Handle<bool> h_trigger_decision;
   uhh2::Event::Handle<int> h_flag_toptagevent;
   uhh2::Event::Handle<bool> h_flag_muonevent;
   uhh2::Event::Handle<bool> h_is_btagevent;
@@ -150,10 +151,9 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_hists_SR.reset(new TstarTstarHists(ctx, "hists_SR"));
   h_hists_VR.reset(new TstarTstarHists(ctx, "hists_VR"));
   h_hists_btagCR.reset(new TstarTstarHists(ctx, "hists_btagCR"));
+  h_hists_ttbarCR.reset(new TstarTstarHists(ctx, "hists_ttbarCR"));
   h_hists_VR_noElecTrigSFs.reset(new TstarTstarHists(ctx, "hists_VR_noElecTrigSFs"));
-  h_hists_ttbarCR_v1.reset(new TstarTstarHists(ctx, "hists_ttbarCR_v1"));
-  h_hists_ttbarCR_v2.reset(new TstarTstarHists(ctx, "hists_ttbarCR_v2"));
-  h_hists_ttbarCR_v3.reset(new TstarTstarHists(ctx, "hists_ttbarCR_v3"));
+  h_hists_ttbarCR_noElecTrigSFs.reset(new TstarTstarHists(ctx, "hists_ttbarCR_noElecTrigSFs"));
   h_AfterDNNcut_06.reset(new TstarTstarHists(ctx, "AfterDNNcut_06"));
   h_NotDNNcut_06.reset(new TstarTstarHists(ctx, "NotDNNcut_06"));
 
@@ -175,6 +175,8 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_ControlRegion_total.reset(new TstarTstarSignalRegionHists(ctx, "ControlRegion_total"));
   h_ControlRegion_mu.reset(new TstarTstarSignalRegionHists(ctx, "ControlRegion_mu"));
   h_ControlRegion_ele.reset(new TstarTstarSignalRegionHists(ctx, "ControlRegion_ele"));
+
+  h_ttbarControlRegion_total.reset(new TstarTstarSignalRegionHists(ctx, "ttbarControlRegion_total"));
 
   h_SignalRegion_datadriven_FuncUp_total.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_datadriven_FuncUp_total"));
   h_SignalRegion_datadriven_FuncDown_total.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_datadriven_FuncDown_total"));
@@ -207,13 +209,14 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_ValidationRegion_datadriven_BtagDown_ele.reset(new TstarTstarSignalRegionHists(ctx, "ValidationRegion_datadriven_BtagDown_ele")); // using SR hists here, although it is not
 
   // DDT check histograms, at various cut values
-  std::vector<TString> DDT_points_to_check = {"0p1", "0p15", "0p2", "0p25", "0p3", "0p35", "0p4", "0p45", "0p5"}; // also used below to load the files
+  std::vector<TString> DDT_points_to_check = {"0p3"}; // also used below to load the files
   h_DDTtestHists.reset( new TstarTstarDDTHists(ctx, "DDTHists", DDT_points_to_check) ) ; 
 
   // 3. init handles
   ctx.undeclare_all_event_output(); // we'll not store the tree, as its not needed  (this is the last UHH2 step) -> saving space!
   h_evt_weight = ctx.get_handle<double>("evt_weight");
 
+  h_trigger_decision = ctx.get_handle<bool>("trigger_decision");
   h_flag_toptagevent = ctx.get_handle<int>("flag_toptagevent");
   h_flag_muonevent = ctx.get_handle<bool>("is_muevt");
   h_is_btagevent = ctx.get_handle<bool>("is_btagevent");
@@ -277,12 +280,12 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   
   // getting the best function
   TFile *f = new TFile(path+filename_base+bestFunction+".root");
-  BestDDTFunction = (TF1*)f->Get("fit");
+  BestDDTFunction = (TF1*)f->Get("mean");
 
   // now lets load all the others
   for (auto point : DDT_points_to_check) {
     TFile *f = new TFile(path+filename_base+point+".root");
-    auto DDTFunction = (TF1*)f->Get("fit");
+    auto DDTFunction = (TF1*)f->Get("mean");
     DDTFunctions.push_back(DDTFunction);
   }
 
@@ -290,6 +293,10 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
 
 
 bool TstarTstarDNNModule::process(Event & event) {
+
+  // at the moment, throw out all events that do not pass the trigger here
+  // later, this info can be used to calculate trigger efficiencies in the different regions, if needed
+  if (!event.get(h_trigger_decision)) return false;
 
   // debug message
   if(debug){cout << endl << "TstarTstarDNNModule: Starting to process event (runid, eventid) = (" << event.run << ", " << event.event << "); weight = " << event.weight << endl;}
@@ -317,8 +324,11 @@ bool TstarTstarDNNModule::process(Event & event) {
   }
   assert(pass_btagcut == event.get(h_is_btagevent));
 
+  // do additional ST cut
+  if(event.get(h_ST_HOTVR) < 600) return false;
+
   // filling crosscheck histograms after all initial steps are done
-  h_crosscheck->fill(event);
+  if(event.get(h_is_btagevent)) h_crosscheck->fill(event);
 
 
   // ################
@@ -361,6 +371,8 @@ bool TstarTstarDNNModule::process(Event & event) {
     double value = event.get(h_DNN_output) - ( 1 - function->Eval(event.get(h_ST_HOTVR)) );
     newTaggerResults.push_back(value);
   }
+
+  if(event.get(h_is_btagevent)) h_DNN_DDT->fill(event);
 
 
   // ##################################
@@ -538,18 +550,23 @@ bool TstarTstarDNNModule::process(Event & event) {
       if(passHOTVRtoptag) {
 
         // tighter b-tag selection
-        BTag bJetID_loose = BTag(BTag::algo::DEEPJET, BTag::wp::WP_LOOSE);
-        BTag bJetID_tight = BTag(BTag::algo::DEEPJET, BTag::wp::WP_TIGHT);
-        int N_btag_loose = 0;
-        int N_btag_tight = 0;
+        BTag bJetID_medium = BTag(BTag::algo::DEEPJET, BTag::wp::WP_MEDIUM);
+        int N_btag_medium = 0;
         for (const auto & jet: *event.jets){
-          if(bJetID_loose(jet, event)) N_btag_loose++;
-          if(bJetID_tight(jet, event)) N_btag_tight++;
+          if(bJetID_medium(jet, event)) N_btag_medium++;
         }
 
-        if(N_btag_loose >= 2) h_hists_ttbarCR_v1->fill(event);
-        if(N_btag_tight >= 1) h_hists_ttbarCR_v2->fill(event);
-        if(N_btag_tight >= 2) h_hists_ttbarCR_v3->fill(event);
+        if(N_btag_medium >= 2){
+          h_hists_ttbarCR->fill(event);
+          h_ttbarControlRegion_total->fill(event);
+
+          // special case here: plot same, but without electron trigger SF
+          double reset_weight_etrigger = event.weight;
+          if( event.get(h_weight_sfelec_triggerNominal) != 0) event.weight /= event.get(h_weight_sfelec_triggerNominal);
+          h_hists_ttbarCR_noElecTrigSFs->fill(event);
+          event.weight = reset_weight_etrigger;
+
+        }
 
       }
 

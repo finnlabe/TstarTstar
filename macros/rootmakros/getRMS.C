@@ -27,20 +27,20 @@ void getRMS(){
   TString filename_base = "";
   TString year = "UL16";
   filename_base += "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/" + year + "/hadded/uhh2.AnalysisModuleRunner.MC.";
+  TString channel = "ele";
   
-  TString region = "SignalRegion";
+  TString region = "ValidationRegion";
 
   vector<TString> samples = {"TTbar", "ST"};
   vector<bool> isSignal (samples.size(), false);
-  vector<TString> masspoints = {"800", "1600", "1800", "2500"};
+  vector<TString> masspoints = {"700", "800", "900", "1000", "1100", "1200", "1300", "1400", "1500", "1600", "1700", "1800", "1900", "2000", "2250", "2500", "2750"};
   for (auto mass : masspoints) {
     samples.push_back("TstarTstar_M-" + mass);
     isSignal.push_back(true);
-    samples.push_back("TstarTstar_M-" + mass + "_32");
-    isSignal.push_back(true);
+    //samples.push_back("TstarTstar_M-" + mass + "_32");
+    //isSignal.push_back(true);
   }
 
-  TString channel = "mu";
 
   for(unsigned int i=0; i<samples.size(); i++){
 

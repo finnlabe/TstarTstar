@@ -75,7 +75,7 @@ void variationPlots(){
   std::vector<TString> variations_elec = {"sfelec_id", "sfelec_reco", "sfelec_trigger"};
   std::vector<TString> variations_mu = {"sfmu_id", "sfmu_iso", "sfmu_trigger"};
   std::vector<TString> variations_btagging = {"btagging_total", "btagging_hf", "btagging_hfstats1", "btagging_hfstats2", "btagging_lf", "btagging_lfstats1", "btagging_lfstats2", "btagging_cferr1", "btagging_cferr2"};
-  std::vector<TString> variations_other = {"pu", "prefiring"};
+  std::vector<TString> variations_other = {"pu", "prefiring", "decorrelation"};
   std::vector<int> colors = {1, 2,3,4,6,7,8,9, 11, 12};
 
   // open main file
@@ -162,6 +162,8 @@ void variationPlots(){
   if(doPDFandScale) {
 
     leg = new TLegend(0.6,0.7,0.9,0.9);
+    leg->SetTextSize(0.03);
+    leg->SetBorderSize(0);
 
     // PDF
     TFile *file_PDF = TFile::Open(macro_path+"/SignalRegion_PDF_"+year+"_total_"+sample+".root");
@@ -182,7 +184,7 @@ void variationPlots(){
     hist_PDF_down->SetLineStyle(3);
 
     // styling first
-    hist_PDF_up->GetYaxis()->SetRangeUser(0.5, 2);
+    hist_PDF_up->GetYaxis()->SetRangeUser(0.5, 2.1);
     hist_PDF_up->GetXaxis()->SetRangeUser(600, 6000);
     hist_PDF_up->GetXaxis()->SetTitle( hist_PDF_up->GetTitle() );
     hist_PDF_up->GetYaxis()->SetTitle( "variation / nominal" );
@@ -191,7 +193,7 @@ void variationPlots(){
     hist_PDF_up->Draw("hist");
     hist_PDF_down->Draw("hist same");
 
-    leg->AddEntry(hist_PDF_up,"PDF","l");
+    leg->AddEntry(hist_PDF_up, "PDF", "l");
 
     // scale
     TFile *file_scale = TFile::Open(macro_path+"/SignalRegion_scale_"+year+"_total_"+sample+".root");
@@ -221,6 +223,7 @@ void variationPlots(){
     line.Draw("same");
     leg->Draw();
 
+    drawCMSandLumi(year);
     can->SaveAs("plots/variations_PDFandScale.pdf");
   }
 
@@ -298,6 +301,7 @@ void variationPlots(){
     leg->AddEntry(hist_up,variation,"l");
 
   }
+  drawCMSandLumi(year);
   line.Draw("same");
   leg->Draw();
   can->SaveAs("plots/variations_mu.pdf");
@@ -322,7 +326,7 @@ void variationPlots(){
     hist_up->SetLineStyle(2);
     hist_down->SetLineStyle(3);
 
-    hist_up->GetYaxis()->SetRangeUser(0.2, 1.8);
+    hist_up->GetYaxis()->SetRangeUser(0., 2);
     hist_up->GetXaxis()->SetRangeUser(600, 6000);
     hist_up->GetXaxis()->SetTitle( hist_up->GetTitle() );
     hist_up->GetYaxis()->SetTitle( "variation / nominal" );
@@ -335,6 +339,7 @@ void variationPlots(){
     leg->AddEntry(hist_up,variation,"l");
 
   }
+  drawCMSandLumi(year);
   line.Draw("same");
   leg->Draw();
   can->SaveAs("plots/variations_btagging.pdf");
@@ -359,7 +364,7 @@ void variationPlots(){
     hist_up->SetLineStyle(2);
     hist_down->SetLineStyle(3);
 
-    hist_up->GetYaxis()->SetRangeUser(0.9, 1.1);
+    hist_up->GetYaxis()->SetRangeUser(0.6, 1.4);
     hist_up->GetXaxis()->SetRangeUser(600, 6000);
     hist_up->GetXaxis()->SetTitle( hist_up->GetTitle() );
     hist_up->GetYaxis()->SetTitle( "variation / nominal" );
@@ -372,6 +377,7 @@ void variationPlots(){
     leg->AddEntry(hist_up,variation,"l");
 
   }
+  drawCMSandLumi(year);
   line.Draw("same");
   leg->Draw();
   can->SaveAs("plots/variations_other.pdf");
