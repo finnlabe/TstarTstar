@@ -6,7 +6,7 @@
 template<class T, size_t N>
 constexpr size_t size(T (&)[N]) { return N; }
 
-double border = 2700;
+double border = 2800;
 
 TF1 *fit1, *fit2, *fit2A, *fit2B, *fitMean, *btagUp, *btagDown; // yes these need to be defined out here. Why? because root is absolutely stupid
 Double_t meanFunc(Double_t *x, Double_t *par) {
@@ -36,25 +36,28 @@ Double_t btagRatioDown(Double_t *x, Double_t *par) {
 
 void backgroundEstimation(){
 
-  bool storeOutputToFile = true;
-  bool plot_other_ratios = true;
 
-  TString region = "SR";
+  bool storeOutputToFile = true;
+  bool plot_other_ratios = false;
+
+  TString region = "VR";
+  TString year = "";         // no year means full run 2
+  TString channel = "total";      // total channel means combination of both
+  TString JE_string = "";
 
   // definitions
   std::vector<TString> nontop_backgrounds = {"WJets", "QCD", "VV", "DYJets"};
   std::vector<TString> top_backgrounds = {"ST", "TTbar"};
 
   TString subpath_SR;
-  if (region == "VR") subpath_SR = "ValidationRegion_total";
-  else if (region == "SR") subpath_SR = "SignalRegion_total";
-  TString subpath_CR = "ControlRegion_total";
+  if (region == "VR") subpath_SR = "ValidationRegion_" + channel;
+  else if (region == "SR") subpath_SR = "SignalRegion_" + channel;
+  TString subpath_CR = "ControlRegion_" + channel;
   TString histname = "pt_ST_nominal";
   TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/";
   TString fileprefix = "uhh2.AnalysisModuleRunner.";
 
-  TString JE_string = "";
-  path = path + "/hadded" + JE_string + "/";
+  path = path + "/" + year + "/hadded" + JE_string + "/";
 
   std::cout << "Using path: " << path << std::endl;
 
@@ -241,10 +244,10 @@ void backgroundEstimation(){
 
     int color_int = 2;
     for (auto name : other_ratios) {
-      TFile *file_up = new TFile(other_ratios_base_path + "alphaFunction_HOTVR_" + region + "_" + name + "Up.root");
+      TFile *file_up = new TFile(other_ratios_base_path + "alphaFunction_HOTVR_" + "_" + year + "_" + region + "_" + channel + "_" + name + "Up.root");
       TGraphAsymmErrors *graph_up = (TGraphAsymmErrors*) file_up->Get("alpha_ratio")->Clone();
       TF1 *func_up = (TF1*) file_up->Get("fit_mean")->Clone();
-      TFile *file_down = new TFile(other_ratios_base_path + "alphaFunction_HOTVR_" + region + "_" + name + "Down.root");
+      TFile *file_down = new TFile(other_ratios_base_path + "alphaFunction_HOTVR_" + "_" + year + "_" + region + "_" + channel + "_" + name + "Down.root");
       TGraphAsymmErrors *graph_down = (TGraphAsymmErrors*) file_down->Get("alpha_ratio")->Clone();
       TF1 *func_down = (TF1*) file_down->Get("fit_mean")->Clone();
 
@@ -403,10 +406,10 @@ void backgroundEstimation(){
       TH1F *deviationUp = new TH1F("deviation up " + name , "", nbins-1, bins);
       TH1F *deviationDown = new TH1F("deviation down " + name, "", nbins-1, bins);
 
-      TFile *file_up = new TFile(other_ratios_base_path + "alphaFunction_HOTVR_" + region + "_" + name + "Up.root");
+      TFile *file_up = new TFile(other_ratios_base_path + "alphaFunction_HOTVR_" + "_" + year + "_" + region + "_" + channel + "_" + name + "Up.root");
       TGraphAsymmErrors *graph_up = (TGraphAsymmErrors*) file_up->Get("alpha_ratio")->Clone();
       if(name == "btagging_total") btagUp = (TF1*) file_up->Get("fit_mean")->Clone();
-      TFile *file_down = new TFile(other_ratios_base_path + "alphaFunction_HOTVR_" + region + "_" + name + "Down.root");
+      TFile *file_down = new TFile(other_ratios_base_path + "alphaFunction_HOTVR_" + "_" + year + "_" + region + "_" + channel + "_" + name + "Down.root");
       TGraphAsymmErrors *graph_down = (TGraphAsymmErrors*) file_down->Get("alpha_ratio")->Clone();
       if(name == "btagging_total") btagDown = (TF1*) file_down->Get("fit_mean")->Clone();
 
@@ -484,8 +487,8 @@ void backgroundEstimation(){
   ratiofit2->SetLineStyle(3);
   ratiofit2->Draw("same");
 
-  if(plot_other_ratios) c1_hist->SaveAs("plots/backgroundEstimation_HOTVR_" + region + systematic + JE_string + "_withSysts.pdf");
-  else c1_hist->SaveAs("plots/backgroundEstimation_HOTVR_" + region + systematic + JE_string + ".pdf");
+  if(plot_other_ratios) c1_hist->SaveAs("plots/backgroundEstimation_HOTVR_" + year + "_" + region + "_" + channel + systematic + JE_string + "_withSysts.pdf");
+  else c1_hist->SaveAs("plots/backgroundEstimation_HOTVR_" + year + "_" + region + "_" + channel + systematic + JE_string + ".pdf");
 
   c1_hist->Clear();
 
@@ -500,12 +503,12 @@ void backgroundEstimation(){
   text2->Draw();
   text3->Draw();
 
-  c1_hist->SaveAs("plots/purity_HOTVR_" + region + systematic + JE_string + ".pdf");
+  c1_hist->SaveAs("plots/purity_HOTVR_" + year + "_" + region + "_" + channel + systematic + JE_string + ".pdf");
 
   // saving fit function to output file
   if(storeOutputToFile) {
     TFile *output;
-    TString filename = "files/alphaFunction_HOTVR_" + region + systematic + JE_string +".root";
+    TString filename = "files/alphaFunction_HOTVR_" + year + "_" + region + "_" + channel + systematic + JE_string +".root";
     output = TFile::Open(filename, "RECREATE");
     fit2->Write();
     fit1->Write();

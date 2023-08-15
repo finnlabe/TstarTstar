@@ -3,29 +3,67 @@
 void backgroundEstimation_compareFunctions () {
 
   TString path = "/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/";
-  TString filename_base = "alphaFunction";
+  TString filename_base = "alphaFunction_HOTVR";
 
-  std::vector<TString> variations = {"JEC_down", "JEC_up"};
+  std::vector<TString> years = {"UL16preVFP", "UL16postVFP", "UL17", "UL18", };
+  std::vector<TString> channels = {"mu", "ele"};
+  TString region = "VR";
 
+  TString fitfunc = "fit1";
 
   TCanvas *canvas = new TCanvas("canvas", "c", 600, 500);
 
-  TFile *input_baseline = TFile::Open(path+filename_base+".root");
-  TF1 *function_baseline = (TF1*)((TF1*) input_baseline->Get("fit2"))->Clone("baseline");
+  std::vector<int> colors = {810, 600, 416, 800};
+  std::vector<int> styles = {2, 3};
 
-  function_baseline->Draw();
 
-  for (auto variation : variations) {
-    TFile *input = TFile::Open(path+filename_base+"_"+variation+".root");
-    TF1 *function = (TF1*)((TF1*) input_baseline->Get("fit2"))->Clone(variation);
+  auto legend = new TLegend(0.1,0.7,0.48,0.9);
 
-    TF1 ratio = TF1(variation+"_ratio", variation+"/baseline", 0, 4000);
+  bool draw_baseline = true;
+  if (draw_baseline) {
+    // draw currently used as baseline
+    TFile *input = TFile::Open(path + filename_base + "__" + region + "_total.root");
+    TF1 *function = (TF1*)((TF1*) input->Get(fitfunc))->Clone("baseline"); // give some unique name
 
-    function->SetLineColor(2);
-    function->Draw("same");
+    function->SetLineColor( 1 );
+    function->SetLineStyle( 0 );
 
+    function->GetYaxis()->SetRangeUser(0, 1.3);
+
+    function->Draw("");
+    legend->AddEntry(function, "total", "f");
   }
 
-  canvas->SaveAs("plots/BGest_variation.pdf");
+
+  bool first = true;
+  if (draw_baseline) first = false;
+  int yeari = 0;
+  for (auto year : years) {
+
+    int channeli = 0;
+    for (auto channel : channels) {
+
+      TFile *input = TFile::Open(path + filename_base + "_" + year + "_" + region + "_" + channel + ".root");
+      TF1 *function = (TF1*)((TF1*) input->Get(fitfunc))->Clone(year + "_" + region + "_" + channel); // give some unique name
+
+      function->SetLineColor( colors.at(yeari) );
+      function->SetLineStyle( styles.at(channeli) );
+
+      if (first) function->Draw("");
+      else function->Draw("same");
+
+      legend->AddEntry(function, year + " " + channel, "f");
+
+      first = false;
+
+      channeli++;
+    }
+
+    yeari++;
+  }
+
+  legend->Draw();
+
+  canvas->SaveAs("plots/BGest_yearcomp.pdf");
 
 }
