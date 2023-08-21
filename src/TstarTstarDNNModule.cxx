@@ -105,12 +105,18 @@ private:
   bool debug = false;
   bool is_MC;
   bool is_datadriven_BG_run = false;
+  TString year;
 
   // background estimation functions
   TGraphAsymmErrors* bgest_purity;
-  TF1 * backgroundEstimationFunctionNominal_SR,   * backgroundEstimationFunctionNominal_VR;
-  TF1 * backgroundEstimationFunctionFuncUp_SR,    * backgroundEstimationFunctionFuncUp_VR;
-  TF1 * backgroundEstimationFunctionFuncDown_SR,  * backgroundEstimationFunctionFuncDown_VR;
+  TF1 * backgroundEstimationFunctionNominal_SR_mu,   * backgroundEstimationFunctionNominal_VR_mu;
+  TF1 * backgroundEstimationFunctionNominal_SR_ele,   * backgroundEstimationFunctionNominal_VR_ele;
+  
+  TF1 * backgroundEstimationFunctionFuncUp_SR_mu,    * backgroundEstimationFunctionFuncUp_VR_mu;
+  TF1 * backgroundEstimationFunctionFuncDown_SR_mu,  * backgroundEstimationFunctionFuncDown_VR_mu;
+  TF1 * backgroundEstimationFunctionFuncUp_SR_ele,    * backgroundEstimationFunctionFuncUp_VR_ele;
+  TF1 * backgroundEstimationFunctionFuncDown_SR_ele,  * backgroundEstimationFunctionFuncDown_VR_ele;
+
   TF1 * backgroundEstimationFunctionBtagUp_SR,    * backgroundEstimationFunctionBtagUp_VR;
   TF1 * backgroundEstimationFunctionBtagDown_SR,  * backgroundEstimationFunctionBtagDown_VR;
 
@@ -132,6 +138,20 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   // ###### 0. Setting variables ######
   // MC or real data
   is_MC = ctx.get("dataset_type") == "MC";
+
+  // year of samples
+  year = ctx.get("year", "<not set>");
+  if(year == "<not set>"){
+    if(ctx.get("dataset_version").find("2016") != std::string::npos) year = "2016";
+    else if(ctx.get("dataset_version").find("2017") != std::string::npos) year = "2017";
+    else if(ctx.get("dataset_version").find("2018") != std::string::npos) year = "2018";
+    else if(ctx.get("dataset_version").find("UL16preVFP") != std::string::npos) year = "UL16preVFP";
+    else if(ctx.get("dataset_version").find("UL16postVFP") != std::string::npos) year = "UL16postVFP";
+    else if(ctx.get("dataset_version").find("UL17") != std::string::npos) year = "UL17";
+    else if(ctx.get("dataset_version").find("UL18") != std::string::npos) year = "UL18";
+    else throw "No year found in dataset name!";
+  }
+  if(debug) cout << "Year is " << year << "." << endl;
 
   // get which running mode to use for data
   if(!is_MC) is_datadriven_BG_run = ctx.get("use_data_for", "regular") == "background_extrapolation"; 
@@ -236,24 +256,38 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   // datadriven estimation functions only if needed
   if(is_datadriven_BG_run) {
     TString path = "/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/";
-    TString filename_nominal_SR = "alphaFunction_HOTVR_SR.root";
-    TString filename_nominal_VR = "alphaFunction_HOTVR_VR.root";
+    TString filename_nominal_SR_mu = "alphaFunction_HOTVR_" + year + "_SR_mu.root";
+    TString filename_nominal_SR_ele = "alphaFunction_HOTVR_" + year + "_SR_ele.root";
+    TString filename_nominal_VR_mu = "alphaFunction_HOTVR_" + year + "_VR_mu.root";
+    TString filename_nominal_VR_ele = "alphaFunction_HOTVR_" + year + "_VR_ele.root";
+
+    // TODO fix these to include mu / ele splitting!
     TString filename_btagUp_SR = "alphaFunction_HOTVR_SR_btagging_totalUp.root";
     TString filename_btagDown_SR = "alphaFunction_HOTVR_SR_btagging_totalDown.root";
     TString filename_btagUp_VR = "alphaFunction_HOTVR_VR_btagging_totalUp.root";
     TString filename_btagDown_VR = "alphaFunction_HOTVR_VR_btagging_totalDown.root";
 
-    // main file for signal region
-    TFile *file_nominal_SR = new TFile(path+filename_nominal_SR);
-    backgroundEstimationFunctionNominal_SR = (TF1*)file_nominal_SR->Get("fit_mean");
-    backgroundEstimationFunctionFuncUp_SR = (TF1*)file_nominal_SR->Get("fit1");
-    backgroundEstimationFunctionFuncDown_SR = (TF1*)file_nominal_SR->Get("fit2");
+    // main files for signal region
+    TFile *file_nominal_SR_mu = new TFile(path+filename_nominal_SR_mu);
+    backgroundEstimationFunctionNominal_SR_mu = (TF1*)file_nominal_SR_mu->Get("fit_mean");
+    backgroundEstimationFunctionFuncUp_SR_mu = (TF1*)file_nominal_SR_mu->Get("fit1");
+    backgroundEstimationFunctionFuncDown_SR_mu = (TF1*)file_nominal_SR_mu->Get("fit2");
+
+    TFile *file_nominal_SR_ele = new TFile(path+filename_nominal_SR_ele);
+    backgroundEstimationFunctionNominal_SR_ele = (TF1*)file_nominal_SR_ele->Get("fit_mean");
+    backgroundEstimationFunctionFuncUp_SR_ele = (TF1*)file_nominal_SR_ele->Get("fit1");
+    backgroundEstimationFunctionFuncDown_SR_ele = (TF1*)file_nominal_SR_ele->Get("fit2");
 
     // main file for validation region
-    TFile *file_nominal_VR = new TFile(path+filename_nominal_VR);
-    backgroundEstimationFunctionNominal_VR = (TF1*)file_nominal_VR->Get("fit_mean");
-    backgroundEstimationFunctionFuncUp_VR = (TF1*)file_nominal_VR->Get("fit1");
-    backgroundEstimationFunctionFuncDown_VR = (TF1*)file_nominal_VR->Get("fit2");
+    TFile *file_nominal_VR_mu = new TFile(path+filename_nominal_VR_mu);
+    backgroundEstimationFunctionNominal_VR_mu = (TF1*)file_nominal_VR_mu->Get("fit_mean");
+    backgroundEstimationFunctionFuncUp_VR_mu = (TF1*)file_nominal_VR_mu->Get("fit1");
+    backgroundEstimationFunctionFuncDown_VR_mu = (TF1*)file_nominal_VR_mu->Get("fit2");
+
+    TFile *file_nominal_VR_ele = new TFile(path+filename_nominal_VR_ele);
+    backgroundEstimationFunctionNominal_VR_ele = (TF1*)file_nominal_VR_ele->Get("fit_mean");
+    backgroundEstimationFunctionFuncUp_VR_ele = (TF1*)file_nominal_VR_ele->Get("fit1");
+    backgroundEstimationFunctionFuncDown_VR_ele = (TF1*)file_nominal_VR_ele->Get("fit2");
 
     // now getting the btag variations
     TFile *file_btagUp_SR = new TFile(path+filename_btagUp_SR);
@@ -400,12 +434,23 @@ bool TstarTstarDNNModule::process(Event & event) {
 
     if(debug) cout << "Doing datadriven BG estimation" << endl;
     // getting all the weight values
-    transfer_weight_nominal_SR = backgroundEstimationFunctionNominal_SR->Eval(event.get(h_ST_HOTVR));
-    transfer_weight_nominal_VR = backgroundEstimationFunctionNominal_VR->Eval(event.get(h_ST_HOTVR));
-    transfer_weight_funcUp_SR = backgroundEstimationFunctionFuncUp_SR->Eval(event.get(h_ST_HOTVR));
-    transfer_weight_funcUp_VR = backgroundEstimationFunctionFuncUp_VR->Eval(event.get(h_ST_HOTVR));
-    transfer_weight_funcDown_SR = backgroundEstimationFunctionFuncDown_SR->Eval(event.get(h_ST_HOTVR));
-    transfer_weight_funcDown_VR = backgroundEstimationFunctionFuncDown_VR->Eval(event.get(h_ST_HOTVR));
+    if(event.get(h_flag_muonevent)) {
+      transfer_weight_nominal_SR = backgroundEstimationFunctionNominal_SR_mu->Eval(event.get(h_ST_HOTVR));
+      transfer_weight_nominal_VR = backgroundEstimationFunctionNominal_VR_mu->Eval(event.get(h_ST_HOTVR));
+      transfer_weight_funcUp_SR = backgroundEstimationFunctionFuncUp_SR_mu->Eval(event.get(h_ST_HOTVR));
+      transfer_weight_funcUp_VR = backgroundEstimationFunctionFuncUp_VR_mu->Eval(event.get(h_ST_HOTVR));
+      transfer_weight_funcDown_SR = backgroundEstimationFunctionFuncDown_SR_mu->Eval(event.get(h_ST_HOTVR));
+      transfer_weight_funcDown_VR = backgroundEstimationFunctionFuncDown_VR_mu->Eval(event.get(h_ST_HOTVR));
+    } else {
+      transfer_weight_nominal_SR = backgroundEstimationFunctionNominal_SR_ele->Eval(event.get(h_ST_HOTVR));
+      transfer_weight_nominal_VR = backgroundEstimationFunctionNominal_VR_ele->Eval(event.get(h_ST_HOTVR));
+      transfer_weight_funcUp_SR = backgroundEstimationFunctionFuncUp_SR_ele->Eval(event.get(h_ST_HOTVR));
+      transfer_weight_funcUp_VR = backgroundEstimationFunctionFuncUp_VR_ele->Eval(event.get(h_ST_HOTVR));
+      transfer_weight_funcDown_SR = backgroundEstimationFunctionFuncDown_SR_ele->Eval(event.get(h_ST_HOTVR));
+      transfer_weight_funcDown_VR = backgroundEstimationFunctionFuncDown_VR_ele->Eval(event.get(h_ST_HOTVR));
+    }
+    
+
     transfer_weight_btagUp_SR = backgroundEstimationFunctionBtagUp_SR->Eval(event.get(h_ST_HOTVR));
     transfer_weight_btagUp_VR = backgroundEstimationFunctionBtagUp_VR->Eval(event.get(h_ST_HOTVR));
     transfer_weight_btagDown_SR = backgroundEstimationFunctionBtagDown_SR->Eval(event.get(h_ST_HOTVR));
