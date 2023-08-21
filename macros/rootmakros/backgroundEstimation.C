@@ -6,16 +6,9 @@
 template<class T, size_t N>
 constexpr size_t size(T (&)[N]) { return N; }
 
-double border = 2800;
-
-TF1 *fit1, *fit2, *fit2A, *fit2B, *fitMean, *btagUp, *btagDown; // yes these need to be defined out here. Why? because root is absolutely stupid
+TF1 *fit1, *fit2, *fitMean, *btagUp, *btagDown; // yes these need to be defined out here. Why? because root is absolutely stupid
 Double_t meanFunc(Double_t *x, Double_t *par) {
   return ( fit1->EvalPar(x,par) + fit2->EvalPar(x,par) ) / 2;
-}
-
-Double_t piecewise(Double_t *x, Double_t *par) {
-  Double_t xv = x[0];
-  return (xv < border) * fit2A->EvalPar(x,par) + (xv >= border) * fit2B->EvalPar(x,par);
 }
 
 Double_t fitRatio1(Double_t *x, Double_t *par) {
@@ -34,6 +27,29 @@ Double_t btagRatioDown(Double_t *x, Double_t *par) {
   return ( btagDown->EvalPar(x,par) / fitMean->EvalPar(x,par) );
 }
 
+double GetXForHighestY(TGraphAsymmErrors graph) {
+    if (graph.GetN() == 0) {
+        // Handle invalid input or empty graph
+        return 0.0; // Or any appropriate default value
+    }
+
+    double maxY = -1e10; // Initialize to a very small value
+    double maxX = -1e10; // Initialize to a very small value
+
+    int nPoints = graph.GetN();
+    double* xValues = graph.GetX();
+    double* yValues = graph.GetY();
+
+    for (int i = 0; i < nPoints; ++i) {
+        if (yValues[i] > maxY) {
+            maxY = yValues[i];
+            maxX = xValues[i];
+        }
+    }
+
+    return maxX;
+}
+
 void backgroundEstimation(){
 
 
@@ -41,8 +57,8 @@ void backgroundEstimation(){
   bool plot_other_ratios = false;
 
   TString region = "VR";
-  TString year = "";         // no year means full run 2
-  TString channel = "total";      // total channel means combination of both
+  TString year = "UL16preVFP";         // no year means full run 2
+  TString channel = "ele";      // total channel means combination of both
   TString JE_string = "";
 
   // definitions
@@ -156,24 +172,17 @@ void backgroundEstimation(){
   ratio.Fit("fit1", "N", "", 1000, 6000);
 
   if(region == "VR") {
-    // fitting some piecewise thingy
-    fit2A = new TF1("fit2A", "pol1", 0, border);
-    fit2B = new TF1("fit2B", "pol2", border, 6000);
-   
-    ratio.Fit("fit2A", "N", "", 0, border);
-    ratio.Fit("fit2B", "N", "", border, 6000);
+    fit2 = new TF1("fit2", "pol2", 0, 6000);
 
-    fit2 = new TF1("fit2", piecewise, 0, 6000);
+    ratio.Fit("fit2", "N", "", 1000, 6000);
   } else {
-    // fitting some piecewise thingy
-    fit2A = new TF1("fit2A", "pol1", 0, border);
-    fit2B = new TF1("fit2B", "expo", border, 6000);
-   
-    ratio.Fit("fit2A", "N", "", 600, border);
-    ratio.Fit("fit2B", "N", "", border, 6000);
 
+    fit2 = new TF1("fit2", "pol2", 0, 6000);
 
-    fit2 = new TF1("fit2", piecewise, 0, 6000);
+    ratio.Fit("fit2", "N", "", 1000, 6000);
+    
+    std::cout << "Not optimized yet" << std::endl;
+
   }
 
   // defining average

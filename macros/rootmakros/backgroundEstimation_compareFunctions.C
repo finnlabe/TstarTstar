@@ -9,7 +9,7 @@ void backgroundEstimation_compareFunctions () {
   std::vector<TString> channels = {"mu", "ele"};
   TString region = "VR";
 
-  TString fitfunc = "fit1";
+  TString fitfunc = "fit_mean";
 
   TCanvas *canvas = new TCanvas("canvas", "c", 600, 500);
 
