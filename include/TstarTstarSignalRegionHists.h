@@ -37,6 +37,8 @@ public:
     std::string hist_names[100];
 
     // weight handles
+    uhh2::Event::Handle<float> h_weight_ttbar;
+
     uhh2::Event::Handle<float> h_weight_puNominal;
     uhh2::Event::Handle<float> h_weight_puUp;
     uhh2::Event::Handle<float> h_weight_puDown;

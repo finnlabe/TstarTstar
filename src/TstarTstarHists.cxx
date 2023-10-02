@@ -42,8 +42,8 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   book<TH1F>("DeepJetscore", "deepJet output", 20, 0, 1);
   book<TH1F>("DeepJetscore_firstJet", "deepJet output first jet", 20, 0, 1);
 
-  book<TH1F>("N_AK8jets", "N_{AK8 jets}", 20, 0, 20);
-  book<TH1F>("N_toptagged_AK8jets", "N_{toptagged AK8 jets}", 20, 0, 20);
+  book<TH1F>("N_HOTVRjets", "N_{HOTVR jets}", 20, 0, 20);
+  book<TH1F>("N_toptagged_HOTVRjets", "N_{toptagged HOTVR jets}", 20, 0, 20);
   book<TH1F>("N_PU", "N_{PU}", 100, 0, 100);
   book<TH1F>("eta_jet1", "#eta^{jet 1}", 50, -5.2, 5.2);
   book<TH1F>("pt_jet1", "p_{T}^{jet 1}", 100, 10, 2000);
@@ -69,8 +69,8 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
 
   book<TH2D>("pt_mu_pt_ak4jet1", ";p_{T}^{#mu}; p_{T}^{AK4 jet 1}", 60, 10, 1100, 70, 10, 2500);
   book<TH2D>("pt_ele_pt_ak4jet1", ";p_{T}^{ele}; p_{T}^{AK4 jet 1}", 60, 10, 1100, 70, 10, 2500);
-  book<TH2D>("pt_mu_pt_HOTVR1", ";p_{T}^{#mu}; p_{T}^{AK8 jet 1}", 60, 10, 1100, 70, 10, 2500);
-  book<TH2D>("pt_ele_pt_HOTVR1", ";p_{T}^{ele}; p_{T}^{AK8 jet 1}", 60, 10, 1100, 70, 10, 2500);
+  book<TH2D>("pt_mu_pt_HOTVR1", ";p_{T}^{#mu}; p_{T}^{HOTVR jet 1}", 60, 10, 1100, 70, 10, 2500);
+  book<TH2D>("pt_ele_pt_HOTVR1", ";p_{T}^{ele}; p_{T}^{HOTVR jet 1}", 60, 10, 1100, 70, 10, 2500);
 
   book<TH1F>("tau32_HOTVR1", "HOTVR-1 #tau_{32}", 20, 0, 1);
   book<TH1F>("jetmass_HOTVR1", "m_{HOTVR-1}", 25, 0, 500);
@@ -105,26 +105,37 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   // MET
   book<TH1F>("pt_MET", "missing E_{T} [GeV]", 100, 0, 2000);
 
-  // ST and HT
-  book<TH1F>("pt_HT", "H_{T} [GeV]", 40, 0, 4000);
-  book<TH1F>("pt_HTlep", "H_{T} + p_{T} (#ell) [GeV]", 40, 0, 4000);
-  book<TH1F>("pt_ST", "S_{T} [GeV]", 40, 0, 4000);
-  book<TH1F>("pt_ST_fullrange", "S_{T} [GeV]", 60, 0, 6000);
-  book<TH1F>("pt_ST_HOTVR", "S_{T} HOTVR [GeV]", 40, 0, 4000);
-  book<TH1F>("pt_ST_HOTVR_fullrange", "S_{T} HOTVR [GeV]", 60, 0, 6000);
+  // binnings for the folliwng
+
+  const int nbinsNjet = 8;
+  double binsNjet[nbinsNjet] {0, 4, 5, 6, 7, 8, 10, 20};
 
   const int nbins = 34;
   double bins[nbins] = {0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500,
     2600, 2700, 2800, 2900, 3000, 3250, 4000, 6000};
-  book<TH1F>("pt_HT_rebinned", "H_{T} [GeV]", nbins-1, bins);
-  book<TH1F>("pt_ST_rebinned", "S_{T} [GeV]", nbins-1, bins);
-  book<TH1F>("pt_ST_HOTVR_rebinned", "S_{T} HOTVR [GeV]", nbins-1, bins);
 
-  const int nbinsNjet = 8;
-  double binsNjet[nbinsNjet] {0, 4, 5, 6, 7, 8, 10, 20};
+  // HT AK4
+  // // // TODO rename all these to _AK4 at some point
+  // // // note that the btag yield corrections need this to be named this way for now!
+  book<TH1F>("pt_HT", "H_{T} [GeV]", 40, 0, 4000);
   book<TH2D>("pt_HT_N_jet", ";H_{T}; N(jet)", 40, 0, 4000, 20, 0, 20);
   book<TH2D>("pt_HT_N_jet_rebinned", ";H_{T}; N(jet)", nbins-1, bins, nbinsNjet-1, binsNjet);
+  book<TH1F>("pt_HT_rebinned", "H_{T} [GeV]", nbins-1, bins);
+  book<TH1F>("pt_ST_AK4", "S_{T} (AK4) [GeV]", 60, 0, 6000);
+  book<TH1F>("pt_ST_AK4_rebinned", "S_{T} (AK4) [GeV]", nbins-1, bins);
 
+  // HT & ST HOTVR
+  book<TH1F>("pt_HT_HOTVR", "H_{T} [GeV]", 60, 0, 6000);
+  book<TH1F>("pt_HT_HOTVR_rebinned", "H_{T} [GeV]", nbins-1, bins);
+  book<TH1F>("pt_HTlep", "H_{T} + p_{T} (#ell) [GeV]", 60, 0, 6000);
+  book<TH1F>("pt_ST", "S_{T} [GeV]", 60, 0, 6000);
+  book<TH1F>("pt_HT_HOTVR_rebinned_nohighjets", "H_{T} [GeV]", nbins-1, bins);
+  book<TH1F>("pt_HTlep_rebinned", "H_{T} + p_{T} (#ell) [GeV]", nbins-1, bins);
+  book<TH1F>("pt_HTlep_rebinned_nohighjets", "H_{T} + p_{T} (#ell) [GeV]", nbins-1, bins);
+  book<TH1F>("pt_ST_rebinned", "S_{T} [GeV]", nbins-1, bins);
+  book<TH1F>("pt_ST_rebinned_nohighjets", "S_{T} [GeV]", nbins-1, bins);
+
+  // pt asymmetries
   book<TH1F>("pt_asym12", "#Delta p_{T} (jet 1, jet 2) [GeV]", 20, 0, 2000);
   book<TH1F>("pt_asym13", "#Delta p_{T} (jet 1, jet 3) [GeV]", 20, 0, 2000);
   book<TH1F>("pt_asym14", "#Delta p_{T} (jet 1, jet 4) [GeV]", 20, 0, 2000);
@@ -297,7 +308,7 @@ void TstarTstarHists::fill(const Event & event){
   hist("N_pv")->Fill(Npvs, weight);
   if(debug) cout << "Finished filling PV observables." << endl;
 
-  hist("N_AK8jets")->Fill(event.topjets->size(), weight);
+  hist("N_HOTVRjets")->Fill(event.topjets->size(), weight);
 
   int toptaggedjets = 0;
   for(auto & topjet : * event.topjets){
@@ -309,7 +320,7 @@ void TstarTstarHists::fill(const Event & event){
     if(topjet.pt() > 0) hist("R_fat_jet")->Fill(Rtopjet, weight);
     if(topjetID(topjet, event)) toptaggedjets++;
   }
-  hist("N_toptagged_AK8jets")->Fill(toptaggedjets, weight);
+  hist("N_toptagged_HOTVRjets")->Fill(toptaggedjets, weight);
   if(debug) cout << "Finished filling ttag observables." << endl;
 
   if(event.topjets->size()>0){
@@ -324,7 +335,7 @@ void TstarTstarHists::fill(const Event & event){
     hist("eta_HOTVR3")->Fill(event.topjets->at(2).eta(), weight);
     hist("pt_HOTVR3")->Fill(event.topjets->at(2).pt(), weight);
   }
-  if(debug) cout << "Finished filling AK8 jet observables." << endl;
+  if(debug) cout << "Finished filling HOTVR jet observables." << endl;
 
   if(Nele>0 && Njets>0) ((TH2D*)hist("pt_ele_pt_ak4jet1"))->Fill(event.electrons->at(0).pt(),jets->at(0).pt(), weight);
   if(Nmuons>0 && Njets>0) ((TH2D*)hist("pt_mu_pt_ak4jet1"))->Fill(event.muons->at(0).pt(),jets->at(0).pt(), weight);
@@ -335,43 +346,101 @@ void TstarTstarHists::fill(const Event & event){
   hist("pt_MET")->Fill(event.met->pt(), weight);
   if(debug) cout << "Finished filling MET observables." << endl;
 
-  double st = 0.;
-  for(const auto & jet : *event.jets) st += jet.pt();
-  if(st > 4000) {
+  // ST & HT block
+
+  // AK-4 based HT
+  double ht_ak4 = 0;
+  for(const auto & jet : *event.jets) {
+    ht_ak4 += jet.pt();
+  }
+
+  if(ht_ak4 > 4000) {
     hist("pt_HT")->Fill(3999.9, weight);
     hist("pt_HT_rebinned")->Fill(3999.9, weight);
     ((TH2D*)hist("pt_HT_N_jet"))->Fill(3999.9, event.jets->size(), weight);
     ((TH2D*)hist("pt_HT_N_jet_rebinned"))->Fill(3999.9, event.jets->size(), weight);
   }
   else {
-    hist("pt_HT")->Fill(st, weight);
-    hist("pt_HT_rebinned")->Fill(st, weight);
-    ((TH2D*)hist("pt_HT_N_jet"))->Fill(st, event.jets->size(), weight);
-    ((TH2D*)hist("pt_HT_N_jet_rebinned"))->Fill(st, event.jets->size(), weight);
+    hist("pt_HT")->Fill(ht_ak4, weight);
+    hist("pt_HT_rebinned")->Fill(ht_ak4, weight);
+    ((TH2D*)hist("pt_HT_N_jet"))->Fill(ht_ak4, event.jets->size(), weight);
+    ((TH2D*)hist("pt_HT_N_jet_rebinned"))->Fill(ht_ak4, event.jets->size(), weight);
   }
 
-  for(const auto & lepton : *event.electrons) st += lepton.pt();
-  for(const auto & lepton : *event.muons) st += lepton.pt();
-  if(st > 4000) hist("pt_HTlep")->Fill(3999.9, weight);
-  else hist("pt_HTlep")->Fill(st, weight);
+  double ht = 0.;
+  double ht_nohighjets = 0.;
+  int jeti = 0;
+  for(const auto & topjet : *event.topjets) {
+    ht += topjet.pt();
+    if (topjet.pt() < 1500) ht_nohighjets += topjet.pt();
+    jeti++;
+  }
+  if(ht > 6000) {
+    hist("pt_HT_HOTVR")->Fill(5999.9, weight);
+    hist("pt_HT_HOTVR_rebinned")->Fill(5999.9, weight);
+  }
+  else {
+    hist("pt_HT_HOTVR")->Fill(ht, weight);
+    hist("pt_HT_HOTVR_rebinned")->Fill(ht, weight);
+  }
 
+  if(ht_nohighjets > 6000) {
+    hist("pt_HT_HOTVR_rebinned_nohighjets")->Fill(5999.9, weight);
+  } else {
+    hist("pt_HT_HOTVR_rebinned_nohighjets")->Fill(ht_nohighjets, weight);
+  }
+
+  double st = ht;
+  double st_nohighjets = ht_nohighjets;
+  for(const auto & lepton : *event.electrons) {
+    st_nohighjets += lepton.pt();
+    st += lepton.pt();
+  }
+  for(const auto & lepton : *event.muons) {
+    st_nohighjets += lepton.pt();
+    st += lepton.pt();
+  }
+  if(st > 6000) {
+    hist("pt_HTlep_rebinned")->Fill(5999.9, weight);
+    hist("pt_HTlep")->Fill(5999.9, weight);
+  }
+  else{
+    hist("pt_HTlep_rebinned")->Fill(st, weight);
+    hist("pt_HTlep")->Fill(st, weight);
+  }
+
+  if(st_nohighjets > 6000) {
+    hist("pt_HTlep_rebinned_nohighjets")->Fill(5999.9, weight);
+  } else {
+    hist("pt_HTlep_rebinned_nohighjets")->Fill(st_nohighjets, weight);
+  }
+
+  // getting the AK4-based ST
   try {
-    st = event.get(h_ST_AK4);
-    if(st > 4000) hist("pt_ST")->Fill(3999.9, weight);
-    else hist("pt_ST")->Fill(st, weight);
-    hist("pt_ST_fullrange")->Fill(st, weight);
-    if(st > 6000) hist("pt_ST_rebinned")->Fill(5999.9, weight);
-    else hist("pt_ST_rebinned")->Fill(st, weight);
+    double stak4 = event.get(h_ST_AK4);
+    if(stak4 > 6000) hist("pt_ST_AK4")->Fill(3999.9, weight);
+    else hist("pt_ST_AK4")->Fill(stak4, weight);
+    if(stak4 > 6000) hist("pt_ST_AK4_rebinned")->Fill(5999.9, weight);
+    else hist("pt_ST_AK4_rebinned")->Fill(stak4, weight);
   } catch(...) {}
 
   try {
-    st = event.get(h_ST_HOTVR);
-    if(st > 4000) hist("pt_ST_HOTVR")->Fill(3999.9, weight);
-    else hist("pt_ST_HOTVR")->Fill(st, weight);
-    hist("pt_ST_HOTVR_fullrange")->Fill(st, weight);
-    if(st > 6000) hist("pt_ST_HOTVR_rebinned")->Fill(5999.9, weight);
-    else hist("pt_ST_HOTVR_rebinned")->Fill(st, weight);
+    double stHOTVR = event.get(h_ST_HOTVR);
+
+    if (!(stHOTVR == st + event.met->pt())) std::cout << "ATTENTION: STs do not agree!!!" << std::endl;
+
+    if(stHOTVR > 6000) hist("pt_ST")->Fill(3999.9, weight);
+    else hist("pt_ST")->Fill(stHOTVR, weight);
+    if(stHOTVR > 6000) hist("pt_ST_rebinned")->Fill(5999.9, weight);
+    else hist("pt_ST_rebinned")->Fill(stHOTVR, weight);
+
   } catch(...) {}
+
+  if(st_nohighjets + event.met->pt() > 6000) {
+    hist("pt_ST_rebinned_nohighjets")->Fill(5999.9, weight);
+  } else {
+    hist("pt_ST_rebinned_nohighjets")->Fill(st_nohighjets + event.met->pt(), weight);
+  }
 
   // p_T asymmetry
   if(event.jets->size() > 3) {

@@ -52,13 +52,13 @@ double GetXForHighestY(TGraphAsymmErrors graph) {
 
 void backgroundEstimation(){
 
-
   bool storeOutputToFile = true;
   bool plot_other_ratios = false;
+  bool plot_stat_unc = true;
 
   TString region = "VR";
-  TString year = "UL16preVFP";         // no year means full run 2
-  TString channel = "ele";      // total channel means combination of both
+  TString year = "UL18";         // no year means full run 2
+  TString channel = "total";      // total channel means combination of both
   TString JE_string = "";
 
   // definitions
@@ -68,7 +68,7 @@ void backgroundEstimation(){
   TString subpath_SR;
   if (region == "VR") subpath_SR = "ValidationRegion_" + channel;
   else if (region == "SR") subpath_SR = "SignalRegion_" + channel;
-  TString subpath_CR = "ControlRegion_" + channel;
+  TString subpath_CR = "ControlRegion_" + channel;  
   TString histname = "pt_ST_nominal";
   TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/";
   TString fileprefix = "uhh2.AnalysisModuleRunner.";
@@ -77,7 +77,7 @@ void backgroundEstimation(){
 
   std::cout << "Using path: " << path << std::endl;
 
-  TH1D *histSR;
+  TH1D *histSR_nontop;
   TH1D *hist_btagCR_nontop;
   TH1D *hist_btagCR_top;
   TH1D *hist_btagCR;
@@ -102,9 +102,9 @@ void backgroundEstimation(){
     if(!hist) cout << "Empty hist" << endl;
     if (first) {
       first = false;
-      histSR = hist;
+      histSR_nontop = hist;
     } else {
-      histSR->Add(hist);
+      histSR_nontop->Add(hist);
     }
   }
 
@@ -155,7 +155,8 @@ void backgroundEstimation(){
   purity.Divide(hist_btagCR_nontop, hist_btagCR, "cl=0.68 b(1,1) mode");
 
   if(storeOutputToFile) {
-    TString filename = "files/bgest_purity_HOTVR_"+region+".root";
+    TString filename = "files/bgest_purity.root";
+    if (year != "") filename = "files/bgest_purity_" + year + ".root";
     TFile *file = new TFile(filename, "RECREATE");
     purity.SetName("purity");
     purity.Write();
@@ -165,23 +166,25 @@ void backgroundEstimation(){
   
   // calculate ratio histogram
   TGraphAsymmErrors ratio = TGraphAsymmErrors();
-  ratio.Divide(histSR, hist_btagCR, "pois");
+  ratio.Divide(histSR_nontop, hist_btagCR_nontop, "pois");
 
   // fitting landau
   fit1 = new TF1("fit1", "landau", 0, 6000);
-  ratio.Fit("fit1", "N", "", 1000, 6000);
+  ratio.Fit("fit1", "N", "", 600, 6000);
 
+  TH1D *fit1unc = new TH1D("fit1unc", "Fit 1 with conf.band", 100, 0, 10000);
+  (TVirtualFitter::GetFitter())->GetConfidenceIntervals(fit1unc, 0.68);
+
+  TH1D *fit2unc = new TH1D("fit1unc", "Fit 1 with conf.band", 100, 0, 10000);
   if(region == "VR") {
-    fit2 = new TF1("fit2", "pol2", 0, 6000);
-
-    ratio.Fit("fit2", "N", "", 1000, 6000);
+    fit2 = new TF1("fit2", "gaus", 0, 6000);
+    ratio.Fit("fit2", "N", "", 1500, 6000);
+    (TVirtualFitter::GetFitter())->GetConfidenceIntervals(fit2unc, 0.68);
   } else {
-
     fit2 = new TF1("fit2", "pol2", 0, 6000);
-
-    ratio.Fit("fit2", "N", "", 1000, 6000);
-    
-    std::cout << "Not optimized yet" << std::endl;
+    ratio.Fit("fit2", "N", "", 600, 6000);
+    (TVirtualFitter::GetFitter())->GetConfidenceIntervals(fit2unc, 0.68);
+    std::cout << "ATTENTION: Not optimized yet" << std::endl;
 
   }
 
@@ -249,6 +252,35 @@ void backgroundEstimation(){
   fitMean->SetLineColor(1);
   fitMean->Draw("same");
 
+  if (plot_stat_unc) {
+
+    fit1unc->SetFillColorAlpha(1, 0.3);
+    //fit1unc->Draw("e3 same");
+    fit2unc->SetFillColorAlpha(1, 0.3);
+    //fit2unc->Draw("e3 same");
+
+    TH1D* uncertainty_fits = (TH1D*) fit1unc->Clone(); // just to get the structure
+
+    for (Int_t bin = 1; bin <= fit1unc->GetNbinsX(); ++bin) {
+        double bin1 = fit1unc->GetBinContent(bin);
+        double bin2 = fit2unc->GetBinContent(bin);
+
+        double binError1 = fit1unc->GetBinError(bin);
+        double binError2 = fit2unc->GetBinError(bin);
+
+        double mean = (bin1 + bin2) / 2;
+        double uncertainty = TMath::Sqrt((binError1 * binError1 + binError2 * binError2) / 4);
+
+        uncertainty_fits->SetBinContent(bin, mean);
+        uncertainty_fits->SetBinError(bin, uncertainty);
+
+    }
+
+    uncertainty_fits->SetFillColorAlpha(1, 0.3);
+    uncertainty_fits->Draw("e3 same");
+
+  }
+
   if (plot_other_ratios) {
 
     int color_int = 2;
@@ -286,36 +318,20 @@ void backgroundEstimation(){
 
   }
 
-  // legend
-  legend->AddEntry(&ratio,"#alpha (nominal)","elp");
-  legend->AddEntry(fit1,"Landau fit","l");
-  legend->AddEntry(fit2,"piecewise fit","l");
-  legend->AddEntry(fitMean,"mean fit","l");
-  legend->Draw();
 
   // fit results
   TString fittxt = TString::Format("#chi^{2}/ndf: %3.2f / %3.0d", fit1->GetChisquare(), fit1->GetNDF());
-  TLatex *fitltx = new TLatex(3.5, 24, fittxt);
-  fitltx->SetNDC();
-  fitltx->SetTextAlign(33);
-  fitltx->SetX(0.8);
-  fitltx->SetTextFont(42);
-  fitltx->SetY(.845);
-  fitltx->SetTextSize(0.04);
-  //fitltx->Draw();
 
   // fit results
-  /**
-  TString fit2txt = TString::Format("#chi^{2}/ndf: %3.2f / %3.0d", fit2B->GetChisquare(), fit2B->GetNDF());
-  TLatex *fit2ltx = new TLatex(3.5, 24, fit2txt);
-  fit2ltx->SetNDC();
-  fit2ltx->SetTextAlign(33);
-  fit2ltx->SetX(0.8);
-  fit2ltx->SetTextFont(42);
-  fit2ltx->SetY(.8);
-  fit2ltx->SetTextSize(0.04);
-  fit2ltx->Draw();
-  **/
+  TString fit2txt = TString::Format("#chi^{2}/ndf: %3.2f / %3.0d", fit2->GetChisquare(), fit2->GetNDF());
+
+  // legend
+  legend->AddEntry(&ratio,"#alpha (nominal)","elp");
+  legend->AddEntry(fit1,"Landau fit (" + fittxt + ")","l");
+  legend->AddEntry(fit2,"polinomial fit (" + fit2txt + ")","l");
+  legend->AddEntry(fitMean,"mean fit","l");
+  legend->Draw();
+
 
   // draw Lumi text
   /**

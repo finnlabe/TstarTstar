@@ -31,6 +31,9 @@ TstarTstarSignalRegionHists::TstarTstarSignalRegionHists(Context & ctx, const st
 
   // weight handles
 
+  // top pt reweighting
+  h_weight_ttbar = ctx.get_handle<float>("weight_ttbar");
+
   // pileup reweighting
   h_weight_puNominal = ctx.get_handle<float>("weight_pu");
   h_weight_puUp = ctx.get_handle<float>("weight_pu_up");
@@ -102,6 +105,8 @@ TstarTstarSignalRegionHists::TstarTstarSignalRegionHists(Context & ctx, const st
   book<TH1F>("pt_ST_nominal", "S_{T} [GeV]", nbins-1, bins);
 
   // variation histograms
+  book<TH1F>("pt_ST_noTopPt", "S_{T} [GeV]", nbins-1, bins);
+
   book<TH1F>("pt_ST_puUp", "S_{T} [GeV]", nbins-1, bins);
   book<TH1F>("pt_ST_puDown", "S_{T} [GeV]", nbins-1, bins);
 
@@ -201,6 +206,13 @@ void TstarTstarSignalRegionHists::fill(const Event & event){
 
   // fill nominal
   hist("pt_ST_nominal")->Fill(st, weight);
+
+  // topPt
+  try {
+    hist("pt_ST_noTopPt")->Fill(st, weight/event.get(h_weight_ttbar));
+  } catch (...) { // catching it h_weight_ttbar was not filled...
+    hist("pt_ST_noTopPt")->Fill(st, weight);
+  }
 
   if(!is_MC) return;
 

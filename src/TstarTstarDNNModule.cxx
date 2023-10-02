@@ -6,6 +6,7 @@
 #include "UHH2/core/include/AnalysisModule.h"
 #include "UHH2/core/include/Event.h"
 #include "UHH2/common/include/TTbarGen.h"
+#include "UHH2/common/include/TopPtReweight.h"
 
 // TstarTstar
 #include "UHH2/TstarTstar/include/TstarTstarHists.h"
@@ -19,6 +20,7 @@
 #include "UHH2/TstarTstar/include/TstarTstarSignalRegionHists.h"
 #include "UHH2/TstarTstar/include/TstarTstarScaleFactors.h"
 #include "UHH2/TstarTstar/include/TstarTstarDDTHists.h"
+#include "UHH2/TstarTstar/include/ElecTriggerSF.h"
 
 // other
 #include "UHH2/HOTVR/include/HOTVRIds.h"
@@ -43,7 +45,9 @@ private:
   std::unique_ptr<uhh2::AnalysisModule> reco_primlep;
   std::unique_ptr<NeuralNetworkIncluder> DNN_Includer;             // main module here, running the DNN inference
   std::unique_ptr<uhh2::AnalysisModule> TstarTstarSpinSwitcher;    // used in case we want to estimate spin 3/2 from spin 1/2 samples
-
+  std::unique_ptr<AnalysisModule> sf_ele_trigger;                  // needed to re-apply electron trigger SFs in case they changed since sel
+  std::unique_ptr<AnalysisModule> ttgenprod;
+  std::unique_ptr<AnalysisModule> TopPtReweighting;                // re-running this here just to get the event weight :)
 
   // ##### Histograms #####
 
@@ -52,8 +56,15 @@ private:
   
   // some "regular" hist collections
   std::unique_ptr<Hists> h_crosscheck, h_hists_SR, h_hists_VR, h_hists_btagCR, h_hists_ttbarCR;
+  std::unique_ptr<Hists> h_crosscheck_ele, h_hists_SR_ele, h_hists_VR_ele, h_hists_btagCR_ele, h_hists_ttbarCR_ele;
+  std::unique_ptr<Hists> h_crosscheck_mu, h_hists_SR_mu, h_hists_VR_mu, h_hists_btagCR_mu, h_hists_ttbarCR_mu;
   std::unique_ptr<Hists> h_hists_VR_noElecTrigSFs, h_hists_ttbarCR_noElecTrigSFs; // this one is needed to check the effect of the SFs
   std::unique_ptr<Hists> h_AfterDNNcut_06, h_NotDNNcut_06; // used to compare DDT results to simple cut
+
+  // temp check hists
+  std::unique_ptr<Hists> h_hists_VR_ele_highHT;
+  std::unique_ptr<Hists> h_hists_VR_ele_highST;
+  std::unique_ptr<Hists> h_hists_VR_ele_MET300;
 
   // DNN output plots
   std::unique_ptr<Hists> h_DNN, h_DNN_DDT, h_DNN_btagCR;
@@ -62,7 +73,7 @@ private:
   std::unique_ptr<Hists> h_SignalRegion_total,      h_SignalRegion_mu,        h_SignalRegion_ele;
   std::unique_ptr<Hists> h_ValidationRegion_total,  h_ValidationRegion_mu,    h_ValidationRegion_ele;
   std::unique_ptr<Hists> h_ControlRegion_total,     h_ControlRegion_mu,       h_ControlRegion_ele;
-  std::unique_ptr<Hists> h_ttbarControlRegion_total;
+  std::unique_ptr<Hists> h_ttbarControlRegion_total, h_ttbarControlRegion_mu, h_ttbarControlRegion_ele;
 
   // in case this is data and datadriven BG estimation running, these histograms will be filled for all systematic variations
   std::unique_ptr<Hists> h_SignalRegion_datadriven_FuncUp_total,      h_SignalRegion_datadriven_FuncDown_total;
@@ -85,6 +96,7 @@ private:
 
   // ###### Handles ######
   uhh2::Event::Handle<double> h_evt_weight;
+  uhh2::Event::Handle<TTbarGen> h_ttbargen;
 
   uhh2::Event::Handle<bool> h_trigger_decision;
   uhh2::Event::Handle<int> h_flag_toptagevent;
@@ -130,7 +142,7 @@ private:
 
 TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
 
-  // 0. nvironment setup
+  // 0. environment setup
 
   // setting debug from xml file
   if(ctx.get("debug", "<not set>") == "true") debug = true;
@@ -160,6 +172,12 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   reco_primlep.reset(new PrimaryLepton(ctx));
   DNN_Includer.reset(new NeuralNetworkIncluder(ctx, false));
   TstarTstarSpinSwitcher.reset(new TstarTstarSpinScale(ctx, "/nfs/dust/cms/user/flabe/TstarTstar/Jupyter/reweight_factors/"));
+  sf_ele_trigger.reset( new uhh2::ElecTriggerSF(ctx, "central", "eta_ptbins", year) );
+
+  if(is_MC) ttgenprod.reset(new TTbarGenProducer(ctx, "ttbargen", false));
+
+  TopPtReweighting.reset( new TopPtReweight(ctx, 0.0615, -0.0005, "ttbargen", "weight_ttbar", false) ); // just rerunning to get the weight, not applying!
+
 
   // 2. set up histograms:
 
@@ -172,6 +190,23 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_hists_VR.reset(new TstarTstarHists(ctx, "hists_VR"));
   h_hists_btagCR.reset(new TstarTstarHists(ctx, "hists_btagCR"));
   h_hists_ttbarCR.reset(new TstarTstarHists(ctx, "hists_ttbarCR"));
+
+  h_crosscheck_ele.reset(new TstarTstarHists(ctx, "crosscheck_ele"));
+  h_hists_SR_ele.reset(new TstarTstarHists(ctx, "hists_SR_ele"));
+  h_hists_VR_ele.reset(new TstarTstarHists(ctx, "hists_VR_ele"));
+  h_hists_btagCR_ele.reset(new TstarTstarHists(ctx, "hists_btagCR_ele"));
+  h_hists_ttbarCR_ele.reset(new TstarTstarHists(ctx, "hists_ttbarCR_ele"));
+
+  h_crosscheck_mu.reset(new TstarTstarHists(ctx, "crosscheck_mu"));
+  h_hists_SR_mu.reset(new TstarTstarHists(ctx, "hists_SR_mu"));
+  h_hists_VR_mu.reset(new TstarTstarHists(ctx, "hists_VR_mu"));
+  h_hists_btagCR_mu.reset(new TstarTstarHists(ctx, "hists_btagCR_mu"));
+  h_hists_ttbarCR_mu.reset(new TstarTstarHists(ctx, "hists_ttbarCR_mu"));
+
+  h_hists_VR_ele_highHT.reset(new TstarTstarHists(ctx, "hists_VR_ele_highHT"));
+  h_hists_VR_ele_highST.reset(new TstarTstarHists(ctx, "hists_VR_ele_highST"));
+  h_hists_VR_ele_MET300.reset(new TstarTstarHists(ctx, "hists_VR_ele_MET300"));
+
   h_hists_VR_noElecTrigSFs.reset(new TstarTstarHists(ctx, "hists_VR_noElecTrigSFs"));
   h_hists_ttbarCR_noElecTrigSFs.reset(new TstarTstarHists(ctx, "hists_ttbarCR_noElecTrigSFs"));
   h_AfterDNNcut_06.reset(new TstarTstarHists(ctx, "AfterDNNcut_06"));
@@ -197,6 +232,8 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_ControlRegion_ele.reset(new TstarTstarSignalRegionHists(ctx, "ControlRegion_ele"));
 
   h_ttbarControlRegion_total.reset(new TstarTstarSignalRegionHists(ctx, "ttbarControlRegion_total"));
+  h_ttbarControlRegion_mu.reset(new TstarTstarSignalRegionHists(ctx, "ttbarControlRegion_mu"));
+  h_ttbarControlRegion_ele.reset(new TstarTstarSignalRegionHists(ctx, "ttbarControlRegion_ele"));
 
   h_SignalRegion_datadriven_FuncUp_total.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_datadriven_FuncUp_total"));
   h_SignalRegion_datadriven_FuncDown_total.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_datadriven_FuncDown_total"));
@@ -256,6 +293,9 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   // datadriven estimation functions only if needed
   if(is_datadriven_BG_run) {
     TString path = "/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/";
+
+    // these are the old ones, below are temp tests
+    /**
     TString filename_nominal_SR_mu = "alphaFunction_HOTVR_" + year + "_SR_mu.root";
     TString filename_nominal_SR_ele = "alphaFunction_HOTVR_" + year + "_SR_ele.root";
     TString filename_nominal_VR_mu = "alphaFunction_HOTVR_" + year + "_VR_mu.root";
@@ -266,6 +306,18 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
     TString filename_btagDown_SR = "alphaFunction_HOTVR_SR_btagging_totalDown.root";
     TString filename_btagUp_VR = "alphaFunction_HOTVR_VR_btagging_totalUp.root";
     TString filename_btagDown_VR = "alphaFunction_HOTVR_VR_btagging_totalDown.root";
+    **/
+
+    TString filename_nominal_SR_mu = "alphaFunction_HOTVR_" + year + "_SR_total.root";
+    TString filename_nominal_SR_ele = "alphaFunction_HOTVR_" + year + "_SR_total.root";
+    TString filename_nominal_VR_mu = "alphaFunction_HOTVR_" + year + "_VR_total.root";
+    TString filename_nominal_VR_ele = "alphaFunction_HOTVR_" + year + "_VR_total.root";
+
+    // TODO fix these to include mu / ele splitting!
+    TString filename_btagUp_SR = "alphaFunction_HOTVR__SR_total.root";
+    TString filename_btagDown_SR = "alphaFunction_HOTVR__SR_total.root";
+    TString filename_btagUp_VR = "alphaFunction_HOTVR__VR_total.root";
+    TString filename_btagDown_VR = "alphaFunction_HOTVR__VR_total.root";
 
     // main files for signal region
     TFile *file_nominal_SR_mu = new TFile(path+filename_nominal_SR_mu);
@@ -341,6 +393,15 @@ bool TstarTstarDNNModule::process(Event & event) {
   // reapply weights
   event.weight = event.get(h_evt_weight);
   if(debug) cout << "weights applied." << endl;
+
+  // reapply electron trigger SFs (as they changed since running preselection)
+  if(!event.get(h_flag_muonevent)) {
+    if( event.get(h_weight_sfelec_triggerNominal) != 0) event.weight /= event.get(h_weight_sfelec_triggerNominal);
+    sf_ele_trigger->process(event);
+  }
+
+  if(is_MC) ttgenprod->process(event);
+  TopPtReweighting->process(event); // will set the weight 
 
   // apply spin reweighting
   if(!(TstarTstarSpinSwitcher->process(event))) return false; // this will reweight, but only if set so in config file
@@ -457,7 +518,7 @@ bool TstarTstarDNNModule::process(Event & event) {
     transfer_weight_btagDown_VR = backgroundEstimationFunctionBtagDown_VR->Eval(event.get(h_ST_HOTVR));
     if(debug) cout << "Gotten all values" << endl;
     
-    // fetching the purity (which needs to be account fot)
+    // fetching the purity (which needs to be account for)
     purity_value = bgest_purity->Eval(event.get(h_ST_HOTVR));
     if(debug) cout << "purity: " << purity_value << endl;
 
@@ -559,8 +620,14 @@ bool TstarTstarDNNModule::process(Event & event) {
       if(is_MC /* blinding */ || is_datadriven_BG_run) {
         h_hists_SR->fill(event);
         h_SignalRegion_total->fill(event);
-        if(event.get(h_flag_muonevent)) h_SignalRegion_mu->fill(event);
-        else h_SignalRegion_ele->fill(event);
+        if(event.get(h_flag_muonevent)) {
+          h_hists_SR_mu->fill(event);
+          h_SignalRegion_mu->fill(event);
+        }
+        else {
+          h_hists_SR_ele->fill(event);
+          h_SignalRegion_ele->fill(event);
+        }
       }
       if (is_datadriven_BG_run) event.weight = weight_for_resetting; // resetting the weight
     }
@@ -568,17 +635,32 @@ bool TstarTstarDNNModule::process(Event & event) {
       if (is_datadriven_BG_run) event.weight *= transfer_weight_nominal_VR * purity_value; // here we change the weight if we are datadriven BG
       h_hists_VR->fill(event);
       h_ValidationRegion_total->fill(event);
-      if(event.get(h_flag_muonevent)) h_ValidationRegion_mu->fill(event);
+      if(event.get(h_flag_muonevent)) {
+        h_hists_VR_mu->fill(event);
+        h_ValidationRegion_mu->fill(event);
+      }
       else {
-          h_ValidationRegion_ele->fill(event);
 
-          // special case here: plot same, but without electron trigger SF
-          double reset_weight_etrigger = event.weight;
-          if( event.get(h_weight_sfelec_triggerNominal) != 0) event.weight /= event.get(h_weight_sfelec_triggerNominal);
-          h_hists_VR_noElecTrigSFs->fill(event);
-          event.weight = reset_weight_etrigger;
-          
+        h_hists_VR_ele->fill(event);
+        h_ValidationRegion_ele->fill(event);
+
+        // quickly calculate HT and ST to check region
+        double ht = 0.;
+        for(const auto & topjet : *event.topjets) {
+          ht += topjet.pt();
         }
+
+        if (ht > 3000) h_hists_VR_ele_highHT->fill(event);
+        if (event.get(h_ST_HOTVR) > 3000) h_hists_VR_ele_highST->fill(event);
+        if (event.met->pt() > 300) h_hists_VR_ele_MET300->fill(event);
+
+        // special case here: plot same, but without electron trigger SF
+        double reset_weight_etrigger = event.weight;
+        if( event.get(h_weight_sfelec_triggerNominal) != 0) event.weight /= event.get(h_weight_sfelec_triggerNominal);
+        h_hists_VR_noElecTrigSFs->fill(event);
+        event.weight = reset_weight_etrigger;
+          
+      }
 
       // a subsest of this region will be used as a ttbar CR
       // three different variants of this are defined here
@@ -605,11 +687,22 @@ bool TstarTstarDNNModule::process(Event & event) {
           h_hists_ttbarCR->fill(event);
           h_ttbarControlRegion_total->fill(event);
 
-          // special case here: plot same, but without electron trigger SF
-          double reset_weight_etrigger = event.weight;
-          if( event.get(h_weight_sfelec_triggerNominal) != 0) event.weight /= event.get(h_weight_sfelec_triggerNominal);
-          h_hists_ttbarCR_noElecTrigSFs->fill(event);
-          event.weight = reset_weight_etrigger;
+          if(event.get(h_flag_muonevent)) {
+            h_hists_ttbarCR_mu->fill(event);
+            h_ttbarControlRegion_mu->fill(event);
+          }
+          else {
+            
+            h_hists_ttbarCR_ele->fill(event);
+            h_ttbarControlRegion_ele->fill(event);
+
+            // special case here: plot same, but without electron trigger SF
+            double reset_weight_etrigger = event.weight;
+            if( event.get(h_weight_sfelec_triggerNominal) != 0) event.weight /= event.get(h_weight_sfelec_triggerNominal);
+            h_hists_ttbarCR_noElecTrigSFs->fill(event);
+            event.weight = reset_weight_etrigger;
+
+          }
 
         }
 
@@ -628,8 +721,14 @@ bool TstarTstarDNNModule::process(Event & event) {
     h_hists_btagCR->fill(event);
 
     h_ControlRegion_total->fill(event);
-    if(event.get(h_flag_muonevent)) h_ControlRegion_mu->fill(event);
-    else h_ControlRegion_ele->fill(event);
+    if(event.get(h_flag_muonevent)) {
+      h_hists_btagCR_mu->fill(event);
+      h_ControlRegion_mu->fill(event);
+    }
+    else {
+      h_hists_btagCR_ele->fill(event);
+      h_ControlRegion_ele->fill(event);
+    }
 
     event.set(h_region,"CR");
     if(debug) cout << "Region: no b-tag region" << endl;

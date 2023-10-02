@@ -42,8 +42,9 @@ void checkNonTopFracs() {
         TH1D *hist_baseline = (TH1D*)file_baseline->Get(region + "_" + channel + "/" + histname);
         if(!hist_baseline) std::cout << "Baseline hist does not exist for " << region << "." << std::endl;
         hists_baseline.push_back(hist_baseline);
-    }
 
+        std::cout << hist_baseline->GetNbinsX() << std::endl;
+    }
 
     // plot creation and general style
     gStyle->SetOptFit(0);
@@ -62,6 +63,9 @@ void checkNonTopFracs() {
     TCanvas *canvas = new TCanvas("canvas", "c", 600, 500);
     auto legend = new TLegend(0.75, 0.6, 0.88, 0.88);
 
+    gPad->SetBottomMargin(0.16);
+    gPad->SetLeftMargin(0.16);
+
     bool first = true;
 
     // main part, do the loading, division and plotting
@@ -69,7 +73,7 @@ void checkNonTopFracs() {
     for (auto sample : samples) {
 
         TFile *file = TFile::Open(path + sample_base + sample + ".root");
-        if(!file_baseline) std::cout << "File for sample " << sample << " does not exist." << std::endl;
+        if(!file) std::cout << "File for sample " << sample << " does not exist." << std::endl;
 
         int regioni = 0;
         for (auto region : regions) {
@@ -77,7 +81,7 @@ void checkNonTopFracs() {
             TH1D *hist_baseline = hists_baseline.at(regioni);
 
             TH1D *hist = (TH1D*)file->Get(region + "_" + channel + "/" + histname);
-            if(!hist_baseline) std::cout << "Hist does not exist for " << region << " in " << sample << "." << std::endl;
+            if(!hist) std::cout << "Hist does not exist for " << region << " in " << sample << "." << std::endl;
 
             // dividing by baseline
             hist->Divide(hist_baseline);
@@ -126,5 +130,6 @@ void checkNonTopFracs() {
 
     if (year == "") canvas->SaveAs("plots/nontop_fractions.pdf");
     else canvas->SaveAs("plots/nontop_fractions_" + year + ".pdf");
+
 
 }

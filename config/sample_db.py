@@ -274,6 +274,64 @@ samplesDict = {
      'TstarTstarToTgammaTgamma_M-3000': {
         'db_name': 'TstarTstarToTgammaTgamma_M-3000',
      },
+     #_________________________________________________
+     'TstarTstarToTgluonTgluon_Spin32_M-700': {
+        'db_name': 'TstarTstarToTgluonTgluon_Spin32_M-700',
+     },
+     'TstarTstarToTgluonTgluon_Spin32_M-800': {
+        'db_name': 'TstarTstarToTgluonTgluon_Spin32_M-800',
+     },
+     'TstarTstarToTgluonTgluon_Spin32_M-900': {
+        'db_name': 'TstarTstarToTgluonTgluon_Spin32_M-900',
+     },
+     'TstarTstarToTgluonTgluon_Spin32_M-1000': {
+        'db_name': 'TstarTstarToTgluonTgluon_Spin32_M-1000',
+     },
+     'TstarTstarToTgluonTgluon_Spin32_M-1100': {
+        'db_name': 'TstarTstarToTgluonTgluon_Spin32_M-1100',
+     },
+     'TstarTstarToTgluonTgluon_Spin32_M-1200': {
+        'db_name': 'TstarTstarToTgluonTgluon_Spin32_M-1200',
+     },
+     'TstarTstarToTgluonTgluon_Spin32_M-1300': {
+        'db_name': 'TstarTstarToTgluonTgluon_Spin32_M-1300',
+     },
+     'TstarTstarToTgluonTgluon_Spin32_M-1400': {
+        'db_name': 'TstarTstarToTgluonTgluon_Spin32_M-1400',
+     },
+     'TstarTstarToTgluonTgluon_Spin32_M-1500': {
+        'db_name': 'TstarTstarToTgluonTgluon_Spin32_M-1500',
+     },
+     'TstarTstarToTgluonTgluon_Spin32_M-1500': {
+        'db_name': 'TstarTstarToTgluonTgluon_Spin32_M-1500',
+     },
+     'TstarTstarToTgluonTgluon_Spin32_M-1600': {
+        'db_name': 'TstarTstarToTgluonTgluon_Spin32_M-1600',
+     },
+     'TstarTstarToTgluonTgluon_Spin32_M-1700': {
+        'db_name': 'TstarTstarToTgluonTgluon_Spin32_M-1700',
+     },
+     'TstarTstarToTgluonTgluon_Spin32_M-1800': {
+        'db_name': 'TstarTstarToTgluonTgluon_Spin32_M-1800',
+     },
+     'TstarTstarToTgluonTgluon_Spin32_M-1900': {
+        'db_name': 'TstarTstarToTgluonTgluon_Spin32_M-1900',
+     },
+     'TstarTstarToTgluonTgluon_Spin32_M-2000': {
+        'db_name': 'TstarTstarToTgluonTgluon_Spin32_M-2000',
+     },
+     'TstarTstarToTgluonTgluon_Spin32_M-2250': {
+        'db_name': 'TstarTstarToTgluonTgluon_Spin32_M-2250',
+     },
+     'TstarTstarToTgluonTgluon_Spin32_M-2500': {
+        'db_name': 'TstarTstarToTgluonTgluon_Spin32_M-2500',
+     },
+     'TstarTstarToTgluonTgluon_Spin32_M-2750': {
+        'db_name': 'TstarTstarToTgluonTgluon_Spin32_M-2750',
+     },
+     'TstarTstarToTgluonTgluon_Spin32_M-3000': {
+        'db_name': 'TstarTstarToTgluonTgluon_Spin32_M-3000',
+     },
 
 
 }

@@ -282,7 +282,9 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
     else if(ctx.get("dataset_version").find("QCD") != std::string::npos) sample_string = "QCD";
     else if(ctx.get("dataset_version").find("Diboson") != std::string::npos) sample_string = "VV";
     else if(ctx.get("dataset_version").find("DY") != std::string::npos) sample_string = "DYJets";
-    else if(ctx.get("dataset_version").find("Tstar") != std::string::npos) sample_string = "TstarTstar";
+    else if(ctx.get("dataset_version").find("TstarTstarToTgammaTgamma") != std::string::npos) sample_string = "TstarTstar";
+    else if(ctx.get("dataset_version").find("TstarTstarToTgluonTgluon_Spin32") != std::string::npos) sample_string = "TstarTstar_Spin32";
+    // TODO add new signal samples here!
     if(debug) std::cout << "Apply 2D b-taggin yield SFs for " << sample_string << std::endl;
 
     if(sample_string != "") eventYieldFactors = (TH2D*)f->Get(sample_string);
