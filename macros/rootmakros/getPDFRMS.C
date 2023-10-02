@@ -22,7 +22,7 @@
 
 using namespace std;
 
-void getRMS(){
+void getPDFRMS(){
 
   TString filename_base = "";
   TString year = "UL16";
@@ -37,8 +37,8 @@ void getRMS(){
   for (auto mass : masspoints) {
     samples.push_back("TstarTstar_M-" + mass);
     isSignal.push_back(true);
-    //samples.push_back("TstarTstar_M-" + mass + "_32");
-    //isSignal.push_back(true);
+    samples.push_back("TstarTstar_M-" + mass + "_Spin32");
+    isSignal.push_back(true);
   }
 
 
