@@ -40,8 +40,10 @@ void getScaleEnvelope(){
   gStyle->SetPadLeftMargin(0.18);
   gStyle->SetPadRightMargin(0.07);
 
+  // TODO make a script or a loop that calls all combinations!
+
   TString filename_base = "";
-  TString year = "UL18";
+  TString year = "UL16preVFP";
   filename_base += "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/"+year+"/hadded/uhh2.AnalysisModuleRunner.MC.";
   TString channel = "mu";
 
@@ -53,8 +55,8 @@ void getScaleEnvelope(){
   for (auto mass : masspoints) {
     samples.push_back("TstarTstar_M-" + mass);
     isSignal.push_back(true);
-    //samples.push_back("TstarTstar_M-" + mass + "_32");
-    //isSignal.push_back(true);
+    samples.push_back("TstarTstar_Spin32_M-" + mass);
+    isSignal.push_back(true);
   }
 
 
@@ -142,7 +144,7 @@ void getScaleEnvelope(){
     leg->Draw();
 
     // Save the histo with the up/down variations in root file
-    TFile* f_out = new TFile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/" + region + "_scale_" + year + "_" + channel + "_" + samples.at(i) + ".root", "RECREATE");
+    TFile* f_out = new TFile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/scale/" + region + "_scale_" + year + "_" + channel + "_" + samples.at(i) + ".root", "RECREATE");
     h_scale_up->SetName(samples.at(i)+"_scale_up");
     h_scale_down->SetName(samples.at(i)+"_scale_down");
     h_scale_up->Write();

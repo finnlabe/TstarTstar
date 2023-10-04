@@ -24,11 +24,11 @@ using namespace std;
 
 void getPDFRMS(){
 
-  TString filename_base = "";
-  TString year = "UL16";
-  filename_base += "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/" + year + "/hadded/uhh2.AnalysisModuleRunner.MC.";
+  // TODO make script running these, or lööp
+
+  TString year = "UL18";
+  TString filename_base = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/" + year + "/hadded/uhh2.AnalysisModuleRunner.MC.";
   TString channel = "ele";
-  
   TString region = "ValidationRegion";
 
   vector<TString> samples = {"TTbar", "ST"};
@@ -37,7 +37,7 @@ void getPDFRMS(){
   for (auto mass : masspoints) {
     samples.push_back("TstarTstar_M-" + mass);
     isSignal.push_back(true);
-    samples.push_back("TstarTstar_M-" + mass + "_Spin32");
+    samples.push_back("TstarTstar_Spin32_M-" + mass);
     isSignal.push_back(true);
   }
 
@@ -96,7 +96,7 @@ void getPDFRMS(){
     }
 
     // Save the histo with the up/down variations in root file
-    TFile* f_out = new TFile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/" + region + "_PDF_" + year + "_" + channel + "_" + samples.at(i) + ".root", "RECREATE");
+    TFile* f_out = new TFile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/PDF/" + region + "_PDF_" + year + "_" + channel + "_" + samples.at(i) + ".root", "RECREATE");
     h_PDF_up->SetName(samples.at(i)+"_PDF_up");
     h_PDF_down->SetName(samples.at(i)+"_PDF_down");
     h_PDF_up->Write();
