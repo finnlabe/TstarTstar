@@ -56,7 +56,7 @@ void getPDFRMS(){
     vector<double> pdf_norm (100, 1.); //For bkgs set normalization value to 1
     if( isSignal.at(i) ){
        string pdf_numb[100];
-       ifstream normfile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/SignalNorm_" + samples.at(i) + ".txt", ios::in);
+       ifstream normfile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/signalnorm/SignalNorm_" + samples.at(i) + ".txt", ios::in);
        if (normfile.is_open()){
          for(int i = 0; i < 100; ++i){
            normfile >> pdf_numb[i] >> pdf_norm[i];

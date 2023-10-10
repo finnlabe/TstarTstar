@@ -40,7 +40,7 @@ void ExtractSignalNorm(){
 
     float nominal = ((TH1F*)(file_in->Get("PDFNorm/nominal")))->Integral(); 
     std::ofstream file_out;
-    file_out.open("files/SignalNorm_" + year + "_" + signal_base + masspoints.at(i) + ".txt");
+    file_out.open("files/signalnorm/SignalNorm_" + year + "_" + signal_base + masspoints.at(i) + ".txt");
     //cout << "nominal = " << nominal << endl;
 
     for(int i = 1; i<101; i++){

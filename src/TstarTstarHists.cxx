@@ -103,7 +103,10 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   book<TH1F>("N_pv", "N^{PV}", 50, 0, 50);
 
   // MET
+  const int n_met_pt_bins = 15;
+  double met_pt_bins[n_met_pt_bins] = {0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 600, 750, 1000, 1500};
   book<TH1F>("pt_MET", "missing E_{T} [GeV]", 100, 0, 2000);
+  book<TH1F>("pt_MET_rebinned", "missing E_{T} [GeV]", n_met_pt_bins - 1, met_pt_bins);
 
   // binnings for the folliwng
 
@@ -344,6 +347,7 @@ void TstarTstarHists::fill(const Event & event){
   if(debug) cout << "Finished filling pt observables." << endl;
 
   hist("pt_MET")->Fill(event.met->pt(), weight);
+  hist("pt_MET_rebinned")->Fill(event.met->pt(), weight);
   if(debug) cout << "Finished filling MET observables." << endl;
 
   // ST & HT block

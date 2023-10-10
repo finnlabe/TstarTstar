@@ -2,20 +2,26 @@
 
 void backgroundEstimation_compareFunctions () {
 
-  TString path = "/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/";
+  TString path = "/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/bgest/";
   TString filename_base = "alphaFunction_HOTVR";
 
-  std::vector<TString> years = {"UL16preVFP", "UL16postVFP", "UL17", "UL18", };
+  //std::vector<TString> years = {"UL16preVFP", "UL16postVFP", "UL17", "UL18"};
+  std::vector<TString> years = {""};
+  
   std::vector<TString> channels = {"mu", "ele"};
-  TString region = "VR";
+  //std::vector<TString> channels = {"total"};
 
+  TString region = "SR";
   TString fitfunc = "fit_mean";
+
+  TString mode = "allCombs"; // only used for output naming
+  if (years.size() == 1) mode = "channels";
+  if (channels.size() == 1) mode = "years";
 
   TCanvas *canvas = new TCanvas("canvas", "c", 600, 500);
 
   std::vector<int> colors = {810, 600, 416, 800};
   std::vector<int> styles = {2, 3};
-
 
   auto legend = new TLegend(0.1,0.7,0.48,0.9);
 
@@ -64,6 +70,6 @@ void backgroundEstimation_compareFunctions () {
 
   legend->Draw();
 
-  canvas->SaveAs("plots/BGest_yearcomp.pdf");
+  canvas->SaveAs("plots/bgest_" + mode + "_" + region + ".pdf");
 
 }

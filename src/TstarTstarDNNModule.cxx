@@ -82,14 +82,26 @@ private:
   std::unique_ptr<Hists> h_SignalRegion_datadriven_BtagUp_total,      h_SignalRegion_datadriven_BtagDown_total;
   std::unique_ptr<Hists> h_SignalRegion_datadriven_BtagUp_mu,         h_SignalRegion_datadriven_BtagDown_mu;
   std::unique_ptr<Hists> h_SignalRegion_datadriven_BtagUp_ele,        h_SignalRegion_datadriven_BtagDown_ele;
+  std::unique_ptr<Hists> h_SignalRegion_datadriven_channelUp_total,   h_SignalRegion_datadriven_channelDown_total;
+  std::unique_ptr<Hists> h_SignalRegion_datadriven_channelUp_mu,      h_SignalRegion_datadriven_channelDown_mu;
+  std::unique_ptr<Hists> h_SignalRegion_datadriven_channelUp_ele,     h_SignalRegion_datadriven_channelDown_ele;
+  std::unique_ptr<Hists> h_SignalRegion_datadriven_yearUp_total,      h_SignalRegion_datadriven_yearDown_total;
+  std::unique_ptr<Hists> h_SignalRegion_datadriven_yearUp_mu,         h_SignalRegion_datadriven_yearDown_mu;
+  std::unique_ptr<Hists> h_SignalRegion_datadriven_yearUp_ele,        h_SignalRegion_datadriven_yearDown_ele;
 
   // and the same for the validation region
-  std::unique_ptr<Hists> h_ValidationRegion_datadriven_FuncUp_total,  h_ValidationRegion_datadriven_FuncDown_total;
-  std::unique_ptr<Hists> h_ValidationRegion_datadriven_FuncUp_mu,     h_ValidationRegion_datadriven_FuncDown_mu;
-  std::unique_ptr<Hists> h_ValidationRegion_datadriven_FuncUp_ele,    h_ValidationRegion_datadriven_FuncDown_ele;
-  std::unique_ptr<Hists> h_ValidationRegion_datadriven_BtagUp_total,  h_ValidationRegion_datadriven_BtagDown_total;
-  std::unique_ptr<Hists> h_ValidationRegion_datadriven_BtagUp_mu,     h_ValidationRegion_datadriven_BtagDown_mu;
-  std::unique_ptr<Hists> h_ValidationRegion_datadriven_BtagUp_ele,    h_ValidationRegion_datadriven_BtagDown_ele;
+  std::unique_ptr<Hists> h_ValidationRegion_datadriven_FuncUp_total,     h_ValidationRegion_datadriven_FuncDown_total;
+  std::unique_ptr<Hists> h_ValidationRegion_datadriven_FuncUp_mu,        h_ValidationRegion_datadriven_FuncDown_mu;
+  std::unique_ptr<Hists> h_ValidationRegion_datadriven_FuncUp_ele,       h_ValidationRegion_datadriven_FuncDown_ele;
+  std::unique_ptr<Hists> h_ValidationRegion_datadriven_BtagUp_total,     h_ValidationRegion_datadriven_BtagDown_total;
+  std::unique_ptr<Hists> h_ValidationRegion_datadriven_BtagUp_mu,        h_ValidationRegion_datadriven_BtagDown_mu;
+  std::unique_ptr<Hists> h_ValidationRegion_datadriven_BtagUp_ele,       h_ValidationRegion_datadriven_BtagDown_ele;
+  std::unique_ptr<Hists> h_ValidationRegion_datadriven_channelUp_total,  h_ValidationRegion_datadriven_channelDown_total;
+  std::unique_ptr<Hists> h_ValidationRegion_datadriven_channelUp_mu,     h_ValidationRegion_datadriven_channelDown_mu;
+  std::unique_ptr<Hists> h_ValidationRegion_datadriven_channelUp_ele,    h_ValidationRegion_datadriven_channelDown_ele;
+  std::unique_ptr<Hists> h_ValidationRegion_datadriven_yearUp_total,     h_ValidationRegion_datadriven_yearDown_total;
+  std::unique_ptr<Hists> h_ValidationRegion_datadriven_yearUp_mu,        h_ValidationRegion_datadriven_yearDown_mu;
+  std::unique_ptr<Hists> h_ValidationRegion_datadriven_yearUp_ele,       h_ValidationRegion_datadriven_yearDown_ele;
 
   // some histograms to test various DDT working points
   std::unique_ptr<uhh2::TstarTstarDDTHists> h_DDTtestHists;  
@@ -121,16 +133,19 @@ private:
 
   // background estimation functions
   TGraphAsymmErrors* bgest_purity;
-  TF1 * backgroundEstimationFunctionNominal_SR_mu,   * backgroundEstimationFunctionNominal_VR_mu;
-  TF1 * backgroundEstimationFunctionNominal_SR_ele,   * backgroundEstimationFunctionNominal_VR_ele;
+  TF1 * backgroundEstimationFunctionNominal_SR,   * backgroundEstimationFunctionNominal_VR;
   
-  TF1 * backgroundEstimationFunctionFuncUp_SR_mu,    * backgroundEstimationFunctionFuncUp_VR_mu;
-  TF1 * backgroundEstimationFunctionFuncDown_SR_mu,  * backgroundEstimationFunctionFuncDown_VR_mu;
-  TF1 * backgroundEstimationFunctionFuncUp_SR_ele,    * backgroundEstimationFunctionFuncUp_VR_ele;
-  TF1 * backgroundEstimationFunctionFuncDown_SR_ele,  * backgroundEstimationFunctionFuncDown_VR_ele;
+  TF1 * backgroundEstimationFunctionFuncUp_SR,    * backgroundEstimationFunctionFuncUp_VR;
+  TF1 * backgroundEstimationFunctionFuncDown_SR,  * backgroundEstimationFunctionFuncDown_VR;
 
   TF1 * backgroundEstimationFunctionBtagUp_SR,    * backgroundEstimationFunctionBtagUp_VR;
   TF1 * backgroundEstimationFunctionBtagDown_SR,  * backgroundEstimationFunctionBtagDown_VR;
+
+  TF1 * backgroundEstimationFunctionChannelUp_SR,    * backgroundEstimationFunctionChannelUp_VR;
+  TF1 * backgroundEstimationFunctionChannelDown_SR,  * backgroundEstimationFunctionChannelDown_VR;
+
+  TF1 * backgroundEstimationFunctionYearUp_SR,    * backgroundEstimationFunctionYearUp_VR;
+  TF1 * backgroundEstimationFunctionYearDown_SR,  * backgroundEstimationFunctionYearDown_VR;
 
   // DDT function(s)
   std::vector<TF1*> DDTFunctions;
@@ -265,6 +280,36 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_ValidationRegion_datadriven_BtagUp_ele.reset(new TstarTstarSignalRegionHists(ctx, "ValidationRegion_datadriven_BtagUp_ele")); // using SR hists here, although it is not
   h_ValidationRegion_datadriven_BtagDown_ele.reset(new TstarTstarSignalRegionHists(ctx, "ValidationRegion_datadriven_BtagDown_ele")); // using SR hists here, although it is not
 
+  h_SignalRegion_datadriven_channelUp_total.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_datadriven_channelUp_total"));
+  h_SignalRegion_datadriven_channelDown_total.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_datadriven_channelDown_total"));
+  h_ValidationRegion_datadriven_channelUp_total.reset(new TstarTstarSignalRegionHists(ctx, "ValidationRegion_datadriven_channelUp_total")); // using SR hists here, although it is not
+  h_ValidationRegion_datadriven_channelDown_total.reset(new TstarTstarSignalRegionHists(ctx, "ValidationRegion_datadriven_channelDown_total")); // using SR hists here, although it is not
+
+  h_SignalRegion_datadriven_channelUp_mu.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_datadriven_channelUp_mu"));
+  h_SignalRegion_datadriven_channelDown_mu.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_datadriven_channelDown_mu"));
+  h_ValidationRegion_datadriven_channelUp_mu.reset(new TstarTstarSignalRegionHists(ctx, "ValidationRegion_datadriven_channelUp_mu")); // using SR hists here, although it is not
+  h_ValidationRegion_datadriven_channelDown_mu.reset(new TstarTstarSignalRegionHists(ctx, "ValidationRegion_datadriven_channelDown_mu")); // using SR hists here, although it is not
+
+  h_SignalRegion_datadriven_channelUp_ele.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_datadriven_channelUp_ele"));
+  h_SignalRegion_datadriven_channelDown_ele.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_datadriven_channelDown_ele"));
+  h_ValidationRegion_datadriven_channelUp_ele.reset(new TstarTstarSignalRegionHists(ctx, "ValidationRegion_datadriven_channelUp_ele")); // using SR hists here, although it is not
+  h_ValidationRegion_datadriven_channelDown_ele.reset(new TstarTstarSignalRegionHists(ctx, "ValidationRegion_datadriven_channelDown_ele")); // using SR hists here, although it is not
+
+  h_SignalRegion_datadriven_yearUp_total.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_datadriven_yearUp_total"));
+  h_SignalRegion_datadriven_yearDown_total.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_datadriven_yearDown_total"));
+  h_ValidationRegion_datadriven_yearUp_total.reset(new TstarTstarSignalRegionHists(ctx, "ValidationRegion_datadriven_yearUp_total")); // using SR hists here, although it is not
+  h_ValidationRegion_datadriven_yearDown_total.reset(new TstarTstarSignalRegionHists(ctx, "ValidationRegion_datadriven_yearDown_total")); // using SR hists here, although it is not
+
+  h_SignalRegion_datadriven_yearUp_mu.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_datadriven_yearUp_mu"));
+  h_SignalRegion_datadriven_yearDown_mu.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_datadriven_yearDown_mu"));
+  h_ValidationRegion_datadriven_yearUp_mu.reset(new TstarTstarSignalRegionHists(ctx, "ValidationRegion_datadriven_yearUp_mu")); // using SR hists here, although it is not
+  h_ValidationRegion_datadriven_yearDown_mu.reset(new TstarTstarSignalRegionHists(ctx, "ValidationRegion_datadriven_yearDown_mu")); // using SR hists here, although it is not
+
+  h_SignalRegion_datadriven_yearUp_ele.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_datadriven_yearUp_ele"));
+  h_SignalRegion_datadriven_yearDown_ele.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_datadriven_yearDown_ele"));
+  h_ValidationRegion_datadriven_yearUp_ele.reset(new TstarTstarSignalRegionHists(ctx, "ValidationRegion_datadriven_yearUp_ele")); // using SR hists here, although it is not
+  h_ValidationRegion_datadriven_yearDown_ele.reset(new TstarTstarSignalRegionHists(ctx, "ValidationRegion_datadriven_yearDown_ele")); // using SR hists here, although it is not
+
   // DDT check histograms, at various cut values
   std::vector<TString> DDT_points_to_check = {"0p3"}; // also used below to load the files
   h_DDTtestHists.reset( new TstarTstarDDTHists(ctx, "DDTHists", DDT_points_to_check) ) ; 
@@ -292,54 +337,44 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
 
   // datadriven estimation functions only if needed
   if(is_datadriven_BG_run) {
-    TString path = "/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/";
+    TString path = "/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/bgest/";
 
-    // these are the old ones, below are temp tests
-    /**
-    TString filename_nominal_SR_mu = "alphaFunction_HOTVR_" + year + "_SR_mu.root";
-    TString filename_nominal_SR_ele = "alphaFunction_HOTVR_" + year + "_SR_ele.root";
-    TString filename_nominal_VR_mu = "alphaFunction_HOTVR_" + year + "_VR_mu.root";
-    TString filename_nominal_VR_ele = "alphaFunction_HOTVR_" + year + "_VR_ele.root";
+    TString filename_nominal_SR = "alphaFunction_HOTVR__SR_total.root";
+    TString filename_nominal_VR = "alphaFunction_HOTVR__VR_total.root";
 
-    // TODO fix these to include mu / ele splitting!
-    TString filename_btagUp_SR = "alphaFunction_HOTVR_SR_btagging_totalUp.root";
-    TString filename_btagDown_SR = "alphaFunction_HOTVR_SR_btagging_totalDown.root";
-    TString filename_btagUp_VR = "alphaFunction_HOTVR_VR_btagging_totalUp.root";
-    TString filename_btagDown_VR = "alphaFunction_HOTVR_VR_btagging_totalDown.root";
-    **/
+    TString filename_btagUp_SR = "alphaFunction_HOTVR__SR_total_btagging_totalUp.root";
+    TString filename_btagDown_SR = "alphaFunction_HOTVR__SR_total_btagging_totalDown.root";
+    TString filename_btagUp_VR = "alphaFunction_HOTVR__VR_total_btagging_totalUp.root";
+    TString filename_btagDown_VR = "alphaFunction_HOTVR__VR_total_btagging_totalDown.root";
 
-    TString filename_nominal_SR_mu = "alphaFunction_HOTVR_" + year + "_SR_total.root";
-    TString filename_nominal_SR_ele = "alphaFunction_HOTVR_" + year + "_SR_total.root";
-    TString filename_nominal_VR_mu = "alphaFunction_HOTVR_" + year + "_VR_total.root";
-    TString filename_nominal_VR_ele = "alphaFunction_HOTVR_" + year + "_VR_total.root";
+    // using ele and mu channel as up and down variations
+    // could also think of just doing these split entirely -> to check what the effect is!
+    TString filename_channelUp_SR = "alphaFunction_HOTVR__SR_mu.root";
+    TString filename_channelDown_SR = "alphaFunction_HOTVR__SR_ele.root";
+    TString filename_channelUp_VR = "alphaFunction_HOTVR__VR_mu.root";
+    TString filename_channelDown_VR = "alphaFunction_HOTVR__VR_ele.root";
 
-    // TODO fix these to include mu / ele splitting!
-    TString filename_btagUp_SR = "alphaFunction_HOTVR__SR_total.root";
-    TString filename_btagDown_SR = "alphaFunction_HOTVR__SR_total.root";
-    TString filename_btagUp_VR = "alphaFunction_HOTVR__VR_total.root";
-    TString filename_btagDown_VR = "alphaFunction_HOTVR__VR_total.root";
+    // using year extremes as up and down variations
+    // these were selected manually and need to be replaced once re-running the analysis!
+    // UL16preVFP and UL17 are found to be the extremes
+    TString filename_yearUp_SR = "alphaFunction_HOTVR_UL16preVFP_SR_total.root";
+    TString filename_yearDown_SR = "alphaFunction_HOTVR_UL17_SR_total.root";
+    TString filename_yearUp_VR = "alphaFunction_HOTVR_UL16preVFP_VR_total.root";
+    TString filename_yearDown_VR = "alphaFunction_HOTVR_UL17_VR_total.root";
 
-    // main files for signal region
-    TFile *file_nominal_SR_mu = new TFile(path+filename_nominal_SR_mu);
-    backgroundEstimationFunctionNominal_SR_mu = (TF1*)file_nominal_SR_mu->Get("fit_mean");
-    backgroundEstimationFunctionFuncUp_SR_mu = (TF1*)file_nominal_SR_mu->Get("fit1");
-    backgroundEstimationFunctionFuncDown_SR_mu = (TF1*)file_nominal_SR_mu->Get("fit2");
 
-    TFile *file_nominal_SR_ele = new TFile(path+filename_nominal_SR_ele);
-    backgroundEstimationFunctionNominal_SR_ele = (TF1*)file_nominal_SR_ele->Get("fit_mean");
-    backgroundEstimationFunctionFuncUp_SR_ele = (TF1*)file_nominal_SR_ele->Get("fit1");
-    backgroundEstimationFunctionFuncDown_SR_ele = (TF1*)file_nominal_SR_ele->Get("fit2");
+    // main file for signal region
+    TFile *file_nominal_SR = new TFile(path+filename_nominal_SR);
+    backgroundEstimationFunctionNominal_SR = (TF1*)file_nominal_SR->Get("fit_mean");
+    backgroundEstimationFunctionFuncUp_SR = (TF1*)file_nominal_SR->Get("fit1");
+    backgroundEstimationFunctionFuncDown_SR = (TF1*)file_nominal_SR->Get("fit2");
 
     // main file for validation region
-    TFile *file_nominal_VR_mu = new TFile(path+filename_nominal_VR_mu);
-    backgroundEstimationFunctionNominal_VR_mu = (TF1*)file_nominal_VR_mu->Get("fit_mean");
-    backgroundEstimationFunctionFuncUp_VR_mu = (TF1*)file_nominal_VR_mu->Get("fit1");
-    backgroundEstimationFunctionFuncDown_VR_mu = (TF1*)file_nominal_VR_mu->Get("fit2");
+    TFile *file_nominal_VR = new TFile(path+filename_nominal_VR);
+    backgroundEstimationFunctionNominal_VR = (TF1*)file_nominal_VR->Get("fit_mean");
+    backgroundEstimationFunctionFuncUp_VR = (TF1*)file_nominal_VR->Get("fit1");
+    backgroundEstimationFunctionFuncDown_VR = (TF1*)file_nominal_VR->Get("fit2");
 
-    TFile *file_nominal_VR_ele = new TFile(path+filename_nominal_VR_ele);
-    backgroundEstimationFunctionNominal_VR_ele = (TF1*)file_nominal_VR_ele->Get("fit_mean");
-    backgroundEstimationFunctionFuncUp_VR_ele = (TF1*)file_nominal_VR_ele->Get("fit1");
-    backgroundEstimationFunctionFuncDown_VR_ele = (TF1*)file_nominal_VR_ele->Get("fit2");
 
     // now getting the btag variations
     TFile *file_btagUp_SR = new TFile(path+filename_btagUp_SR);
@@ -350,6 +385,28 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
     backgroundEstimationFunctionBtagUp_VR = (TF1*)file_btagUp_VR->Get("fit_mean");
     TFile *file_btagDown_VR = new TFile(path+filename_btagDown_VR);
     backgroundEstimationFunctionBtagDown_VR = (TF1*)file_btagDown_VR->Get("fit_mean");
+
+
+    // channel variations
+    TFile *file_channelUp_SR = new TFile(path+filename_channelUp_SR);
+    backgroundEstimationFunctionChannelUp_SR = (TF1*)file_channelUp_SR->Get("fit_mean");
+    TFile *file_channelDown_SR = new TFile(path+filename_channelDown_SR);
+    backgroundEstimationFunctionChannelDown_SR = (TF1*)file_channelDown_SR->Get("fit_mean");
+    TFile *file_channelUp_VR = new TFile(path+filename_channelUp_VR);
+    backgroundEstimationFunctionChannelUp_VR = (TF1*)file_channelUp_VR->Get("fit_mean");
+    TFile *file_channelDown_VR = new TFile(path+filename_channelDown_VR);
+    backgroundEstimationFunctionChannelDown_VR = (TF1*)file_channelDown_VR->Get("fit_mean");
+
+
+    // year variations
+    TFile *file_yearUp_SR = new TFile(path+filename_yearUp_SR);
+    backgroundEstimationFunctionYearUp_SR = (TF1*)file_yearUp_SR->Get("fit_mean");
+    TFile *file_yearDown_SR = new TFile(path+filename_yearDown_SR);
+    backgroundEstimationFunctionYearDown_SR = (TF1*)file_yearDown_SR->Get("fit_mean");
+    TFile *file_yearUp_VR = new TFile(path+filename_yearUp_VR);
+    backgroundEstimationFunctionYearUp_VR = (TF1*)file_yearUp_VR->Get("fit_mean");
+    TFile *file_yearDown_VR = new TFile(path+filename_yearDown_VR);
+    backgroundEstimationFunctionYearDown_VR = (TF1*)file_yearDown_VR->Get("fit_mean");
 
     // finally, the purity
     TString background_estimation_purity_filepath = ctx.get("background_estimation_purity_file");
@@ -487,6 +544,14 @@ bool TstarTstarDNNModule::process(Event & event) {
   double transfer_weight_btagUp_VR = 1;
   double transfer_weight_btagDown_SR = 1;
   double transfer_weight_btagDown_VR = 1;
+  double transfer_weight_channelUp_SR = 1;
+  double transfer_weight_channelUp_VR = 1;
+  double transfer_weight_channelDown_SR = 1;
+  double transfer_weight_channelDown_VR = 1;
+  double transfer_weight_yearUp_SR = 1;
+  double transfer_weight_yearUp_VR = 1;
+  double transfer_weight_yearDown_SR = 1;
+  double transfer_weight_yearDown_VR = 1;
 
   // storing the event weight to be able to reset later
   double weight_for_resetting = event.weight; 
@@ -494,28 +559,30 @@ bool TstarTstarDNNModule::process(Event & event) {
   if(is_datadriven_BG_run && !pass_btagcut) {
 
     if(debug) cout << "Doing datadriven BG estimation" << endl;
-    // getting all the weight values
-    if(event.get(h_flag_muonevent)) {
-      transfer_weight_nominal_SR = backgroundEstimationFunctionNominal_SR_mu->Eval(event.get(h_ST_HOTVR));
-      transfer_weight_nominal_VR = backgroundEstimationFunctionNominal_VR_mu->Eval(event.get(h_ST_HOTVR));
-      transfer_weight_funcUp_SR = backgroundEstimationFunctionFuncUp_SR_mu->Eval(event.get(h_ST_HOTVR));
-      transfer_weight_funcUp_VR = backgroundEstimationFunctionFuncUp_VR_mu->Eval(event.get(h_ST_HOTVR));
-      transfer_weight_funcDown_SR = backgroundEstimationFunctionFuncDown_SR_mu->Eval(event.get(h_ST_HOTVR));
-      transfer_weight_funcDown_VR = backgroundEstimationFunctionFuncDown_VR_mu->Eval(event.get(h_ST_HOTVR));
-    } else {
-      transfer_weight_nominal_SR = backgroundEstimationFunctionNominal_SR_ele->Eval(event.get(h_ST_HOTVR));
-      transfer_weight_nominal_VR = backgroundEstimationFunctionNominal_VR_ele->Eval(event.get(h_ST_HOTVR));
-      transfer_weight_funcUp_SR = backgroundEstimationFunctionFuncUp_SR_ele->Eval(event.get(h_ST_HOTVR));
-      transfer_weight_funcUp_VR = backgroundEstimationFunctionFuncUp_VR_ele->Eval(event.get(h_ST_HOTVR));
-      transfer_weight_funcDown_SR = backgroundEstimationFunctionFuncDown_SR_ele->Eval(event.get(h_ST_HOTVR));
-      transfer_weight_funcDown_VR = backgroundEstimationFunctionFuncDown_VR_ele->Eval(event.get(h_ST_HOTVR));
-    }
-    
+
+    transfer_weight_nominal_SR = backgroundEstimationFunctionNominal_SR->Eval(event.get(h_ST_HOTVR));
+    transfer_weight_nominal_VR = backgroundEstimationFunctionNominal_VR->Eval(event.get(h_ST_HOTVR));
+
+    transfer_weight_funcUp_SR = backgroundEstimationFunctionFuncUp_SR->Eval(event.get(h_ST_HOTVR));
+    transfer_weight_funcUp_VR = backgroundEstimationFunctionFuncUp_VR->Eval(event.get(h_ST_HOTVR));
+    transfer_weight_funcDown_SR = backgroundEstimationFunctionFuncDown_SR->Eval(event.get(h_ST_HOTVR));
+    transfer_weight_funcDown_VR = backgroundEstimationFunctionFuncDown_VR->Eval(event.get(h_ST_HOTVR));
 
     transfer_weight_btagUp_SR = backgroundEstimationFunctionBtagUp_SR->Eval(event.get(h_ST_HOTVR));
     transfer_weight_btagUp_VR = backgroundEstimationFunctionBtagUp_VR->Eval(event.get(h_ST_HOTVR));
     transfer_weight_btagDown_SR = backgroundEstimationFunctionBtagDown_SR->Eval(event.get(h_ST_HOTVR));
     transfer_weight_btagDown_VR = backgroundEstimationFunctionBtagDown_VR->Eval(event.get(h_ST_HOTVR));
+
+    transfer_weight_channelUp_SR = backgroundEstimationFunctionChannelUp_SR->Eval(event.get(h_ST_HOTVR));
+    transfer_weight_channelUp_VR = backgroundEstimationFunctionChannelUp_VR->Eval(event.get(h_ST_HOTVR));
+    transfer_weight_channelDown_SR = backgroundEstimationFunctionChannelDown_SR->Eval(event.get(h_ST_HOTVR));
+    transfer_weight_channelDown_VR = backgroundEstimationFunctionChannelDown_VR->Eval(event.get(h_ST_HOTVR));
+
+    transfer_weight_yearUp_SR = backgroundEstimationFunctionYearUp_SR->Eval(event.get(h_ST_HOTVR));
+    transfer_weight_yearUp_VR = backgroundEstimationFunctionYearUp_VR->Eval(event.get(h_ST_HOTVR));
+    transfer_weight_yearDown_SR = backgroundEstimationFunctionYearDown_SR->Eval(event.get(h_ST_HOTVR));
+    transfer_weight_yearDown_VR = backgroundEstimationFunctionYearDown_VR->Eval(event.get(h_ST_HOTVR));
+
     if(debug) cout << "Gotten all values" << endl;
     
     // fetching the purity (which needs to be account for)
@@ -576,7 +643,57 @@ bool TstarTstarDNNModule::process(Event & event) {
     else h_ValidationRegion_datadriven_BtagDown_ele->fill(event);
     event.weight = weight_for_resetting;
 
-  }
+    // channel variation
+    event.weight *= transfer_weight_channelUp_SR * purity_value;
+    h_SignalRegion_datadriven_channelUp_total->fill(event);
+    if(event.get(h_flag_muonevent)) h_SignalRegion_datadriven_channelUp_mu->fill(event);
+    else h_SignalRegion_datadriven_channelUp_ele->fill(event);
+    event.weight = weight_for_resetting;
+
+    event.weight *= transfer_weight_channelDown_SR * purity_value;
+    h_SignalRegion_datadriven_channelDown_total->fill(event);
+    if(event.get(h_flag_muonevent)) h_SignalRegion_datadriven_channelDown_mu->fill(event);
+    else h_SignalRegion_datadriven_channelDown_ele->fill(event);
+    event.weight = weight_for_resetting;
+
+    event.weight *= transfer_weight_channelUp_VR * purity_value;
+    h_ValidationRegion_datadriven_channelUp_total->fill(event);
+    if(event.get(h_flag_muonevent)) h_ValidationRegion_datadriven_channelUp_mu->fill(event);
+    else h_ValidationRegion_datadriven_channelUp_ele->fill(event);
+    event.weight = weight_for_resetting;
+
+    event.weight *= transfer_weight_channelDown_VR * purity_value;
+    h_ValidationRegion_datadriven_channelDown_total->fill(event);
+    if(event.get(h_flag_muonevent)) h_ValidationRegion_datadriven_channelDown_mu->fill(event);
+    else h_ValidationRegion_datadriven_channelDown_ele->fill(event);
+    event.weight = weight_for_resetting;
+
+    // year variation
+    event.weight *= transfer_weight_yearUp_SR * purity_value;
+    h_SignalRegion_datadriven_yearUp_total->fill(event);
+    if(event.get(h_flag_muonevent)) h_SignalRegion_datadriven_yearUp_mu->fill(event);
+    else h_SignalRegion_datadriven_yearUp_ele->fill(event);
+    event.weight = weight_for_resetting;
+
+    event.weight *= transfer_weight_yearDown_SR * purity_value;
+    h_SignalRegion_datadriven_yearDown_total->fill(event);
+    if(event.get(h_flag_muonevent)) h_SignalRegion_datadriven_yearDown_mu->fill(event);
+    else h_SignalRegion_datadriven_yearDown_ele->fill(event);
+    event.weight = weight_for_resetting;
+
+    event.weight *= transfer_weight_yearUp_VR * purity_value;
+    h_ValidationRegion_datadriven_yearUp_total->fill(event);
+    if(event.get(h_flag_muonevent)) h_ValidationRegion_datadriven_yearUp_mu->fill(event);
+    else h_ValidationRegion_datadriven_yearUp_ele->fill(event);
+    event.weight = weight_for_resetting;
+
+    event.weight *= transfer_weight_yearDown_VR * purity_value;
+    h_ValidationRegion_datadriven_yearDown_total->fill(event);
+    if(event.get(h_flag_muonevent)) h_ValidationRegion_datadriven_yearDown_mu->fill(event);
+    else h_ValidationRegion_datadriven_yearDown_ele->fill(event);
+    event.weight = weight_for_resetting;
+
+  } // else fill them normally here -> to double check, at least for VR!
 
   
   // ##############################
