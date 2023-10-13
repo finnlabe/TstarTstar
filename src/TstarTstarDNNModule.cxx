@@ -62,9 +62,7 @@ private:
   std::unique_ptr<Hists> h_AfterDNNcut_06, h_NotDNNcut_06; // used to compare DDT results to simple cut
 
   // temp check hists
-  std::unique_ptr<Hists> h_hists_VR_ele_highHT;
-  std::unique_ptr<Hists> h_hists_VR_ele_highST;
-  std::unique_ptr<Hists> h_hists_VR_ele_MET300;
+  std::unique_ptr<Hists> h_hists_VR_ele_highHT, h_hists_VR_ele_highST, h_hists_VR_ele_METo300, h_hists_VR_ele_METu300, h_hists_VR_ele_ele300;
 
   // DNN output plots
   std::unique_ptr<Hists> h_DNN, h_DNN_DDT, h_DNN_btagCR;
@@ -220,7 +218,9 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
 
   h_hists_VR_ele_highHT.reset(new TstarTstarHists(ctx, "hists_VR_ele_highHT"));
   h_hists_VR_ele_highST.reset(new TstarTstarHists(ctx, "hists_VR_ele_highST"));
-  h_hists_VR_ele_MET300.reset(new TstarTstarHists(ctx, "hists_VR_ele_MET300"));
+  h_hists_VR_ele_METo300.reset(new TstarTstarHists(ctx, "hists_VR_ele_METo300"));
+  h_hists_VR_ele_METu300.reset(new TstarTstarHists(ctx, "hists_VR_ele_METu300"));
+  h_hists_VR_ele_ele300.reset(new TstarTstarHists(ctx, "hists_VR_ele_ele300"));
 
   h_hists_VR_noElecTrigSFs.reset(new TstarTstarHists(ctx, "hists_VR_noElecTrigSFs"));
   h_hists_ttbarCR_noElecTrigSFs.reset(new TstarTstarHists(ctx, "hists_ttbarCR_noElecTrigSFs"));
@@ -480,7 +480,16 @@ bool TstarTstarDNNModule::process(Event & event) {
   if(event.get(h_ST_HOTVR) < 600) return false;
 
   // filling crosscheck histograms after all initial steps are done
-  if(event.get(h_is_btagevent)) h_crosscheck->fill(event);
+  if(event.get(h_is_btagevent)) {
+    h_crosscheck->fill(event);
+
+    if(event.get(h_flag_muonevent)) {
+      h_crosscheck_mu->fill(event);
+    } else {
+      h_crosscheck_ele->fill(event);
+    }
+
+  }
 
 
   // ################
@@ -769,7 +778,9 @@ bool TstarTstarDNNModule::process(Event & event) {
 
         if (ht > 3000) h_hists_VR_ele_highHT->fill(event);
         if (event.get(h_ST_HOTVR) > 3000) h_hists_VR_ele_highST->fill(event);
-        if (event.met->pt() > 300) h_hists_VR_ele_MET300->fill(event);
+        if (event.met->pt() > 300) h_hists_VR_ele_METo300->fill(event);
+        else h_hists_VR_ele_METu300->fill(event);
+        if (event.electrons->at(0).pt() > 300) h_hists_VR_ele_ele300->fill(event);
 
         // special case here: plot same, but without electron trigger SF
         double reset_weight_etrigger = event.weight;

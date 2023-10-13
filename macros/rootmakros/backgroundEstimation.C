@@ -155,7 +155,7 @@ void backgroundEstimation(){
   purity.Divide(hist_btagCR_nontop, hist_btagCR, "cl=0.68 b(1,1) mode");
 
   if(storeOutputToFile) {
-    TString filename = "files/bgest/bgest_purity.root";
+    TString filename = "files/bgest/purity_HOTVR_" + year + "_" + channel + systematic + JE_string + ".root";
     if (year != "") filename = "files/bgest/bgest_purity_" + year + ".root";
     TFile *file = new TFile(filename, "RECREATE");
     purity.SetName("purity");
@@ -528,7 +528,7 @@ void backgroundEstimation(){
   text2->Draw();
   text3->Draw();
 
-  c1_hist->SaveAs("plots/purity_HOTVR_" + year + "_" + region + "_" + channel + systematic + JE_string + ".pdf");
+  c1_hist->SaveAs("plots/purity_HOTVR_" + year + "_" + channel + systematic + JE_string + ".pdf");
 
   // saving fit function to output file
   if(storeOutputToFile) {

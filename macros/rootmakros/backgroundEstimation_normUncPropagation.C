@@ -50,16 +50,16 @@ void backgroundEstimation_normUncPropagation() {
 
     TCanvas *canvas = new TCanvas("chist", "c", w, h);
 
-    auto legend = new TLegend(0.22,0.5,0.5,0.9);
+    auto legend = new TLegend(0.22,0.68,.7,0.94);
     legend->SetBorderSize(0);
     gStyle->SetLegendTextSize(0.04);
 
-    TString region = "SR";
+    TString region = "VR";
     TString year = "";              // no year means full run 2
     TString channel = "total";      // total channel means combination of both
 
     // definitions
-    std::vector<TString> nontop_backgrounds = {"WJets", "QCD", "VV", "DYJets"};
+    std::vector<TString> nontop_backgrounds = {"WJets",  "VV", "QCD", "DYJets"};
     std::vector<TString> top_backgrounds = {"ST", "TTbar"};
 
     std::vector<int>        colors  =   {   600,        416,        867,        400         };
@@ -132,6 +132,8 @@ void backgroundEstimation_normUncPropagation() {
     ratio->SetMarkerColor(1);
     ratio->SetMarkerStyle(20);
     ratio->Draw("");
+
+    legend->AddEntry(ratio,"#alpha (nominal)","elp");
 
 
     //////////// SOURCE LÖÖÖÖP ////////////
@@ -239,15 +241,17 @@ void backgroundEstimation_normUncPropagation() {
         TH1D* ratio_down = (TH1D*)histSR_nontop_down->Clone();
         ratio_down->Divide(hist_btagCR_nontop_down);
 
-        legend->AddEntry(ratio_down, nontop_backgrounds.at(uncertainti), "l");
+        legend->AddEntry(ratio_down, nontop_backgrounds.at(uncertainti) + " #sigma #pm 20%", "l");
 
         // drawing errors
         ratio_up->SetLineColor(colors.at(uncertainti));
         ratio_up->SetMarkerColor(colors.at(uncertainti));
+        ratio_up->SetLineWidth(2);
         //ratio_up->SetMarkerStyle(20);
         ratio_up->Draw("same");
         ratio_down->SetLineColor(colors.at(uncertainti));
         ratio_down->SetMarkerColor(colors.at(uncertainti));
+        ratio_down->SetLineWidth(2);
         //ratio_down->SetMarkerStyle(20);
         ratio_down->Draw("same");
 

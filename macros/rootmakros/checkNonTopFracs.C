@@ -43,7 +43,6 @@ void checkNonTopFracs() {
         if(!hist_baseline) std::cout << "Baseline hist does not exist for " << region << "." << std::endl;
         hists_baseline.push_back(hist_baseline);
 
-        std::cout << hist_baseline->GetNbinsX() << std::endl;
     }
 
     // plot creation and general style
@@ -61,7 +60,7 @@ void checkNonTopFracs() {
     gROOT->ForceStyle();
 
     TCanvas *canvas = new TCanvas("canvas", "c", 600, 500);
-    auto legend = new TLegend(0.75, 0.6, 0.88, 0.88);
+    auto legend = new TLegend(0.75, 0.62, 0.88, 0.88);
 
     gPad->SetBottomMargin(0.16);
     gPad->SetLeftMargin(0.16);
@@ -111,7 +110,7 @@ void checkNonTopFracs() {
 
 
     // drawing legends and saving plot
-    auto legend2 = new TLegend(0.5, 0.67, 0.72, 0.88);
+    auto legend2 = new TLegend(0.5, 0.69, 0.72, 0.88);
     int regioni = 0;
     for (auto region : regions) {
         TGraph *dummyLine = new TGraph(); // Empty graph for solid line

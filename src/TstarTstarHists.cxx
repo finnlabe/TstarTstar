@@ -45,35 +45,46 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   book<TH1F>("N_HOTVRjets", "N_{HOTVR jets}", 20, 0, 20);
   book<TH1F>("N_toptagged_HOTVRjets", "N_{toptagged HOTVR jets}", 20, 0, 20);
   book<TH1F>("N_PU", "N_{PU}", 100, 0, 100);
-  book<TH1F>("eta_jet1", "#eta^{jet 1}", 50, -5.2, 5.2);
+
+  const int n_jet_pt_bins = 15;
+  double jet_pt_bins[n_jet_pt_bins] = {0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 600, 750, 1000, 1500};
+  book<TH1F>("pt_jet0", "p_{T}^{jet 0}", 100, 10, 2000);
   book<TH1F>("pt_jet1", "p_{T}^{jet 1}", 100, 10, 2000);
-  book<TH1F>("eta_jet2", "#eta^{jet 2}", 50, -5.2, 5.2);
-  book<TH1F>("eta_jet3", "#eta^{jet 3}", 50, -5.2, 5.2);
-  book<TH1F>("eta_jet4", "#eta^{jet 4}", 50, -5.2, 5.2);
   book<TH1F>("pt_jet2", "p_{T}^{jet 2}", 100, 10, 2000);
   book<TH1F>("pt_jet3", "p_{T}^{jet 3}", 100, 10, 2000);
-  book<TH1F>("pt_jet4", "p_{T}^{jet 4}", 100, 10, 2000);
+  book<TH1F>("pt_jet0_rebinned", "p_{T}^{jet 0}", n_jet_pt_bins - 1, jet_pt_bins);
+  book<TH1F>("pt_jet1_rebinned", "p_{T}^{jet 1}", n_jet_pt_bins - 1, jet_pt_bins);
+  book<TH1F>("pt_jet2_rebinned", "p_{T}^{jet 2}", n_jet_pt_bins - 1, jet_pt_bins);
+  book<TH1F>("pt_jet3_rebinned", "p_{T}^{jet 3}", n_jet_pt_bins - 1, jet_pt_bins);
 
-  book<TH1F>("EMcharged_jet1", "EMcharged_jet1", 100,0.0,1.0);
-  book<TH1F>("EMneutral_jet1", "EMneutral_jet1", 100,0.0,1.0);
-  book<TH1F>("HADcharged_jet1", "HADcharged_jet1", 100,0.0,1.0);
-  book<TH1F>("HADneutral_jet1", "HADneutral_jet1", 100,0.0,1.0);
+  book<TH1F>("eta_jet0", "#eta^{jet 0}", 50, -5.2, 5.2);
+  book<TH1F>("eta_jet1", "#eta^{jet 1}", 50, -5.2, 5.2);
+  book<TH1F>("eta_jet2", "#eta^{jet 2}", 50, -5.2, 5.2);
+  book<TH1F>("eta_jet3", "#eta^{jet 3}", 50, -5.2, 5.2);
 
+
+  book<TH1F>("pt_bjet0", "p_{T}^{bjet 0}", 50, 10, 1000);
+  book<TH1F>("pt_bjet0_rebinned", "p_{T}^{bjet 0}", n_jet_pt_bins - 1, jet_pt_bins);
+  book<TH1F>("eta_bjet0", "#eta^{bjet 0}",  50, -5.2, 5.2);
+
+  book<TH1F>("eta_HOTVR0", "#eta^{HOTVR 0}", 50, -5.2, 5.2);
+  book<TH1F>("pt_HOTVR0", "p_{T}^{HOTVR 0}", 100, 10, 2000);
+  book<TH1F>("pt_HOTVR0_rebinned", "p_{T}^{HOTVR 0}", n_jet_pt_bins - 1, jet_pt_bins);
   book<TH1F>("eta_HOTVR1", "#eta^{HOTVR 1}", 50, -5.2, 5.2);
   book<TH1F>("pt_HOTVR1", "p_{T}^{HOTVR 1}", 100, 10, 2000);
+  book<TH1F>("pt_HOTVR1_rebinned", "p_{T}^{HOTVR 0}", n_jet_pt_bins - 1, jet_pt_bins);
   book<TH1F>("eta_HOTVR2", "#eta^{HOTVR 2}", 50, -5.2, 5.2);
   book<TH1F>("pt_HOTVR2", "p_{T}^{HOTVR 2}", 100, 10, 2000);
-  book<TH1F>("eta_HOTVR3", "#eta^{HOTVR 3}", 50, -5.2, 5.2);
-  book<TH1F>("pt_HOTVR3", "p_{T}^{HOTVR 3}", 100, 10, 2000);
+  book<TH1F>("pt_HOTVR2_rebinned", "p_{T}^{HOTVR 2}", n_jet_pt_bins - 1, jet_pt_bins);
   book<TH1F>("R_fat_jet", "R_{fat jet} (only valid for HOTVR)", 30, 0, 6);
 
-  book<TH2D>("pt_mu_pt_ak4jet1", ";p_{T}^{#mu}; p_{T}^{AK4 jet 1}", 60, 10, 1100, 70, 10, 2500);
-  book<TH2D>("pt_ele_pt_ak4jet1", ";p_{T}^{ele}; p_{T}^{AK4 jet 1}", 60, 10, 1100, 70, 10, 2500);
-  book<TH2D>("pt_mu_pt_HOTVR1", ";p_{T}^{#mu}; p_{T}^{HOTVR jet 1}", 60, 10, 1100, 70, 10, 2500);
-  book<TH2D>("pt_ele_pt_HOTVR1", ";p_{T}^{ele}; p_{T}^{HOTVR jet 1}", 60, 10, 1100, 70, 10, 2500);
+  book<TH2D>("pt_mu_pt_ak4jet0", ";p_{T}^{#mu}; p_{T}^{AK4 jet 0}", 60, 10, 1100, 70, 10, 2500);
+  book<TH2D>("pt_ele_pt_ak4jet0", ";p_{T}^{ele}; p_{T}^{AK4 jet 0}", 60, 10, 1100, 70, 10, 2500);
+  book<TH2D>("pt_mu_pt_HOTVR0", ";p_{T}^{#mu}; p_{T}^{HOTVR jet 0}", 60, 10, 1100, 70, 10, 2500);
+  book<TH2D>("pt_ele_pt_HOTVR0", ";p_{T}^{ele}; p_{T}^{HOTVR jet 0}", 60, 10, 1100, 70, 10, 2500);
 
-  book<TH1F>("tau32_HOTVR1", "HOTVR-1 #tau_{32}", 20, 0, 1);
-  book<TH1F>("jetmass_HOTVR1", "m_{HOTVR-1}", 25, 0, 500);
+  book<TH1F>("tau32_HOTVR0", "HOTVR 0 #tau_{32}", 20, 0, 1);
+  book<TH1F>("jetmass_HOTVR0", "m_{HOTVR 0}", 25, 0, 500);
 
   // leptons
   book<TH1F>("N_mu", "N^{#mu}", 10, 0, 10);
@@ -92,7 +103,7 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   double ele_eta_bins[n_ele_eta_bins] = {-2.5, -2.0, -1.566, -1.444, -0.8, 0.0, 0.8, 1.444, 1.566, 2.0, 2.5};
   book<TH2D>("ele_pt_eta", ";p_{T}^{ele}; #eta^{ele}", n_ele_pt_bins-1, ele_pt_bins, n_ele_eta_bins-1, ele_eta_bins);
 
-  book<TH1F>("N_photon", "N^{#gamma}", 10, 0, 10);
+  book<TH1F>("N_photon", "N^{#gamma}", 15, 0, 15);
   book<TH1F>("pt_photon", "p_{T}^{#gamma} [GeV/c]", 50, 10, 2000);
   book<TH1F>("eta_photon", "#eta^{#gamma}", 50, -5.2, 5.2);
 
@@ -107,6 +118,21 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   double met_pt_bins[n_met_pt_bins] = {0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 600, 750, 1000, 1500};
   book<TH1F>("pt_MET", "missing E_{T} [GeV]", 100, 0, 2000);
   book<TH1F>("pt_MET_rebinned", "missing E_{T} [GeV]", n_met_pt_bins - 1, met_pt_bins);
+  book<TH1F>("phi_MET", "missing E_{T} #phi", 40, -4, 4);
+
+  const int n_met_pxy_bins = 11;
+  double met_pxy_bins[n_met_pxy_bins] = {0, 50, 100, 150, 200, 250, 300, 350, 400, 500, 1000};
+  book<TH1F>("px_MET", "missing E_{T} p_{x}", 25, 0, 1000);
+  book<TH1F>("py_MET", "missing E_{T} p_{y}", 25, -0, 1000);
+  book<TH1F>("px_MET_rebinned", "missing E_{T} p_{x}", n_met_pxy_bins - 1, met_pxy_bins);
+  book<TH1F>("py_MET_rebinned", "missing E_{T} p_{y}", n_met_pxy_bins - 1, met_pxy_bins);
+
+  // raw mett (lecker)
+  book<TH1F>("pt_rawMET", "raw missing E_{T} [GeV]", 100, 0, 2000);
+  book<TH1F>("pt_rawMET_rebinned", "raw missing E_{T} [GeV]", n_met_pt_bins - 1, met_pt_bins);
+  book<TH1F>("phi_rawMET", "raw missing E_{T} #phi", 40, -4, 4);
+
+  // CHS MET (assuming I use puppi...) TODO
 
   // binnings for the folliwng
 
@@ -151,15 +177,15 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   // deltaR observables
   book<TH1F>("dR_lepton_closestJet", "#DeltaR (lepton, closestJet)", 30, 0, 6);
   book<TH1F>("dR_lepton_closestJet_fine", "#DeltaR (lepton, closestJet)", 40, 0, 2);
-  book<TH1F>("dR_fatjet1_fatjet2", "#DeltaR (hotvrjet 1, hotvrjet 1)", 20, 0, 6);
+  book<TH1F>("dR_fatjet0_fatjet1", "#DeltaR (hotvrjet 0, hotvrjet 1)", 20, 0, 6);
+  book<TH1F>("dR_lepton_fatjet0", "#DeltaR (lepton, hotvrjet 0)", 20, 0, 6);
   book<TH1F>("dR_lepton_fatjet1", "#DeltaR (lepton, hotvrjet 1)", 20, 0, 6);
-  book<TH1F>("dR_lepton_fatjet2", "#DeltaR (lepton, hotvrjet 2)", 20, 0, 6);
   book<TH1F>("dR_ttagjet_gluonjet", "#DeltaR (ttagjet, gluonjet)", 20, 0, 6);
 
   // deltaPhi observables
-  book<TH1F>("dphi_fatjet1_fatjet2", "#Delta#phi (hotvrjet 1, hotvrjet 2)", 21, 0, 7);
+  book<TH1F>("dphi_fatjet0_fatjet1", "#Delta#phi (hotvrjet 0, hotvrjet 1)", 21, 0, 7);
+  book<TH1F>("dphi_lepton_fatjet0", "#Delta#phi (lepton, hotvrjet 0)", 21, 0, 7);
   book<TH1F>("dphi_lepton_fatjet1", "#Delta#phi (lepton, hotvrjet 1)", 21, 0, 7);
-  book<TH1F>("dphi_lepton_fatjet2", "#Delta#phi (lepton, hotvrjet 2)", 21, 0, 7);
   book<TH1F>("dphi_ttagjet_gluonjet", "#Delta#phi (ttagjet, gluonjet)", 21, 0, 7);
 
   // some invariant masses
@@ -225,12 +251,24 @@ void TstarTstarHists::fill(const Event & event){
   int N_jets_btag_loose = 0;
   int N_jets_btag_medium = 0;
   int N_jets_btag_tight = 0;
+  Jet bjet0;
+  double highest_btag = -1;
   for(const auto & jet : *event.jets) {
     if(bJetID_loose(jet, event)) N_jets_btag_loose++;
     if(bJetID_medium(jet, event)) N_jets_btag_medium++;
     if(bJetID_tight(jet, event)) N_jets_btag_tight++;
     hist("DeepJetscore")->Fill(jet.btag_DeepJet(), weight);
+    if (jet.btag_DeepJet() > highest_btag) {
+      highest_btag = jet.btag_DeepJet();
+      bjet0 = jet; 
+    }
   }
+  // fill bjet histograms
+  if(Njets>=1){
+    hist("pt_bjet0")->Fill(jets->at(0).pt(), weight);
+    hist("pt_bjet0_rebinned")->Fill(jets->at(0).pt(), weight);
+  }
+
   if(event.jets->size()>0) hist("DeepJetscore_firstJet")->Fill(event.jets->at(0).btag_DeepJet(), weight);
 
   hist("N_jets_btag_loose")->Fill(N_jets_btag_loose, weight);
@@ -239,40 +277,29 @@ void TstarTstarHists::fill(const Event & event){
   if(!event.isRealData)  hist("N_PU")->Fill(event.genInfo->pileup_TrueNumInteractions(), weight);
 
   if(Njets>=1){
-    hist("eta_jet1")->Fill(jets->at(0).eta(), weight);
-    hist("pt_jet1")->Fill(jets->at(0).pt(), weight);
-    hist("EMcharged_jet1")->Fill(jets->at(0).chargedEmEnergyFraction(), weight);
-    hist("EMneutral_jet1")->Fill(jets->at(0).neutralEmEnergyFraction(), weight);
-    hist("HADcharged_jet1")->Fill(jets->at(0).chargedHadronEnergyFraction(), weight);
-    hist("HADneutral_jet1")->Fill(jets->at(0).neutralHadronEnergyFraction(), weight);
-
-    // ((TH2D*)hist("EMcharged_vs_eta_jet1"))->Fill(jets->at(0).eta(),jets->at(0).chargedEmEnergyFraction(), weight);
-    // ((TH2D*)hist("EMneutral_vs_eta_jet1"))->Fill(jets->at(0).eta(),jets->at(0).neutralEmEnergyFraction(), weight);
-    // ((TH2D*)hist("HADcharged_vs_eta_jet1"))->Fill(jets->at(0).eta(),jets->at(0).chargedHadronEnergyFraction(), weight);
-    // ((TH2D*)hist("HADneutral_vs_eta_jet1"))->Fill(jets->at(0).eta(),jets->at(0).neutralHadronEnergyFraction(), weight);
-    // if(!event.isRealData){
-    //   ((TH2D*)hist("EMcharged_vs_PU_jet1"))->Fill(event.genInfo->pileup_TrueNumInteractions(),jets->at(0).chargedEmEnergyFraction(), weight);
-    //   ((TH2D*)hist("EMneutral_vs_PU_jet1"))->Fill(event.genInfo->pileup_TrueNumInteractions(),jets->at(0).neutralEmEnergyFraction(), weight);
-    //   ((TH2D*)hist("HADcharged_vs_PU_jet1"))->Fill(event.genInfo->pileup_TrueNumInteractions(),jets->at(0).chargedHadronEnergyFraction(), weight);
-    //   ((TH2D*)hist("HADneutral_vs_PU_jet1"))->Fill(event.genInfo->pileup_TrueNumInteractions(),jets->at(0).neutralHadronEnergyFraction(), weight);
-    // }
+    hist("pt_jet0")->Fill(jets->at(0).pt(), weight);
+    hist("pt_jet0_rebinned")->Fill(jets->at(0).pt(), weight);
+    hist("eta_jet0")->Fill(jets->at(0).eta(), weight);
   }
   if(Njets>=2){
-    hist("eta_jet2")->Fill(jets->at(1).eta(), weight);
-    hist("pt_jet2")->Fill(jets->at(1).pt(), weight);
+    hist("eta_jet1")->Fill(jets->at(1).eta(), weight);
+    hist("pt_jet1_rebinned")->Fill(jets->at(1).pt(), weight);
+    hist("pt_jet1")->Fill(jets->at(1).pt(), weight);
   }
   if(Njets>=3){
-    hist("eta_jet3")->Fill(jets->at(2).eta(), weight);
-    hist("pt_jet3")->Fill(jets->at(2).pt(), weight);
+    hist("eta_jet2")->Fill(jets->at(2).eta(), weight);
+    hist("pt_jet2_rebinned")->Fill(jets->at(2).pt(), weight);
+    hist("pt_jet2")->Fill(jets->at(2).pt(), weight);
   }
   if(Njets>=4){
-    hist("eta_jet4")->Fill(jets->at(3).eta(), weight);
-    hist("pt_jet4")->Fill(jets->at(3).pt(), weight);
+    hist("eta_jet3")->Fill(jets->at(3).eta(), weight);
+    hist("pt_jet3_rebinned")->Fill(jets->at(3).pt(), weight);
+    hist("pt_jet3")->Fill(jets->at(3).pt(), weight);
   }
 
   if(event.topjets->size()>0) {
-    hist("tau32_HOTVR1")->Fill(event.topjets->at(0).tau3_groomed()/event.topjets->at(0).tau2_groomed(), weight);
-    hist("jetmass_HOTVR1")->Fill(inv_mass_2(event.topjets->at(0).v4()), weight);
+    hist("tau32_HOTVR0")->Fill(event.topjets->at(0).tau3_groomed()/event.topjets->at(0).tau2_groomed(), weight);
+    hist("jetmass_HOTVR0")->Fill(inv_mass_2(event.topjets->at(0).v4()), weight);
   }
 
   if(debug) cout << "Finished filling jet observables." << endl;
@@ -327,28 +354,40 @@ void TstarTstarHists::fill(const Event & event){
   if(debug) cout << "Finished filling ttag observables." << endl;
 
   if(event.topjets->size()>0){
-    hist("eta_HOTVR1")->Fill(event.topjets->at(0).eta(), weight);
-    hist("pt_HOTVR1")->Fill(event.topjets->at(0).pt(), weight);
+    hist("eta_HOTVR0")->Fill(event.topjets->at(0).eta(), weight);
+    hist("pt_HOTVR0")->Fill(event.topjets->at(0).pt(), weight);
+    hist("pt_HOTVR0_rebinned")->Fill(event.topjets->at(0).pt(), weight);
   }
   if(event.topjets->size()>1){
-    hist("eta_HOTVR2")->Fill(event.topjets->at(1).eta(), weight);
-    hist("pt_HOTVR2")->Fill(event.topjets->at(1).pt(), weight);
+    hist("eta_HOTVR1")->Fill(event.topjets->at(1).eta(), weight);
+    hist("pt_HOTVR1")->Fill(event.topjets->at(1).pt(), weight);
+    hist("pt_HOTVR1_rebinned")->Fill(event.topjets->at(1).pt(), weight);
   }
   if(event.topjets->size()>2){
-    hist("eta_HOTVR3")->Fill(event.topjets->at(2).eta(), weight);
-    hist("pt_HOTVR3")->Fill(event.topjets->at(2).pt(), weight);
+    hist("eta_HOTVR2")->Fill(event.topjets->at(2).eta(), weight);
+    hist("pt_HOTVR2")->Fill(event.topjets->at(2).pt(), weight);
+    hist("pt_HOTVR2_rebinned")->Fill(event.topjets->at(2).pt(), weight);
   }
   if(debug) cout << "Finished filling HOTVR jet observables." << endl;
 
-  if(Nele>0 && Njets>0) ((TH2D*)hist("pt_ele_pt_ak4jet1"))->Fill(event.electrons->at(0).pt(),jets->at(0).pt(), weight);
-  if(Nmuons>0 && Njets>0) ((TH2D*)hist("pt_mu_pt_ak4jet1"))->Fill(event.muons->at(0).pt(),jets->at(0).pt(), weight);
-  if(Nele>0 && event.topjets->size()>0) ((TH2D*)hist("pt_ele_pt_HOTVR1"))->Fill(event.electrons->at(0).pt(),event.topjets->at(0).pt(), weight);
-  if(Nmuons>0 && event.topjets->size()>0) ((TH2D*)hist("pt_mu_pt_HOTVR1"))->Fill(event.muons->at(0).pt(),event.topjets->at(0).pt(), weight);
+  if(Nele>0 && Njets>0) ((TH2D*)hist("pt_ele_pt_ak4jet0"))->Fill(event.electrons->at(0).pt(),jets->at(0).pt(), weight);
+  if(Nmuons>0 && Njets>0) ((TH2D*)hist("pt_mu_pt_ak4jet0"))->Fill(event.muons->at(0).pt(),jets->at(0).pt(), weight);
+  if(Nele>0 && event.topjets->size()>0) ((TH2D*)hist("pt_ele_pt_HOTVR0"))->Fill(event.electrons->at(0).pt(),event.topjets->at(0).pt(), weight);
+  if(Nmuons>0 && event.topjets->size()>0) ((TH2D*)hist("pt_mu_pt_HOTVR0"))->Fill(event.muons->at(0).pt(),event.topjets->at(0).pt(), weight);
   if(debug) cout << "Finished filling pt observables." << endl;
 
   hist("pt_MET")->Fill(event.met->pt(), weight);
+  hist("phi_MET")->Fill(event.met->phi(), weight);
+  hist("px_MET")->Fill(event.met->v4().px(), weight);
+  hist("py_MET")->Fill(event.met->v4().py(), weight);
+  hist("px_MET_rebinned")->Fill(event.met->v4().px(), weight);
+  hist("py_MET_rebinned")->Fill(event.met->v4().py(), weight);
   hist("pt_MET_rebinned")->Fill(event.met->pt(), weight);
   if(debug) cout << "Finished filling MET observables." << endl;
+
+  hist("pt_rawMET")->Fill(event.met->uncorr_pt(), weight);
+  hist("pt_rawMET_rebinned")->Fill(event.met->uncorr_pt(), weight);
+  hist("phi_rawMET")->Fill(event.met->uncorr_phi(), weight);
 
   // ST & HT block
 
@@ -475,16 +514,16 @@ void TstarTstarHists::fill(const Event & event){
   hist("dR_lepton_closestJet_fine")->Fill(min_deltaR, weight);
 
   if(event.topjets->size()>1){
-    hist("dR_fatjet1_fatjet2")->Fill(deltaR(event.topjets->at(0), event.topjets->at(1)), weight);
-    hist("dphi_fatjet1_fatjet2")->Fill(abs(event.topjets->at(0).phi() - event.topjets->at(1).phi()), weight);
+    hist("dR_fatjet0_fatjet1")->Fill(deltaR(event.topjets->at(0), event.topjets->at(1)), weight);
+    hist("dphi_fatjet0_fatjet1")->Fill(abs(event.topjets->at(0).phi() - event.topjets->at(1).phi()), weight);
   }
   if(event.topjets->size()>0){
-    hist("dR_lepton_fatjet1")->Fill(deltaR(primary_lepton, event.topjets->at(0)), weight);
-    hist("dphi_lepton_fatjet1")->Fill(abs(primary_lepton.phi() - event.topjets->at(0).phi()), weight);
+    hist("dR_lepton_fatjet0")->Fill(deltaR(primary_lepton, event.topjets->at(0)), weight);
+    hist("dphi_lepton_fatjet0")->Fill(abs(primary_lepton.phi() - event.topjets->at(0).phi()), weight);
   }
   if(event.topjets->size()>1){
-    hist("dR_lepton_fatjet2")->Fill(deltaR(primary_lepton, event.topjets->at(1)), weight);
-    hist("dphi_lepton_fatjet2")->Fill(abs(primary_lepton.phi() - event.topjets->at(1).phi()), weight);
+    hist("dR_lepton_fatjet1")->Fill(deltaR(primary_lepton, event.topjets->at(1)), weight);
+    hist("dphi_lepton_fatjet1")->Fill(abs(primary_lepton.phi() - event.topjets->at(1).phi()), weight);
   }
 
   bool found_ttagjet = false;
