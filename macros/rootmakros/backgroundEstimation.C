@@ -57,7 +57,7 @@ void backgroundEstimation(){
   bool plot_stat_unc = true;
 
   TString region = "VR";
-  TString year = "";         // no year means full run 2
+  TString year = "UL17";         // no year means full run 2
   TString channel = "ele";      // total channel means combination of both
   TString JE_string = "";   // for example "_JECUp" ATTENTION MUST BE HADDED MANUALLY IN DATA FOLDER
 
@@ -156,7 +156,6 @@ void backgroundEstimation(){
 
   if(storeOutputToFile) {
     TString filename = "files/bgest/purity_HOTVR_" + year + "_" + channel + systematic + JE_string + ".root";
-    if (year != "") filename = "files/bgest/bgest_purity_" + year + ".root";
     TFile *file = new TFile(filename, "RECREATE");
     purity.SetName("purity");
     purity.Write();

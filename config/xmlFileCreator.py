@@ -327,10 +327,8 @@ class xmlCreator:
              file.write('''<Item Name="ScaleVariationMuF" Value = "central" />''')
          if(self.step == "DNN_datadriven"):
              file.write('''<Item Name="use_data_for" Value="background_extrapolation"/>\n''')
-             file.write('''<Item Name="background_estimation_purity_file" Value="'''+self.uhh2Dir+'''TstarTstar/macros/rootmakros/files/bgest_purity.root"/>\n''')
          elif(self.step == "DNN_datadriven_variation"):
              file.write('''<Item Name="use_data_for" Value="background_extrapolation_variation"/>\n''')
-             file.write('''<Item Name="background_estimation_purity_file" Value="'''+self.uhh2Dir+'''TstarTstar/macros/rootmakros/files/bgest_purity.root"/>\n''')
          if(self.isTriggerEff): file.write('''<Item Name="IsTriggerSFMeasurement" Value="True"/>\n''')
          file.write('''\n''')
          file.write('''<!-- Switch for debugging of the central AnalysisModule -->\n''')

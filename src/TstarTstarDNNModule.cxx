@@ -62,7 +62,7 @@ private:
   std::unique_ptr<Hists> h_AfterDNNcut_06, h_NotDNNcut_06; // used to compare DDT results to simple cut
 
   // temp check hists
-  std::unique_ptr<Hists> h_hists_VR_ele_highHT, h_hists_VR_ele_highST, h_hists_VR_ele_METo300, h_hists_VR_ele_METu300, h_hists_VR_ele_ele300;
+  std::unique_ptr<Hists> h_hists_VR_ele_highHT, h_hists_VR_ele_highST, h_hists_VR_ele_METo300, h_hists_VR_ele_METu300, h_hists_VR_ele_ele300, h_hists_VR_ele_ele500, h_hists_VR_ele_eleu300;
 
   // DNN output plots
   std::unique_ptr<Hists> h_DNN, h_DNN_DDT, h_DNN_btagCR;
@@ -149,7 +149,6 @@ private:
   std::vector<TF1*> DDTFunctions;
   TF1* BestDDTFunction;
 
-
 };
 
 
@@ -221,6 +220,8 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_hists_VR_ele_METo300.reset(new TstarTstarHists(ctx, "hists_VR_ele_METo300"));
   h_hists_VR_ele_METu300.reset(new TstarTstarHists(ctx, "hists_VR_ele_METu300"));
   h_hists_VR_ele_ele300.reset(new TstarTstarHists(ctx, "hists_VR_ele_ele300"));
+  h_hists_VR_ele_eleu300.reset(new TstarTstarHists(ctx, "hists_VR_ele_eleu300"));
+  h_hists_VR_ele_ele500.reset(new TstarTstarHists(ctx, "hists_VR_ele_ele500"));
 
   h_hists_VR_noElecTrigSFs.reset(new TstarTstarHists(ctx, "hists_VR_noElecTrigSFs"));
   h_hists_ttbarCR_noElecTrigSFs.reset(new TstarTstarHists(ctx, "hists_ttbarCR_noElecTrigSFs"));
@@ -340,7 +341,7 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
     TString path = "/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/bgest/";
 
     TString filename_nominal_SR = "alphaFunction_HOTVR__SR_total.root";
-    TString filename_nominal_VR = "alphaFunction_HOTVR__VR_total.root";
+    TString filename_nominal_VR = "alphaFunction_HOTVR___VR_total.root"; // TODO hard-coded UL17 dummy
 
     TString filename_btagUp_SR = "alphaFunction_HOTVR__SR_total_btagging_totalUp.root";
     TString filename_btagDown_SR = "alphaFunction_HOTVR__SR_total_btagging_totalDown.root";
@@ -409,7 +410,7 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
     backgroundEstimationFunctionYearDown_VR = (TF1*)file_yearDown_VR->Get("fit_mean");
 
     // finally, the purity
-    TString background_estimation_purity_filepath = ctx.get("background_estimation_purity_file");
+    TString background_estimation_purity_filepath = "/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/bgest/purity_HOTVR__total.root"; // TODO hard-coded dummy
     TFile *f = new TFile(background_estimation_purity_filepath);
     if(!f) throw std::runtime_error("ERROR: cant open background estimation purity at " + ctx.get("background_estimation_purity_file"));
     bgest_purity = (TGraphAsymmErrors*)f->Get("purity");
@@ -781,6 +782,8 @@ bool TstarTstarDNNModule::process(Event & event) {
         if (event.met->pt() > 300) h_hists_VR_ele_METo300->fill(event);
         else h_hists_VR_ele_METu300->fill(event);
         if (event.electrons->at(0).pt() > 300) h_hists_VR_ele_ele300->fill(event);
+        else h_hists_VR_ele_eleu300->fill(event);
+        if (event.electrons->at(0).pt() > 500) h_hists_VR_ele_ele500->fill(event);
 
         // special case here: plot same, but without electron trigger SF
         double reset_weight_etrigger = event.weight;
