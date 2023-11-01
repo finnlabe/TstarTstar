@@ -9,6 +9,9 @@ using namespace std;
 using namespace uhh2;
 
 TstarTstarPDFNormHists::TstarTstarPDFNormHists(Context & ctx, const string & dirname): Hists(ctx, dirname){
+
+  needsOtherMCweightHandling = ctx.get("dataset_version").find("TstarTstar") != std::string::npos;
+  //if(needsOtherMCweightHandling) std::cout << "We are signal so we need other idices" << std::endl;
   
   // weight handles
   book<TH1F>("nominal", "nominal", 1, 0, 1);
@@ -37,20 +40,16 @@ TstarTstarPDFNormHists::TstarTstarPDFNormHists(Context & ctx, const string & dir
 
 
 void TstarTstarPDFNormHists::fill(const Event & event){
-  // fill the histograms. Please note the comments in the header file:
-  // 'hist' is used here a lot for simplicity, but it will be rather
-  // slow when you have many histograms; therefore, better
-  // use histogram pointers as members as in 'UHH2/common/include/ElectronHists.h'
 
   bool debug = false;
 
-  // Don't forget to always use the weight when filling.
   double weight = event.weight;
 
   hist("nominal")->Fill(0.5,weight);
 
   float orig_weight = event.genInfo->originalXWGTUP();
   int MY_FIRST_INDEX = 9;
+  if(needsOtherMCweightHandling) MY_FIRST_INDEX = 47;
   for(int i=0; i<100; i++){
     double pdf_weight = 0;
     if(event.genInfo->systweights().size() > 0) pdf_weight =event.genInfo->systweights().at(i+MY_FIRST_INDEX);

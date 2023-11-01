@@ -11,19 +11,21 @@ void backgroundEstimation_compareFunctions () {
   std::vector<TString> channels = {"mu", "ele"};
   //std::vector<TString> channels = {"total"};
 
-  TString region = "SR";
+  TString region = "VR";
   TString fitfunc = "fit_mean";
 
   TString mode = "allCombs"; // only used for output naming
   if (years.size() == 1) mode = "channels";
   if (channels.size() == 1) mode = "years";
 
-  TCanvas *canvas = new TCanvas("canvas", "c", 600, 500);
+  TCanvas *canvas = new TCanvas("canvas", "c", 400, 300);
 
   std::vector<int> colors = {810, 600, 416, 800};
   std::vector<int> styles = {2, 3};
 
-  auto legend = new TLegend(0.1,0.7,0.48,0.9);
+  auto legend = new TLegend(0.2,0.7,0.48,0.85);
+  legend->SetBorderSize(0);
+  gStyle->SetLegendTextSize(0.04);
 
   bool draw_baseline = true;
   if (draw_baseline) {
@@ -36,8 +38,12 @@ void backgroundEstimation_compareFunctions () {
 
     function->GetYaxis()->SetRangeUser(0, 1.3);
 
+    function->SetTitle("");
+    function->GetXaxis()->SetTitle("S_{T} [GeV]");
+    function->GetYaxis()->SetTitle("#alpha-ratio");
+
     function->Draw("");
-    legend->AddEntry(function, "total", "f");
+    legend->AddEntry(function, "total", "l");
   }
 
 
@@ -58,7 +64,7 @@ void backgroundEstimation_compareFunctions () {
       if (first) function->Draw("");
       else function->Draw("same");
 
-      legend->AddEntry(function, year + " " + channel, "f");
+      legend->AddEntry(function, year + " " + channel, "l");
 
       first = false;
 

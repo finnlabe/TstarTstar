@@ -559,6 +559,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
      else if (Prefiring_direction == "up") event.weight *= event.prefiringWeightUp;
      else if (Prefiring_direction == "down") event.weight *= event.prefiringWeightDown;
   }
+  
   // writing MC weights
   MCScaleVariations->process(event);
 

@@ -36,6 +36,8 @@ public:
     // hist names for PDF
     std::string hist_names[100];
 
+    std::vector<TString> variations;
+
     // weight handles
     uhh2::Event::Handle<float> h_weight_ttbar;
 

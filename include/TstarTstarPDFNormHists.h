@@ -22,6 +22,8 @@ public:
 
   private:
 
+    bool needsOtherMCweightHandling;
+
     // hist names for PDF
     std::string hist_names[100];
 

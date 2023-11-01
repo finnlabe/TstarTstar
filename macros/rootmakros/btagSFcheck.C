@@ -3,15 +3,15 @@ void btagSFcheck() {
 
   gStyle->SetPadBottomMargin(0.2);
 
-  TString year = "UL16preVFP";
+  TString year = "UL17";
   TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/"+year+"/hadded/";
   TString filename_base = "uhh2.AnalysisModuleRunner.MC.";
 
-  //std::vector<TString> samples = {"TTbar", "WJets", "ST", "QCD", "VV", "DYJets", "TstarTstar", "TstarTstar_Spin32"};
-  std::vector<TString> samples = {"TstarTstar_Spin32"};
+  std::vector<TString> samples = {"TTbar", "WJets", "ST", "QCD", "VV", "DYJets"};
+  //std::vector<TString> samples = {"TstarTstar", "TstarTstar_Spin32"};
 
   TString histname2D = "pt_HT_N_jet_rebinned";
-  std::vector<TString> hists_to_crosscheck = {"pt_HT", "N_jets", "DeepJetscore"};
+  std::vector<TString> hists_to_crosscheck = {"pt_HT", "N_jets", "DeepJetscore", "pt_ST_HOTVR_rebinned"};
 
   TString folder_before = "HOTVRcut";
   TString folder_after = "bcorrections";

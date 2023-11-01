@@ -52,16 +52,16 @@ double GetXForHighestY(TGraphAsymmErrors graph) {
 
 void backgroundEstimation(){
 
-  bool storeOutputToFile = true;
-  bool plot_other_ratios = false;
+  bool storeOutputToFile = false;
+  bool plot_other_ratios = true;
   bool plot_stat_unc = true;
 
-  TString region = "VR";
-  TString year = "UL17";         // no year means full run 2
-  TString channel = "ele";      // total channel means combination of both
+  TString region = "SR";
+  TString year = "";    // no year means full run 2
+  TString channel = "mu";  // total channel means combination of both ele and mu
   TString JE_string = "";   // for example "_JECUp" ATTENTION MUST BE HADDED MANUALLY IN DATA FOLDER
 
-  TString systematic = ""; // empty string means do not do any systematic
+  TString systematic = ""; // for example btagging_totalUp. empty string means do not do any systematic 
 
   // definitions
   std::vector<TString> nontop_backgrounds = {"WJets", "QCD", "VV", "DYJets"};
@@ -91,7 +91,7 @@ void backgroundEstimation(){
 
   // this is only used if we plot the baseline!
   TString other_ratios_base_path = "/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/bgest/";
-  std::vector<TString> other_ratios = {"btagging_total", "JEC", "JER"};
+  std::vector<TString> other_ratios = {"btagging_total"};
 
   // open full set of non-top backgrounds in signal region
   bool first = true;
@@ -180,7 +180,7 @@ void backgroundEstimation(){
     ratio.Fit("fit2", "N", "", 600, 6000);
     (TVirtualFitter::GetFitter())->GetConfidenceIntervals(fit2unc, 0.68);
   } else {
-    fit2 = new TF1("fit2", "pol2", 0, 6000);
+    fit2 = new TF1("fit2", "pol1", 0, 6000);
     ratio.Fit("fit2", "N", "", 600, 6000);
     (TVirtualFitter::GetFitter())->GetConfidenceIntervals(fit2unc, 0.68);
 

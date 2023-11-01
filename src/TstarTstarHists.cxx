@@ -20,6 +20,8 @@ float inv_mass_2(const LorentzVector& p4){ return p4.isTimelike() ? p4.mass() : 
 TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(ctx, dirname){
   topjetID = AndId<TopJet>(HOTVRTopTag(), Tau32Groomed(0.56));
 
+  is_MC = ctx.get("dataset_type") == "MC";
+
   h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
   h_ST_AK4 = ctx.get_handle<double>("ST_AK4");
   h_ST_HOTVR = ctx.get_handle<double>("ST_HOTVR");
@@ -33,6 +35,15 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   book<TH1F>("weight_3", "weight_3", 55, -100, 1000);
   book<TH1F>("weight_4", "weight_4", 55, -1000, 10000);
   book<TH1F>("weight_5", "weight_5", 55, -10000, 100000);
+
+  book<TH1F>("prefiring_weight", "weight", 50, 0, 2);
+
+  h_weight_sfelec_idNominal = ctx.get_handle<float>("weight_sfelec_id");
+  h_weight_sfelec_recoNominal = ctx.get_handle<float>("weight_sfelec_reco");
+  h_weight_sfelec_triggerNominal = ctx.get_handle<float>("weight_sfelec_trigger");
+  book<TH1F>("electron_id_weight", "weight", 50, 0.75, 1.25);
+  book<TH1F>("electron_reco_weight", "weight", 50, 0.75, 1.25);
+  book<TH1F>("electron_trigger_weight", "weight", 50, 0.75, 1.25);
 
   // jets
   book<TH1F>("N_jets", "N_{AK4 jets}", 20, 0, 20);
@@ -94,6 +105,7 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
   book<TH1F>("N_mu", "N^{#mu}", 10, 0, 10);
   book<TH1F>("pt_mu", "p_{T}^{#mu} [GeV/c]", 50, 0, 1000);
   book<TH1F>("pt_mu_low", "p_{T}^{#mu} [GeV/c]", 50, 0, 100);
+  book<TH1F>("pt_mu_rebinned", "p_{T}^{#mu} [GeV/c]", n_jet_pt_bins - 1, jet_pt_bins);
   book<TH1F>("eta_mu", "#eta^{#mu}", 50, -5.2, 5.2);
   book<TH1F>("reliso_mu", "#mu rel. Iso", 40, 0, 0.5);
 
@@ -250,6 +262,13 @@ void TstarTstarHists::fill(const Event & event){
   hist("weight_4")->Fill(weight);
   hist("weight_5")->Fill(weight);
 
+  if(is_MC) {
+    hist("prefiring_weight")->Fill(event.prefiringWeight, weight);
+    hist("electron_id_weight")->Fill(event.get(h_weight_sfelec_idNominal), weight);
+    hist("electron_reco_weight")->Fill(event.get(h_weight_sfelec_recoNominal), weight);
+    hist("electron_trigger_weight")->Fill(event.get(h_weight_sfelec_triggerNominal), weight);
+  }
+
   std::vector<Jet>* jets = event.jets;
   int Njets = jets->size();
   hist("N_jets")->Fill(Njets, weight);
@@ -320,6 +339,7 @@ void TstarTstarHists::fill(const Event & event){
   for (const Muon & thismu : *event.muons){
       hist("pt_mu")->Fill(thismu.pt(), weight);
       hist("pt_mu_low")->Fill(thismu.pt(), weight);
+      hist("pt_mu_rebinned")->Fill(thismu.pt(), weight);
       hist("eta_mu")->Fill(thismu.eta(), weight);
       hist("reliso_mu")->Fill(thismu.relIso(), weight);
   }

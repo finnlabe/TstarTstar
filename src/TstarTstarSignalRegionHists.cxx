@@ -18,7 +18,7 @@ TstarTstarSignalRegionHists::TstarTstarSignalRegionHists(Context & ctx, const st
   if(ctx.get("debug", "<not set>") == "true") debug = true;
 
   needsOtherMCweightHandling = ctx.get("dataset_version").find("TstarTstar") != std::string::npos;
-  if(needsOtherMCweightHandling) std::cout << "We are signal so we need other idices" << std::endl;
+  if(needsOtherMCweightHandling && debug) std::cout << "We are signal so we need other idices" << std::endl;
 
   // Histogram containing decorrelation uncertainty
   TString sample_string = "total";      // won't be used, just to have it filled for mc only results :
@@ -104,62 +104,18 @@ TstarTstarSignalRegionHists::TstarTstarSignalRegionHists(Context & ctx, const st
   // nominal histogram
   book<TH1F>("pt_ST_nominal", "S_{T} [GeV]", nbins-1, bins);
 
-  // variation histograms
-  book<TH1F>("pt_ST_noTopPt", "S_{T} [GeV]", nbins-1, bins);
+  // list all variations here
+  // for each of them, an up- and down variation hist is created!!!
+  variations = {
+    "pt_ST_topPt", "pt_ST_pu", "pt_ST_prefiring", "pt_ST_btagging_total", "pt_ST_btagging_hf", "pt_ST_btagging_hfstats1", "pt_ST_btagging_hfstats2", "pt_ST_btagging_lf",
+    "pt_ST_btagging_lfstats1", "pt_ST_btagging_lfstats2", "pt_ST_btagging_cferr1", "pt_ST_btagging_cferr2", "pt_ST_sfelec_id", "pt_ST_sfelec_trigger", "pt_ST_sfelec_reco",
+    "pt_ST_sfmu_id", "pt_ST_sfmu_iso", "pt_ST_sfmu_trigger", "pt_ST_decorrelation",
+  };
 
-  book<TH1F>("pt_ST_puUp", "S_{T} [GeV]", nbins-1, bins);
-  book<TH1F>("pt_ST_puDown", "S_{T} [GeV]", nbins-1, bins);
-
-  book<TH1F>("pt_ST_prefiringUp", "S_{T} [GeV]", nbins-1, bins);
-  book<TH1F>("pt_ST_prefiringDown", "S_{T} [GeV]", nbins-1, bins);
-
-  book<TH1F>("pt_ST_btagging_totalUp", "S_{T} [GeV]", nbins-1, bins);
-  book<TH1F>("pt_ST_btagging_totalDown", "S_{T} [GeV]", nbins-1, bins);
-
-  book<TH1F>("pt_ST_btagging_hfUp", "S_{T} [GeV]", nbins-1, bins);
-  book<TH1F>("pt_ST_btagging_hfDown", "S_{T} [GeV]", nbins-1, bins);
-
-  book<TH1F>("pt_ST_btagging_hfstats1Up", "S_{T} [GeV]", nbins-1, bins);
-  book<TH1F>("pt_ST_btagging_hfstats1Down", "S_{T} [GeV]", nbins-1, bins);
-
-  book<TH1F>("pt_ST_btagging_hfstats2Up", "S_{T} [GeV]", nbins-1, bins);
-  book<TH1F>("pt_ST_btagging_hfstats2Down", "S_{T} [GeV]", nbins-1, bins);
-
-  book<TH1F>("pt_ST_btagging_lfUp", "S_{T} [GeV]", nbins-1, bins);
-  book<TH1F>("pt_ST_btagging_lfDown", "S_{T} [GeV]", nbins-1, bins);
-
-  book<TH1F>("pt_ST_btagging_lfstats1Up", "S_{T} [GeV]", nbins-1, bins);
-  book<TH1F>("pt_ST_btagging_lfstats1Down", "S_{T} [GeV]", nbins-1, bins);
-
-  book<TH1F>("pt_ST_btagging_lfstats2Up", "S_{T} [GeV]", nbins-1, bins);
-  book<TH1F>("pt_ST_btagging_lfstats2Down", "S_{T} [GeV]", nbins-1, bins);
-
-  book<TH1F>("pt_ST_btagging_cferr1Up", "S_{T} [GeV]", nbins-1, bins);
-  book<TH1F>("pt_ST_btagging_cferr1Down", "S_{T} [GeV]", nbins-1, bins);
-
-  book<TH1F>("pt_ST_btagging_cferr2Up", "S_{T} [GeV]", nbins-1, bins);
-  book<TH1F>("pt_ST_btagging_cferr2Down", "S_{T} [GeV]", nbins-1, bins);
-
-  book<TH1F>("pt_ST_sfelec_idUp", "S_{T} [GeV]", nbins-1, bins);
-  book<TH1F>("pt_ST_sfelec_idDown", "S_{T} [GeV]", nbins-1, bins);
-
-  book<TH1F>("pt_ST_sfelec_triggerUp", "S_{T} [GeV]", nbins-1, bins);
-  book<TH1F>("pt_ST_sfelec_triggerDown", "S_{T} [GeV]", nbins-1, bins);
-
-  book<TH1F>("pt_ST_sfelec_recoUp", "S_{T} [GeV]", nbins-1, bins);
-  book<TH1F>("pt_ST_sfelec_recoDown", "S_{T} [GeV]", nbins-1, bins);
-
-  book<TH1F>("pt_ST_sfmu_idUp", "S_{T} [GeV]", nbins-1, bins);
-  book<TH1F>("pt_ST_sfmu_idDown", "S_{T} [GeV]", nbins-1, bins);
-
-  book<TH1F>("pt_ST_sfmu_isoUp", "S_{T} [GeV]", nbins-1, bins);
-  book<TH1F>("pt_ST_sfmu_isoDown", "S_{T} [GeV]", nbins-1, bins);
-
-  book<TH1F>("pt_ST_sfmu_triggerUp", "S_{T} [GeV]", nbins-1, bins);
-  book<TH1F>("pt_ST_sfmu_triggerDown", "S_{T} [GeV]", nbins-1, bins);
-
-  book<TH1F>("pt_ST_decorrelationUp", "S_{T} [GeV]", nbins-1, bins);
-  book<TH1F>("pt_ST_decorrelationDown", "S_{T} [GeV]", nbins-1, bins);
+  for (const auto variation : variations) {
+    book<TH1F>(variation + "Up", "S_{T} [GeV]", nbins-1, bins);
+    book<TH1F>(variation + "Down", "S_{T} [GeV]", nbins-1, bins);
+  }
 
   // 100 histograms for the PDF stuff
   for(int i=0; i<100; i++){
@@ -207,14 +163,25 @@ void TstarTstarSignalRegionHists::fill(const Event & event){
   // fill nominal
   hist("pt_ST_nominal")->Fill(st, weight);
 
-  // topPt
-  try {
-    hist("pt_ST_noTopPt")->Fill(st, weight/event.get(h_weight_ttbar));
-  } catch (...) { // catching it h_weight_ttbar was not filled...
-    hist("pt_ST_noTopPt")->Fill(st, weight);
+  // all others only make sense for MC. Fill them with "nominal" data here
+  if(!is_MC) {
+
+    for (const auto variation : variations) {
+      hist(variation+"Up")->Fill(st, weight);
+      hist(variation+"Down")->Fill(st, weight);
+    }
+    return;
+
   }
 
-  if(!is_MC) return;
+  // topPt
+  hist("pt_ST_topPtDown")->Fill(st, weight);
+  try {
+    hist("pt_ST_topPtUp")->Fill(st, weight/event.get(h_weight_ttbar));
+  } catch (...) { // catching it h_weight_ttbar was not filled...
+    hist("pt_ST_topPtUp")->Fill(st, weight);
+    if(debug) std::cout << "No top PT weight found, filling with nominal." << std::endl;
+  }
 
   // pu
   hist("pt_ST_puUp")->Fill(st, event.get(h_weight_puUp)*weight/event.get(h_weight_puNominal));
@@ -275,7 +242,7 @@ void TstarTstarSignalRegionHists::fill(const Event & event){
   // now lets do the total
   double total_greater = 0;
   double total_smaller = 0;
-  for (int i = 0; i < btag_variation_values_Up.size(); i++) {
+  for (uint i = 0; i < btag_variation_values_Up.size(); i++) {
     double valueUp = btag_variation_values_Up.at(i);
     double valueDown = btag_variation_values_Down.at(i);
     if(valueUp >= valueDown) {
@@ -326,10 +293,10 @@ void TstarTstarSignalRegionHists::fill(const Event & event){
   hist("pt_ST_decorrelationUp")->Fill(st, weight + (decorr_uncertainty * weight));
   hist("pt_ST_decorrelationDown")->Fill(st, weight - (decorr_uncertainty * weight));
 
-  if(debug) cout << "Starting btagging..." << endl;
+  if(debug) cout << "Starting systweights..." << endl;
   float orig_weight = event.genInfo->originalXWGTUP();
   int MY_FIRST_INDEX = 9;
-  if(needsOtherMCweightHandling) MY_FIRST_INDEX = 41;
+  if(needsOtherMCweightHandling) MY_FIRST_INDEX = 47;
   for(int i=0; i<100; i++){
     double pdf_weight = 0;
     if(event.genInfo->systweights().size() > 0) pdf_weight =event.genInfo->systweights().at(i+MY_FIRST_INDEX);

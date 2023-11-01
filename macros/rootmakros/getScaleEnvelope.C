@@ -43,9 +43,9 @@ void getScaleEnvelope(){
   // TODO make a script or a loop that calls all combinations!
 
   TString filename_base = "";
-  TString year = "UL16preVFP";
+  TString year = "";
   filename_base += "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/"+year+"/hadded/uhh2.AnalysisModuleRunner.MC.";
-  TString channel = "mu";
+  TString channel = "total";
 
   TString region = "ValidationRegion";
 
@@ -63,9 +63,6 @@ void getScaleEnvelope(){
   for(unsigned int i=0; i<samples.size(); i++){
 
     cout << "sample " << samples.at(i) << endl;
-
-    // check if the sample is a signal or a background
-    isSignal.at(i) = (samples.at(i).Index("TstarTstar") == 0 );
 
     TString filename = filename_base + samples.at(i) + ".root";
     TFile* f_in = new TFile(filename, "READ");
