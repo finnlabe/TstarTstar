@@ -26,10 +26,13 @@ void getPDFRMS(){
 
   // TODO make script running these, or lööp
 
+  // this assumes that all signals are replicas, and all others are hessians (only relevant for ttbar anyway atm.)
+  // ST will be fixed later, need to check that sample then!
+
   TString year = "UL18";
   TString filename_base = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/" + year + "/hadded/uhh2.AnalysisModuleRunner.MC.";
-  TString channel = "ele";
-  TString region = "ValidationRegion";
+  TString channel = "mu";
+  TString region = "SignalRegion";
 
   vector<TString> samples = {"TTbar", "ST"};
   vector<bool> isSignal (samples.size(), false);
@@ -87,11 +90,17 @@ void getPDFRMS(){
            float norm_bin = bin * pdf_norm[i];
 
            sum_bins += pow(norm_bin - nominal, 2);
-       }
-       float rms = sqrt( sum_bins / 100  );
+      }
 
-       h_PDF_up->SetBinContent(j, nominal+rms);
-       h_PDF_down->SetBinContent(j, nominal-rms);
+      float rms;
+      if( isSignal.at(i) ){
+        rms = sqrt( sum_bins / 100  );
+      } else {
+        rms = sqrt( sum_bins );
+      }
+
+      h_PDF_up->SetBinContent(j, nominal + rms);
+      h_PDF_down->SetBinContent(j, nominal - rms);
 
     }
 
@@ -124,7 +133,7 @@ void getPDFRMS(){
 
     h_PDF_up->Draw("HIST");
     h_PDF_up->SetTitle("");
-    h_PDF_up->GetXaxis()->SetTitle("M_{t#bar{t}} [GeV]");
+    h_PDF_up->GetXaxis()->SetTitle("S_{T} [GeV]");
     h_PDF_up->GetXaxis()->SetRangeUser(600.,6000.);
     h_PDF_up->GetXaxis()->SetTitleSize(0.055);
     h_PDF_up->GetXaxis()->SetLabelSize(0.05);
