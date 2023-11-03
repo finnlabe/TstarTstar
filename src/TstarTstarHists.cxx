@@ -263,10 +263,14 @@ void TstarTstarHists::fill(const Event & event){
   hist("weight_5")->Fill(weight);
 
   if(is_MC) {
-    hist("prefiring_weight")->Fill(event.prefiringWeight, weight);
-    hist("electron_id_weight")->Fill(event.get(h_weight_sfelec_idNominal), weight);
-    hist("electron_reco_weight")->Fill(event.get(h_weight_sfelec_recoNominal), weight);
-    hist("electron_trigger_weight")->Fill(event.get(h_weight_sfelec_triggerNominal), weight);
+    try {
+      hist("prefiring_weight")->Fill(event.prefiringWeight, weight);
+      hist("electron_id_weight")->Fill(event.get(h_weight_sfelec_idNominal), weight);
+      hist("electron_reco_weight")->Fill(event.get(h_weight_sfelec_recoNominal), weight);
+      hist("electron_trigger_weight")->Fill(event.get(h_weight_sfelec_triggerNominal), weight);
+    } catch (...) {
+      if(debug) std::cout << "electron weights not filled as not set yet" << std::endl;
+    }
   }
 
   std::vector<Jet>* jets = event.jets;

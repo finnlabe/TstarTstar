@@ -51,6 +51,7 @@ private:
   std::unique_ptr<Selection> lumi_selection;
   std::unique_ptr<AndSelection> metfilters_selection;
   std::vector<std::unique_ptr<AnalysisModule>> modules;
+  std::unique_ptr<AnalysisModule> MCScaleVariations;
 
   // GEN stuff (used for top pt reweighting)
   std::unique_ptr<uhh2::AnalysisModule> ttgenprod;
@@ -244,6 +245,10 @@ TstarTstarPreselectionModule::TstarTstarPreselectionModule(Context & ctx){
     modules.emplace_back(new MCPileupReweight(ctx, "central"));
   } 
 
+  // this will set the mc scale variation weights
+  MCScaleVariations.reset(new MCScaleVariation(ctx) );
+
+
   // - Electron Cleaner
   ElectronId eleID_lowpt = ElectronTagID(Electron::mvaEleID_Fall17_iso_V2_wp90);
   ElectronId eleID_highpt = ElectronTagID(Electron::mvaEleID_Fall17_noIso_V2_wp90);
@@ -369,6 +374,7 @@ bool TstarTstarPreselectionModule::process(Event & event) {
   h_common->fill(event);
   h_common_gen->fill(event);
   lumihist_common->fill(event);
+  if(is_MC) MCScaleVariations->process(event); // writing MC weights
   if(is_MC) h_PDFnorm->fill(event);
   if(debug) cout<<"Filled hists after cleaning"<<endl;
 

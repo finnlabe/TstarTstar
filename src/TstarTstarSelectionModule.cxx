@@ -76,7 +76,6 @@ private:
   // scale factors
   std::unique_ptr<AnalysisModule> ScaleFactor_btagging;
   std::unique_ptr<AnalysisModule> ScaleFactor_NNLO;
-  std::unique_ptr<AnalysisModule> MCScaleVariations;
   std::unique_ptr<AnalysisModule> TopPtReweighting;
 
   // lepton SFs
@@ -299,7 +298,6 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   TopPtReweighting.reset( new TopPtReweight(ctx, 0.0615, -0.0005, "ttbargen", "weight_ttbar", true) );
 
   Prefiring_direction = ctx.get("Sys_prefiring", "nominal");
-  MCScaleVariations.reset(new MCScaleVariation(ctx) );
 
   // ###### 2. set up selections ######
   if(debug) cout << "Setting up Selections." << endl;
@@ -560,9 +558,6 @@ bool TstarTstarSelectionModule::process(Event & event) {
      else if (Prefiring_direction == "down") event.weight *= event.prefiringWeightDown;
   }
   
-  // writing MC weights
-  MCScaleVariations->process(event);
-
   // hists before anything happened
   if(debug) std::cout << "Fill Crosscheck hists" << endl;
   if(event.get(h_trigger_decision)) {

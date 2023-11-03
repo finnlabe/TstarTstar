@@ -28,8 +28,8 @@ void getPDFRMS(){
 
   TString year = "UL18";
   TString filename_base = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/" + year + "/hadded/uhh2.AnalysisModuleRunner.MC.";
-  TString channel = "mu";
-  TString region = "SignalRegion";
+  TString channel = "ele";
+  TString region = "ValidationRegion";
 
   vector<TString> samples = {"TTbar", "ST"};
   vector<bool> isSignal (samples.size(), false);
@@ -55,8 +55,8 @@ void getPDFRMS(){
       string pdf_numb[100];
       ifstream normfile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/signalnorm/SignalNorm_" + year + "_" + samples.at(i) + ".txt", ios::in);
       if (normfile.is_open()){
-        for(int i = 0; i < 100; ++i){
-          normfile >> pdf_numb[i] >> pdf_norm[i];
+        for(int j = 0; j < 100; ++j){
+          normfile >> pdf_numb[j] >> pdf_norm[j];
         }
         normfile.close();
       } else {
@@ -84,11 +84,11 @@ void getPDFRMS(){
            const char* char_name = s_name.c_str();
 
            float bin =  ((TH1F*)(f_in->Get(char_name)))->GetBinContent(j);
-           float norm_bin = bin / pdf_norm[i];
+           float norm_bin = bin * pdf_norm[i];
 
-           sum_bins += pow(norm_bin - nominal,2);
+           sum_bins += pow(norm_bin - nominal, 2);
        }
-       float rms = sqrt( sum_bins /100  );
+       float rms = sqrt( sum_bins / 100  );
 
        h_PDF_up->SetBinContent(j, nominal+rms);
        h_PDF_down->SetBinContent(j, nominal-rms);

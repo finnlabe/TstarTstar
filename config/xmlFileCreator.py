@@ -318,14 +318,15 @@ class xmlCreator:
          file.write('''\n''')
          file.write('''<Item Name="jersmear_direction" Value="'''+ self.jersmear_direction+'''"/>\n''')
          file.write('''<Item Name="jecsmear_direction" Value="'''+ self.jecsmear_direction+'''"/>\n''')
-         if(self.step == "Selection"):
+         if (self.step == "Preselection"):
+             file.write('''<Item Name="ScaleVariationMuR" Value = "central" />''')
+             file.write('''<Item Name="ScaleVariationMuF" Value = "central" />''')
+         elif(self.step == "Selection"):
              file.write('''<!-- scale factor configuration -->\n''')
              file.write('''<Item Name="HOTVRTopTagSFs" Value="'''+self.yearVars['HOTVRSFs'][self.year]+'''"/>\n''')
              file.write('''<Item Name="SF_path" Value="/nfs/dust/cms/user/flabe/TstarTstar/CMSSW_10_2_17/src/UHH2/TstarTstar/factors/" />\n''')
              file.write('''<Item Name="NLOCorrections" Value = "/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/sfs/nnlo" />''')
-             file.write('''<Item Name="ScaleVariationMuR" Value = "central" />''')
-             file.write('''<Item Name="ScaleVariationMuF" Value = "central" />''')
-         if(self.step == "DNN_datadriven"):
+         elif(self.step == "DNN_datadriven"):
              file.write('''<Item Name="use_data_for" Value="background_extrapolation"/>\n''')
          elif(self.step == "DNN_datadriven_variation"):
              file.write('''<Item Name="use_data_for" Value="background_extrapolation_variation"/>\n''')

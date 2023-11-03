@@ -43,9 +43,9 @@ void getScaleEnvelope(){
   // TODO make a script or a loop that calls all combinations!
 
   TString filename_base = "";
-  TString year = "";
+  TString year = "UL18";
   filename_base += "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/"+year+"/hadded/uhh2.AnalysisModuleRunner.MC.";
-  TString channel = "total";
+  TString channel = "mu";
 
   TString region = "ValidationRegion";
 
@@ -71,6 +71,21 @@ void getScaleEnvelope(){
     TH1F *h_scale_up = (TH1F*)h_nominal->Clone();
     TH1F *h_scale_down = (TH1F*)h_nominal->Clone();
 
+    // get the normalizations if we are signal
+    vector<double> scale_norm (6, 1.);
+    if( isSignal.at(i) ){
+      string scale_numb[6];
+      ifstream normfile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/signalnorm/SignalNorm_mcscale_" + year + "_" + samples.at(i) + ".txt", ios::in);
+      if (normfile.is_open()){
+        for(int k = 0; k < 6; ++k){
+          normfile >> scale_numb[k] >> scale_norm[k];
+        }
+        normfile.close();
+      } else {
+        throw std::runtime_error("Signal norm file could not be opened.");
+      }
+    }
+
     std::vector<TH1F*> variations;
     std::vector<TString> variation_names = {
       "murmuf_upup",
@@ -80,9 +95,18 @@ void getScaleEnvelope(){
       "murmuf_downnone",
       "murmuf_downdown"
     };
+    int k = 0;
     for (auto name : variation_names) {
       TString basename = region + "_" + channel + "/pt_ST_";
-      variations.push_back((TH1F*)f_in->Get(basename + name));
+      TH1F *hist = (TH1F*)f_in->Get(basename + name);
+      
+      // scaling if we are signal!!
+      if(isSignal.at(i)) {
+        hist->Scale(scale_norm[k]);
+      }
+
+      variations.push_back(hist);
+      k++;
     }
 
     // Loop over each bin of the ST histogram and take envelope

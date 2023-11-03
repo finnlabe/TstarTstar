@@ -27,6 +27,13 @@ public:
     // hist names for PDF
     std::string hist_names[100];
 
+    uhh2::Event::Handle<float> h_murmuf_upup;
+    uhh2::Event::Handle<float> h_murmuf_upnone;
+    uhh2::Event::Handle<float> h_murmuf_noneup;
+    uhh2::Event::Handle<float> h_murmuf_nonedown;
+    uhh2::Event::Handle<float> h_murmuf_downnone;
+    uhh2::Event::Handle<float> h_murmuf_downdown;
+
 };
 
 }
