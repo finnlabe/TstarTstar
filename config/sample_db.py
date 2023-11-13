@@ -117,10 +117,10 @@ samplesDict = {
     },
     #_________________________________________________
     'ST_tW_NoFullyHadronic_top': {
-        'db_name': 'ST_tW_top_5f_NoFullyHadronicDecays',
+        'db_name': 'ST_tW_top_5f_NoFullyHadronicDecays_PDFWeights',
     },
     'ST_tW_NoFullyHadronic_antitop': {
-        'db_name': 'ST_tW_antitop_5f_NoFullyHadronicDecays',
+        'db_name': 'ST_tW_antitop_5f_NoFullyHadronicDecays_PDFWeights',
     },
     'ST_tChannel_top': {
         'db_name': 'ST_t-channel_top_4f_InclusiveDecays',
