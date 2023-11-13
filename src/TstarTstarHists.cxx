@@ -628,63 +628,63 @@ void TstarTstarHists::fill(const Event & event){
         gluonjet = topjet;
         ttagjet_best = ttagjet;
         found_gluonjet = true;
-        }
       }
     }
-    if(found_ttagjet && found_gluonjet){
-      hist("dR_ttagjet_gluonjet")->Fill(deltaR(ttagjet_best, gluonjet), weight);
-      hist("dphi_ttagjet_gluonjet")->Fill(abs(ttagjet_best.phi() - gluonjet.phi()), weight);
-    }
-
-    for(const auto & jet : *event.jets) {
-      if(jet.btag_DeepCSV() > 0.2219) {
-        hist("invmass_lep_b")->Fill(inv_mass_2(primary_lepton.v4() + jet.v4()), weight);
-        hist("invmass_b_MET")->Fill(inv_mass_2(jet.v4() + event.met->v4()), weight);
-        break;
-      }
-    }
-    hist("invmass_lep_MET")->Fill(inv_mass_2(primary_lepton.v4() + event.met->v4()), weight);
-
-    // reco plots
-    //gHOTVR
-    try {
-      ReconstructionTstarHypothesis hyp_gHOTVR = event.get(h_tstartstar_hyp_gHOTVR);
-      hist("M_Tstar_gHOTVR_uncorr")->Fill(hyp_gHOTVR.tstarlep_v4().pt(), weight/2);
-      if(hyp_gHOTVR.tstarhad_v4().pt() != 0) {
-        ReconstructionHypothesis ttbarhyp_gHOTVR = hyp_gHOTVR.ttbar_hyp();
-        hist("chi2_gHOTVR")->Fill(hyp_gHOTVR.chi2(), weight);
-        hist("M_top_gHOTVR_had")->Fill(inv_mass_2(ttbarhyp_gHOTVR.tophad_v4()), weight);
-        hist("M_top_gHOTVR_lep")->Fill(inv_mass_2(ttbarhyp_gHOTVR.toplep_v4()), weight);
-        hist("M_Tstar_gHOTVR")->Fill(inv_mass_2(hyp_gHOTVR.tstarlep_v4()), weight/2);
-        hist("M_Tstar_gHOTVR_lep")->Fill(inv_mass_2(hyp_gHOTVR.tstarlep_v4()), weight);
-        hist("M_Tstar_gHOTVR")->Fill(inv_mass_2(hyp_gHOTVR.tstarhad_v4()), weight/2);
-        hist("M_Tstar_gHOTVR_had")->Fill(inv_mass_2(hyp_gHOTVR.tstarhad_v4()), weight);
-      }
-    } catch(...) {}
-
-    //gAK4
-    try {
-      ReconstructionTstarHypothesis hyp_gAK4 = event.get(h_tstartstar_hyp_gAK4);
-      hist("M_Tstar_gAK4_uncorr")->Fill(hyp_gAK4.tstarlep_v4().pt(), weight/2);
-      if(hyp_gAK4.tstarhad_v4().pt() != 0) {
-        ReconstructionHypothesis ttbarhyp_gAK4 = hyp_gAK4.ttbar_hyp();
-        hist("chi2_gAK4")->Fill(hyp_gAK4.chi2(), weight);
-        hist("M_top_gAK4_had")->Fill(inv_mass_2(ttbarhyp_gAK4.tophad_v4()), weight);
-        hist("M_top_gAK4_lep")->Fill(inv_mass_2(ttbarhyp_gAK4.toplep_v4()), weight);
-        hist("M_Tstar_gAK4")->Fill(inv_mass_2(hyp_gAK4.tstarlep_v4()), weight/2);
-        hist("M_Tstar_gAK4_lep")->Fill(inv_mass_2(hyp_gAK4.tstarlep_v4()), weight);
-        hist("M_Tstar_gAK4")->Fill(inv_mass_2(hyp_gAK4.tstarhad_v4()), weight/2);
-        hist("M_Tstar_gAK4_had")->Fill(inv_mass_2(hyp_gAK4.tstarhad_v4()), weight);
-      }
-    } catch(...) {}
-
-    if(event.topjets->size() > 1) {
-      hist("mjj")->Fill(inv_mass_2(event.topjets->at(0).v4() + event.topjets->at(1).v4()));
-    }
-
-
-    if(debug) cout << "Finished Tstar Hists!" << endl;
-
   }
+  if(found_ttagjet && found_gluonjet){
+    hist("dR_ttagjet_gluonjet")->Fill(deltaR(ttagjet_best, gluonjet), weight);
+    hist("dphi_ttagjet_gluonjet")->Fill(abs(ttagjet_best.phi() - gluonjet.phi()), weight);
+  }
+
+  for(const auto & jet : *event.jets) {
+    if(jet.btag_DeepCSV() > 0.2219) {
+      hist("invmass_lep_b")->Fill(inv_mass_2(primary_lepton.v4() + jet.v4()), weight);
+      hist("invmass_b_MET")->Fill(inv_mass_2(jet.v4() + event.met->v4()), weight);
+      break;
+    }
+  }
+  hist("invmass_lep_MET")->Fill(inv_mass_2(primary_lepton.v4() + event.met->v4()), weight);
+
+  // reco plots
+  //gHOTVR
+  try {
+    ReconstructionTstarHypothesis hyp_gHOTVR = event.get(h_tstartstar_hyp_gHOTVR);
+    hist("M_Tstar_gHOTVR_uncorr")->Fill(hyp_gHOTVR.tstarlep_v4().pt(), weight/2);
+    if(hyp_gHOTVR.tstarhad_v4().pt() != 0) {
+      ReconstructionHypothesis ttbarhyp_gHOTVR = hyp_gHOTVR.ttbar_hyp();
+      hist("chi2_gHOTVR")->Fill(hyp_gHOTVR.chi2(), weight);
+      hist("M_top_gHOTVR_had")->Fill(inv_mass_2(ttbarhyp_gHOTVR.tophad_v4()), weight);
+      hist("M_top_gHOTVR_lep")->Fill(inv_mass_2(ttbarhyp_gHOTVR.toplep_v4()), weight);
+      hist("M_Tstar_gHOTVR")->Fill(inv_mass_2(hyp_gHOTVR.tstarlep_v4()), weight/2);
+      hist("M_Tstar_gHOTVR_lep")->Fill(inv_mass_2(hyp_gHOTVR.tstarlep_v4()), weight);
+      hist("M_Tstar_gHOTVR")->Fill(inv_mass_2(hyp_gHOTVR.tstarhad_v4()), weight/2);
+      hist("M_Tstar_gHOTVR_had")->Fill(inv_mass_2(hyp_gHOTVR.tstarhad_v4()), weight);
+    }
+  } catch(...) {}
+
+  //gAK4
+  try {
+    ReconstructionTstarHypothesis hyp_gAK4 = event.get(h_tstartstar_hyp_gAK4);
+    hist("M_Tstar_gAK4_uncorr")->Fill(hyp_gAK4.tstarlep_v4().pt(), weight/2);
+    if(hyp_gAK4.tstarhad_v4().pt() != 0) {
+      ReconstructionHypothesis ttbarhyp_gAK4 = hyp_gAK4.ttbar_hyp();
+      hist("chi2_gAK4")->Fill(hyp_gAK4.chi2(), weight);
+      hist("M_top_gAK4_had")->Fill(inv_mass_2(ttbarhyp_gAK4.tophad_v4()), weight);
+      hist("M_top_gAK4_lep")->Fill(inv_mass_2(ttbarhyp_gAK4.toplep_v4()), weight);
+      hist("M_Tstar_gAK4")->Fill(inv_mass_2(hyp_gAK4.tstarlep_v4()), weight/2);
+      hist("M_Tstar_gAK4_lep")->Fill(inv_mass_2(hyp_gAK4.tstarlep_v4()), weight);
+      hist("M_Tstar_gAK4")->Fill(inv_mass_2(hyp_gAK4.tstarhad_v4()), weight/2);
+      hist("M_Tstar_gAK4_had")->Fill(inv_mass_2(hyp_gAK4.tstarhad_v4()), weight);
+    }
+  } catch(...) {}
+
+  if(event.topjets->size() > 1) {
+    hist("mjj")->Fill(inv_mass_2(event.topjets->at(0).v4() + event.topjets->at(1).v4()));
+  }
+
+
+  if(debug) cout << "Finished Tstar Hists!" << endl;
+
+}
 
 TstarTstarHists::~TstarTstarHists(){}

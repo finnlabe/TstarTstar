@@ -5,7 +5,7 @@ void backgroundEstimation_comparePurities () {
   TString path = "/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/bgest/";
   TString filename_base = "purity_HOTVR";
 
-  TString mode = "systs"; // options are allCombs, channels, years and systs
+  TString mode = "years"; // options are allCombs, channels, years and systs
 
   std::vector<TString> years;
   if ((mode == "allCombs") || (mode == "years")) years = {"UL16preVFP", "UL16postVFP", "UL17", "UL18"};
@@ -13,7 +13,7 @@ void backgroundEstimation_comparePurities () {
   
   std::vector<TString> channels;
   if ((mode == "allCombs") || (mode == "channels")) channels = {"mu", "ele"};
-  else channels = {"total"};
+  else channels = {"ele"};
 
   std::vector<TString> systs;
   if ((mode == "allCombs") || (mode == "systs")) systs = {"btagging_totalUp", "btagging_totalDown"};
@@ -33,7 +33,7 @@ void backgroundEstimation_comparePurities () {
   bool draw_baseline = true;
   if (draw_baseline) {
     // draw currently used as baseline
-    TFile *input = TFile::Open(path + filename_base + "__total.root");
+    TFile *input = TFile::Open(path + filename_base + "__ele.root");
     TH1D *function = (TH1D*)((TH1D*) input->Get(purityname))->Clone("baseline"); // give some unique name
 
     function->SetLineColor( 1 );
@@ -54,8 +54,17 @@ void backgroundEstimation_comparePurities () {
       int systi = 0;
       for (auto syst : systs) {
 
-        TFile *input = TFile::Open(path + filename_base + "_" + year + "_" + channel + "_" + syst + ".root");
-        TH1D *function = (TH1D*)((TH1D*) input->Get(purityname))->Clone(year + "_" + channel);   // give some unique name
+        TFile *input;
+        TH1D *function;  // give some unique name
+
+        if (syst == "") {
+          input = TFile::Open(path + filename_base + "_" + year + "_" + channel + ".root");
+          function = (TH1D*)((TH1D*) input->Get(purityname))->Clone(year + "_" + channel);
+        } else {
+          input = TFile::Open(path + filename_base + "_" + year + "_" + channel + "_" + syst + ".root");
+          function = (TH1D*)((TH1D*) input->Get(purityname))->Clone(year + "_" + channel);
+        }
+        
 
         function->SetLineColor( colors.at(yeari + systi) );
         function->SetLineStyle( styles.at(channeli) );

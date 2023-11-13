@@ -5,11 +5,11 @@ void backgroundEstimation_compareFunctions () {
   TString path = "/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/bgest/";
   TString filename_base = "alphaFunction_HOTVR";
 
-  //std::vector<TString> years = {"UL16preVFP", "UL16postVFP", "UL17", "UL18"};
-  std::vector<TString> years = {""};
+  std::vector<TString> years = {"UL16preVFP", "UL16postVFP", "UL17", "UL18"};
+  //std::vector<TString> years = {""};
   
-  std::vector<TString> channels = {"mu", "ele"};
-  //std::vector<TString> channels = {"total"};
+  //std::vector<TString> channels = {"mu", "ele"};
+  std::vector<TString> channels = {"ele"};
 
   TString region = "VR";
   TString fitfunc = "fit_mean";

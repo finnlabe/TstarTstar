@@ -52,13 +52,13 @@ double GetXForHighestY(TGraphAsymmErrors graph) {
 
 void backgroundEstimation(){
 
-  bool storeOutputToFile = false;
-  bool plot_other_ratios = true;
+  bool storeOutputToFile = true;
+  bool plot_other_ratios = false;
   bool plot_stat_unc = true;
 
-  TString region = "SR";
-  TString year = "";    // no year means full run 2
-  TString channel = "mu";  // total channel means combination of both ele and mu
+  TString region = "VR";
+  TString year = "UL18";    // no year means full run 2
+  TString channel = "ele";  // total channel means combination of both ele and mu
   TString JE_string = "";   // for example "_JECUp" ATTENTION MUST BE HADDED MANUALLY IN DATA FOLDER
 
   TString systematic = ""; // for example btagging_totalUp. empty string means do not do any systematic 
@@ -169,7 +169,7 @@ void backgroundEstimation(){
 
   // fitting landau
   fit1 = new TF1("fit1", "landau", 0, 6000);
-  ratio.Fit("fit1", "N", "", 600, 6000);
+  ratio.Fit("fit1", "N", "", 1200, 6000);
 
   TH1D *fit1unc = new TH1D("fit1unc", "Fit 1 with conf.band", 100, 0, 10000);
   (TVirtualFitter::GetFitter())->GetConfidenceIntervals(fit1unc, 0.68);
