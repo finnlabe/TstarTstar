@@ -22,7 +22,9 @@
 
 using namespace std;
 
-void getScaleEnvelope(){
+void getScaleEnvelope(TString year = "UL18", TString channel = "mu", TString region = "SignalRegion"){
+
+  std::cout << "Working on " << year << " for the " << channel << " channel in the " << region << "." << std::endl;
 
   gStyle->SetOptFit(0);
   gStyle->SetOptStat(0);
@@ -40,14 +42,8 @@ void getScaleEnvelope(){
   gStyle->SetPadLeftMargin(0.18);
   gStyle->SetPadRightMargin(0.07);
 
-  // TODO make a script or a loop that calls all combinations!
-
   TString filename_base = "";
-  TString year = "UL18";
   filename_base += "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/"+year+"/hadded/uhh2.AnalysisModuleRunner.MC.";
-  TString channel = "mu";
-
-  TString region = "ValidationRegion";
 
   vector<TString> samples = {"TTbar", "ST"};
   vector<bool> isSignal (samples.size(), false);

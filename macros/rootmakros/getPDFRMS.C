@@ -22,17 +22,13 @@
 
 using namespace std;
 
-void getPDFRMS(){
-
-  // TODO make script running these, or lööp
+void getPDFRMS( TString year = "UL18", TString channel = "mu", TString region = "SignalRegion"){
 
   // this assumes that all signals are replicas, and all others are hessians (only relevant for ttbar anyway atm.)
   // ST will be fixed later, need to check that sample then!
-
-  TString year = "UL18";
   TString filename_base = "/nfs/dust/cms/user/flabe/TstarTstar/data/DNN/" + year + "/hadded/uhh2.AnalysisModuleRunner.MC.";
-  TString channel = "mu";
-  TString region = "SignalRegion";
+
+  std::cout << "Working on " << year << " for the " << channel << " channel in the " << region << "." << std::endl;
 
   vector<TString> samples = {"TTbar", "ST"};
   vector<bool> isSignal (samples.size(), false);

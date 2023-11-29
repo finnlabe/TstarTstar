@@ -61,7 +61,7 @@ private:
   std::unique_ptr<Hists> h_crosscheck, h_hists_SR, h_hists_VR, h_hists_btagCR, h_hists_ttbarCR;
   std::unique_ptr<Hists> h_crosscheck_ele, h_hists_SR_ele, h_hists_VR_ele, h_hists_btagCR_ele, h_hists_ttbarCR_ele;
   std::unique_ptr<Hists> h_crosscheck_mu, h_hists_SR_mu, h_hists_VR_mu, h_hists_btagCR_mu, h_hists_ttbarCR_mu;
-  std::unique_ptr<Hists> h_hists_VR_noElecTrigSFs, h_hists_ttbarCR_noElecTrigSFs; // this one is needed to check the effect of the SFs
+  std::unique_ptr<Hists> h_hists_VR_noElecTrigSFs, h_hists_ttbarCR_noElecTrigSFs, h_hists_VR_noPUweight; // this one is needed to check the effect of the SFs
   std::unique_ptr<Hists> h_AfterDNNcut_06, h_NotDNNcut_06; // used to compare DDT results to simple cut
 
   // temp check hists
@@ -121,6 +121,7 @@ private:
   uhh2::Event::Handle<TString> h_region;
 
   uhh2::Event::Handle<float> h_weight_sfelec_triggerNominal;
+  uhh2::Event::Handle<float> h_weight_puNominal;
 
   uhh2::Event::Handle<bool> h_MC_isfake2017B;
   bool data_is2017B = false;
@@ -236,6 +237,7 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_hists_VR_ele_prefiring.reset(new TstarTstarHists(ctx, "hists_VR_ele_prefiring"));
 
   h_hists_VR_noElecTrigSFs.reset(new TstarTstarHists(ctx, "hists_VR_noElecTrigSFs"));
+  h_hists_VR_noPUweight.reset(new TstarTstarHists(ctx, "hists_VR_noPUweight"));
   h_hists_ttbarCR_noElecTrigSFs.reset(new TstarTstarHists(ctx, "hists_ttbarCR_noElecTrigSFs"));
   h_AfterDNNcut_06.reset(new TstarTstarHists(ctx, "AfterDNNcut_06"));
   h_NotDNNcut_06.reset(new TstarTstarHists(ctx, "NotDNNcut_06"));
@@ -314,6 +316,7 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_region = ctx.declare_event_output<TString>("region");
 
   h_weight_sfelec_triggerNominal = ctx.get_handle<float>("weight_sfelec_trigger");
+  h_weight_puNominal = ctx.get_handle<float>("weight_pu");
 
   h_MC_isfake2017B = ctx.declare_event_output<bool>("MC_isfake2017B");
   if(!is_MC) data_is2017B = ctx.get("dataset_version").find("RunB_UL17") != std::string::npos;
@@ -761,6 +764,13 @@ bool TstarTstarDNNModule::process(Event & event) {
       }
       h_hists_VR->fill(event);
       h_ValidationRegion_total->fill(event);
+
+      // special case here: plot same, but without MC PU reweighting
+      double reset_weight_PUw = event.weight;
+      if(is_MC) {if( event.get(h_weight_puNominal) != 0) event.weight /= event.get(h_weight_puNominal);}
+      h_hists_VR_noPUweight->fill(event);
+      event.weight = reset_weight_PUw;
+
       if(event.get(h_flag_muonevent)) {
         h_hists_VR_mu->fill(event);
         h_ValidationRegion_mu->fill(event);
