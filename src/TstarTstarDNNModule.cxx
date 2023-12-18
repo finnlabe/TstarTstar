@@ -108,6 +108,8 @@ private:
   uhh2::Event::Handle<double> h_evt_weight;
   uhh2::Event::Handle<TTbarGen> h_ttbargen;
 
+  uhh2::Event::Handle< std::vector<Jet> > h_CHS_matched;
+
   uhh2::Event::Handle<bool> h_trigger_decision;
   uhh2::Event::Handle<int> h_flag_toptagevent;
   uhh2::Event::Handle<bool> h_flag_muonevent;
@@ -437,6 +439,8 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   TString path = "/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/";
   TString bestFunction = "0p3";
   TString filename_base = "DDTfunc_";
+
+  h_CHS_matched = ctx.get_handle<vector<Jet>>("CHS_matched");
   
   // getting the best function
   TFile *f = new TFile(path+filename_base+bestFunction+".root");
@@ -491,7 +495,7 @@ bool TstarTstarDNNModule::process(Event & event) {
   // can be removed if its not failing in the next running iteration
   BTag bJetID = BTag(BTag::algo::DEEPJET, BTag::wp::WP_MEDIUM);
   bool pass_btagcut = false;
-  for (const auto & jet: *event.jets){
+  for (const auto & jet: event.get(h_CHS_matched)){
     if(bJetID(jet, event)) pass_btagcut = true;
   }
   assert(pass_btagcut == event.get(h_is_btagevent));
@@ -838,7 +842,7 @@ bool TstarTstarDNNModule::process(Event & event) {
         // tighter b-tag selection
         BTag bJetID_medium = BTag(BTag::algo::DEEPJET, BTag::wp::WP_MEDIUM);
         int N_btag_medium = 0;
-        for (const auto & jet: *event.jets){
+        for (const auto & jet: event.get(h_CHS_matched)){
           if(bJetID_medium(jet, event)) N_btag_medium++;
         }
 

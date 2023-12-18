@@ -32,6 +32,8 @@
 #include "UHH2/TstarTstar/include/ElecTriggerSF.h"
 #include "UHH2/TstarTstar/include/TstarTstarJetCorrectionHists.h"
 #include "UHH2/TstarTstar/include/JetMETCorrections.h"
+#include <UHH2/TstarTstar/include/CHSJetCorrections.h>
+#include "UHH2/TstarTstar/include/PuppiCHSMatching.h"
 
 // HOTVR stuff
 #include "UHH2/HOTVR/include/HOTVRIds.h"
@@ -67,6 +69,10 @@ private:
   std::unique_ptr<AnalysisModule> AK4cleaner;
   std::unique_ptr<AnalysisModule> reco_primlep;
   std::unique_ptr<AnalysisModule> ttgenprod;
+
+  // CHS jet related
+  std::unique_ptr<CHSJetCorrections> CHSjetCorr;
+  std::unique_ptr<AnalysisModule> PuppiCHSMatcher;
 
   // HOTVR-related
   std::unique_ptr<AnalysisModule> HOTVRCorr;
@@ -245,6 +251,11 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   HOTVRCorr.reset(new HOTVRJetCorrectionModule(ctx));
   HOTVRcleaner.reset(new TopJetCleaner(ctx, AndId<Jet>(PtEtaCut(200, 2.5), JetPFID(JetPFID::WP_TIGHT_PUPPI)) ));
 
+  // CHS jet stuff (for matching)
+  CHSjetCorr.reset(new CHSJetCorrections());
+  CHSjetCorr->init(ctx);
+  PuppiCHSMatcher.reset(new PuppiCHSMatching(ctx));
+
   // primary lepton
   reco_primlep.reset(new PrimaryLepton(ctx));
 
@@ -271,7 +282,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
 
   // b-tagging scale factors
   if(debug) cout << "Setting up btagging scale." << endl;
-  ScaleFactor_btagging.reset(new MCBTagDiscriminantReweighting(ctx, BTag::algo::DEEPJET)); // should be enough like this
+  ScaleFactor_btagging.reset(new MCBTagDiscriminantReweighting(ctx, BTag::algo::DEEPJET, "CHS_matched")); // SFs on the matched CHS jets 
   if(is_MC) { // TODO put this into a module at some point
     TFile *f = new TFile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/btagYieldSFs_"+year+".root");
     TString sample_string = "";
@@ -580,6 +591,8 @@ bool TstarTstarSelectionModule::process(Event & event) {
   if(!jetcorrections->process(event)) return false;
   if(!(HOTVRjlc->process(event))) return false;
   if(!(HOTVRCorr->process(event))) return false;
+  if(!(CHSjetCorr->process(event))) return false;
+  PuppiCHSMatcher->process(event); // this will define the CHS matched collection we need for b-tagging!
 
   // hists after jet corrections
   if(debug) std::cout << "Fill correction hists" << endl;

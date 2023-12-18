@@ -88,6 +88,8 @@ NeuralNetworkInputCreator::NeuralNetworkInputCreator(Context& ctx) {
   h_do_masspoint = ctx.get_handle<bool>("do_masspoint");
   h_is_muevt = ctx.get_handle<bool>("is_muevt");
 
+  h_CHS_matched = ctx.get_handle<vector<Jet>>("CHS_matched");
+
   // Check if MC or Data
   is_MC = ctx.get("dataset_type") == "MC";
   // Init random for masspoint
@@ -148,14 +150,15 @@ bool NeuralNetworkInputCreator::createInputs(Event& event) {
   }
 
   double maxbtag = 0.;
-  Jet btaggedjet;
-  for (const auto & jet : *event.jets) {
-      if(jet.btag_DeepJet() > maxbtag) btaggedjet = jet;
+  int bjetindex = -1;
+  for (int i = 0; i < event.get(h_CHS_matched).size(); i++) {
+      if(event.get(h_CHS_matched).at(i).btag_DeepJet() > maxbtag) bjetindex = i;
   }
+  Jet btaggedjet = event.jets->at(bjetindex);
   values.push_back(btaggedjet.pt());
   values.push_back(btaggedjet.eta());
   values.push_back(btaggedjet.phi());
-  values.push_back(btaggedjet.btag_DeepJet());
+  values.push_back(maxbtag);
 
   // MET
   values.push_back(event.met->pt());

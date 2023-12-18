@@ -22,6 +22,13 @@ TstarTstarHists::TstarTstarHists(Context & ctx, const string & dirname): Hists(c
 
   is_MC = ctx.get("dataset_type") == "MC";
 
+  try { // we'll try to fill with matched jets
+    h_CHS_matched = ctx.get_handle<vector<Jet>>("CHS_matched");
+  } catch (...) { // if that does not work, we'll just use non-matched CHS jets, which should be (more or less) similar
+    h_CHS_matched = ctx.get_handle<vector<Jet>>("jetsAk4CHS");
+  } 
+  
+
   h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
   h_ST_AK4 = ctx.get_handle<double>("ST_AK4");
   h_ST_HOTVR = ctx.get_handle<double>("ST_HOTVR");
@@ -288,7 +295,7 @@ void TstarTstarHists::fill(const Event & event){
   int N_jets_btag_tight = 0;
   Jet bjet0;
   double highest_btag = -1;
-  for(const auto & jet : *event.jets) {
+  for(const auto & jet : event.get(h_CHS_matched)) { // using matched CHS jets here!
     if(bJetID_loose(jet, event)) N_jets_btag_loose++;
     if(bJetID_medium(jet, event)) N_jets_btag_medium++;
     if(bJetID_tight(jet, event)) N_jets_btag_tight++;
@@ -299,16 +306,16 @@ void TstarTstarHists::fill(const Event & event){
     }
   }
   // fill bjet histograms
-  if(Njets>=1){
-    hist("pt_bjet0")->Fill(jets->at(0).pt(), weight);
-    hist("pt_bjet0_rebinned")->Fill(jets->at(0).pt(), weight);
+  if(event.get(h_CHS_matched).size() > 0){
+    hist("pt_bjet0")->Fill(bjet0.pt(), weight);
+    hist("pt_bjet0_rebinned")->Fill(bjet0.pt(), weight);
   }
-
-  if(event.jets->size()>0) hist("DeepJetscore_firstJet")->Fill(event.jets->at(0).btag_DeepJet(), weight);
-
+  if(event.jets->size()>0) hist("DeepJetscore_firstJet")->Fill(event.get(h_CHS_matched).at(0).btag_DeepJet(), weight);
   hist("N_jets_btag_loose")->Fill(N_jets_btag_loose, weight);
   hist("N_jets_btag_medium")->Fill(N_jets_btag_medium, weight);
   hist("N_jets_btag_tight")->Fill(N_jets_btag_tight, weight);
+
+  // PU
   if(!event.isRealData)  hist("N_PU")->Fill(event.genInfo->pileup_TrueNumInteractions(), weight);
 
   if(Njets>=1){
