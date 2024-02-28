@@ -3,21 +3,22 @@ void btagSFcheck() {
 
   gStyle->SetPadBottomMargin(0.2);
 
-  TString year = "UL17";
+  TString year = "UL16preVFP";
+  TString channel = "mu";
   TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/"+year+"/hadded/";
   TString filename_base = "uhh2.AnalysisModuleRunner.MC.";
 
-  std::vector<TString> samples = {"TTbar", "WJets", "ST", "QCD", "VV", "DYJets"};
+  std::vector<TString> samples = {"TTbar", "WJets", "ST", "QCD", "VV", "DYJets", "TstarTstar", "TstarTstar_Spin32"};
   //std::vector<TString> samples = {"TstarTstar", "TstarTstar_Spin32"};
 
   TString histname2D = "pt_HT_N_jet_rebinned";
-  std::vector<TString> hists_to_crosscheck = {"pt_HT", "N_jets", "DeepJetscore", "pt_ST_HOTVR_rebinned"};
+  std::vector<TString> hists_to_crosscheck = {"pt_HT", "N_jets", "DeepJetscore", "pt_"+channel};
 
-  TString folder_before = "HOTVRcut";
-  TString folder_after = "bcorrections";
-  TString folder_crosscheck = "byield";
+  TString folder_before = "HOTVRcut_"+channel;
+  TString folder_after = "bcorrections_"+channel;
+  TString folder_crosscheck = "byield_"+channel;
 
-  bool writeSFsToFile = false;
+  bool writeSFsToFile = true;
 
   // main loop, we are doing this for each sample
   std::vector<TH2D*> histograms_to_store;
@@ -55,7 +56,7 @@ void btagSFcheck() {
     text->SetTextSize(0.045);
     text->Draw();
 
-    can_2D->SaveAs("plots/btagYieldSFs_"+sample+"_"+year+".pdf");
+    can_2D->SaveAs("plots/btagyield/btagYieldSFs_"+sample+"_"+year+".pdf");
 
     // storing to vector for saving later
     histograms_to_store.push_back(hist_ratio);
@@ -129,6 +130,10 @@ void btagSFcheck() {
       hist_crosscheck_after_ratio->SetTitle("");
       hist_crosscheck_crosscheck_ratio->SetTitle("");
 
+      if (histname_to_crosscheck == "DeepJetscore") {
+        hist_crosscheck_after_ratio->GetYaxis()->SetRangeUser(0.75, 1.5);
+      }
+
       hist_crosscheck_after_ratio->Draw();
       hist_crosscheck_crosscheck_ratio->Draw("same");
 
@@ -136,7 +141,7 @@ void btagSFcheck() {
       line.SetLineStyle(2);
       line.Draw("same");
 
-      can_crosscheck->SaveAs("plots/btagYieldSFs_crosscheck_"+sample+"_"+year+"_"+histname_to_crosscheck+".pdf");
+      can_crosscheck->SaveAs("plots/btagyield/btagYieldSFs_crosscheck_"+sample+"_"+year+"_"+channel+"_"+histname_to_crosscheck+".pdf");
 
     }
 
@@ -144,7 +149,7 @@ void btagSFcheck() {
 
   if(writeSFsToFile) {
     // outputting the 2D histograms for scaling
-    TFile *output = TFile::Open("files/btagYieldSFs_"+year+".root", "RECREATE");
+    TFile *output = TFile::Open("files/btagyield/btagYieldSFs_"+year+"_"+channel+".root", "RECREATE");
     for (auto histogram : histograms_to_store) {
       histogram->Write();
     }

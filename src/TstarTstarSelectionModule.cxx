@@ -161,7 +161,7 @@ private:
   uhh2::Event::Handle<bool> h_is_ttbarCR;
   uhh2::Event::Handle<bool> h_MC_isfake2017B;
   uhh2::Event::Handle<bool> h_MC_isfake2016B;
-
+  uhh2::Event::Handle<vector<Jet>> h_CHS_matched;
 
   // ###### other needed definitions ######
   bool debug = false;
@@ -294,7 +294,6 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
     else if(ctx.get("dataset_version").find("DY") != std::string::npos) sample_string = "DYJets";
     else if(ctx.get("dataset_version").find("TstarTstarToTgammaTgamma") != std::string::npos) sample_string = "TstarTstar";
     else if(ctx.get("dataset_version").find("TstarTstarToTgluonTgluon_Spin32") != std::string::npos) sample_string = "TstarTstar_Spin32";
-    // TODO add new signal samples here!
     if(debug) std::cout << "Apply 2D b-taggin yield SFs for " << sample_string << std::endl;
 
     if(sample_string != "") eventYieldFactors = (TH2D*)f->Get(sample_string);
@@ -521,6 +520,10 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   h_is_btagevent = ctx.declare_event_output<bool>("is_btagevent");
   h_is_ttbarCR = ctx.declare_event_output<bool>("is_ttbarCR");
 
+  h_CHS_matched = ctx.get_handle<vector<Jet>>("CHS_matched");
+  
+  // undeclaring AK4 CHS jets, just to make sure we don't blow up the memory too much
+  ctx.undeclare_event_output("jetsAk4CHS");
 }
 
 
@@ -852,7 +855,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
   }
   BTag bJetID_loose = BTag(BTag::algo::DEEPJET, BTag::wp::WP_LOOSE);
   int N_btag_loose = 0;
-  for (const auto & jet: *event.jets){
+  for(const auto & jet : event.get(h_CHS_matched)) {
     if(bJetID_loose(jet, event)) N_btag_loose++;
   }
   if(passHOTVRtoptag && N_btag_loose > 1) event.set(h_is_ttbarCR, true);
@@ -877,7 +880,7 @@ bool TstarTstarSelectionModule::process(Event & event) {
   // btag selection
   BTag bJetID = BTag(BTag::algo::DEEPJET, BTag::wp::WP_MEDIUM);
   bool pass_btagcut = false;
-  for (const auto & jet: *event.jets){
+  for (const auto & jet : event.get(h_CHS_matched)) {
     if(bJetID(jet, event)) pass_btagcut = true;
   }
   event.set(h_is_btagevent, pass_btagcut); // not throwing events away, as we'll keep these for iur

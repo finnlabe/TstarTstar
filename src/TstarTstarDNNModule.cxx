@@ -51,6 +51,7 @@ private:
   std::unique_ptr<AnalysisModule> sf_ele_trigger;                  // needed to re-apply electron trigger SFs in case they changed since sel
   std::unique_ptr<AnalysisModule> ttgenprod;
   std::unique_ptr<AnalysisModule> TopPtReweighting;                // re-running this here just to get the event weight :)
+  std::unique_ptr<AnalysisModule> MCScaleVariations;               // re-running this here just to get the event weight :)
 
   // ##### Histograms #####
 
@@ -158,6 +159,9 @@ private:
 
   unique_ptr<Selection> twodcut_sel;
 
+  // btag yield, for re-application
+  TH2D *eventYieldFactors_old, *eventYieldFactors_mu, *eventYieldFactors_ele;
+
 };
 
 
@@ -199,6 +203,8 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
 
   TopPtReweighting.reset( new TopPtReweight(ctx, 0.0615, -0.0005, "ttbargen", "weight_ttbar", false) ); // just rerunning to get the weight, not applying!
 
+  // this will set the mc scale variation weights
+  MCScaleVariations.reset(new MCScaleVariation(ctx) );
 
   // 2. set up histograms:
 
@@ -453,8 +459,36 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
     DDTFunctions.push_back(DDTFunction);
   }
 
-  // TODO remove 2D
+  // just a 2d with tighter cuts
   twodcut_sel.reset(new TwoDCut(0.4, 50.0));  // doubling the ptrel
+
+
+  // for re-application of the btagging yield sgs
+  if(is_MC) { // TODO put this into a module at some point
+    TString sample_string = "";
+    if(ctx.get("dataset_version").find("TT") != std::string::npos) sample_string = "TTbar";
+    else if(ctx.get("dataset_version").find("ST") != std::string::npos) sample_string = "ST";
+    else if(ctx.get("dataset_version").find("WJets") != std::string::npos) sample_string = "WJets";
+    else if(ctx.get("dataset_version").find("QCD") != std::string::npos) sample_string = "QCD";
+    else if(ctx.get("dataset_version").find("Diboson") != std::string::npos) sample_string = "VV";
+    else if(ctx.get("dataset_version").find("DY") != std::string::npos) sample_string = "DYJets";
+    else if(ctx.get("dataset_version").find("TstarTstarToTgammaTgamma") != std::string::npos) sample_string = "TstarTstar";
+    else if(ctx.get("dataset_version").find("TstarTstarToTgluonTgluon_Spin32") != std::string::npos) sample_string = "TstarTstar_Spin32";
+    if(debug) std::cout << "Re-applying 2D b-taggin yield SFs for " << sample_string << std::endl;
+
+    TString path = "/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/btagyield/";
+    
+    TFile *fold = new TFile(path + "/oldfiles/btagYieldSFs_"+year+".root");
+    if(sample_string != "") eventYieldFactors_old = (TH2D*)fold->Get(sample_string);
+
+    TFile *fmu = new TFile(path + "/btagYieldSFs_"+year+"_mu.root");
+    if(sample_string != "") eventYieldFactors_mu = (TH2D*)fmu->Get(sample_string);
+
+    TFile *fele = new TFile(path + "/btagYieldSFs_"+year+"_ele.root");
+    if(sample_string != "") eventYieldFactors_ele = (TH2D*)fele->Get(sample_string);
+
+    else throw std::runtime_error("Error: can not determine sample type for btagging yield SFs.");
+  }
 
 }
 
@@ -481,8 +515,30 @@ bool TstarTstarDNNModule::process(Event & event) {
     sf_ele_trigger->process(event);
   }
 
+  // b-tagging yield correction re-application
+  // done as a function of AK4 HT and N(AK4)
+  if(is_MC) {
+    double ht = 0.;
+    for(const auto & jet : *event.jets) ht += jet.pt();
+    if(ht >= 4000.) ht = 3999.9;
+
+    double btaggingYieldWeight_old = eventYieldFactors_old->GetBinContent( eventYieldFactors_old->GetXaxis()->FindBin(ht),  eventYieldFactors_old->GetYaxis()->FindBin(event.jets->size()) );
+    double btaggingYieldWeight_mu = eventYieldFactors_mu->GetBinContent( eventYieldFactors_mu->GetXaxis()->FindBin(ht),  eventYieldFactors_mu->GetYaxis()->FindBin(event.jets->size()) );
+    double btaggingYieldWeight_ele = eventYieldFactors_ele->GetBinContent( eventYieldFactors_ele->GetXaxis()->FindBin(ht),  eventYieldFactors_ele->GetYaxis()->FindBin(event.jets->size()) );
+    event.weight /= btaggingYieldWeight_old;
+    if(event.get(h_flag_muonevent)) {
+      event.weight *= btaggingYieldWeight_mu;
+    } else {
+      event.weight *= btaggingYieldWeight_ele;
+    }
+  }
+
   if(is_MC) ttgenprod->process(event);
   TopPtReweighting->process(event); // will set the weight 
+
+  // run MCscale just to get the handles filled
+  // make sure that the config file has "nominal" for this weight!
+  MCScaleVariations->process(event); // writing MC weights
 
   // apply spin reweighting
   if(!(TstarTstarSpinSwitcher->process(event))) return false; // this will reweight, but only if set so in config file
@@ -501,7 +557,7 @@ bool TstarTstarDNNModule::process(Event & event) {
   assert(pass_btagcut == event.get(h_is_btagevent));
 
   // do additional ST cut
-  if(event.get(h_ST_HOTVR) < 600) return false;
+  //if(event.get(h_ST_HOTVR) < 600) return false;
 
   // filling crosscheck histograms after all initial steps are done
   if(event.get(h_is_btagevent)) {

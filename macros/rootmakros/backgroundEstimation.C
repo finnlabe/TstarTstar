@@ -50,18 +50,15 @@ double GetXForHighestY(TGraphAsymmErrors graph) {
     return maxX;
 }
 
-void backgroundEstimation(){
+// no year means full run 2
+// total channel means combination of both ele and mu
+// JE_string for example "_JECUp" ATTENTION MUST BE HADDED MANUALLY IN DATA FOLDER
+// systematic for example btagging_totalUp. empty string means do not do any systematic 
+void backgroundEstimation(TString channel = "ele", TString region = "SR", TString systematic = "", bool storeOutputToFile = true, bool plot_other_ratios = false){ // keep the last two to true, false when runnning in batch mode!
 
-  bool storeOutputToFile = true;
-  bool plot_other_ratios = false;
-  bool plot_stat_unc = true;
-
-  TString region = "VR";
-  TString year = "UL18";    // no year means full run 2
-  TString channel = "ele";  // total channel means combination of both ele and mu
-  TString JE_string = "";   // for example "_JECUp" ATTENTION MUST BE HADDED MANUALLY IN DATA FOLDER
-
-  TString systematic = ""; // for example btagging_totalUp. empty string means do not do any systematic 
+  TString year = "";
+  TString JE_string = "";
+  bool plot_stat_unc = !plot_other_ratios;
 
   // definitions
   std::vector<TString> nontop_backgrounds = {"WJets", "QCD", "VV", "DYJets"};
@@ -168,23 +165,28 @@ void backgroundEstimation(){
   ratio.Divide(histSR_nontop, hist_btagCR_nontop, "pois");
 
   // fitting landau
-  fit1 = new TF1("fit1", "landau", 0, 6000);
-  ratio.Fit("fit1", "N", "", 1200, 6000);
+  fit1 = new TF1("fit1", "landau", 200, 6000);
+  ratio.Fit("fit1", "N", "", 500, 6000);
 
   TH1D *fit1unc = new TH1D("fit1unc", "Fit 1 with conf.band", 100, 0, 10000);
   (TVirtualFitter::GetFitter())->GetConfidenceIntervals(fit1unc, 0.68);
 
   TH1D *fit2unc = new TH1D("fit2unc", "Fit 2 with conf.band", 100, 0, 10000);
-  if(region == "VR") {
-    fit2 = new TF1("fit2", "gaus", 0, 6000);
-    ratio.Fit("fit2", "N", "", 600, 6000);
-    (TVirtualFitter::GetFitter())->GetConfidenceIntervals(fit2unc, 0.68);
-  } else {
-    fit2 = new TF1("fit2", "pol1", 0, 6000);
-    ratio.Fit("fit2", "N", "", 600, 6000);
-    (TVirtualFitter::GetFitter())->GetConfidenceIntervals(fit2unc, 0.68);
+  fit2 = new TF1("fit2", "[3] + [0] * exp( -0.5 * (( x - [1])/[2])^2) ", 200, 6000);
 
+  // adapting starting parameters
+  if (channel == "mu" && region == "VR") {
+    fit2->SetParameters(1, 4500, 4500, 0.5);
+  } else if (channel == "mu" && region == "SR") {
+    fit2->SetParameters(0.1, 6000, 6000, 1);
+  } else if (channel == "ele" && region == "VR") {
+    fit2->SetParameters(1, 1000, 1000, 0);
+  } else {
+    fit2->SetParameters(0.1, 3000, 1000, 1);
   }
+  ratio.Fit("fit2", "N", "", 500, 6000);
+
+  (TVirtualFitter::GetFitter())->GetConfidenceIntervals(fit2unc, 0.68);
 
   // defining average
   fitMean = new TF1("mean", meanFunc, 0, 6000);
@@ -326,8 +328,7 @@ void backgroundEstimation(){
   // legend
   legend->AddEntry(&ratio,"#alpha (nominal)","elp");
   legend->AddEntry(fit1,"Landau fit (" + fittxt + ")","l");
-  if(region == "SR") legend->AddEntry(fit2,"polinomial fit (" + fit2txt + ")","l");
-  else legend->AddEntry(fit2,"gauss fit (" + fit2txt + ")","l");
+  legend->AddEntry(fit2,"Gauss + c fit (" + fit2txt + ")","l");
   legend->AddEntry(fitMean,"mean fit","l");
   legend->Draw();
 
@@ -388,7 +389,7 @@ void backgroundEstimation(){
   int bins_before_600 = 0; // need to start at 0 because of overflow bin
   for (int bin = 0; bin <= nbins; bin++) {
     double st = deviation->GetBinCenter(bin);
-    if( st < 600 ) {
+    if( st < 500 ) {
       bins_before_600++;
       deviation->SetBinContent(bin, 0);
     }
@@ -422,7 +423,8 @@ void backgroundEstimation(){
   deviation->GetYaxis()->SetTitle("deviation");
   deviation->Draw("P");
 
-    ///// large code block only for variation plots!!!
+  ///// large code block only for variation plots!!!
+
   if (plot_other_ratios) {
 
     int color_int = 2;
@@ -459,7 +461,7 @@ void backgroundEstimation(){
 
       for (int bin = 0; bin <= nbins; bin++) {
         double st = deviation->GetBinCenter(bin);
-        if( st < 600 ) {
+        if( st < 500 ) {
           deviationUp->SetBinContent(bin, 0);
           deviationDown->SetBinContent(bin, 0);
         }

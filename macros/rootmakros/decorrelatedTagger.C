@@ -9,6 +9,10 @@ Double_t meanFunc(Double_t *x, Double_t *par) {
   return ( fit1->EvalPar(x,par) + fit2->EvalPar(x,par) ) / 2;
 }
 
+Double_t CrystalBall(Double_t *x, Double_t *par) {
+  return ROOT::Math::crystalball_function(x[0], par[0], par[1], par[2], par[3]);
+}
+
 void decorrelatedTagger(){
 
   Double_t efficiency_ttbar = 0.3;
@@ -159,13 +163,16 @@ void decorrelatedTagger(){
   edgePoints->SetMarkerStyle(1);
   edgePoints->Draw("p same");
   //other option: Gauß + exponential
-  fit1 = new TF1("fit1", "pol2", 500, 4000);
-  fit2 = new TF1("fit2", "[2] + [0] * exp([1] * x)", 500, 4000);
+  //fit1 = new TF1("fit1", "[2] + [0] * exp([1] * x)", 500, 4000);
+  fit1 = new TF1("fit1", "crystalball", 500, 4000);
+  //fit2 = new TF1("fit2", "[2] + [0] * exp([1] * x)", 500, 4000);
+  fit2 = new TF1("fit2", "crystalball", 500, 4000);
   // constant, mean, sigma, alpha, N
-  //fit->SetParameters(.9,270,200,-0.3,1e+06);
+  fit1->SetParameters(.8,700,400,-0.2,8e+05);
+  fit2->SetParameters(.8,700,400,-0.2,8e+05);
   //fit->SetParameters(2, -3.05300e-03, 4.17680e-01);
-  edgePoints->Fit("fit1", "N", "", 600, 4000);
-  edgePoints->Fit("fit2", "N", "", 600, 4000);
+  edgePoints->Fit("fit1", "N", "", 500, 4000);
+  edgePoints->Fit("fit2", "N", "", 500, 4000);
 
   fitMean = new TF1("mean", meanFunc, 0, 6000);
 
