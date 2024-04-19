@@ -54,7 +54,7 @@ double GetXForHighestY(TGraphAsymmErrors graph) {
 // total channel means combination of both ele and mu
 // JE_string for example "_JECUp" ATTENTION MUST BE HADDED MANUALLY IN DATA FOLDER
 // systematic for example btagging_totalUp. empty string means do not do any systematic 
-void backgroundEstimation(TString channel = "ele", TString region = "SR", TString systematic = "", bool storeOutputToFile = true, bool plot_other_ratios = false){ // keep the last two to true, false when runnning in batch mode!
+void backgroundEstimation(TString channel = "mu", TString region = "SR", TString systematic = "", bool storeOutputToFile = true, bool plot_other_ratios = false){ // keep the last two to (true, false) when runnning in batch mode!
 
   TString year = "";
   TString JE_string = "";
@@ -168,17 +168,17 @@ void backgroundEstimation(TString channel = "ele", TString region = "SR", TStrin
   fit1 = new TF1("fit1", "landau", 200, 6000);
   ratio.Fit("fit1", "N", "", 500, 6000);
 
-  TH1D *fit1unc = new TH1D("fit1unc", "Fit 1 with conf.band", 100, 0, 10000);
+  TH1D *fit1unc = new TH1D("fit1unc", "Fit 1 with conf.band", 500, 0, 6000);
   (TVirtualFitter::GetFitter())->GetConfidenceIntervals(fit1unc, 0.68);
 
-  TH1D *fit2unc = new TH1D("fit2unc", "Fit 2 with conf.band", 100, 0, 10000);
+  TH1D *fit2unc = new TH1D("fit2unc", "Fit 2 with conf.band", 500, 0, 6000);
   fit2 = new TF1("fit2", "[3] + [0] * exp( -0.5 * (( x - [1])/[2])^2) ", 200, 6000);
 
   // adapting starting parameters
   if (channel == "mu" && region == "VR") {
-    fit2->SetParameters(1, 4500, 4500, 0.5);
+    fit2->SetParameters(-0.5, 500, 2000, 0.5);
   } else if (channel == "mu" && region == "SR") {
-    fit2->SetParameters(0.1, 6000, 6000, 1);
+    fit2->SetParameters(-1, 500, 2000, 1);
   } else if (channel == "ele" && region == "VR") {
     fit2->SetParameters(1, 1000, 1000, 0);
   } else {
@@ -252,6 +252,9 @@ void backgroundEstimation(TString channel = "ele", TString region = "SR", TStrin
   fitMean->SetLineColor(1);
   fitMean->Draw("same");
 
+  TH1D* uncertainty_fits_up = (TH1D*) fit1unc->Clone(); // just to get the structure
+  TH1D* uncertainty_fits_down = (TH1D*) fit1unc->Clone(); // just to get the structure
+
   if (plot_stat_unc) {
 
     fit1unc->SetFillColorAlpha(1, 0.3);
@@ -274,11 +277,32 @@ void backgroundEstimation(TString channel = "ele", TString region = "SR", TStrin
         uncertainty_fits->SetBinContent(bin, mean);
         uncertainty_fits->SetBinError(bin, uncertainty);
 
+        uncertainty_fits_up->SetBinContent(bin, mean + uncertainty);
+        uncertainty_fits_down->SetBinContent(bin, mean - uncertainty);
     }
 
     uncertainty_fits->SetFillColorAlpha(1, 0.3);
     uncertainty_fits->Draw("e3 same");
 
+    /**
+    uncertainty_fits_up->SetLineColor(4);
+    uncertainty_fits_down->SetLineColor(4);
+    uncertainty_fits_up->SetFillColorAlpha(0,0);
+    uncertainty_fits_down->SetFillColorAlpha(0,0);
+    uncertainty_fits_up->Draw("hist same");
+    uncertainty_fits_down->Draw("hist same");
+    **/
+
+  }
+
+  if(storeOutputToFile) {
+    TFile *output;
+    TString filename = "files/bgest/alphaFunction_HOTVR_" + year + "_" + region + "_" + channel + systematic + JE_string +"_fitstat.root";
+    output = TFile::Open(filename, "RECREATE");
+    uncertainty_fits_up->SetName("fitstat_up");
+    uncertainty_fits_up->Write();
+    uncertainty_fits_down->SetName("fitstat_down");
+    uncertainty_fits_down->Write();
   }
 
   if (plot_other_ratios) {
@@ -314,7 +338,6 @@ void backgroundEstimation(TString channel = "ele", TString region = "SR", TStrin
       legend->AddEntry(graph_up, "#alpha (" + name + ")" , "elp");
       color_int++;
     }
-    
 
   }
 

@@ -90,6 +90,9 @@ private:
   std::unique_ptr<Hists> h_SignalRegion_datadriven_yearUp_total,      h_SignalRegion_datadriven_yearDown_total;
   std::unique_ptr<Hists> h_SignalRegion_datadriven_yearUp_mu,         h_SignalRegion_datadriven_yearDown_mu;
   std::unique_ptr<Hists> h_SignalRegion_datadriven_yearUp_ele,        h_SignalRegion_datadriven_yearDown_ele;
+  std::unique_ptr<Hists> h_SignalRegion_datadriven_fitstatUp_total,      h_SignalRegion_datadriven_fitstatDown_total;
+  std::unique_ptr<Hists> h_SignalRegion_datadriven_fitstatUp_mu,         h_SignalRegion_datadriven_fitstatDown_mu;
+  std::unique_ptr<Hists> h_SignalRegion_datadriven_fitstatUp_ele,        h_SignalRegion_datadriven_fitstatDown_ele;
 
   // and the same for the validation region
   std::unique_ptr<Hists> h_ValidationRegion_datadriven_FuncUp_total,     h_ValidationRegion_datadriven_FuncDown_total;
@@ -101,6 +104,9 @@ private:
   std::unique_ptr<Hists> h_ValidationRegion_datadriven_yearUp_total,     h_ValidationRegion_datadriven_yearDown_total;
   std::unique_ptr<Hists> h_ValidationRegion_datadriven_yearUp_mu,        h_ValidationRegion_datadriven_yearDown_mu;
   std::unique_ptr<Hists> h_ValidationRegion_datadriven_yearUp_ele,       h_ValidationRegion_datadriven_yearDown_ele;
+  std::unique_ptr<Hists> h_ValidationRegion_datadriven_fitstatUp_total,     h_ValidationRegion_datadriven_fitstatDown_total;
+  std::unique_ptr<Hists> h_ValidationRegion_datadriven_fitstatUp_mu,        h_ValidationRegion_datadriven_fitstatDown_mu;
+  std::unique_ptr<Hists> h_ValidationRegion_datadriven_fitstatUp_ele,       h_ValidationRegion_datadriven_fitstatDown_ele;
 
   // some histograms to test various DDT working points
   std::unique_ptr<uhh2::TstarTstarDDTHists> h_DDTtestHists;  
@@ -152,6 +158,12 @@ private:
   TF1 * backgroundEstimationFunctionBtagDown_SR_ele,  * backgroundEstimationFunctionBtagDown_VR_ele;
   TF1 * backgroundEstimationFunctionBtagUp_SR_mu,    * backgroundEstimationFunctionBtagUp_VR_mu;
   TF1 * backgroundEstimationFunctionBtagDown_SR_mu,  * backgroundEstimationFunctionBtagDown_VR_mu;
+
+  // alternate functions for stat variation are histograms instead
+  TH1D * backgroundEstimationFunctionFitStatUp_SR_ele,    * backgroundEstimationFunctionFitStatUp_VR_ele;
+  TH1D * backgroundEstimationFunctionFitStatDown_SR_ele,  * backgroundEstimationFunctionFitStatDown_VR_ele;
+  TH1D * backgroundEstimationFunctionFitStatUp_SR_mu,    * backgroundEstimationFunctionFitStatUp_VR_mu;
+  TH1D * backgroundEstimationFunctionFitStatDown_SR_mu,  * backgroundEstimationFunctionFitStatDown_VR_mu;
 
   // DDT function(s)
   std::vector<TF1*> DDTFunctions;
@@ -288,6 +300,21 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_ValidationRegion_datadriven_FuncUp_ele.reset(new TstarTstarSignalRegionHists(ctx, "ValidationRegion_datadriven_FuncUp_ele")); // using SR hists here, although it is not
   h_ValidationRegion_datadriven_FuncDown_ele.reset(new TstarTstarSignalRegionHists(ctx, "ValidationRegion_datadriven_FuncDown_ele")); // using SR hists here, although it is not
 
+  h_SignalRegion_datadriven_fitstatUp_mu.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_datadriven_fitstatUp_mu"));
+  h_SignalRegion_datadriven_fitstatDown_mu.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_datadriven_fitstatDown_mu"));
+  h_ValidationRegion_datadriven_fitstatUp_mu.reset(new TstarTstarSignalRegionHists(ctx, "ValidationRegion_datadriven_fitstatUp_mu")); // using SR hists here, although it is not
+  h_ValidationRegion_datadriven_fitstatDown_mu.reset(new TstarTstarSignalRegionHists(ctx, "ValidationRegion_datadriven_fitstatDown_mu")); // using SR hists here, although it is not
+
+  h_SignalRegion_datadriven_fitstatUp_total.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_datadriven_fitstatUp_total"));
+  h_SignalRegion_datadriven_fitstatDown_total.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_datadriven_fitstatDown_total"));
+  h_ValidationRegion_datadriven_fitstatUp_total.reset(new TstarTstarSignalRegionHists(ctx, "ValidationRegion_datadriven_fitstatUp_total")); // using SR hists here, although it is not
+  h_ValidationRegion_datadriven_fitstatDown_total.reset(new TstarTstarSignalRegionHists(ctx, "ValidationRegion_datadriven_fitstatDown_total")); // using SR hists here, although it is not
+
+  h_SignalRegion_datadriven_fitstatUp_ele.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_datadriven_fitstatUp_ele"));
+  h_SignalRegion_datadriven_fitstatDown_ele.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_datadriven_fitstatDown_ele"));
+  h_ValidationRegion_datadriven_fitstatUp_ele.reset(new TstarTstarSignalRegionHists(ctx, "ValidationRegion_datadriven_fitstatUp_ele")); // using SR hists here, although it is not
+  h_ValidationRegion_datadriven_fitstatDown_ele.reset(new TstarTstarSignalRegionHists(ctx, "ValidationRegion_datadriven_fitstatDown_ele")); // using SR hists here, although it is not
+
   h_SignalRegion_datadriven_BtagUp_total.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_datadriven_BtagUp_total"));
   h_SignalRegion_datadriven_BtagDown_total.reset(new TstarTstarSignalRegionHists(ctx, "SignalRegion_datadriven_BtagDown_total"));
   h_ValidationRegion_datadriven_BtagUp_total.reset(new TstarTstarSignalRegionHists(ctx, "ValidationRegion_datadriven_BtagUp_total")); // using SR hists here, although it is not
@@ -338,7 +365,6 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
     // path definitions
     TString path = "/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/bgest/";
 
-
     // ##### filenames #####
     // nominal files
     TString filename_nominal_SR_ele = "alphaFunction_HOTVR__SR_ele.root";
@@ -355,6 +381,12 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
     TString filename_btagDown_SR_mu = "alphaFunction_HOTVR__SR_mu_btagging_totalDown.root";
     TString filename_btagUp_VR_mu = "alphaFunction_HOTVR__VR_mu_btagging_totalUp.root";
     TString filename_btagDown_VR_mu = "alphaFunction_HOTVR__VR_mu_btagging_totalDown.root";
+
+    // fitstat variations
+    TString filename_nominal_SR_ele_fitstat = "alphaFunction_HOTVR__SR_ele_fitstat.root";
+    TString filename_nominal_VR_ele_fitstat = "alphaFunction_HOTVR__VR_ele_fitstat.root";
+    TString filename_nominal_SR_mu_fitstat = "alphaFunction_HOTVR__SR_mu_fitstat.root";
+    TString filename_nominal_VR_mu_fitstat = "alphaFunction_HOTVR__VR_mu_fitstat.root";
 
 
     // ##### functions #####
@@ -396,6 +428,21 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
     backgroundEstimationFunctionBtagDown_VR_ele = (TF1*)file_btagDown_VR_ele->Get("fit_mean");
     TFile *file_btagDown_VR_mu = new TFile(path+filename_btagDown_VR_mu);
     backgroundEstimationFunctionBtagDown_VR_mu = (TF1*)file_btagDown_VR_mu->Get("fit_mean");
+
+    // fitstat variations
+    TFile *file_fitstat_VR_ele = new TFile(path+filename_nominal_VR_ele_fitstat);
+    backgroundEstimationFunctionFitStatUp_VR_ele = (TH1D*)file_fitstat_VR_ele->Get("fitstat_up");
+    backgroundEstimationFunctionFitStatDown_VR_ele = (TH1D*)file_fitstat_VR_ele->Get("fitstat_down");
+    TFile *file_fitstat_VR_mu = new TFile(path+filename_nominal_VR_mu_fitstat);
+    backgroundEstimationFunctionFitStatUp_VR_mu = (TH1D*)file_fitstat_VR_mu->Get("fitstat_up");
+    backgroundEstimationFunctionFitStatDown_VR_mu = (TH1D*)file_fitstat_VR_mu->Get("fitstat_down");
+    TFile *file_fitstat_SR_ele = new TFile(path+filename_nominal_SR_ele_fitstat);
+    backgroundEstimationFunctionFitStatUp_SR_ele = (TH1D*)file_fitstat_SR_ele->Get("fitstat_up");
+    backgroundEstimationFunctionFitStatDown_SR_ele = (TH1D*)file_fitstat_SR_ele->Get("fitstat_down");
+    TFile *file_fitstat_SR_mu = new TFile(path+filename_nominal_SR_mu_fitstat);
+    backgroundEstimationFunctionFitStatUp_SR_mu = (TH1D*)file_fitstat_SR_mu->Get("fitstat_up");
+    backgroundEstimationFunctionFitStatDown_SR_mu = (TH1D*)file_fitstat_SR_mu->Get("fitstat_down");
+  
 
 
     // finally, the purity
@@ -525,12 +572,17 @@ bool TstarTstarDNNModule::process(Event & event) {
     double btaggingYieldWeight_old = eventYieldFactors_old->GetBinContent( eventYieldFactors_old->GetXaxis()->FindBin(ht),  eventYieldFactors_old->GetYaxis()->FindBin(event.jets->size()) );
     double btaggingYieldWeight_mu = eventYieldFactors_mu->GetBinContent( eventYieldFactors_mu->GetXaxis()->FindBin(ht),  eventYieldFactors_mu->GetYaxis()->FindBin(event.jets->size()) );
     double btaggingYieldWeight_ele = eventYieldFactors_ele->GetBinContent( eventYieldFactors_ele->GetXaxis()->FindBin(ht),  eventYieldFactors_ele->GetYaxis()->FindBin(event.jets->size()) );
-    event.weight /= btaggingYieldWeight_old;
-    if(event.get(h_flag_muonevent)) {
-      event.weight *= btaggingYieldWeight_mu;
+    if(btaggingYieldWeight_old != 0) {
+      event.weight /= btaggingYieldWeight_old;
+      if(event.get(h_flag_muonevent)) {
+        event.weight *= btaggingYieldWeight_mu;
+      } else {
+        event.weight *= btaggingYieldWeight_ele;
+      }
     } else {
-      event.weight *= btaggingYieldWeight_ele;
+      std::cout << "Old btagging yield weight was 0 for this event!" << std::endl;
     }
+    
   }
 
   if(is_MC) ttgenprod->process(event);
@@ -647,6 +699,15 @@ bool TstarTstarDNNModule::process(Event & event) {
   double transfer_weight_btagDown_SR_mu = 1;
   double transfer_weight_btagDown_VR_mu = 1;
 
+  double transfer_weight_fitstatUp_SR_ele = 1;
+  double transfer_weight_fitstatUp_SR_mu = 1;
+  double transfer_weight_fitstatUp_VR_ele = 1;
+  double transfer_weight_fitstatUp_VR_mu = 1;
+  double transfer_weight_fitstatDown_SR_ele = 1;
+  double transfer_weight_fitstatDown_SR_mu = 1;
+  double transfer_weight_fitstatDown_VR_ele = 1;
+  double transfer_weight_fitstatDown_VR_mu = 1;
+
   double purity_value_mu = 1;
   double purity_value_ele = 1;
   double purity_value_BtagUp_mu = 1;
@@ -661,28 +722,41 @@ bool TstarTstarDNNModule::process(Event & event) {
 
     if(debug) cout << "Doing datadriven BG estimation" << endl;
 
-    transfer_weight_nominal_SR_ele = backgroundEstimationFunctionNominal_SR_ele->Eval(event.get(h_ST_HOTVR));
-    transfer_weight_nominal_SR_mu = backgroundEstimationFunctionNominal_SR_mu->Eval(event.get(h_ST_HOTVR));
-    transfer_weight_nominal_VR_ele = backgroundEstimationFunctionNominal_VR_ele->Eval(event.get(h_ST_HOTVR));
-    transfer_weight_nominal_VR_mu = backgroundEstimationFunctionNominal_VR_mu->Eval(event.get(h_ST_HOTVR));
+    // handle overflow
+    double st_for_findbin = event.get(h_ST_HOTVR);
+    if (st_for_findbin > 6000) {st_for_findbin = 5999;} 
 
-    transfer_weight_funcUp_SR_ele = backgroundEstimationFunctionFuncUp_SR_ele->Eval(event.get(h_ST_HOTVR));
-    transfer_weight_funcUp_SR_mu = backgroundEstimationFunctionFuncUp_SR_mu->Eval(event.get(h_ST_HOTVR));
-    transfer_weight_funcUp_VR_ele = backgroundEstimationFunctionFuncUp_VR_ele->Eval(event.get(h_ST_HOTVR));
-    transfer_weight_funcUp_VR_mu = backgroundEstimationFunctionFuncUp_VR_mu->Eval(event.get(h_ST_HOTVR));
-    transfer_weight_funcDown_SR_ele = backgroundEstimationFunctionFuncDown_SR_ele->Eval(event.get(h_ST_HOTVR));
-    transfer_weight_funcDown_SR_mu = backgroundEstimationFunctionFuncDown_SR_mu->Eval(event.get(h_ST_HOTVR));
-    transfer_weight_funcDown_VR_ele = backgroundEstimationFunctionFuncDown_VR_ele->Eval(event.get(h_ST_HOTVR));
-    transfer_weight_funcDown_VR_mu = backgroundEstimationFunctionFuncDown_VR_mu->Eval(event.get(h_ST_HOTVR));
+    transfer_weight_nominal_SR_ele = backgroundEstimationFunctionNominal_SR_ele->Eval(st_for_findbin);
+    transfer_weight_nominal_SR_mu = backgroundEstimationFunctionNominal_SR_mu->Eval(st_for_findbin);
+    transfer_weight_nominal_VR_ele = backgroundEstimationFunctionNominal_VR_ele->Eval(st_for_findbin);
+    transfer_weight_nominal_VR_mu = backgroundEstimationFunctionNominal_VR_mu->Eval(st_for_findbin);
 
-    transfer_weight_btagUp_SR_ele = backgroundEstimationFunctionBtagUp_SR_ele->Eval(event.get(h_ST_HOTVR));
-    transfer_weight_btagUp_SR_mu = backgroundEstimationFunctionBtagUp_SR_mu->Eval(event.get(h_ST_HOTVR));
-    transfer_weight_btagUp_VR_ele = backgroundEstimationFunctionBtagUp_VR_ele->Eval(event.get(h_ST_HOTVR));
-    transfer_weight_btagUp_VR_mu = backgroundEstimationFunctionBtagUp_VR_mu->Eval(event.get(h_ST_HOTVR));
-    transfer_weight_btagDown_SR_ele = backgroundEstimationFunctionBtagDown_SR_ele->Eval(event.get(h_ST_HOTVR));
-    transfer_weight_btagDown_SR_mu = backgroundEstimationFunctionBtagDown_SR_mu->Eval(event.get(h_ST_HOTVR));
-    transfer_weight_btagDown_VR_ele = backgroundEstimationFunctionBtagDown_VR_ele->Eval(event.get(h_ST_HOTVR));
-    transfer_weight_btagDown_VR_mu = backgroundEstimationFunctionBtagDown_VR_mu->Eval(event.get(h_ST_HOTVR));
+    transfer_weight_funcUp_SR_ele = backgroundEstimationFunctionFuncUp_SR_ele->Eval(st_for_findbin);
+    transfer_weight_funcUp_SR_mu = backgroundEstimationFunctionFuncUp_SR_mu->Eval(st_for_findbin);
+    transfer_weight_funcUp_VR_ele = backgroundEstimationFunctionFuncUp_VR_ele->Eval(st_for_findbin);
+    transfer_weight_funcUp_VR_mu = backgroundEstimationFunctionFuncUp_VR_mu->Eval(st_for_findbin);
+    transfer_weight_funcDown_SR_ele = backgroundEstimationFunctionFuncDown_SR_ele->Eval(st_for_findbin);
+    transfer_weight_funcDown_SR_mu = backgroundEstimationFunctionFuncDown_SR_mu->Eval(st_for_findbin);
+    transfer_weight_funcDown_VR_ele = backgroundEstimationFunctionFuncDown_VR_ele->Eval(st_for_findbin);
+    transfer_weight_funcDown_VR_mu = backgroundEstimationFunctionFuncDown_VR_mu->Eval(st_for_findbin);
+
+    transfer_weight_btagUp_SR_ele = backgroundEstimationFunctionBtagUp_SR_ele->Eval(st_for_findbin);
+    transfer_weight_btagUp_SR_mu = backgroundEstimationFunctionBtagUp_SR_mu->Eval(st_for_findbin);
+    transfer_weight_btagUp_VR_ele = backgroundEstimationFunctionBtagUp_VR_ele->Eval(st_for_findbin);
+    transfer_weight_btagUp_VR_mu = backgroundEstimationFunctionBtagUp_VR_mu->Eval(st_for_findbin);
+    transfer_weight_btagDown_SR_ele = backgroundEstimationFunctionBtagDown_SR_ele->Eval(st_for_findbin);
+    transfer_weight_btagDown_SR_mu = backgroundEstimationFunctionBtagDown_SR_mu->Eval(st_for_findbin);
+    transfer_weight_btagDown_VR_ele = backgroundEstimationFunctionBtagDown_VR_ele->Eval(st_for_findbin);
+    transfer_weight_btagDown_VR_mu = backgroundEstimationFunctionBtagDown_VR_mu->Eval(st_for_findbin);
+
+    transfer_weight_fitstatUp_SR_ele = backgroundEstimationFunctionFitStatUp_SR_ele->GetBinContent( backgroundEstimationFunctionFitStatUp_SR_ele->FindBin(st_for_findbin) );
+    transfer_weight_fitstatUp_SR_mu = backgroundEstimationFunctionFitStatUp_SR_mu->GetBinContent( backgroundEstimationFunctionFitStatUp_SR_mu->FindBin(st_for_findbin) );
+    transfer_weight_fitstatUp_VR_ele = backgroundEstimationFunctionFitStatUp_VR_ele->GetBinContent( backgroundEstimationFunctionFitStatUp_VR_ele->FindBin(st_for_findbin) );
+    transfer_weight_fitstatUp_VR_mu = backgroundEstimationFunctionFitStatUp_VR_mu->GetBinContent( backgroundEstimationFunctionFitStatUp_VR_mu->FindBin(st_for_findbin) );
+    transfer_weight_fitstatDown_SR_ele = backgroundEstimationFunctionFitStatDown_SR_ele->GetBinContent( backgroundEstimationFunctionFitStatDown_SR_ele->FindBin(st_for_findbin) );
+    transfer_weight_fitstatDown_SR_mu = backgroundEstimationFunctionFitStatDown_SR_mu->GetBinContent( backgroundEstimationFunctionFitStatDown_SR_mu->FindBin(st_for_findbin) );
+    transfer_weight_fitstatDown_VR_ele = backgroundEstimationFunctionFitStatDown_VR_ele->GetBinContent( backgroundEstimationFunctionFitStatDown_VR_ele->FindBin(st_for_findbin) );
+    transfer_weight_fitstatDown_VR_mu = backgroundEstimationFunctionFitStatDown_VR_mu->GetBinContent( backgroundEstimationFunctionFitStatDown_VR_mu->FindBin(st_for_findbin) );
 
     if(debug) cout << "Gotten all values" << endl;
     
@@ -755,6 +829,35 @@ bool TstarTstarDNNModule::process(Event & event) {
     h_ValidationRegion_datadriven_BtagDown_total->fill(event);
     if(event.get(h_flag_muonevent)) h_ValidationRegion_datadriven_BtagDown_mu->fill(event);
     else h_ValidationRegion_datadriven_BtagDown_ele->fill(event);
+    event.weight = weight_for_resetting;
+
+    // fitstat variation
+    if(event.get(h_flag_muonevent)) event.weight *= transfer_weight_fitstatUp_SR_mu * purity_value_mu;
+    else event.weight *= transfer_weight_fitstatUp_SR_ele * purity_value_ele;
+    h_SignalRegion_datadriven_fitstatUp_total->fill(event);
+    if(event.get(h_flag_muonevent)) h_SignalRegion_datadriven_fitstatUp_mu->fill(event);
+    else h_SignalRegion_datadriven_fitstatUp_ele->fill(event);
+    event.weight = weight_for_resetting;
+
+    if(event.get(h_flag_muonevent)) event.weight *= transfer_weight_fitstatDown_SR_mu * purity_value_mu;
+    else event.weight *= transfer_weight_fitstatDown_SR_ele * purity_value_ele;
+    h_SignalRegion_datadriven_fitstatDown_total->fill(event);
+    if(event.get(h_flag_muonevent)) h_SignalRegion_datadriven_fitstatDown_mu->fill(event);
+    else h_SignalRegion_datadriven_fitstatDown_ele->fill(event);
+    event.weight = weight_for_resetting;
+
+    if(event.get(h_flag_muonevent)) event.weight *= transfer_weight_fitstatUp_VR_mu * purity_value_mu;
+    else event.weight *= transfer_weight_fitstatUp_VR_ele * purity_value_ele;
+    h_ValidationRegion_datadriven_fitstatUp_total->fill(event);
+    if(event.get(h_flag_muonevent)) h_ValidationRegion_datadriven_fitstatUp_mu->fill(event);
+    else h_ValidationRegion_datadriven_fitstatUp_ele->fill(event);
+    event.weight = weight_for_resetting;
+
+    if(event.get(h_flag_muonevent)) event.weight *= transfer_weight_fitstatDown_VR_mu * purity_value_mu;
+    else event.weight *= transfer_weight_fitstatDown_VR_ele * purity_value_ele;
+    h_ValidationRegion_datadriven_fitstatDown_total->fill(event);
+    if(event.get(h_flag_muonevent)) h_ValidationRegion_datadriven_fitstatDown_mu->fill(event);
+    else h_ValidationRegion_datadriven_fitstatDown_ele->fill(event);
     event.weight = weight_for_resetting;
 
   } // else fill them normally here -> to double check, at least for VR! TODO

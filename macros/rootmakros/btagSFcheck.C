@@ -56,7 +56,7 @@ void btagSFcheck() {
     text->SetTextSize(0.045);
     text->Draw();
 
-    can_2D->SaveAs("plots/btagyield/btagYieldSFs_"+sample+"_"+year+".pdf");
+    can_2D->SaveAs("plots/btagyield/btagYieldSFs_"+channel+"_"+sample+"_"+year+".pdf");
 
     // storing to vector for saving later
     histograms_to_store.push_back(hist_ratio);

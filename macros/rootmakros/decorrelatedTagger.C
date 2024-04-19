@@ -53,7 +53,7 @@ void decorrelatedTagger(){
   TH2D *hist = (TH2D*)input->Get(subpath+"/"+histname);
   if(!hist) cout << "Empty hist" << endl;
 
-  bool store_functions = true;
+  bool store_functions = false;
 
   // flip
   TH2D *hist2 = new TH2D("oldrebin",hist->GetTitle(), 40, 0, 4000, 50, 0, 1);
@@ -126,6 +126,7 @@ void decorrelatedTagger(){
   hist->GetYaxis()->SetTitle("1 - DNN output");
   hist->SetTitle("");
 
+  hist->GetXaxis()->SetRangeUser(500, 6000);
   hist->Draw("colz");
 
   // draw Lumi text
