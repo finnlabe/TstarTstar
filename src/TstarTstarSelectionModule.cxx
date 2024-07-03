@@ -254,7 +254,7 @@ TstarTstarSelectionModule::TstarTstarSelectionModule(Context & ctx) {
   // CHS jet stuff (for matching)
   CHSjetCorr.reset(new CHSJetCorrections());
   CHSjetCorr->init(ctx);
-  PuppiCHSMatcher.reset(new PuppiCHSMatching(ctx));
+  PuppiCHSMatcher.reset(new PuppiCHSMatching(ctx, "jetsAk4CHS"));
 
   // primary lepton
   reco_primlep.reset(new PrimaryLepton(ctx));

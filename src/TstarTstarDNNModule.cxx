@@ -23,6 +23,7 @@
 #include "UHH2/TstarTstar/include/TstarTstarDDTHists.h"
 #include "UHH2/TstarTstar/include/ElecTriggerSF.h"
 #include "UHH2/TstarTstar/include/TstarTstarSelections.h"
+#include "UHH2/TstarTstar/include/VetoMapApplication.h"
 
 
 // other
@@ -52,6 +53,8 @@ private:
   std::unique_ptr<AnalysisModule> ttgenprod;
   std::unique_ptr<AnalysisModule> TopPtReweighting;                // re-running this here just to get the event weight :)
   std::unique_ptr<AnalysisModule> MCScaleVariations;               // re-running this here just to get the event weight :)
+
+  //std::unique_ptr<AnalysisModule> VetoMapApplicatorModule;
 
   // ##### Histograms #####
 
@@ -107,6 +110,10 @@ private:
   std::unique_ptr<Hists> h_ValidationRegion_datadriven_fitstatUp_total,     h_ValidationRegion_datadriven_fitstatDown_total;
   std::unique_ptr<Hists> h_ValidationRegion_datadriven_fitstatUp_mu,        h_ValidationRegion_datadriven_fitstatDown_mu;
   std::unique_ptr<Hists> h_ValidationRegion_datadriven_fitstatUp_ele,       h_ValidationRegion_datadriven_fitstatDown_ele;
+
+  //std::unique_ptr<Hists> h_vetomap, h_vetomap_ele, h_vetomap_mu;
+
+  //std::unique_ptr<Hists> h_DNN_vetomap, h_hists_fakeSR_veto, h_hists_fakeSR_noveto;
 
   // some histograms to test various DDT working points
   std::unique_ptr<uhh2::TstarTstarDDTHists> h_DDTtestHists;  
@@ -218,6 +225,9 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   // this will set the mc scale variation weights
   MCScaleVariations.reset(new MCScaleVariation(ctx) );
 
+  // veto maps
+  //VetoMapApplicatorModule.reset(new VetoMapApplicator(ctx));
+
   // 2. set up histograms:
 
   // GEN
@@ -229,18 +239,21 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_hists_VR.reset(new TstarTstarHists(ctx, "hists_VR"));
   h_hists_btagCR.reset(new TstarTstarHists(ctx, "hists_btagCR"));
   h_hists_ttbarCR.reset(new TstarTstarHists(ctx, "hists_ttbarCR"));
+  //h_vetomap.reset(new TstarTstarHists(ctx, "hists_vetomap"));
 
   h_crosscheck_ele.reset(new TstarTstarHists(ctx, "crosscheck_ele"));
   h_hists_SR_ele.reset(new TstarTstarHists(ctx, "hists_SR_ele"));
   h_hists_VR_ele.reset(new TstarTstarHists(ctx, "hists_VR_ele"));
   h_hists_btagCR_ele.reset(new TstarTstarHists(ctx, "hists_btagCR_ele"));
   h_hists_ttbarCR_ele.reset(new TstarTstarHists(ctx, "hists_ttbarCR_ele"));
+  //h_vetomap_ele.reset(new TstarTstarHists(ctx, "hists_vetomap_ele"));
 
   h_crosscheck_mu.reset(new TstarTstarHists(ctx, "crosscheck_mu"));
   h_hists_SR_mu.reset(new TstarTstarHists(ctx, "hists_SR_mu"));
   h_hists_VR_mu.reset(new TstarTstarHists(ctx, "hists_VR_mu"));
   h_hists_btagCR_mu.reset(new TstarTstarHists(ctx, "hists_btagCR_mu"));
   h_hists_ttbarCR_mu.reset(new TstarTstarHists(ctx, "hists_ttbarCR_mu"));
+  //h_vetomap_mu.reset(new TstarTstarHists(ctx, "hists_vetomap_mu"));
 
   h_hists_VR_ele_highHT.reset(new TstarTstarHists(ctx, "hists_VR_ele_highHT"));
   h_hists_VR_ele_highST.reset(new TstarTstarHists(ctx, "hists_VR_ele_highST"));
@@ -266,6 +279,10 @@ TstarTstarDNNModule::TstarTstarDNNModule(Context & ctx){
   h_DNN.reset(new TstarTstarDNNHists(ctx, "DNN"));
   h_DNN_DDT.reset(new TstarTstarDNNHists(ctx, "DNN_DDT"));
   h_DNN_btagCR.reset(new TstarTstarDNNHists(ctx, "DNN_btagCR"));
+  //h_DNN_vetomap.reset(new TstarTstarDNNHists(ctx, "DNN_vetomap"));
+
+  //h_hists_fakeSR_noveto.reset(new TstarTstarHists(ctx, "hists_fakeSR_noveto"));
+  //h_hists_fakeSR_veto.reset(new TstarTstarHists(ctx, "hists_fakeSR_veto"));
 
   // region plots
   // the TstarTstarSignalRegionHists has all systematic variations included
@@ -593,8 +610,8 @@ bool TstarTstarDNNModule::process(Event & event) {
   MCScaleVariations->process(event); // writing MC weights
 
   // apply spin reweighting
-  if(!(TstarTstarSpinSwitcher->process(event))) return false; // this will reweight, but only if set so in config file
-  event.set(h_evt_weight, event.weight); // we'll use this later, so need to update
+  //if(!(TstarTstarSpinSwitcher->process(event))) return false; // this will reweight, but only if set so in config file
+  //event.set(h_evt_weight, event.weight); // we'll use this later, so need to update
 
   // set primary lepton
   reco_primlep->process(event);
@@ -622,7 +639,6 @@ bool TstarTstarDNNModule::process(Event & event) {
     }
 
   }
-
 
   // ################
   // ### DNN Part ###
@@ -667,6 +683,28 @@ bool TstarTstarDNNModule::process(Event & event) {
 
   if(event.get(h_is_btagevent)) h_DNN_DDT->fill(event);
 
+  // applying veto maps
+  /**
+  if(!(VetoMapApplicatorModule->process(event))) return false;
+  if(event.get(h_is_btagevent)) {
+    h_vetomap->fill(event);
+    if(event.get(h_flag_muonevent)) {
+      h_vetomap_mu->fill(event);
+    } else {
+      h_vetomap_ele->fill(event);
+    }
+  }
+  if(event.get(h_is_btagevent)) {
+    
+    h_DNN_vetomap->fill(event);
+
+    if(event.get(h_DDT_score) > 0) {
+      h_hists_fakeSR_veto->fill(event);
+    }
+
+  }
+
+  **/
 
   // ##################################
   // ### background estimation part ###
@@ -905,17 +943,16 @@ bool TstarTstarDNNModule::process(Event & event) {
         if(event.get(h_flag_muonevent)) event.weight *= transfer_weight_nominal_SR_mu * purity_value_mu;
         else event.weight *= transfer_weight_nominal_SR_ele * purity_value_ele;
       }
-      if(is_MC /* blinding */ || is_datadriven_BG_run) {
-        h_hists_SR->fill(event);
-        h_SignalRegion_total->fill(event);
-        if(event.get(h_flag_muonevent)) {
-          h_hists_SR_mu->fill(event);
-          h_SignalRegion_mu->fill(event);
-        }
-        else {
-          h_hists_SR_ele->fill(event);
-          h_SignalRegion_ele->fill(event);
-        }
+      // now unblinded here
+      h_hists_SR->fill(event);
+      h_SignalRegion_total->fill(event);
+      if(event.get(h_flag_muonevent)) {
+        h_hists_SR_mu->fill(event);
+        h_SignalRegion_mu->fill(event);
+      }
+      else {
+        h_hists_SR_ele->fill(event);
+        h_SignalRegion_ele->fill(event);        
       }
       if (is_datadriven_BG_run) event.weight = weight_for_resetting; // resetting the weight
     }

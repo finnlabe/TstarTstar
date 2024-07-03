@@ -34,7 +34,7 @@ TH1F* GetRatioGraph(TGraphAsymmErrors* h1, TGraphAsymmErrors* h2, bool isData);
 // Calculate SF
 vector<TH1F*> GetSF(TGraphAsymmErrors* h_data, TGraphAsymmErrors* h_mc, TH1F* hist);
 // Plotter
-void DrawText(TString name);
+TString DrawText(TString name, bool draw);
 void PlotEfficiency(TGraphAsymmErrors* h_data, TGraphAsymmErrors* h_mc, TString xaxis, TString histname);
 void PlotHist(TH1F* h_data, TString xaxis, TString histname);
 void PlotHist(TH2F* h_data, TString xaxis, TString yaxis, TString histname);
@@ -43,6 +43,24 @@ void CompareHists(TH1F* h_all, TH1F* h_pass, TString xaxis, TString histname);
 void DrawControl(TString path, VecH hists, TH1F* rData, TH1F* rMC, VecI colors, VecTS names, TString xaxis);
 void fill_control(TTree* tree, vector<TH1F*> h_pt, vector<TH1F*> h_eta);
 void AdjustBinContent(TH1F* h_pass, TH1F* h_all, TString text);
+
+// ==================================================================================================
+TString DrawText(TString name, bool draw = true){
+  TString textBin = "";
+  if(name.Contains("lowpt")) textBin = "p_{T} < 120 GeV";
+  if(name.Contains("midpt")) textBin = "120 < p_{T} < 200 GeV";
+  if(name.Contains("highpt")) textBin = "200 < p_{T} GeV";
+  TLatex latex;
+  latex.SetNDC();
+  latex.SetTextAngle(0);
+  latex.SetTextColor(kBlack);
+  latex.SetTextFont(42);
+  latex.SetTextAlign(31);
+  latex.SetTextSize(0.04);
+  if(draw) latex.DrawLatex(0.85, 0.825, textBin);
+  return textBin;
+}
+
 
 //void ElecTriggerSFs(){
 int main(int argc, char* argv[]){
@@ -60,9 +78,9 @@ int main(int argc, char* argv[]){
   if(year.EqualTo("2016")){year_v = "_2016v3"; lumi_plot = 35.9; fdir = "no";}
   else if(year.EqualTo("2017")){year_v = "_2017v2"; lumi_plot = 41.5; fdir = "no";}
   else if(year.EqualTo("2018")){year_v = "_2018"; lumi_plot = 59.74; fdir = "no";}
-  else if(year.EqualTo("UL16preVFP")){year_v = "_UL16preVFP"; lumi_plot = 0.0; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/TriggerEff_TriggerEff/UL16preVFP/hadded/";}
-  else if(year.EqualTo("UL16postVFP")){year_v = "_UL16postVFP"; lumi_plot = 0.0; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/TriggerEff_TriggerEff/UL16postVFP/hadded/";}
-  else if(year.EqualTo("UL16")){year_v = "_UL16"; lumi_plot = 0.0; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/TriggerEff_TriggerEff/UL16/hadded/";}
+  else if(year.EqualTo("UL16preVFP")){year_v = "_UL16preVFP"; lumi_plot = 19.5; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/TriggerEff_TriggerEff/UL16preVFP/hadded/";}
+  else if(year.EqualTo("UL16postVFP")){year_v = "_UL16postVFP"; lumi_plot = 16.8; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/TriggerEff_TriggerEff/UL16postVFP/hadded/";}
+  else if(year.EqualTo("UL16")){year_v = "_UL16"; lumi_plot = 36.3; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/TriggerEff_TriggerEff/UL16/hadded/";}
   else if(year.EqualTo("UL17")){year_v = "_UL17"; lumi_plot = 41.5; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/TriggerEff_TriggerEff/UL17/hadded/";}
   else if(year.EqualTo("UL18")){year_v = "_UL18"; lumi_plot = 59.8; fdir = "/nfs/dust/cms/user/flabe/TstarTstar/data/TriggerEff_TriggerEff/UL18/hadded/";}
   else throw runtime_error("I need the correct year; 2016, 2017, 2018, UL16, UL17 or UL18");
@@ -554,13 +572,18 @@ void PlotEfficiency(TGraphAsymmErrors* h_data, TGraphAsymmErrors* h_mc, TString 
   h_data->Draw("AP");
   h_mc->Draw("P SAME");
 
-  TLegend *leg = new TLegend(0.33,0.20,0.66,0.33);
+  TLegend *leg = new TLegend(0.23,0.20,0.56,0.375);
   // leg->SetHeader(textBin);
   leg->AddEntry(h_data,"data","pl");
   leg->AddEntry(h_mc,"simulation","pl");
   leg->Draw("");
 
-  DrawText(histname);
+  // CMS text
+  CMSLabelOffset(0.15, 0.95, 0.12, -0.012, "Private Work");
+  LumiInfo(lumi_plot, false, 0.9, 0.9475);
+
+  TString text = DrawText(histname, false);
+  leg->SetHeader(text);
   gPad->RedrawAxis();
   if(weighttag == "weight_sfpt") A->SaveAs("plots/"+histname+"_"+year+".pdf");
   else if(weighttag == "weight_sfeta") A->SaveAs("plots/"+histname+"_"+year+".pdf");
@@ -686,13 +709,20 @@ void PlotSF(vector<TH1F*> h_SF, TString xaxis, TString histname){
   h_SF[2]->Draw("HIST SAME");
   h_SF[0]->Draw("E1 SAME");
 
-  TLegend *leg = new TLegend(0.33,0.20,0.66,0.33);
+  TLegend *leg = new TLegend(0.23,0.20,0.56,0.375);
   leg->AddEntry(h_SF[0],"scale factor","l");
   leg->AddEntry(h_SF[1],"uncertainty","f");
+  
+  TString text = DrawText(histname, false);
+  leg->SetHeader(text);
   leg->Draw();
 
-  DrawText(histname);
   gPad->RedrawAxis();
+
+  // CMS text
+  CMSLabelOffset(0.15, 0.95, 0.12, -0.012, "Private Work");
+  LumiInfo(lumi_plot, false, 0.9, 0.9475);
+
   if(weighttag == "weight_sfpt") A->SaveAs("plots/"+histname+"_"+year+".pdf");
   else if(weighttag == "weight_sfeta") A->SaveAs("plots/"+histname+"_"+year+".pdf");
   else if(weighttag == "weight_sfetapt") A->SaveAs("plots/"+histname+"_"+year+".pdf");
@@ -884,20 +914,4 @@ void DrawControl(TString path, VecH hists, TH1F* rData, TH1F* rMC, VecI colors, 
 
   delete A;
   leg->Clear();
-}
-
-// ==================================================================================================
-void DrawText(TString name){
-  TString textBin = "";
-  if(name.Contains("lowpt")) textBin = "p_{T} < 120 GeV";
-  if(name.Contains("midpt")) textBin = "120 < p_{T} < 200 GeV";
-  if(name.Contains("highpt")) textBin = "200 < p_{T} GeV";
-  TLatex latex;
-  latex.SetNDC();
-  latex.SetTextAngle(0);
-  latex.SetTextColor(kBlack);
-  latex.SetTextFont(42);
-  latex.SetTextAlign(31);
-  latex.SetTextSize(0.04);
-  latex.DrawLatex(0.89, 0.925,textBin);
 }

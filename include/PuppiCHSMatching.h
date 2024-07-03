@@ -10,7 +10,7 @@
 class PuppiCHSMatching : public uhh2::AnalysisModule {
 
 public:
-  explicit PuppiCHSMatching(uhh2::Context&);
+  explicit PuppiCHSMatching(uhh2::Context& ctx, std::string chs_jet_handle);
   virtual bool process(uhh2::Event&) override;
 
 private:

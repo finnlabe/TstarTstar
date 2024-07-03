@@ -7,12 +7,12 @@
 using namespace std;
 using namespace uhh2;
 
-PuppiCHSMatching::PuppiCHSMatching(uhh2::Context& ctx){
+PuppiCHSMatching::PuppiCHSMatching(uhh2::Context& ctx, std::string chs_jet_handle = "jetsAk4CHS"){
 
     // this usage assumes that PUPPI jets have been set as the "main" jets of the analysis
     // thus we're just getting the CHS jets here as additional collections
     // in the end, CHS_matched is the resulting one that needs to be used
-    h_CHSjets = ctx.get_handle< std::vector<Jet> >("jetsAk4CHS");
+    h_CHSjets = ctx.get_handle< std::vector<Jet> >(chs_jet_handle);
     h_CHS_matched_ = ctx.declare_event_output<vector<Jet>>("CHS_matched");
 
   }

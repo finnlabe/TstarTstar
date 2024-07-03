@@ -23,6 +23,7 @@ void decorrelatedTagger(){
   gStyle->SetOptStat(0);
   gStyle->SetTitleSize(0.06,"x");
   gStyle->SetTitleSize(0.06,"y");
+  gStyle->SetTitleSize(0.06,"z");
   gStyle->SetLabelSize(0.05,"x");
   gStyle->SetLabelSize(0.05,"y");
   gStyle->SetLabelSize(0.05,"z");
@@ -33,7 +34,10 @@ void decorrelatedTagger(){
   gStyle->SetPadTopMargin(0.05);
   gStyle->SetPadBottomMargin(0.13);
   gStyle->SetPadLeftMargin(0.18);
-  gStyle->SetPadRightMargin(0.17);
+  gStyle->SetPadRightMargin(0.18);
+
+  // recommended color style
+  gStyle->SetPalette(112); // viridis
 
   gROOT->ForceStyle();
   Double_t w = 600;
@@ -123,10 +127,15 @@ void decorrelatedTagger(){
   // draw plot
   hist->GetXaxis()->SetTitle("S_{T} [GeV]");
   hist->GetXaxis()->SetNdivisions(505);
-  hist->GetYaxis()->SetTitle("1 - DNN output");
+  hist->GetYaxis()->SetTitle("1 #minus DNN score");
   hist->SetTitle("");
 
-  hist->GetXaxis()->SetRangeUser(500, 6000);
+  hist->GetXaxis()->SetRangeUser(500, 4000);
+
+  hist->GetZaxis()->SetRangeUser(0.1, 1e4);
+  hist->GetZaxis()->SetTitle("Events");
+  hist->GetZaxis()->SetTitleOffset(1.15);
+
   hist->Draw("colz");
 
   // draw Lumi text
@@ -134,10 +143,10 @@ void decorrelatedTagger(){
   TLatex *text = new TLatex(3.5, 24, infotext);
   text->SetNDC();
   text->SetTextAlign(33);
-  text->SetX(0.88);
+  text->SetX(0.87);
   text->SetTextFont(42);
-  text->SetY(1);
-  text->SetTextSize(0.045);
+  text->SetY(0.987);
+  text->SetTextSize(0.035);
   text->Draw();
 
   // draw CMS Work in Progress text
@@ -148,21 +157,21 @@ void decorrelatedTagger(){
   text2->SetX(0.185);
   text2->SetTextFont(62);
   text2->SetTextSize(0.05);
-  text2->SetY(1);
+  text2->SetY(0.995);
   text2->Draw();
-  TString preltext = "Work in Progress";
+  TString preltext = "Simulation Preliminary";
   TLatex *text3 = new TLatex(3.5, 24, preltext);
   text3->SetNDC();
   text3->SetTextAlign(13);
   text3->SetX(0.29);
   text3->SetTextFont(52);
   text3->SetTextSize(0.035);
-  text3->SetY(0.986);
+  text3->SetY(0.985);
   text3->Draw();
 
   TGraph* edgePoints = new TGraphAsymmErrors(cutedgesX.size(),&cutedgesX[0],&cutedgesY[0], 0, 0, &errors[0], &errors[0]);
   edgePoints->SetMarkerStyle(1);
-  edgePoints->Draw("p same");
+  //edgePoints->Draw("p same");
   //other option: Gauß + exponential
   //fit1 = new TF1("fit1", "[2] + [0] * exp([1] * x)", 500, 4000);
   fit1 = new TF1("fit1", "crystalball", 500, 4000);
@@ -176,6 +185,8 @@ void decorrelatedTagger(){
   edgePoints->Fit("fit2", "N", "", 500, 4000);
 
   fitMean = new TF1("mean", meanFunc, 0, 6000);
+
+  fitMean->SetLineWidth(3);
 
   fitMean->Draw("same");
 

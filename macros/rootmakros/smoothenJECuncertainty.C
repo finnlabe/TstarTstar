@@ -22,7 +22,9 @@
 
 using namespace std;
 
-void smoothenJECuncertainty(TString year = "UL18", TString channel = "mu", TString region = "ValidationRegion"){
+void smoothenJECuncertainty(TString year = "UL18", TString channel = "mu", TString region = "SignalRegion"){
+
+    bool storeoutput = false;
 
     // method to "smoothen" the JEC uncertainty by fitting a pol0 or pol1 to it
 
@@ -41,7 +43,11 @@ void smoothenJECuncertainty(TString year = "UL18", TString channel = "mu", TStri
         samples.push_back("TstarTstar_Spin32_M-" + mass);
     }
 
+    std::cout << "ATTENTION: manual override for thesis plot, please remove!!" << std::endl;
+    samples = {"TTbar"};
+
     TString fitfuncname = "pol0";
+
 
     for (unsigned int i=0; i<samples.size(); i++) {
 
@@ -74,38 +80,52 @@ void smoothenJECuncertainty(TString year = "UL18", TString channel = "mu", TStri
         h_new_down->Multiply(fit_down);
 
         // save the resulting histogram
-        TFile* f_out = new TFile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/smoothJEC/" + region + "_smoothJEC_" + year + "_" + channel + "_" + samples.at(i) + ".root", "RECREATE");
-        h_new_up->SetName(samples.at(i)+"_smoothJEC_up");
-        h_new_down->SetName(samples.at(i)+"_smoothJEC_down");
-        h_new_up->Write();
-        h_new_down->Write();
-        delete f_out;
+        if( storeoutput ) {
+            TFile* f_out = new TFile("/nfs/dust/cms/user/flabe/TstarTstar/ULegacy/CMSSW_10_6_28/src/UHH2/TstarTstar/macros/rootmakros/files/smoothJEC/" + region + "_smoothJEC_" + year + "_" + channel + "_" + samples.at(i) + ".root", "RECREATE");
+            h_new_up->SetName(samples.at(i)+"_smoothJEC_up");
+            h_new_down->SetName(samples.at(i)+"_smoothJEC_down");
+            h_new_up->Write();
+            h_new_down->Write();
+            delete f_out;
+        }
+
+        gStyle->SetPadTopMargin(0.1);
+        gStyle->SetPadBottomMargin(0.13);
+        gStyle->SetPadLeftMargin(0.15);
+        gStyle->SetPadRightMargin(0.08);
 
         // and make some plots
         TCanvas *can = new TCanvas("canvas", "c", 600, 600);
-        TLegend *leg = new TLegend(0.6,0.7,0.9,0.9);
-        leg->SetTextSize(0.03);
+        TLegend *leg = new TLegend(0.175,0.175,0.5,0.3);
+        leg->SetFillStyle(0);
         leg->SetBorderSize(0);
         gStyle->SetOptFit(0);
         gStyle->SetOptStat(0);
 
         // plot styling
+        h_up->SetTitle("");
         h_up->GetYaxis()->SetRangeUser(0.7, 1.3);
         h_up->GetXaxis()->SetRangeUser(600, 6000);
-        h_up->GetXaxis()->SetTitle( h_up->GetTitle() );
+
+        h_up->GetXaxis()->SetLabelSize(0.045);
+        h_up->GetYaxis()->SetLabelSize(0.045);
+        h_up->GetXaxis()->SetTitleSize(0.055);
+        h_up->GetYaxis()->SetTitleSize(0.055);
+
         h_up->GetYaxis()->SetTitle( "variation / nominal" );
+        h_up->GetXaxis()->SetTitle( "S_{T} [GeV]" );
 
         // plotting the "before" up and down
         h_up->SetLineColor(1);
-        h_up->Draw("hist");
-        leg->AddEntry(h_up, "JEC variation before", "l");
+        h_up->Draw("");
+        leg->AddEntry(h_up, "nominal", "le");
         h_down->SetLineColor(1);
-        h_down->Draw("hist same");
+        h_down->Draw("same");
         //leg->AddEntry(h_down, "JEC down", "l");
 
         // plotting fit functions
         fit_up->Draw("same");
-        leg->AddEntry(fit_up, "fit", "l"); // just add one to legend
+        leg->AddEntry(fit_up, "smoothed", "l"); // just add one to legend
         fit_down->Draw("same");
         //leg->AddEntry(fit_down, "fit down", "l");
 
@@ -113,16 +133,52 @@ void smoothenJECuncertainty(TString year = "UL18", TString channel = "mu", TStri
         h_new_up->Divide(h_central);
         h_new_down->Divide(h_central);
         h_new_up->SetLineColor(3);
-        h_new_up->Draw("hist same");
-        leg->AddEntry(h_new_up, "new JEC variation", "l");
+        //h_new_up->Draw("hist same");
+        //leg->AddEntry(h_new_up, "smoothed hist", "l");
         h_new_down->SetLineColor(3);
-        h_new_down->Draw("hist same");
+        //h_new_down->Draw("hist same");
         //leg->AddEntry(h_new_down, "new down", "l");
 
         auto line = TLine(600.1,1,6000,1);
         line.Draw();
 
         leg->Draw();
+
+        // draw sample text
+        TString printsample = "todo";
+        if (samples.at(i) == "TTbar") printsample = "t#bar{t}";
+        TString printchannel = "";
+        if (channel == "_ele") printchannel = "e";
+        if (channel == "_mu") printchannel = "#mu";
+        TLatex *text = new TLatex(3.5, 24, year + " " + printsample + " " + printchannel);
+        text->SetNDC();
+        text->SetTextAlign(13);
+        text->SetX(0.19);
+        text->SetTextFont(42);
+        text->SetTextSize(0.04);
+        text->SetY(0.88);
+        text->Draw();
+
+        // draw CMS Work in Progress text
+        TString cmstext = "CMS";
+        TLatex *text2 = new TLatex(3.5, 24, cmstext);
+        text2->SetNDC();
+        text2->SetTextAlign(13);
+        text2->SetX(0.15);
+        text2->SetTextFont(62);
+        text2->SetTextSize(0.075);
+        text2->SetY(0.96);
+        text2->Draw();
+
+        TString preltext = "Simulation Private Work";
+        TLatex *text3 = new TLatex(3.5, 24, preltext);
+        text3->SetNDC();
+        text3->SetTextAlign(13);
+        text3->SetX(0.31);
+        text3->SetTextFont(52);
+        text3->SetTextSize(0.05);
+        text3->SetY(0.945);
+        text3->Draw();
 
         can->SaveAs("plots/JECsmooth_" + samples.at(i) + "_" + region + "_" + year + "_" + channel + ".pdf");
 

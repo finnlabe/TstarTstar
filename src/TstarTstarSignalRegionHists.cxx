@@ -174,7 +174,6 @@ TstarTstarSignalRegionHists::TstarTstarSignalRegionHists(Context & ctx, const st
   book<TH1F>("pt_ST_murmuf_nonedown", "S_{T} [GeV]", nbins-1, bins);
   book<TH1F>("pt_ST_murmuf_downnone", "S_{T} [GeV]", nbins-1, bins);
   book<TH1F>("pt_ST_murmuf_downdown", "S_{T} [GeV]", nbins-1, bins);
-
 }
 
 

@@ -54,7 +54,7 @@ double GetXForHighestY(TGraphAsymmErrors graph) {
 // total channel means combination of both ele and mu
 // JE_string for example "_JECUp" ATTENTION MUST BE HADDED MANUALLY IN DATA FOLDER
 // systematic for example btagging_totalUp. empty string means do not do any systematic 
-void backgroundEstimation(TString channel = "mu", TString region = "SR", TString systematic = "", bool storeOutputToFile = true, bool plot_other_ratios = false){ // keep the last two to (true, false) when runnning in batch mode!
+void backgroundEstimation(TString channel = "ele", TString region = "SR", TString systematic = "", bool storeOutputToFile = false, bool plot_other_ratios = false){ // keep the last two to (true, false) when runnning in batch mode!
 
   TString year = "";
   TString JE_string = "";
@@ -204,8 +204,8 @@ void backgroundEstimation(TString channel = "mu", TString region = "SR", TString
   gStyle->SetPalette(55);
 
   gStyle->SetPadTopMargin(0.05);
-  gStyle->SetPadBottomMargin(0.2);
-  gStyle->SetPadLeftMargin(0.18);
+  gStyle->SetPadBottomMargin(0.3);
+  gStyle->SetPadLeftMargin(0.15);
   gStyle->SetPadRightMargin(0.1);
 
   gROOT->ForceStyle();
@@ -214,35 +214,49 @@ void backgroundEstimation(TString channel = "mu", TString region = "SR", TString
 
   TCanvas *c1_hist = new TCanvas("chist", "c", w, h);
 
-  TPad *pad1 = new TPad("pad1", "The pad 80% of the height",0.0,0.35,1.0,1.0);
-  TPad *pad2 = new TPad("pad2", "The pad 20% of the height",0.0,0.0,1.0,0.35);
+  TPad *pad1 = new TPad("pad1", "The pad 80% of the height", 0.0, 0.345, 1.0, 1.0);
+  TPad *pad2 = new TPad("pad2", "The pad 20% of the height", 0.0, 0.0, 1.0, 0.34);
 
-  pad1->Draw();
   pad2->Draw();
+  pad1->Draw();
+
   pad1->cd();
 
-  pad1->SetBottomMargin(0);
+  pad1->SetBottomMargin(0.02);
   pad2->SetTopMargin(0);
 
   pad1->SetTickx();
   pad1->SetTicky();
 
-  auto legend = new TLegend(0.22,0.5,0.5,0.9);
+  double ystart = 0.5;
+  if (plot_other_ratios) ystart = 0.45;
+  auto legend = new TLegend(0.2,ystart ,0.5,0.8);
   legend->SetBorderSize(0);
   gStyle->SetLegendTextSize(0.04);
 
+  const int nbins = 34;
+  double bins[nbins] = {0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500,
+    2600, 2700, 2800, 2900, 3000, 3250, 4000, 6000};
+  TH1F *dummy = new TH1F("dummy", "", nbins-1, bins);
+
   // draw plot
-  ratio.GetXaxis()->SetTitle("S_{T} [GeV]");
-  ratio.GetXaxis()->SetNdivisions(505);
-  ratio.GetYaxis()->SetTitle("ratio");
-  ratio.GetYaxis()->SetRangeUser(0, 2);
-  ratio.GetXaxis()->SetRangeUser(0, 6000);
-  if(region == "SR") ratio.GetYaxis()->SetRangeUser(0, 0.5);
+  // using a histogram to define canvas, as graphs are annoying
+  dummy->GetXaxis()->SetLabelSize(0);
+  dummy->GetXaxis()->SetTitleSize(0);
+  dummy->GetXaxis()->SetNdivisions(505, kTRUE);
+  dummy->GetYaxis()->SetTitle("Ratio");
+  dummy->SetTitle("");
+  dummy->GetYaxis()->SetRangeUser(0, 2);
+  dummy->GetXaxis()->SetRangeUser(0, 6000);
+  if(region == "SR") dummy->GetYaxis()->SetRangeUser(0, 0.5);
+  dummy->Draw("hist");
+
   ratio.SetTitle("");
   ratio.SetLineColor(1);
   ratio.SetMarkerStyle(20);
 
-  ratio.Draw("AP");
+  ratio.Draw("PZ same");
+
   fit1->SetLineColor(1);
   fit1->SetLineStyle(2);
   fit1->Draw("same");
@@ -255,14 +269,14 @@ void backgroundEstimation(TString channel = "mu", TString region = "SR", TString
   TH1D* uncertainty_fits_up = (TH1D*) fit1unc->Clone(); // just to get the structure
   TH1D* uncertainty_fits_down = (TH1D*) fit1unc->Clone(); // just to get the structure
 
+  TH1D* uncertainty_fits = (TH1D*) fit1unc->Clone(); // just to get the structure
+
   if (plot_stat_unc) {
 
     fit1unc->SetFillColorAlpha(1, 0.3);
     //fit1unc->Draw("e3 same");
     fit2unc->SetFillColorAlpha(1, 0.3);
-    //fit2unc->Draw("e3 same");
-
-    TH1D* uncertainty_fits = (TH1D*) fit1unc->Clone(); // just to get the structure
+    //fit2unc->Draw("e3 same");    
 
     for (Int_t bin = 1; bin <= fit1unc->GetNbinsX(); ++bin) {
         double bin1 = fit1unc->GetBinContent(bin);
@@ -305,6 +319,8 @@ void backgroundEstimation(TString channel = "mu", TString region = "SR", TString
     uncertainty_fits_down->Write();
   }
 
+  legend->AddEntry(&ratio,"#alpha","ep");
+
   if (plot_other_ratios) {
 
     int color_int = 2;
@@ -335,12 +351,14 @@ void backgroundEstimation(TString channel = "mu", TString region = "SR", TString
         func_down->Draw("same");
       }
 
-      legend->AddEntry(graph_up, "#alpha (" + name + ")" , "elp");
+      TString legendname = name;
+      if (legendname == "btagging_total") legendname = "b-tagging total";
+
+      legend->AddEntry(graph_up, "#alpha (" + legendname + ")" , "ep");
       color_int++;
     }
 
   }
-
 
   // fit results
   TString fittxt = TString::Format("#chi^{2}/ndf: %3.2f / %3.0d", fit1->GetChisquare(), fit1->GetNDF());
@@ -349,10 +367,21 @@ void backgroundEstimation(TString channel = "mu", TString region = "SR", TString
   TString fit2txt = TString::Format("#chi^{2}/ndf: %3.2f / %3.0d", fit2->GetChisquare(), fit2->GetNDF());
 
   // legend
-  legend->AddEntry(&ratio,"#alpha (nominal)","elp");
+  
   legend->AddEntry(fit1,"Landau fit (" + fittxt + ")","l");
   legend->AddEntry(fit2,"Gauss + c fit (" + fit2txt + ")","l");
-  legend->AddEntry(fitMean,"mean fit","l");
+  
+  
+  //legend->AddEntry(fitMean,"mean fit","l");
+  TGraph *dummyGraph = new TGraph();
+  dummyGraph->SetLineColor(1);
+  dummyGraph->SetLineWidth(2);
+  dummyGraph->SetFillColorAlpha(1, 0.3);
+  dummyGraph->SetFillStyle(1001);
+
+  // Add the dummy TGraph to the legend with the fill representation
+  legend->AddEntry(dummyGraph, "TF", "lf");
+  
   legend->Draw();
 
 
@@ -369,24 +398,24 @@ void backgroundEstimation(TString channel = "mu", TString region = "SR", TString
   text->Draw();
   **/
 
-  // draw CMS Work in Progress text
   TString cmstext = "CMS";
   TLatex *text2 = new TLatex(3.5, 24, cmstext);
   text2->SetNDC();
   text2->SetTextAlign(13);
-  text2->SetX(0.185);
+  text2->SetX(0.2);
   text2->SetTextFont(62);
-  text2->SetTextSize(0.05);
-  text2->SetY(1);
+  text2->SetTextSize(0.08);
+  text2->SetY(0.9);
   text2->Draw();
-  TString preltext = "Work in Progress";
+
+  TString preltext = "Simulation Preliminary";
   TLatex *text3 = new TLatex(3.5, 24, preltext);
   text3->SetNDC();
   text3->SetTextAlign(13);
-  text3->SetX(0.25);
+  text3->SetX(0.315);
   text3->SetTextFont(52);
-  text3->SetTextSize(0.035);
-  text3->SetY(0.986);
+  text3->SetTextSize(0.05);
+  text3->SetY(0.875);
   text3->Draw();
 
   pad2->cd();
@@ -403,9 +432,6 @@ void backgroundEstimation(TString channel = "mu", TString region = "SR", TString
   // one containing 1 in each bin, but has the appropriate uncertainties
   // a second one containing the "data points", being the ratio of the ratio and the function average
 
-  const int nbins = 34;
-  double bins[nbins] = {0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500,
-    2600, 2700, 2800, 2900, 3000, 3250, 4000, 6000};
   TH1F *deviation = new TH1F("deviation", "", nbins-1, bins);
 
   // the main loop
@@ -431,19 +457,20 @@ void backgroundEstimation(TString channel = "mu", TString region = "SR", TString
     
   }
 
-  deviation->GetXaxis()->SetTitleSize(0.085);
+  deviation->GetXaxis()->SetTitleSize(0.12);
   deviation->GetXaxis()->SetLabelSize(0.095);
   deviation->GetYaxis()->SetTitleSize(0.11);
-  deviation->GetYaxis()->SetTitleOffset(0.7);
+  deviation->GetYaxis()->SetTitleOffset(0.65);
   deviation->GetYaxis()->SetLabelSize(0.095);
 
   deviation->GetXaxis()->SetNdivisions(505, kTRUE);
-  deviation->GetYaxis()->SetRangeUser(0.6, 1.4);
+  deviation->GetYaxis()->SetNdivisions(505, kTRUE);
+  deviation->GetYaxis()->SetRangeUser(0.5, 1.5);
   deviation->GetXaxis()->SetRangeUser(0, 6000);
   deviation->SetMarkerStyle(8);
   deviation->SetLineColor(1);
   deviation->GetXaxis()->SetTitle("S_{T} [GeV]");
-  deviation->GetYaxis()->SetTitle("deviation");
+  deviation->GetYaxis()->SetTitle("Residuals");
   deviation->Draw("P");
 
   ///// large code block only for variation plots!!!
@@ -536,6 +563,12 @@ void backgroundEstimation(TString channel = "mu", TString region = "SR", TString
   ratiofit2->SetLineStyle(3);
   ratiofit2->Draw("same");
 
+  if (plot_stat_unc) {
+    TH1D* uncertainty_fits_ratio = (TH1D*) uncertainty_fits->Clone();
+    uncertainty_fits_ratio->Divide(fitMean);
+    uncertainty_fits_ratio->Draw("e3 same");
+  }
+  
   if(plot_other_ratios) c1_hist->SaveAs("plots/backgroundEstimation_HOTVR_" + year + "_" + region + "_" + channel + systematic + JE_string + "_withSysts.pdf");
   else c1_hist->SaveAs("plots/backgroundEstimation_HOTVR_" + year + "_" + region + "_" + channel + systematic + JE_string + ".pdf");
 
