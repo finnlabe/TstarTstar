@@ -54,7 +54,7 @@ double GetXForHighestY(TGraphAsymmErrors graph) {
 // total channel means combination of both ele and mu
 // JE_string for example "_JECUp" ATTENTION MUST BE HADDED MANUALLY IN DATA FOLDER
 // systematic for example btagging_totalUp. empty string means do not do any systematic 
-void backgroundEstimation(TString channel = "ele", TString region = "SR", TString systematic = "", bool storeOutputToFile = false, bool plot_other_ratios = false){ // keep the last two to (true, false) when runnning in batch mode!
+void backgroundEstimation(TString channel = "mu", TString region = "SR", TString systematic = "", bool storeOutputToFile = false, bool plot_other_ratios = false){ // keep the last two to (true, false) when runnning in batch mode!
 
   TString year = "";
   TString JE_string = "";
@@ -80,6 +80,8 @@ void backgroundEstimation(TString channel = "ele", TString region = "SR", TStrin
   TH1D *hist_btagCR_nontop;
   TH1D *hist_btagCR_top;
   TH1D *hist_btagCR;
+
+  double sizeTick = 12;
 
   if(systematic != "") {
     histname = "pt_ST_" + systematic;
@@ -165,14 +167,14 @@ void backgroundEstimation(TString channel = "ele", TString region = "SR", TStrin
   ratio.Divide(histSR_nontop, hist_btagCR_nontop, "pois");
 
   // fitting landau
-  fit1 = new TF1("fit1", "landau", 200, 6000);
+  fit1 = new TF1("fit1", "landau", 0, 6000);
   ratio.Fit("fit1", "N", "", 500, 6000);
 
   TH1D *fit1unc = new TH1D("fit1unc", "Fit 1 with conf.band", 500, 0, 6000);
   (TVirtualFitter::GetFitter())->GetConfidenceIntervals(fit1unc, 0.68);
 
   TH1D *fit2unc = new TH1D("fit2unc", "Fit 2 with conf.band", 500, 0, 6000);
-  fit2 = new TF1("fit2", "[3] + [0] * exp( -0.5 * (( x - [1])/[2])^2) ", 200, 6000);
+  fit2 = new TF1("fit2", "[3] + [0] * exp( -0.5 * (( x - [1])/[2])^2) ", 0, 6000);
 
   // adapting starting parameters
   if (channel == "mu" && region == "VR") {
@@ -215,7 +217,11 @@ void backgroundEstimation(TString channel = "ele", TString region = "SR", TStrin
   TCanvas *c1_hist = new TCanvas("chist", "c", w, h);
 
   TPad *pad1 = new TPad("pad1", "The pad 80% of the height", 0.0, 0.345, 1.0, 1.0);
+  double pad1W = pad1->GetWw()*pad1->GetAbsWNDC();
+	double pad1H = pad1->GetWh()*pad1->GetAbsHNDC();
   TPad *pad2 = new TPad("pad2", "The pad 20% of the height", 0.0, 0.0, 1.0, 0.34);
+  double pad2W = pad2->GetWw()*pad2->GetAbsWNDC();
+	double pad2H = pad2->GetWh()*pad2->GetAbsHNDC();
 
   pad2->Draw();
   pad1->Draw();
@@ -244,11 +250,19 @@ void backgroundEstimation(TString channel = "ele", TString region = "SR", TStrin
   dummy->GetXaxis()->SetLabelSize(0);
   dummy->GetXaxis()->SetTitleSize(0);
   dummy->GetXaxis()->SetNdivisions(505, kTRUE);
-  dummy->GetYaxis()->SetTitle("Ratio");
+  if (region == "SR") dummy->GetYaxis()->SetTitle("SR / CR");
+  else dummy->GetYaxis()->SetTitle("VR / SR");
   dummy->SetTitle("");
   dummy->GetYaxis()->SetRangeUser(0, 2);
   dummy->GetXaxis()->SetRangeUser(0, 6000);
   if(region == "SR") dummy->GetYaxis()->SetRangeUser(0, 0.5);
+  dummy->Draw("hist");
+
+  pad1->Update();
+  double tickScaleX = (pad1->GetUxmax() - pad1->GetUxmin())/(pad1->GetX2()-pad1->GetX1())*pad1H;
+	double tickScaleY = (pad1->GetUymax() - pad1->GetUymin())/(pad1->GetY2()-pad1->GetY1())*pad1W;
+	dummy->GetXaxis()->SetTickLength(sizeTick/tickScaleX);
+	dummy->GetYaxis()->SetTickLength(sizeTick/tickScaleY);
   dummy->Draw("hist");
 
   ratio.SetTitle("");
@@ -319,7 +333,7 @@ void backgroundEstimation(TString channel = "ele", TString region = "SR", TStrin
     uncertainty_fits_down->Write();
   }
 
-  legend->AddEntry(&ratio,"#alpha","ep");
+  legend->AddEntry(&ratio, "Nontop simulation", "lep");
 
   if (plot_other_ratios) {
 
@@ -380,7 +394,7 @@ void backgroundEstimation(TString channel = "ele", TString region = "SR", TStrin
   dummyGraph->SetFillStyle(1001);
 
   // Add the dummy TGraph to the legend with the fill representation
-  legend->AddEntry(dummyGraph, "TF", "lf");
+  legend->AddEntry(dummyGraph, "g_{TF}(S_{T})", "lf");
   
   legend->Draw();
 
@@ -398,24 +412,27 @@ void backgroundEstimation(TString channel = "ele", TString region = "SR", TStrin
   text->Draw();
   **/
 
+  double CMS_size = 0.08;
+  double CMS_ratio = 1.3;
+
   TString cmstext = "CMS";
   TLatex *text2 = new TLatex(3.5, 24, cmstext);
   text2->SetNDC();
   text2->SetTextAlign(13);
   text2->SetX(0.2);
   text2->SetTextFont(62);
-  text2->SetTextSize(0.08);
+  text2->SetTextSize(CMS_size);
   text2->SetY(0.9);
   text2->Draw();
 
-  TString preltext = "Simulation Preliminary";
+  TString preltext = "Simulation";
   TLatex *text3 = new TLatex(3.5, 24, preltext);
   text3->SetNDC();
   text3->SetTextAlign(13);
   text3->SetX(0.315);
   text3->SetTextFont(52);
-  text3->SetTextSize(0.05);
-  text3->SetY(0.875);
+  text3->SetTextSize(CMS_size / CMS_ratio);
+  text3->SetY(0.887);
   text3->Draw();
 
   pad2->cd();
@@ -470,8 +487,15 @@ void backgroundEstimation(TString channel = "ele", TString region = "SR", TStrin
   deviation->SetMarkerStyle(8);
   deviation->SetLineColor(1);
   deviation->GetXaxis()->SetTitle("S_{T} [GeV]");
-  deviation->GetYaxis()->SetTitle("Residuals");
+  deviation->GetYaxis()->SetTitle("Nontop / g_{TF}(S_{T})");
   deviation->Draw("P");
+
+  pad2->Update();
+	tickScaleX = (pad2->GetUxmax() - pad2->GetUxmin())/(pad2->GetX2()-pad2->GetX1())*pad2H;
+	tickScaleY = (pad2->GetUymax() - pad2->GetUymin())/(pad2->GetY2()-pad2->GetY1())*pad2W;
+	deviation->GetXaxis()->SetTickLength(sizeTick/tickScaleX);
+	deviation->GetYaxis()->SetTickLength(sizeTick/tickScaleY);
+	deviation->Draw("P");
 
   ///// large code block only for variation plots!!!
 

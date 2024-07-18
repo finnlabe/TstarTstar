@@ -47,9 +47,9 @@ void AdjustBinContent(TH1F* h_pass, TH1F* h_all, TString text);
 // ==================================================================================================
 TString DrawText(TString name, bool draw = true){
   TString textBin = "";
-  if(name.Contains("lowpt")) textBin = "p_{T} < 120 GeV";
-  if(name.Contains("midpt")) textBin = "120 < p_{T} < 200 GeV";
-  if(name.Contains("highpt")) textBin = "200 < p_{T} GeV";
+  if(name.Contains("lowpt")) textBin = "p^{e}_{T} < 120 GeV";
+  if(name.Contains("midpt")) textBin = "120 < p^{e}_{T} < 200 GeV";
+  if(name.Contains("highpt")) textBin = "200 < p^{e}_{T} GeV";
   TLatex latex;
   latex.SetNDC();
   latex.SetTextAngle(0);
@@ -534,25 +534,30 @@ vector<TH1F*> GetSF(TGraphAsymmErrors* h_data, TGraphAsymmErrors* h_mc, TH1F* hi
 // ==================================================================================================
 
 void PlotEfficiency(TGraphAsymmErrors* h_data, TGraphAsymmErrors* h_mc, TString xaxis, TString histname){
-  // if(histname == "effi_pt") cout << h_data->Eval(25) << endl;
-  // if(histname == "effi_pt") cout << h_mc->Eval(25) << endl;
 
   h_data->SetTitle(" ");
   h_data->GetXaxis()->SetTitle(xaxis);
-  h_data->GetYaxis()->SetTitle("efficiency");
-  h_data->GetYaxis()->SetTitleOffset(1.6);
-  h_data->GetXaxis()->SetTitleOffset(1.3);
+  h_data->GetYaxis()->SetTitle("Efficiency");
+  h_data->GetYaxis()->SetTitleSize(0.05);
+  h_data->GetYaxis()->SetLabelSize(0.045);
+  h_data->GetYaxis()->SetTitleOffset(1.3);
+  h_data->GetXaxis()->SetTitleSize(0.05);
+  h_data->GetXaxis()->SetLabelSize(0.045);
+  h_data->GetXaxis()->SetTitleOffset(0.9);
   h_data->GetXaxis()->SetNdivisions(505);
   h_data->GetYaxis()->SetNdivisions(505);
   if(xaxis.Contains("p_{T}")) h_data->GetXaxis()->SetRangeUser(0.0, 1500);
-  h_data->GetYaxis()->SetRangeUser(0.0, 1.1);
+  else h_data->GetXaxis()->SetTitle("#eta^{e}");
+  h_data->GetYaxis()->SetRangeUser(0.0, 1.3);
 
   h_data->SetLineColor(kBlack);
+  h_data->SetLineWidth(2);
   h_data->SetMarkerColor(kBlack);
   h_data->SetMarkerStyle(2);
   h_data->SetMarkerSize(0.2);
 
   h_mc->SetLineColor(kRed);
+  h_mc->SetLineWidth(2);
   h_mc->SetMarkerColor(kRed);
   h_mc->SetMarkerStyle(2);
   h_mc->SetMarkerSize(0.2);
@@ -569,17 +574,18 @@ void PlotEfficiency(TGraphAsymmErrors* h_data, TGraphAsymmErrors* h_mc, TString 
   TCanvas *A = new TCanvas("A", "A", 600, 600);
   gPad->SetLeftMargin(0.15);
   gPad->SetBottomMargin(0.1);
-  h_data->Draw("AP");
-  h_mc->Draw("P SAME");
+  h_data->Draw("APZ");
+  h_mc->Draw("PZ SAME");
 
   TLegend *leg = new TLegend(0.23,0.20,0.56,0.375);
   // leg->SetHeader(textBin);
-  leg->AddEntry(h_data,"data","pl");
-  leg->AddEntry(h_mc,"simulation","pl");
+  leg->AddEntry(h_data,"Data","pl");
+  leg->AddEntry(h_mc,"t#bar{t}","pl");
   leg->Draw("");
 
   // CMS text
-  CMSLabelOffset(0.15, 0.95, 0.12, -0.012, "Private Work");
+  //CMSLabelOffset(0.15, 0.95, 0.12, -0.012, "Private Work");
+  PrivateWorkLabel(0.19, 0.85, "Private work (CMS data/simulation)");
   LumiInfo(lumi_plot, false, 0.9, 0.9475);
 
   TString text = DrawText(histname, false);
@@ -663,11 +669,20 @@ void PlotHist(TH2F* hist, TString xaxis, TString yaxis, TString histname){
 
 void PlotSF(vector<TH1F*> h_SF, TString xaxis, TString histname){
   if(h_SF.size() != 3) cout << "THERE ARE NOT EXACTLY 3 SF hists" << endl;
+
   h_SF[0]->SetTitle(" ");
   h_SF[0]->GetXaxis()->SetTitle(xaxis);
+  if( xaxis == "#eta") h_SF[0]->GetXaxis()->SetTitle("#eta^{e}");
+
   h_SF[0]->GetYaxis()->SetTitle("scale factor");
-  h_SF[0]->GetYaxis()->SetTitleOffset(1.6);
-  h_SF[0]->GetXaxis()->SetTitleOffset(1.3);
+
+  h_SF[0]->GetYaxis()->SetTitleSize(0.05);
+  h_SF[0]->GetYaxis()->SetLabelSize(0.045);
+  h_SF[0]->GetYaxis()->SetTitleOffset(1.3);
+  h_SF[0]->GetXaxis()->SetTitleSize(0.05);
+  h_SF[0]->GetXaxis()->SetLabelSize(0.045);
+  h_SF[0]->GetXaxis()->SetTitleOffset(0.9);
+
   h_SF[0]->GetXaxis()->SetNdivisions(505);
   h_SF[0]->GetYaxis()->SetNdivisions(505);
   h_SF[0]->GetYaxis()->SetRangeUser(0.4, 1.6);
@@ -720,7 +735,8 @@ void PlotSF(vector<TH1F*> h_SF, TString xaxis, TString histname){
   gPad->RedrawAxis();
 
   // CMS text
-  CMSLabelOffset(0.15, 0.95, 0.12, -0.012, "Private Work");
+  PrivateWorkLabel(0.19, 0.85, "Private work (CMS data/simulation)");
+  //CMSLabelOffset(0.15, 0.95, 0.12, -0.012, "Private Work");
   LumiInfo(lumi_plot, false, 0.9, 0.9475);
 
   if(weighttag == "weight_sfpt") A->SaveAs("plots/"+histname+"_"+year+".pdf");

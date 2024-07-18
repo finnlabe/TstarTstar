@@ -205,6 +205,18 @@ void CMSLabelOffset(double x=0.25, double y=0.83, double x1 = 0.0, double y1 = 0
 }
 
 // -------------------------------------------------------------------------------------------
+void PrivateWorkLabel(double x=0.25, double y=0.83, TString extra = ""){
+  TLatex *text3 = new TLatex(3.5, 24, extra);
+  text3->SetNDC();
+  text3->SetTextAlign(13);
+  text3->SetX(x);
+  text3->SetTextFont(52);
+  text3->SetTextSize(0.04);
+  text3->SetY(y);
+  text3->Draw();
+}
+
+// -------------------------------------------------------------------------------------------
 void CMSSimLabel(bool prelim, double x=0.24, double y=0.9){
   TString cmstext = "CMS";
   TLatex *text2 = new TLatex(3.5, 24, cmstext);

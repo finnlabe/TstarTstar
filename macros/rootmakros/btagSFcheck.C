@@ -7,7 +7,7 @@ void btagSFcheck() {
   gStyle->SetPadRightMargin(0.12);
 
   TString year = "UL18";
-  TString channel = "_mu"; // pre-pend a _ for mu and ele!
+  TString channel = ""; // pre-pend a _ for mu and ele!
   TString path = "/nfs/dust/cms/user/flabe/TstarTstar/data/Selection/"+year+"/hadded/";
   TString filename_base = "uhh2.AnalysisModuleRunner.MC.";
 
@@ -57,6 +57,7 @@ void btagSFcheck() {
 
     // label replace
     if(hist_ratio->GetXaxis()->GetTitle() == TString("H_{T}")) hist_ratio->GetXaxis()->SetTitle("H_{T} [GeV]");
+    if(hist_ratio->GetYaxis()->GetTitle() == TString(" N(jet)")) hist_ratio->GetYaxis()->SetTitle("N(small-radius jets)");
 
     // styling
     hist_ratio->GetXaxis()->SetTitleSize(0.05);
@@ -73,12 +74,13 @@ void btagSFcheck() {
     TLatex *text = new TLatex(3.5, 24, year + " " + printsample + " " + printchannel);
     text->SetNDC();
     text->SetTextAlign(13);
-    text->SetX(0.8);
+    text->SetX(0.765);
     text->SetTextFont(42);
     text->SetTextSize(0.045);
     text->SetY(0.956);
     text->Draw();
 
+    /**
     TString cmstext = "CMS";
     TLatex *text2 = new TLatex(3.5, 24, cmstext);
     text2->SetNDC();
@@ -88,12 +90,13 @@ void btagSFcheck() {
     text2->SetTextSize(0.065);
     text2->SetY(0.96);
     text2->Draw();
+    **/
 
-    TString preltext = "Simulation Private Work";
+    TString preltext = "Private Work (CMS Simulation)";
     TLatex *text3 = new TLatex(3.5, 24, preltext);
     text3->SetNDC();
     text3->SetTextAlign(13);
-    text3->SetX(0.29);
+    text3->SetX(0.15);
     text3->SetTextFont(52);
     text3->SetTextSize(0.045);
     text3->SetY(0.946);
@@ -132,7 +135,7 @@ void btagSFcheck() {
       hist_crosscheck_crosscheck->SetLineColor(4);
 
       hist_crosscheck_before->GetXaxis()->SetTitle( hist_crosscheck_before->GetTitle() );
-      hist_crosscheck_before->GetYaxis()->SetTitle("events");
+      hist_crosscheck_before->GetYaxis()->SetTitle("Events");
       hist_crosscheck_before->GetYaxis()->SetTitleSize(0.08);
       hist_crosscheck_before->GetYaxis()->SetLabelSize(0.06);
       hist_crosscheck_before->GetYaxis()->SetTitleOffset(0.9);
@@ -165,6 +168,7 @@ void btagSFcheck() {
       text->SetTextSize(0.055);
       text->Draw();
 
+      /**
       TString cmstext = "CMS";
       TLatex *text2 = new TLatex(3.5, 24, cmstext);
       text2->SetNDC();
@@ -174,12 +178,13 @@ void btagSFcheck() {
       text2->SetTextSize(0.08);
       text2->SetY(0.955);
       text2->Draw();
+      **/
 
-      TString preltext = "Simulation Private Work";
+      TString preltext = "Private Work (CMS simulation)";
       TLatex *text3 = new TLatex(3.5, 24, preltext);
       text3->SetNDC();
       text3->SetTextAlign(13);
-      text3->SetX(0.265);
+      text3->SetX(0.15);
       text3->SetTextFont(52);
       text3->SetTextSize(0.06);
       text3->SetY(0.94);
@@ -201,7 +206,7 @@ void btagSFcheck() {
       hist_crosscheck_after_ratio->GetXaxis()->SetLabelOffset(0.02);
       hist_crosscheck_after_ratio->GetXaxis()->SetTitleOffset(1.1);
 
-      hist_crosscheck_after_ratio->GetYaxis()->SetTitle("residuals");
+      hist_crosscheck_after_ratio->GetYaxis()->SetTitle("After / before");
       hist_crosscheck_after_ratio->GetYaxis()->SetTitleSize(0.15);
       hist_crosscheck_after_ratio->GetYaxis()->SetLabelSize(0.1125);
       hist_crosscheck_after_ratio->GetYaxis()->SetNdivisions(505, kTRUE);

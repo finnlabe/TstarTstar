@@ -34,7 +34,7 @@ void decorrelatedTagger(){
   gStyle->SetPadTopMargin(0.05);
   gStyle->SetPadBottomMargin(0.13);
   gStyle->SetPadLeftMargin(0.18);
-  gStyle->SetPadRightMargin(0.18);
+  gStyle->SetPadRightMargin(0.2);
 
   // recommended color style
   gStyle->SetPalette(112); // viridis
@@ -125,48 +125,53 @@ void decorrelatedTagger(){
   }
 
   // draw plot
-  hist->GetXaxis()->SetTitle("S_{T} [GeV]");
-  hist->GetXaxis()->SetNdivisions(505);
-  hist->GetYaxis()->SetTitle("1 #minus DNN score");
+  gPad->SetTickx(1);
+  gPad->SetTicky(1);
+  
+  TH1* frame = gPad->DrawFrame(500, 0, 4000, 1.3);
+  frame->GetXaxis()->SetTitle("S_{T} [GeV]");
+  frame->GetYaxis()->SetTitle("1 #minus s_{DNN}");
+  frame->GetXaxis()->SetNdivisions(505);
+
   hist->SetTitle("");
-
-  hist->GetXaxis()->SetRangeUser(500, 4000);
-
-  hist->GetZaxis()->SetRangeUser(0.1, 1e4);
-  hist->GetZaxis()->SetTitle("Events");
+  hist->GetZaxis()->SetTitle("Events / bin");
   hist->GetZaxis()->SetTitleOffset(1.15);
+  hist->GetZaxis()->SetRangeUser(0.1, 1e4);
 
-  hist->Draw("colz");
+  hist->Draw("colz same");
 
   // draw Lumi text
   TString infotext = TString::Format("%3.0f fb^{-1} (%d TeV)", 137.6, 13);
   TLatex *text = new TLatex(3.5, 24, infotext);
   text->SetNDC();
   text->SetTextAlign(33);
-  text->SetX(0.87);
+  text->SetX(0.85);
   text->SetTextFont(42);
-  text->SetY(0.987);
+  text->SetY(0.9872);
   text->SetTextSize(0.035);
   text->Draw();
 
+  double CMS_size = 0.06;
+  double ratio = 1.3;
   // draw CMS Work in Progress text
   TString cmstext = "CMS";
   TLatex *text2 = new TLatex(3.5, 24, cmstext);
   text2->SetNDC();
   text2->SetTextAlign(13);
-  text2->SetX(0.185);
+  text2->SetX(0.225);
   text2->SetTextFont(62);
-  text2->SetTextSize(0.05);
-  text2->SetY(0.995);
+  text2->SetTextSize(CMS_size);
+  text2->SetY(0.91);
   text2->Draw();
-  TString preltext = "Simulation Preliminary";
+
+  TString preltext = "Simulation";
   TLatex *text3 = new TLatex(3.5, 24, preltext);
   text3->SetNDC();
   text3->SetTextAlign(13);
-  text3->SetX(0.29);
+  text3->SetX(0.225);
   text3->SetTextFont(52);
-  text3->SetTextSize(0.035);
-  text3->SetY(0.985);
+  text3->SetTextSize(CMS_size / ratio);
+  text3->SetY(0.85);
   text3->Draw();
 
   TGraph* edgePoints = new TGraphAsymmErrors(cutedgesX.size(),&cutedgesX[0],&cutedgesY[0], 0, 0, &errors[0], &errors[0]);
@@ -202,6 +207,19 @@ void decorrelatedTagger(){
   otherfunc->SetLineColor(kBlue);
   otherfunc->Draw("L same");
   **/
+
+  // add legend
+  auto legend = new TLegend(0.52, 0.71, 0.77, 0.81);
+  gStyle->SetLegendTextSize(0.045);
+  TString fitlabelnumber = TString::Format("%.0f", efficiency_ttbar * 100);
+  legend->AddEntry(fitMean, "f(S_{T}, "+fitlabelnumber+"%)", "l");
+
+  legend->SetFillStyle(0);
+  legend->SetBorderSize(0);
+  legend->Draw();
+
+  gPad->RedrawAxis();
+
   c1_hist->SaveAs("plots/variableCuts_"+filename+"_"+subpath+"_"+histname+"_"+effic_string+".pdf");
 
   // saving fit function to output file

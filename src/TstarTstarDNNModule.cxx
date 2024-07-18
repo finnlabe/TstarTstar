@@ -955,6 +955,17 @@ bool TstarTstarDNNModule::process(Event & event) {
         h_SignalRegion_ele->fill(event);        
       }
       if (is_datadriven_BG_run) event.weight = weight_for_resetting; // resetting the weight
+
+      // outputting event information for eventdisplay
+      // idea is to do this for muon events in the SR with high S_T
+      if(
+          (event.get(h_flag_muonevent) && !is_MC && event.get(h_ST_HOTVR) > 3500) ||
+          (event.get(h_flag_muonevent) && !is_MC && event.get(h_ST_HOTVR) > 2000 && event.get(h_DNN_output) > 0.9) 
+        ) {
+        // creating output here
+        std::cout << event.run << ":" << event.luminosityBlock << ":" << event.event << std::endl;
+      }
+
     }
     if(fillVR) {
       if (is_datadriven_BG_run) {
